@@ -1,6 +1,32 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" aria-hidden="true">
-  <rect width="48" height="48" rx="10" fill="#003A66"/>
-  <path d="M10 30L24 12L38 30H10Z" fill="#F39200"/>
-  <path d="M16 30L24 20L32 30H16Z" fill="#FFFFFF"/>
-  <rect x="21" y="30" width="6" height="6" fill="#1A8FC7"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Realiza Consultoria — Correspondente Caixa">
+  <defs>
+    <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7AC143"/>
+      <stop offset="45%" stop-color="#005CA9"/>
+      <stop offset="100%" stop-color="#003A66"/>
+    </linearGradient>
+    <clipPath id="circle">
+      <circle cx="100" cy="100" r="96"/>
+    </clipPath>
+  </defs>
+  <circle cx="100" cy="100" r="99" fill="url(#ring)"/>
+  <g clip-path="url(#circle)">
+    <rect x="0" y="0" width="200" height="100" fill="#ffffff"/>
+    <rect x="0" y="100" width="200" height="100" fill="#003A66"/>
+    <!-- CAIXA wordmark -->
+    <text x="100" y="48" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="900" fill="#003A66" letter-spacing="-1">CAIXA</text>
+    <!-- orange accent on X (approximate overlay) -->
+    <path d="M118 30 L128 48" stroke="#F39200" stroke-width="4.5" stroke-linecap="round"/>
+    <text x="100" y="72" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="800" fill="#003A66">aqui</text>
+    <text x="100" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="7.5" font-weight="700" fill="#003A66" letter-spacing="1.2">CORRESPONDENTE CAIXA</text>
+    <!-- green triangle -->
+    <polygon points="4,100 18,92 18,108" fill="#7AC143"/>
+    <!-- R mark -->
+    <rect x="28" y="118" width="28" height="28" rx="2" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <path d="M35 140 V124 H44 Q52 124 52 131 Q52 136 47 137 L54 140" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
+    <!-- REALIZA -->
+    <text x="118" y="134" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-size="16" font-weight="900" fill="#ffffff" letter-spacing="0.5">REALIZA</text>
+    <text x="118" y="148" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="7.5" font-weight="600" fill="#ffffff" letter-spacing="2.5">CONSULTORIA</text>
+    <text x="100" y="178" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="6.5" font-weight="600" fill="#ffffff" letter-spacing="1.5">CORRESPONDENTE AUTORIZADO</text>
+  </g>
 </svg>

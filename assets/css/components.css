@@ -56,9 +56,27 @@
 }
 
 .brand__mark {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 3.25rem;
+  height: 3.25rem;
   flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 10px rgba(0, 40, 71, 0.18);
+}
+
+.brand--logo-only .brand__text {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .brand__mark {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .brand--logo-only .brand__text {
+    display: flex;
+  }
 }
 
 .brand__text {
