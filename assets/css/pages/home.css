@@ -47,6 +47,7 @@
   letter-spacing: -0.035em;
   line-height: 0.95;
   margin-bottom: var(--space-lg);
+  color: #fff;
   animation: fadeUp 0.9s var(--ease-out) both;
 }
 
@@ -79,22 +80,9 @@
   position: absolute;
   left: 50%;
   bottom: 1.5rem;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.65);
-  animation: fadeUp 1s 0.5s var(--ease-out) both;
-}
-
-.hero__scroll-line {
   width: 1px;
-  height: 2.5rem;
-  background: linear-gradient(transparent, rgba(255, 255, 255, 0.7));
+  height: 2.75rem;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.75));
   animation: scrollLine 1.8s ease-in-out infinite;
 }
 
@@ -110,12 +98,12 @@
 @keyframes scrollLine {
   0%,
   100% {
-    transform: scaleY(0.4);
+    transform: translateX(-50%) scaleY(0.4);
     transform-origin: top;
     opacity: 0.4;
   }
   50% {
-    transform: scaleY(1);
+    transform: translateX(-50%) scaleY(1);
     transform-origin: top;
     opacity: 1;
   }
