@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Horizonte Correspondente Caixa — FGTS, consignado, habitação e atendimento bancário próximo de você."
+    />
+    <title>Horizonte Correspondente Caixa</title>
+    <link rel="icon" href="assets/icons/logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/main.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+
+    <header class="site-header" data-header>
+      <div class="site-header__inner">
+        <a class="brand" href="index.html" aria-label="Horizonte Correspondente — página inicial">
+          <img class="brand__mark" src="assets/icons/logo.svg" alt="" width="40" height="40" />
+          <span class="brand__text">
+            <span class="brand__name">Horizonte</span>
+            <span class="brand__tag">Correspondente Caixa</span>
+          </span>
+        </a>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          data-nav-toggle
+          aria-expanded="false"
+          aria-controls="menu-principal"
+          aria-label="Abrir menu"
+        >
+          <span class="nav-toggle__bar"></span>
+        </button>
+
+        <nav class="nav" id="menu-principal" data-nav aria-label="Principal">
+          <ul class="nav__list">
+            <li><a class="nav__link" href="index.html" aria-current="page">Início</a></li>
+            <li><a class="nav__link" href="pages/servicos.html">Serviços</a></li>
+            <li><a class="nav__link" href="pages/quem-somos.html">Quem somos</a></li>
+            <li><a class="nav__link" href="pages/contato.html">Contato</a></li>
+          </ul>
+          <div class="nav__actions">
+            <a class="btn btn--primary" href="pages/contato.html">Falar agora</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="conteudo">
+      <section class="hero" aria-label="Apresentação">
+        <div class="hero__media">
+          <img
+            src="https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1920&q=80"
+            alt="Atendimento presencial em ambiente acolhedor"
+            width="1920"
+            height="1080"
+            fetchpriority="high"
+          />
+        </div>
+        <div class="hero__scrim" aria-hidden="true"></div>
+        <div class="hero__content">
+          <h1 class="hero__brand">
+            <span>Correspondente Caixa</span>
+            Horizonte
+          </h1>
+          <p class="hero__lead">
+            Crédito, FGTS e habitação com atendimento humano — perto de você, com a confiança da Caixa.
+          </p>
+          <div class="hero__cta">
+            <a class="btn btn--primary" href="pages/contato.html">Quero ser atendido</a>
+            <a class="btn btn--ghost-light" href="pages/servicos.html">Ver serviços</a>
+          </div>
+        </div>
+        <div class="hero__scroll" aria-hidden="true">
+          <span>Role</span>
+          <span class="hero__scroll-line"></span>
+        </div>
+      </section>
+
+      <section class="trust" aria-label="Diferenciais">
+        <div class="container">
+          <ul class="trust__list">
+            <li class="trust__item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Correspondente autorizado
+            </li>
+            <li class="trust__item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              Atendimento ágil
+            </li>
+            <li class="trust__item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Orientação personalizada
+            </li>
+            <li class="trust__item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Processos seguros
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="servicos">
+        <div class="container">
+          <div class="section__head reveal">
+            <p class="section__eyebrow">Serviços</p>
+            <h2>Tudo o que você precisa, em um só lugar</h2>
+            <p>
+              Do saque do FGTS ao financiamento da casa própria — resolvemos com clareza e sem burocracia desnecessária.
+            </p>
+          </div>
+
+          <div class="service-grid">
+            <a class="service-link reveal" href="pages/fgts.html">
+              <img class="service-link__icon" src="assets/icons/fgts.svg" alt="" width="44" height="44" />
+              <span>
+                <span class="service-link__title">FGTS</span>
+                <span class="service-link__desc">Saque-aniversário, antecipação e consulta do seu saldo com orientação completa.</span>
+              </span>
+              <img class="service-link__arrow" src="assets/icons/arrow.svg" alt="" width="20" height="20" />
+            </a>
+
+            <a class="service-link reveal reveal-delay-1" href="pages/consignado.html">
+              <img class="service-link__icon" src="assets/icons/consignado.svg" alt="" width="44" height="44" />
+              <span>
+                <span class="service-link__title">Crédito consignado</span>
+                <span class="service-link__desc">Para aposentados, pensionistas e servidores — simulação transparente.</span>
+              </span>
+              <img class="service-link__arrow" src="assets/icons/arrow.svg" alt="" width="20" height="20" />
+            </a>
+
+            <a class="service-link reveal reveal-delay-2" href="pages/habitacao.html">
+              <img class="service-link__icon" src="assets/icons/habitacao.svg" alt="" width="44" height="44" />
+              <span>
+                <span class="service-link__title">Habitação</span>
+                <span class="service-link__desc">Financiamento imobiliário e programas habitacionais com acompanhamento de ponta a ponta.</span>
+              </span>
+              <img class="service-link__arrow" src="assets/icons/arrow.svg" alt="" width="20" height="20" />
+            </a>
+
+            <a class="service-link reveal" href="pages/servicos.html#conta">
+              <img class="service-link__icon" src="assets/icons/conta.svg" alt="" width="44" height="44" />
+              <span>
+                <span class="service-link__title">Conta e cartões</span>
+                <span class="service-link__desc">Abertura de conta Caixa e orientação sobre produtos do banco.</span>
+              </span>
+              <img class="service-link__arrow" src="assets/icons/arrow.svg" alt="" width="20" height="20" />
+            </a>
+
+            <a class="service-link reveal reveal-delay-1" href="pages/servicos.html#pagamentos">
+              <img class="service-link__icon" src="assets/icons/pagamentos.svg" alt="" width="44" height="44" />
+              <span>
+                <span class="service-link__title">Pagamentos</span>
+                <span class="service-link__desc">Boletos, convênios e serviços do dia a dia com praticidade.</span>
+              </span>
+              <img class="service-link__arrow" src="assets/icons/arrow.svg" alt="" width="20" height="20" />
+            </a>
+
+            <a class="service-link reveal reveal-delay-2" href="pages/contato.html">
+              <img class="service-link__icon" src="assets/icons/check.svg" alt="" width="44" height="44" />
+              <span>
+                <span class="service-link__title">Atendimento sob medida</span>
+                <span class="service-link__desc">Não encontrou o que precisa? Fale conosco — avaliamos o melhor caminho.</span>
+              </span>
+              <img class="service-link__arrow" src="assets/icons/arrow.svg" alt="" width="20" height="20" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="container">
+          <div class="split">
+            <div class="split__visual reveal">
+              <img
+                src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&w=1200&q=80"
+                alt="Chaves de casa sobre documentos de financiamento"
+                width="1200"
+                height="800"
+                loading="lazy"
+              />
+            </div>
+            <div class="split__body reveal reveal-delay-1">
+              <p class="section__eyebrow">Por que a Horizonte</p>
+              <h2>Atendimento de correspondente com cara de gente</h2>
+              <p>
+                Explicamos cada etapa, simulamos com calma e só avançamos quando você entende o que está contratando.
+              </p>
+              <ul class="split__checklist">
+                <li>
+                  <img src="assets/icons/check.svg" alt="" width="20" height="20" />
+                  Análise de perfil antes de indicar qualquer produto
+                </li>
+                <li>
+                  <img src="assets/icons/check.svg" alt="" width="20" height="20" />
+                  Documentação organizada para agilizar a aprovação
+                </li>
+                <li>
+                  <img src="assets/icons/check.svg" alt="" width="20" height="20" />
+                  Acompanhamento até a liberação do crédito ou chave
+                </li>
+              </ul>
+              <a class="btn btn--secondary" href="pages/quem-somos.html">Conhecer a equipe</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container">
+          <div class="section__head reveal">
+            <p class="section__eyebrow">Como funciona</p>
+            <h2>Três passos simples</h2>
+            <p>Do primeiro contato à solução — sem surpresas no caminho.</p>
+          </div>
+          <ol class="steps">
+            <li class="step reveal">
+              <h3>Conversa inicial</h3>
+              <p>Você conta o objetivo: FGTS, consignado, casa ou outro serviço. A gente escuta e orienta.</p>
+            </li>
+            <li class="step reveal reveal-delay-1">
+              <h3>Simulação clara</h3>
+              <p>Apresentamos opções, prazos e valores de forma transparente para você decidir com segurança.</p>
+            </li>
+            <li class="step reveal reveal-delay-2">
+              <h3>Formalização</h3>
+              <p>Organizamos a documentação e acompanhamos o processo junto à Caixa até a conclusão.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="container">
+          <div class="cta-band reveal">
+            <div class="cta-band__inner">
+              <h2>Pronto para dar o próximo passo?</h2>
+              <p>
+                Fale com a Horizonte no WhatsApp ou venha até o ponto de atendimento. Estamos prontos para te receber.
+              </p>
+              <div class="cta-band__actions">
+                <a
+                  class="btn btn--whatsapp"
+                  href="https://wa.me/5511999999999?text=Ol%C3%A1!%20Gostaria%20de%20atendimento%20da%20Horizonte%20Correspondente."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img class="btn__icon" src="assets/icons/whatsapp.svg" alt="" width="18" height="18" />
+                  WhatsApp
+                </a>
+                <a class="btn btn--ghost-light" href="pages/contato.html">Ver endereço e horários</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer__grid">
+          <div class="footer__brand">
+            <a class="brand" href="index.html">
+              <img class="brand__mark" src="assets/icons/logo.svg" alt="" width="40" height="40" />
+              <span class="brand__text">
+                <span class="brand__name">Horizonte</span>
+                <span class="brand__tag">Correspondente Caixa</span>
+              </span>
+            </a>
+            <p class="footer__about">
+              Correspondente bancário autorizado da Caixa Econômica Federal. Atendimento próximo, seguro e transparente.
+            </p>
+          </div>
+          <div>
+            <h2 class="footer__title">Navegação</h2>
+            <ul class="footer__list">
+              <li><a href="index.html">Início</a></li>
+              <li><a href="pages/servicos.html">Serviços</a></li>
+              <li><a href="pages/quem-somos.html">Quem somos</a></li>
+              <li><a href="pages/contato.html">Contato</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="footer__title">Serviços</h2>
+            <ul class="footer__list">
+              <li><a href="pages/fgts.html">FGTS</a></li>
+              <li><a href="pages/consignado.html">Consignado</a></li>
+              <li><a href="pages/habitacao.html">Habitação</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2 class="footer__title">Contato</h2>
+            <ul class="footer__list">
+              <li><a href="tel:+551133334444">(11) 3333-4444</a></li>
+              <li><a href="mailto:contato@horizontecorrespondente.com.br">contato@horizontecorrespondente.com.br</a></li>
+              <li>Rua Exemplo, 100 — Centro</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer__bottom">
+          <p>© <span data-year></span> Horizonte Correspondente. Todos os direitos reservados.</p>
+          <p class="footer__disclaimer">
+            Correspondente Caixa — marca e produtos da Caixa Econômica Federal. Este site é de um correspondente autorizado e não substitui os canais oficiais da Caixa.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <a
+      class="whatsapp-float"
+      href="https://wa.me/5511999999999?text=Ol%C3%A1!%20Gostaria%20de%20atendimento%20da%20Horizonte%20Correspondente."
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Falar no WhatsApp"
+    >
+      <img src="assets/icons/whatsapp.svg" alt="" width="26" height="26" />
+    </a>
+
+    <script type="module" src="assets/js/main.js"></script>
+    <script>
+      document.querySelectorAll("[data-year]").forEach((el) => {
+        el.textContent = new Date().getFullYear();
+      });
+    </script>
+  </body>
+</html>
