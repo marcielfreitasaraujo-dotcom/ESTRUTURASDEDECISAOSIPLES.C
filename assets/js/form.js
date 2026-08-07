@@ -27,7 +27,7 @@ export function initContactForm() {
       .filter(Boolean)
       .join(" ");
 
-    const whatsapp = form.dataset.whatsapp || "5511999999999";
+    const whatsapp = form.dataset.whatsapp || "5599984681048";
     const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(texto)}`;
 
     if (success) {

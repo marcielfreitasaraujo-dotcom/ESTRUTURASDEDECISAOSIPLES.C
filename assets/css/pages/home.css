@@ -376,11 +376,78 @@
   margin-bottom: 0.25rem;
 }
 
+/* Reviews */
+.reviews {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+}
+
+@media (max-width: 900px) {
+  .reviews {
+    grid-template-columns: 1fr;
+  }
+}
+
+.review {
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-top: 2px solid var(--color-orange-500);
+  padding-top: var(--space-lg);
+}
+
+.review__stars {
+  color: var(--color-orange-500);
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-sm);
+  font-size: 0.95rem;
+}
+
+.review p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--color-ink-soft);
+  margin-bottom: var(--space-md);
+}
+
+.review__author {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-navy-900);
+}
+
+.review__score-value {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-navy-900);
+  margin-bottom: var(--space-sm);
+}
+
 /* Map placeholder */
 .map-embed {
   border-radius: var(--radius-lg);
   overflow: hidden;
   min-height: 16rem;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.map-embed iframe {
+  width: 100%;
+  height: 16rem;
+  border: 0;
+  display: block;
+}
+
+.map-embed--fallback {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: var(--space-xl);
   background:
     linear-gradient(135deg, rgba(0, 119, 182, 0.12), rgba(243, 146, 0, 0.1)),
     repeating-linear-gradient(
@@ -390,20 +457,16 @@
       rgba(0, 58, 102, 0.03) 10px,
       rgba(0, 58, 102, 0.03) 11px
     );
-  display: grid;
-  place-items: center;
-  text-align: center;
-  padding: var(--space-xl);
-  border: 1px solid var(--color-line);
 }
 
-.map-embed p {
-  max-width: 18rem;
+.map-embed--fallback p {
+  max-width: 22rem;
 }
 
-.map-embed strong {
+.map-embed--fallback strong {
   display: block;
   font-family: var(--font-display);
   font-size: 1.25rem;
   margin-bottom: var(--space-xs);
+  color: var(--color-navy-900);
 }

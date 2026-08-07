@@ -1,5 +1,5 @@
 /**
- * Horizonte Correspondente — scripts principais
+ * Realiza Consultoria Caixa — scripts principais
  */
 import { initNav } from "./nav.js";
 import { initReveal } from "./animations.js";

@@ -1,6 +1,16 @@
-# Horizonte Correspondente Caixa
+# Realiza Consultoria Caixa
 
-Site institucional para correspondente bancário autorizado da Caixa Econômica Federal.
+Site institucional da **Realiza Consultoria Caixa** — consultoria financeira / correspondente Caixa em Estreito — MA.
+
+## Dados do negócio
+
+| Item | Valor |
+|------|--------|
+| Nome | Realiza Consultoria Caixa |
+| Endereço | R. Graça Aranha, n° 1567 — Centro, Estreito — MA, 65975-000 |
+| Telefone / WhatsApp | (99) 98468-1048 |
+| Avaliação Google | 5,0 (3 críticas) |
+| Plus code | CHQ5+Q4 |
 
 ## Estrutura de pastas
 
@@ -15,34 +25,17 @@ Site institucional para correspondente bancário autorizado da Caixa Econômica 
 │   ├── quem-somos.html
 │   └── contato.html
 ├── assets/
-│   ├── css/                   # Estilos (variáveis, base, componentes, páginas)
-│   ├── js/                    # Scripts (nav, animações, formulário)
-│   ├── icons/                 # Ícones SVG
-│   └── img/                   # Imagens locais (opcional)
-└── components/                # Espaço para trechos reutilizáveis futuros
+│   ├── css/
+│   ├── js/
+│   ├── icons/
+│   └── img/
+└── README.md
 ```
 
 ## Como visualizar
-
-Na raiz do projeto:
 
 ```bash
 python3 -m http.server 8080
 ```
 
 Abra `http://localhost:8080`.
-
-## Personalização rápida
-
-Substitua os dados de exemplo do cliente:
-
-| Item | Onde alterar |
-|------|----------------|
-| Nome da marca | Textos `Horizonte` nos HTML + `assets/icons/logo.svg` |
-| WhatsApp | Links `wa.me/5511999999999` e `data-whatsapp` no formulário |
-| Telefone / e-mail / endereço | Rodapé e `pages/contato.html` |
-| Mapa | Bloco `.map-embed` em `pages/contato.html` |
-
-## Observação legal
-
-Este site representa um **correspondente autorizado**, não a Caixa Econômica Federal. Mantenha o aviso no rodapé e use apenas a marca do correspondente de forma adequada às regras de comunicação da Caixa.
