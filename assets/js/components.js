@@ -143,4 +143,17 @@ export function mountShell() {
   if (footerHost) {
     footerHost.outerHTML = renderFooter({ base });
   }
+
+  // Fallback do menu (garante funcionamento mesmo se o módulo nav falhar)
+  const header = document.querySelector("[data-header]");
+  const toggle = header?.querySelector("[data-nav-toggle]");
+  if (header && toggle && !toggle.dataset.bound) {
+    toggle.dataset.bound = "1";
+    toggle.addEventListener("click", (event) => {
+      event.preventDefault();
+      const open = header.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(open));
+      document.body.style.overflow = open ? "hidden" : "";
+    });
+  }
 }
