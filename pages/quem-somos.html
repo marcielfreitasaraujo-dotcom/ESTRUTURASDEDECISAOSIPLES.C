@@ -3,47 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Conheça a Realiza Consultoria Caixa em Estreito-MA — consultor Eduardo, avaliação 5,0 no Google." />
-    <title>Quem somos | Realiza Consultoria Caixa</title>
+    <title>Sobre | Realiza Consultoria Caixa — Estreito MA</title>
+    <meta name="description" content="Conheça a Realiza Consultoria Caixa em Estreito-MA. Atendimento com o consultor Eduardo. Avaliação 5,0 no Google." />
+    <meta property="og:title" content="Sobre | Realiza Consultoria Caixa" />
+    <meta property="og:description" content="Consultoria próxima e humana em Estreito — MA." />
     <link rel="icon" href="../assets/img/logo-realiza.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/main.css" />
   </head>
-  <body>
+  <body data-page="sobre" data-base="pages" data-header="solid">
     <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
-    <header class="site-header site-header--solid" data-header>
-      <div class="site-header__inner">
-        <a class="brand" href="../index.html">
-          <img class="brand__mark" src="../assets/img/logo-realiza.png" alt="Realiza Consultoria Caixa" width="56" height="56" />
-          <span class="brand__text">
-            <span class="brand__name">Realiza</span>
-            <span class="brand__tag">Consultoria Caixa</span>
-          </span>
-        </a>
-        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="menu-principal" aria-label="Abrir menu">
-          <span class="nav-toggle__bar"></span>
-        </button>
-        <nav class="nav" id="menu-principal" data-nav aria-label="Principal">
-          <ul class="nav__list">
-            <li><a class="nav__link" href="../index.html">Início</a></li>
-            <li><a class="nav__link" href="servicos.html">Serviços</a></li>
-            <li><a class="nav__link" href="quem-somos.html" aria-current="page">Quem somos</a></li>
-            <li><a class="nav__link" href="contato.html">Contato</a></li>
-          </ul>
-          <div class="nav__actions"><a class="btn btn--primary" href="contato.html">Falar agora</a></div>
-        </nav>
-      </div>
-    </header>
+    <div data-site-header></div>
 
     <main id="conteudo">
       <section class="page-hero">
         <div class="container page-hero__inner reveal">
-          <p class="section__eyebrow">Quem somos</p>
+          <p class="section__eyebrow">Sobre</p>
           <h1>Realiza Consultoria Caixa</h1>
           <p>
-            Consultoria financeira em Estreito — MA, com foco em financiamento habitacional e produtos Caixa. Avaliação 5,0 no Google Maps.
+            Consultoria financeira em Estreito — MA, com foco em orientação habitacional e produtos Caixa. Avaliação 5,0 no Google Maps.
           </p>
         </div>
       </section>
@@ -52,117 +32,58 @@
         <div class="container">
           <div class="split">
             <div class="split__visual reveal">
-              <img
-                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1200&q=80"
-                alt="Equipe em reunião de atendimento"
-                width="1200"
-                height="800"
-                loading="lazy"
-              />
+              <div class="photo-slot photo-slot--wide" data-photo="eduardo-equipe">
+                <div class="photo-slot__placeholder" style="background:linear-gradient(145deg,#e8f2fa,#f5f8fb);color:var(--color-navy-900)">
+                  <strong style="color:var(--color-navy-900)">Foto do consultor Eduardo / equipe</strong>
+                  <span style="color:var(--color-ink-soft)">Adicione aqui a foto real da Realiza</span>
+                </div>
+              </div>
             </div>
             <div class="split__body reveal reveal-delay-1">
               <p class="section__eyebrow">Nosso atendimento</p>
-              <h2>Consultor Eduardo — nota 10</h2>
-              <p>
+              <h2>Consultor Eduardo — atendimento nota 10</h2>
+              <p style="margin-top:1rem;font-size:1.1rem">
                 Clientes destacam paciência, clareza e competência em todas as etapas do financiamento. Nosso compromisso é tornar o processo mais simples e seguro.
               </p>
-              <ul class="split__checklist">
-                <li><img src="../assets/icons/check.svg" alt="" width="20" height="20" />Auxílio completo no financiamento imobiliário</li>
-                <li><img src="../assets/icons/check.svg" alt="" width="20" height="20" />Linguagem simples, sem jargão desnecessário</li>
-                <li><img src="../assets/icons/check.svg" alt="" width="20" height="20" />Ponto de atendimento no Centro de Estreito</li>
+              <ul class="checklist">
+                <li><span class="checklist__mark">✓</span> Atendimento próximo em Estreito</li>
+                <li><span class="checklist__mark">✓</span> Linguagem simples</li>
+                <li><span class="checklist__mark">✓</span> Acompanhamento do início ao fim</li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="section">
+      <section class="section section--alt">
         <div class="container">
           <div class="section__head reveal">
             <p class="section__eyebrow">Valores</p>
             <h2>O que guia o nosso dia a dia</h2>
           </div>
-          <ol class="steps">
-            <li class="step reveal">
-              <h3>Clareza</h3>
-              <p>Você sai da conversa sabendo valores, prazos e próximos passos.</p>
-            </li>
-            <li class="step reveal reveal-delay-1">
-              <h3>Proximidade</h3>
-              <p>Atendimento humano — presencial ou WhatsApp — com resposta rápida.</p>
-            </li>
-            <li class="step reveal reveal-delay-2">
-              <h3>Segurança</h3>
-              <p>Acompanhamos cada etapa para que o processo seja simples e seguro.</p>
-            </li>
+          <ol class="timeline timeline--3">
+            <li class="timeline__item reveal"><div class="timeline__num">01</div><h3>Clareza</h3><p>Você sai da conversa sabendo os próximos passos.</p></li>
+            <li class="timeline__item reveal reveal-delay-1"><div class="timeline__num">02</div><h3>Proximidade</h3><p>Atendimento humano — presencial ou WhatsApp.</p></li>
+            <li class="timeline__item reveal reveal-delay-2"><div class="timeline__num">03</div><h3>Segurança</h3><p>Processo acompanhado com responsabilidade.</p></li>
           </ol>
         </div>
       </section>
 
       <section class="section section--tight">
         <div class="container">
-          <div class="cta-band reveal">
-            <div class="cta-band__inner">
-              <h2>Vamos conversar?</h2>
-              <p>R. Graça Aranha, 1567 — Centro, Estreito — MA. WhatsApp (99) 98468-1048.</p>
-              <div class="cta-band__actions">
-                <a class="btn btn--whatsapp" href="https://wa.me/5599984681048" target="_blank" rel="noopener noreferrer">
-                  <img class="btn__icon" src="../assets/icons/whatsapp.svg" alt="" width="18" height="18" />
-                  WhatsApp
-                </a>
-                <a class="btn btn--ghost-light" href="contato.html">Ver localização</a>
-              </div>
+          <div class="cta-final reveal">
+            <h2>Vamos conversar?</h2>
+            <p>R. Graça Aranha, 1567 — Centro, Estreito — MA. WhatsApp (99) 98468-1048.</p>
+            <div class="cta-final__actions">
+              <a class="btn btn--whatsapp btn--lg" href="https://wa.me/5599984681048?text=Ol%C3%A1!%20Gostaria%20de%20atendimento%20da%20Realiza%20Consultoria%20Caixa." target="_blank" rel="noopener noreferrer">Falar no WhatsApp</a>
+              <a class="btn btn--ghost-light btn--lg" href="contato.html">Ver localização</a>
             </div>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container">
-        <div class="footer__grid">
-          <div class="footer__brand">
-            <a class="brand" href="../index.html">
-              <img class="brand__mark" src="../assets/img/logo-realiza.png" alt="Realiza Consultoria Caixa" width="56" height="56" />
-              <span class="brand__text"><span class="brand__name">Realiza</span><span class="brand__tag">Consultoria Caixa</span></span>
-            </a>
-            <p class="footer__about">Consultoria financeira Caixa em Estreito — MA.</p>
-          </div>
-          <div>
-            <h2 class="footer__title">Navegação</h2>
-            <ul class="footer__list">
-              <li><a href="../index.html">Início</a></li>
-              <li><a href="servicos.html">Serviços</a></li>
-              <li><a href="quem-somos.html">Quem somos</a></li>
-              <li><a href="contato.html">Contato</a></li>
-            </ul>
-          </div>
-          <div>
-            <h2 class="footer__title">Serviços</h2>
-            <ul class="footer__list">
-              <li><a href="habitacao.html">Habitação</a></li>
-              <li><a href="fgts.html">FGTS</a></li>
-              <li><a href="consignado.html">Consignado</a></li>
-            </ul>
-          </div>
-          <div>
-            <h2 class="footer__title">Contato</h2>
-            <ul class="footer__list">
-              <li><a href="tel:+5599984681048">(99) 98468-1048</a></li>
-              <li>R. Graça Aranha, 1567 — Centro</li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer__bottom">
-          <p>© <span data-year></span> Realiza Consultoria Caixa.</p>
-          <p class="footer__disclaimer">Marca e produtos da Caixa Econômica Federal. Site de consultoria / correspondente.</p>
-        </div>
-      </div>
-    </footer>
-    <a class="whatsapp-float" href="https://wa.me/5599984681048" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
-      <img src="../assets/icons/whatsapp.svg" alt="" width="26" height="26" />
-    </a>
+    <div data-site-footer></div>
     <script type="module" src="../assets/js/main.js"></script>
-    <script>document.querySelectorAll("[data-year]").forEach((el) => { el.textContent = new Date().getFullYear(); });</script>
   </body>
 </html>

@@ -3,79 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Serviços da Realiza Consultoria Caixa: FGTS, consignado, habitação, conta e pagamentos." />
-    <title>Serviços | Realiza Consultoria Caixa</title>
+    <title>Serviços | Realiza Consultoria Caixa — Estreito MA</title>
+    <meta name="description" content="Serviços da Realiza Consultoria Caixa em Estreito-MA: habitação, FGTS, consignado, conta e consultoria financeira." />
+    <meta property="og:title" content="Serviços | Realiza Consultoria Caixa" />
+    <meta property="og:description" content="Orientação em habitação, FGTS, consignado e produtos Caixa em Estreito — MA." />
     <link rel="icon" href="../assets/img/logo-realiza.png" type="image/png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../assets/css/main.css" />
   </head>
-  <body>
+  <body data-page="servicos" data-base="pages" data-header="solid">
     <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
-
-    <header class="site-header site-header--solid" data-header>
-      <div class="site-header__inner">
-        <a class="brand" href="../index.html">
-          <img class="brand__mark" src="../assets/img/logo-realiza.png" alt="Realiza Consultoria Caixa" width="56" height="56" />
-          <span class="brand__text">
-            <span class="brand__name">Realiza</span>
-            <span class="brand__tag">Consultoria Caixa</span>
-          </span>
-        </a>
-        <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="menu-principal" aria-label="Abrir menu">
-          <span class="nav-toggle__bar"></span>
-        </button>
-        <nav class="nav" id="menu-principal" data-nav aria-label="Principal">
-          <ul class="nav__list">
-            <li><a class="nav__link" href="../index.html">Início</a></li>
-            <li><a class="nav__link" href="servicos.html" aria-current="page">Serviços</a></li>
-            <li><a class="nav__link" href="quem-somos.html">Quem somos</a></li>
-            <li><a class="nav__link" href="contato.html">Contato</a></li>
-          </ul>
-          <div class="nav__actions">
-            <a class="btn btn--primary" href="contato.html">Falar agora</a>
-          </div>
-        </nav>
-      </div>
-    </header>
+    <div data-site-header></div>
 
     <main id="conteudo">
       <section class="page-hero">
         <div class="container page-hero__inner reveal">
           <p class="section__eyebrow">Serviços</p>
-          <h1>Soluções bancárias com atendimento próximo</h1>
-          <p>Escolha o serviço e fale com a gente — simulamos, orientamos e acompanhamos cada etapa.</p>
+          <h1>Soluções para diferentes momentos da sua vida</h1>
+          <p>Encontre orientação para escolher o caminho mais adequado às suas necessidades.</p>
         </div>
       </section>
 
       <section class="section section--tight">
         <div class="container">
-          <div class="service-grid">
-            <a class="service-link reveal" href="fgts.html">
-              <img class="service-link__icon" src="../assets/icons/fgts.svg" alt="" width="44" height="44" />
-              <span>
-                <span class="service-link__title">FGTS</span>
-                <span class="service-link__desc">Saque-aniversário, antecipação e consulta de saldo.</span>
-              </span>
-              <img class="service-link__arrow" src="../assets/icons/arrow.svg" alt="" width="20" height="20" />
-            </a>
-            <a class="service-link reveal reveal-delay-1" href="consignado.html">
-              <img class="service-link__icon" src="../assets/icons/consignado.svg" alt="" width="44" height="44" />
-              <span>
-                <span class="service-link__title">Crédito consignado</span>
-                <span class="service-link__desc">INSS, servidores e margem consignável.</span>
-              </span>
-              <img class="service-link__arrow" src="../assets/icons/arrow.svg" alt="" width="20" height="20" />
-            </a>
-            <a class="service-link reveal reveal-delay-2" href="habitacao.html">
-              <img class="service-link__icon" src="../assets/icons/habitacao.svg" alt="" width="44" height="44" />
-              <span>
-                <span class="service-link__title">Habitação</span>
-                <span class="service-link__desc">Financiamento e programas habitacionais da Caixa.</span>
-              </span>
-              <img class="service-link__arrow" src="../assets/icons/arrow.svg" alt="" width="20" height="20" />
-            </a>
+          <div class="service-cards">
+            <article class="service-card reveal">
+              <img class="service-card__icon" src="../assets/icons/habitacao.svg" alt="" width="48" height="48" />
+              <h3 class="service-card__title">Habitação</h3>
+              <p class="service-card__desc">Orientação para quem deseja conquistar a casa própria.</p>
+              <div class="service-card__actions">
+                <a class="service-card__more" href="habitacao.html">Saiba mais</a>
+                <a class="service-card__wa" href="https://wa.me/5599984681048?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20financiamento%20habitacional." target="_blank" rel="noopener noreferrer">Tenho interesse</a>
+              </div>
+            </article>
+            <article class="service-card reveal reveal-delay-1">
+              <img class="service-card__icon" src="../assets/icons/fgts.svg" alt="" width="48" height="48" />
+              <h3 class="service-card__title">FGTS</h3>
+              <p class="service-card__desc">Saiba como utilizar seu FGTS dentro das possibilidades disponíveis.</p>
+              <div class="service-card__actions">
+                <a class="service-card__more" href="fgts.html">Saiba mais</a>
+                <a class="service-card__wa" href="https://wa.me/5599984681048?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20FGTS." target="_blank" rel="noopener noreferrer">Tenho interesse</a>
+              </div>
+            </article>
+            <article class="service-card reveal reveal-delay-2">
+              <img class="service-card__icon" src="../assets/icons/consignado.svg" alt="" width="48" height="48" />
+              <h3 class="service-card__title">Consignado</h3>
+              <p class="service-card__desc">Entenda as possibilidades disponíveis para você.</p>
+              <div class="service-card__actions">
+                <a class="service-card__more" href="consignado.html">Saiba mais</a>
+                <a class="service-card__wa" href="https://wa.me/5599984681048?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20cr%C3%A9dito%20consignado." target="_blank" rel="noopener noreferrer">Tenho interesse</a>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -85,49 +65,24 @@
           <div class="split">
             <div class="split__body reveal">
               <p class="section__eyebrow">Conta Caixa</p>
-              <h2>Abertura de conta e orientação de produtos</h2>
-              <p>
-                Ajudamos na abertura de conta digital ou presencial e esclarecemos cartões, apps e benefícios ligados à Caixa.
+              <h2>Conta e produtos com orientação clara</h2>
+              <p style="margin-top:1rem;font-size:1.1rem">
+                Ajudamos na orientação sobre conta e produtos do banco, de forma simples e objetiva.
               </p>
-              <ul class="split__checklist">
-                <li><img src="../assets/icons/check.svg" alt="" width="20" height="20" />Documentação necessária explicada na hora</li>
-                <li><img src="../assets/icons/check.svg" alt="" width="20" height="20" />Suporte para primeiro acesso ao app</li>
-                <li><img src="../assets/icons/check.svg" alt="" width="20" height="20" />Indicação do produto certo para o seu perfil</li>
+              <ul class="checklist">
+                <li><span class="checklist__mark">✓</span> Documentação explicada na hora</li>
+                <li><span class="checklist__mark">✓</span> Orientação personalizada</li>
+                <li><span class="checklist__mark">✓</span> Indicação adequada ao seu perfil</li>
               </ul>
-              <a class="btn btn--primary" href="contato.html">Quero abrir conta</a>
+              <a class="btn btn--whatsapp" href="https://wa.me/5599984681048?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20conta%20e%20produtos%20Caixa." target="_blank" rel="noopener noreferrer">Tenho interesse</a>
             </div>
             <div class="split__visual reveal reveal-delay-1">
-              <img
-                src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=1200&q=80"
-                alt="Pessoa utilizando cartão e celular"
-                width="1200"
-                height="800"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="pagamentos">
-        <div class="container">
-          <div class="split">
-            <div class="split__visual reveal">
-              <img
-                src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80"
-                alt="Documentos e calculadora em mesa de atendimento"
-                width="1200"
-                height="800"
-                loading="lazy"
-              />
-            </div>
-            <div class="split__body reveal reveal-delay-1">
-              <p class="section__eyebrow">Dia a dia</p>
-              <h2>Pagamentos e convênios</h2>
-              <p>
-                Boletos, contas de consumo e outros serviços do correspondente — praticidade sem fila de agência lotada.
-              </p>
-              <a class="btn btn--secondary" href="contato.html">Consultar disponibilidade</a>
+              <div class="photo-slot photo-slot--wide" data-photo="conta">
+                <div class="photo-slot__placeholder" style="background:linear-gradient(145deg,#e8f2fa,#f5f8fb);color:var(--color-navy-900)">
+                  <strong style="color:var(--color-navy-900)">Foto do atendimento</strong>
+                  <span style="color:var(--color-ink-soft)">Espaço para imagem real da Realiza</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -135,71 +90,18 @@
 
       <section class="section section--tight">
         <div class="container">
-          <div class="cta-band reveal">
-            <div class="cta-band__inner">
-              <h2>Não sabe por onde começar?</h2>
-              <p>Conte seu objetivo em uma mensagem — indicamos o serviço ideal.</p>
-              <div class="cta-band__actions">
-                <a class="btn btn--whatsapp" href="https://wa.me/5599984681048" target="_blank" rel="noopener noreferrer">
-                  <img class="btn__icon" src="../assets/icons/whatsapp.svg" alt="" width="18" height="18" />
-                  Falar no WhatsApp
-                </a>
-              </div>
+          <div class="cta-final reveal">
+            <h2>Não sabe por onde começar?</h2>
+            <p>Conte seu objetivo em uma mensagem — a Realiza indica o caminho.</p>
+            <div class="cta-final__actions">
+              <a class="btn btn--whatsapp btn--lg" href="https://wa.me/5599984681048?text=Ol%C3%A1!%20Gostaria%20de%20atendimento%20da%20Realiza%20Consultoria%20Caixa." target="_blank" rel="noopener noreferrer">Falar com a Realiza no WhatsApp</a>
             </div>
           </div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="container">
-        <div class="footer__grid">
-          <div class="footer__brand">
-            <a class="brand" href="../index.html">
-              <img class="brand__mark" src="../assets/img/logo-realiza.png" alt="Realiza Consultoria Caixa" width="56" height="56" />
-              <span class="brand__text">
-                <span class="brand__name">Realiza</span>
-                <span class="brand__tag">Consultoria Caixa</span>
-              </span>
-            </a>
-            <p class="footer__about">Correspondente bancário autorizado da Caixa Econômica Federal.</p>
-          </div>
-          <div>
-            <h2 class="footer__title">Navegação</h2>
-            <ul class="footer__list">
-              <li><a href="../index.html">Início</a></li>
-              <li><a href="servicos.html">Serviços</a></li>
-              <li><a href="quem-somos.html">Quem somos</a></li>
-              <li><a href="contato.html">Contato</a></li>
-            </ul>
-          </div>
-          <div>
-            <h2 class="footer__title">Serviços</h2>
-            <ul class="footer__list">
-              <li><a href="fgts.html">FGTS</a></li>
-              <li><a href="consignado.html">Consignado</a></li>
-              <li><a href="habitacao.html">Habitação</a></li>
-            </ul>
-          </div>
-          <div>
-            <h2 class="footer__title">Contato</h2>
-            <ul class="footer__list">
-              <li><a href="tel:+5599984681048">(99) 98468-1048</a></li>
-              <li><a href="https://wa.me/5599984681048" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="footer__bottom">
-          <p>© <span data-year></span> Realiza Consultoria Caixa.</p>
-          <p class="footer__disclaimer">Correspondente autorizado — não substitui os canais oficiais da Caixa.</p>
-        </div>
-      </div>
-    </footer>
-
-    <a class="whatsapp-float" href="https://wa.me/5599984681048" target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp">
-      <img src="../assets/icons/whatsapp.svg" alt="" width="26" height="26" />
-    </a>
+    <div data-site-footer></div>
     <script type="module" src="../assets/js/main.js"></script>
-    <script>document.querySelectorAll("[data-year]").forEach((el) => { el.textContent = new Date().getFullYear(); });</script>
   </body>
 </html>

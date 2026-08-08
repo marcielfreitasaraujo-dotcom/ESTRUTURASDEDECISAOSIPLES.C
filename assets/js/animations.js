@@ -1,6 +1,8 @@
 export function initReveal() {
   const items = document.querySelectorAll(".reveal");
-  if (!items.length || !("IntersectionObserver" in window)) {
+  if (!items.length) return;
+
+  if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     items.forEach((el) => el.classList.add("is-visible"));
     return;
   }
@@ -14,7 +16,7 @@ export function initReveal() {
         }
       });
     },
-    { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
+    { threshold: 0.12, rootMargin: "0px 0px -36px 0px" }
   );
 
   items.forEach((el) => observer.observe(el));

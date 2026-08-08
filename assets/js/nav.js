@@ -6,7 +6,7 @@ export function initNav() {
   if (!header) return;
 
   const onScroll = () => {
-    header.classList.toggle("is-scrolled", window.scrollY > 24);
+    header.classList.toggle("is-scrolled", window.scrollY > 16);
   };
 
   onScroll();
