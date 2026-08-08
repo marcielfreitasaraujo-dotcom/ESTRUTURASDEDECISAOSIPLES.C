@@ -7,10 +7,16 @@ import { initReveal } from "./animations.js";
 import { initContactForm } from "./form.js";
 import { initFaq } from "./faq.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+function boot() {
   mountShell();
   initNav();
   initReveal();
   initContactForm();
   initFaq();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}

@@ -33,11 +33,42 @@
 @media (max-width: 960px) {
   .hero {
     min-height: auto;
-    padding-bottom: 2.5rem;
+    padding-bottom: 2rem;
   }
 
   .hero__grid {
     grid-template-columns: 1fr;
+  }
+
+  .hero__title {
+    max-width: none;
+  }
+
+  .hero__cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero__cta .btn {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+    min-height: 3.25rem;
+  }
+
+  .float-chip {
+    display: none;
+  }
+
+  .hero__visual {
+    order: -1;
+    max-width: 22rem;
+    margin-inline: auto;
+  }
+
+  .photo-slot {
+    aspect-ratio: 16 / 11;
   }
 }
 
@@ -230,6 +261,13 @@
   position: relative;
   z-index: 2;
   margin-top: -1.5rem;
+}
+
+@media (max-width: 960px) {
+  .trust {
+    margin-top: 0;
+    padding-top: 0.5rem;
+  }
 }
 
 .trust__inner {
