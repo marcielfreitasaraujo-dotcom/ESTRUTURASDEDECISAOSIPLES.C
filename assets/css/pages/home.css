@@ -210,17 +210,6 @@
   letter-spacing: 0.05em;
 }
 
-@media (max-width: 960px) {
-  .hero__visual {
-    max-width: 26rem;
-    margin-inline: auto;
-  }
-
-  .float-chip--mid {
-    right: 0.5rem;
-  }
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .float-chip--top {
     animation: floatY 5s ease-in-out infinite;
