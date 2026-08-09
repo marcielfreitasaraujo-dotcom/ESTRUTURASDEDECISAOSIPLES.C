@@ -510,8 +510,15 @@
   gap: var(--space-lg);
 }
 
+.reviews--two {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
 @media (max-width: 900px) {
-  .reviews {
+  .reviews,
+  .reviews--two {
     grid-template-columns: 1fr;
   }
 }

@@ -16,13 +16,11 @@ export const SITE = {
   plusCode: "CHQ5+Q4",
   hoursWeek: "Segunda a sexta · até 18h",
   hoursWeekend: "Sábado e domingo · consulte",
-  googleRating: "5,0",
-  googleReviewsCount: "3",
   mapsSearch:
     "https://www.google.com/maps/search/?api=1&query=R.+Gra%C3%A7a+Aranha,+1567+-+Centro,+Estreito+-+MA,+65975-000",
   mapsEmbed:
     "https://maps.google.com/maps?q=R.%20Gra%C3%A7a%20Aranha,%201567%20-%20Centro,%20Estreito%20-%20MA,%2065975-000&z=16&output=embed",
-  consultant: "Eduardo",
+  consultant: "Eduardo Guimarães",
 };
 
 export function waLink(message) {

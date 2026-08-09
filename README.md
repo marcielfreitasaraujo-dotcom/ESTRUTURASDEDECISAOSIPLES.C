@@ -9,7 +9,6 @@ Site institucional premium da **Realiza Consultoria Caixa** — Estreito — MA.
 | Nome | Realiza Consultoria Caixa |
 | Endereço | R. Graça Aranha, n° 1567 — Centro, Estreito — MA, 65975-000 |
 | Telefone / WhatsApp | (99) 98468-1048 |
-| Avaliação Google | 5,0 (3 críticas) |
 
 ## Estrutura
 
@@ -37,7 +36,7 @@ Alterações de menu, WhatsApp ou endereço no config refletem em todas as pági
 Substitua os placeholders `.photo-slot` por imagens em `assets/img/`:
 
 1. Fachada
-2. Consultor Eduardo
+2. Consultor Eduardo Guimarães
 3. Equipe / atendimento
 4. Interior
 
