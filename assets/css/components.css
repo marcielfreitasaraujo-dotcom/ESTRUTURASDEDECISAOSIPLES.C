@@ -163,8 +163,9 @@
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse at top right, rgba(243, 146, 0, 0.1), transparent 40%),
-      linear-gradient(165deg, #f8fbfe 0%, #eaf3fa 100%);
+      radial-gradient(ellipse at top right, rgba(255, 143, 31, 0.1), transparent 40%),
+      radial-gradient(ellipse at bottom left, rgba(122, 193, 67, 0.08), transparent 45%),
+      linear-gradient(165deg, #f7fafc 0%, #e8f1f7 100%);
     flex-direction: column;
     justify-content: center;
     padding: var(--space-3xl) var(--space-xl);
@@ -246,9 +247,9 @@
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, var(--color-orange-500), var(--color-orange-600));
+  background: var(--gradient-action);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(217, 104, 0, 0.28);
+  box-shadow: 0 10px 24px rgba(224, 120, 0, 0.3);
 }
 
 .btn--secondary {

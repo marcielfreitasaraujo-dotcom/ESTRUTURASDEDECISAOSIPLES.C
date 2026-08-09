@@ -1,27 +1,41 @@
 :root {
-  --color-navy-950: #001628;
-  --color-navy-900: #002847;
-  --color-navy-800: #003a66;
-  --color-navy-700: #004d80;
-  --color-blue-600: #0a6fad;
-  --color-blue-500: #1a8fc7;
-  --color-blue-100: #e7f3fb;
-  --color-blue-50: #f4f9fc;
+  /* Paleta Realiza 2.0 — premium, confiante, moderna */
+  --color-navy-950: #06131f;
+  --color-navy-900: #0b2438;
+  --color-navy-800: #123652;
+  --color-navy-700: #1a4d6e;
+  --color-blue-600: #1565a0;
+  --color-blue-500: #2b86c5;
+  --color-blue-100: #e4f1f9;
+  --color-blue-50: #f2f7fb;
 
-  --color-orange-600: #d96800;
-  --color-orange-500: #f39200;
-  --color-orange-400: #ffaa2e;
-  --color-orange-50: #fff7eb;
+  /* Laranja de ação (CTAs) */
+  --color-orange-600: #e07800;
+  --color-orange-500: #ff8f1f;
+  --color-orange-400: #ffb04d;
+  --color-orange-50: #fff4e6;
 
+  /* Verde da logo — detalhes e confiança */
+  --color-lime-600: #5f9e2f;
   --color-lime-500: #7ac143;
+  --color-lime-400: #98d466;
+  --color-lime-50: #f3faeb;
 
-  --color-ink: #0e1c28;
-  --color-ink-soft: #3d5163;
-  --color-muted: #6b7f90;
-  --color-line: rgba(0, 58, 102, 0.1);
+  --color-ink: #102030;
+  --color-ink-soft: #445868;
+  --color-muted: #6e8190;
+  --color-line: rgba(18, 54, 82, 0.12);
   --color-surface: #ffffff;
-  --color-surface-alt: #f5f8fb;
-  --color-success: #1b7a4e;
+  --color-surface-alt: #f3f7fa;
+  --color-success: #2d8a4e;
+
+  /* Gradientes de marca */
+  --gradient-hero: linear-gradient(145deg, #06131f 0%, #0b2438 42%, #154866 100%);
+  --gradient-cta: linear-gradient(140deg, #06131f 0%, #123652 48%, #1a5f85 100%);
+  --gradient-action: linear-gradient(135deg, #ff8f1f, #e07800);
+  --gradient-glow-orange: rgba(255, 143, 31, 0.28);
+  --gradient-glow-blue: rgba(43, 134, 197, 0.22);
+  --gradient-glow-lime: rgba(122, 193, 67, 0.18);
 
   --font-display: "Syne", sans-serif;
   --font-body: "Manrope", sans-serif;
@@ -41,9 +55,9 @@
   --radius-lg: 1.25rem;
   --radius-xl: 1.75rem;
 
-  --shadow-xs: 0 1px 2px rgba(0, 40, 71, 0.05);
-  --shadow-soft: 0 10px 30px rgba(0, 40, 71, 0.08);
-  --shadow-lift: 0 18px 40px rgba(0, 40, 71, 0.12);
+  --shadow-xs: 0 1px 2px rgba(6, 19, 31, 0.05);
+  --shadow-soft: 0 12px 32px rgba(6, 19, 31, 0.08);
+  --shadow-lift: 0 20px 44px rgba(6, 19, 31, 0.14);
 
   --container: 74rem;
   --header-h: 4.75rem;

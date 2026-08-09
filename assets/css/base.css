@@ -99,7 +99,7 @@ strong {
 }
 
 ::selection {
-  background: rgba(243, 146, 0, 0.22);
+  background: rgba(255, 143, 31, 0.24);
   color: var(--color-navy-950);
 }
 
