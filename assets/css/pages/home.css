@@ -16,10 +16,23 @@
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(ellipse 55% 60% at 85% 20%, var(--gradient-glow-orange), transparent 55%),
-    radial-gradient(ellipse 45% 45% at 12% 78%, var(--gradient-glow-blue), transparent 50%),
-    radial-gradient(ellipse 30% 30% at 60% 90%, var(--gradient-glow-lime), transparent 55%),
+    radial-gradient(ellipse 55% 60% at 85% 20%, var(--gradient-glow-blue), transparent 55%),
+    radial-gradient(ellipse 45% 45% at 12% 78%, rgba(13, 110, 184, 0.28), transparent 50%),
+    radial-gradient(ellipse 30% 30% at 60% 90%, var(--gradient-glow-orange), transparent 55%),
     var(--gradient-hero);
+}
+
+.hero__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    520px circle at var(--mouse-x, 50%) var(--mouse-y, 40%),
+    rgba(79, 168, 224, 0.28),
+    transparent 55%
+  );
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-out);
 }
 
 .hero__grid {
@@ -119,6 +132,8 @@
 .hero__visual {
   position: relative;
   animation: fadeUp 0.9s 0.15s var(--ease-out) both;
+  transition: transform 0.35s var(--ease-out);
+  will-change: transform;
 }
 
 .photo-slot {
@@ -207,7 +222,7 @@
 }
 
 .float-chip__stars {
-  color: var(--color-orange-500);
+  color: var(--color-lime-500);
   letter-spacing: 0.05em;
 }
 
@@ -298,7 +313,7 @@
 }
 
 .trust__item span:first-child {
-  color: var(--color-orange-500);
+  color: var(--color-lime-500);
 }
 
 /* ========== Split / about ========== */

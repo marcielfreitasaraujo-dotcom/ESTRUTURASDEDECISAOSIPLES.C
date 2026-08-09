@@ -1,41 +1,41 @@
 :root {
-  /* Paleta Realiza 2.0 — premium, confiante, moderna */
-  --color-navy-950: #06131f;
-  --color-navy-900: #0b2438;
-  --color-navy-800: #123652;
-  --color-navy-700: #1a4d6e;
-  --color-blue-600: #1565a0;
-  --color-blue-500: #2b86c5;
-  --color-blue-100: #e4f1f9;
-  --color-blue-50: #f2f7fb;
+  /* Paleta azul dominante — Realiza premium */
+  --color-navy-950: #020b16;
+  --color-navy-900: #071d33;
+  --color-navy-800: #0c3355;
+  --color-navy-700: #124872;
+  --color-blue-600: #0d6eb8;
+  --color-blue-500: #1f8fd4;
+  --color-blue-400: #4aa8e0;
+  --color-blue-100: #dceef9;
+  --color-blue-50: #eef6fc;
 
-  /* Laranja de ação (CTAs) */
+  /* Laranja só como ação (CTAs) */
   --color-orange-600: #e07800;
   --color-orange-500: #ff8f1f;
   --color-orange-400: #ffb04d;
   --color-orange-50: #fff4e6;
 
-  /* Verde da logo — detalhes e confiança */
+  /* Verde da logo — detalhes pontuais */
   --color-lime-600: #5f9e2f;
   --color-lime-500: #7ac143;
   --color-lime-400: #98d466;
   --color-lime-50: #f3faeb;
 
-  --color-ink: #102030;
-  --color-ink-soft: #445868;
-  --color-muted: #6e8190;
-  --color-line: rgba(18, 54, 82, 0.12);
+  --color-ink: #0a1a2a;
+  --color-ink-soft: #3a5266;
+  --color-muted: #678196;
+  --color-line: rgba(13, 110, 184, 0.12);
   --color-surface: #ffffff;
-  --color-surface-alt: #f3f7fa;
+  --color-surface-alt: #f0f6fb;
   --color-success: #2d8a4e;
 
-  /* Gradientes de marca */
-  --gradient-hero: linear-gradient(145deg, #06131f 0%, #0b2438 42%, #154866 100%);
-  --gradient-cta: linear-gradient(140deg, #06131f 0%, #123652 48%, #1a5f85 100%);
+  --gradient-hero: linear-gradient(148deg, #020b16 0%, #071d33 38%, #0c3d68 72%, #0d6eb8 120%);
+  --gradient-cta: linear-gradient(140deg, #020b16 0%, #0c3355 50%, #0d6eb8 110%);
   --gradient-action: linear-gradient(135deg, #ff8f1f, #e07800);
-  --gradient-glow-orange: rgba(255, 143, 31, 0.28);
-  --gradient-glow-blue: rgba(43, 134, 197, 0.22);
-  --gradient-glow-lime: rgba(122, 193, 67, 0.18);
+  --gradient-glow-orange: rgba(255, 143, 31, 0.2);
+  --gradient-glow-blue: rgba(31, 143, 212, 0.35);
+  --gradient-glow-lime: rgba(122, 193, 67, 0.12);
 
   --font-display: "Syne", sans-serif;
   --font-body: "Manrope", sans-serif;
@@ -55,9 +55,9 @@
   --radius-lg: 1.25rem;
   --radius-xl: 1.75rem;
 
-  --shadow-xs: 0 1px 2px rgba(6, 19, 31, 0.05);
-  --shadow-soft: 0 12px 32px rgba(6, 19, 31, 0.08);
-  --shadow-lift: 0 20px 44px rgba(6, 19, 31, 0.14);
+  --shadow-xs: 0 1px 2px rgba(2, 11, 22, 0.05);
+  --shadow-soft: 0 12px 32px rgba(7, 29, 51, 0.1);
+  --shadow-lift: 0 22px 48px rgba(7, 29, 51, 0.16);
 
   --container: 74rem;
   --header-h: 4.75rem;
@@ -66,6 +66,12 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
   --duration: 0.55s;
+
+  /* Mouse interaction tokens */
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
 }
 
 @media (prefers-reduced-motion: reduce) {
