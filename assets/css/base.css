@@ -30,7 +30,11 @@ body {
   font-size: 1.0625rem;
   line-height: 1.65;
   color: var(--color-ink);
-  background: var(--color-surface);
+  background:
+    radial-gradient(ellipse 80% 40% at 100% 0%, rgba(13, 110, 184, 0.06), transparent 50%),
+    radial-gradient(ellipse 60% 35% at 0% 20%, rgba(31, 143, 212, 0.05), transparent 45%),
+    var(--color-surface);
+  background-attachment: fixed;
   min-height: 100vh;
   overflow-x: hidden;
 }
