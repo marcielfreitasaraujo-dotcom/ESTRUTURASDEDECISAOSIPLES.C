@@ -152,10 +152,91 @@
   aspect-ratio: 5 / 4;
 }
 
+.photo-slot--light {
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-soft);
+  background: var(--color-blue-50);
+}
+
 .photo-slot img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.7s var(--ease-out);
+}
+
+.photo-slot:hover img {
+  transform: scale(1.04);
+}
+
+/* ========== House gallery ========== */
+.gallery {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 0.8fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.85rem;
+  min-height: 28rem;
+}
+
+.gallery__item {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: var(--shadow-soft);
+}
+
+.gallery__item--main {
+  grid-row: 1 / span 2;
+}
+
+.gallery__item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--ease-out);
+}
+
+.gallery__item:hover img {
+  transform: scale(1.05);
+}
+
+.gallery__item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(2, 11, 22, 0.55));
+  pointer-events: none;
+}
+
+.gallery__caption {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1;
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 800px) {
+  .gallery {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    min-height: 0;
+  }
+
+  .gallery__item--main {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 14rem;
+  }
+
+  .gallery__item:not(.gallery__item--main) {
+    min-height: 10rem;
+  }
 }
 
 .photo-slot__placeholder {

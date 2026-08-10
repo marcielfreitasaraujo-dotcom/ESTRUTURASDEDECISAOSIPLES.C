@@ -33,12 +33,17 @@ Alterações de menu, WhatsApp ou endereço no config refletem em todas as pági
 
 ## Fotos reais
 
-Substitua os placeholders `.photo-slot` por imagens em `assets/img/`:
+Substitua os arquivos abaixo pelas fotos do Eduardo / Realiza (mantenha o mesmo nome):
 
-1. Fachada
-2. Consultor Eduardo Guimarães
-3. Equipe / atendimento
-4. Interior
+| Arquivo | Uso no site |
+|---------|-------------|
+| `assets/img/team/eduardo-hero.jpg` | Hero (primeira dobra) |
+| `assets/img/team/eduardo-sobre.jpg` | Seção Sobre / Quem somos |
+| `assets/img/team/eduardo-atendimento.jpg` | Destaque de atendimento |
+
+Imagens de casas (já no site): `assets/img/houses/casa-1.jpg` … `casa-4.jpg`.
+
+Dica: envie fotos em boa luz, preferencialmente na vertical para o hero.
 
 ## Como visualizar
 
