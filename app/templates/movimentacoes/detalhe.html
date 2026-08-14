@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}{{ mov.descricao }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <a class="back" href="{{ url_for('movimentacoes.index') }}">← Movimentações</a>
+    <h1>{{ mov.descricao }}</h1>
+    <p class="muted">{{ mov.data | data_br }} · {{ mov.tipo_label }}</p>
+  </div>
+  <strong class="hero-valor {{ mov.tipo }}">{{ mov.valor | moeda }}</strong>
+</section>
+
+<div class="grid-2-dash">
+  <article class="card">
+    <header class="card-head"><h2>Editar</h2></header>
+    <form action="{{ url_for('movimentacoes.editar', mov_id=mov.id) }}" method="post" enctype="multipart/form-data" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Tipo
+        <select name="tipo">
+          <option value="receita" {{ 'selected' if mov.tipo == 'receita' }}>Receita</option>
+          <option value="despesa" {{ 'selected' if mov.tipo in ('despesa', 'investimento') }}>Despesa</option>
+          <option value="transferencia" {{ 'selected' if mov.tipo == 'transferencia' }}>Transferência</option>
+          <option value="investimento" {{ 'selected' if mov.tipo == 'investimento' }}>Investimento</option>
+        </select>
+      </label>
+      <label>
+        Valor
+        <input type="text" name="valor" value="{{ '%.2f'|format(mov.valor) }}">
+      </label>
+      <label>
+        Descrição
+        <input type="text" name="descricao" value="{{ mov.descricao }}" maxlength="180">
+      </label>
+      <label>
+        Categoria
+        <select name="categoria_id">
+          <option value="">Selecionar</option>
+          {% for cat in categorias %}
+            <option value="{{ cat.id }}" {{ 'selected' if mov.categoria_id == cat.id }}>{{ cat.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="grid-2">
+        <label>
+          Data
+          <input type="date" name="data" value="{{ mov.data.isoformat() }}">
+        </label>
+        <label>
+          Forma
+          <select name="forma_pagamento">
+            {% for valor, label in formas %}
+              <option value="{{ valor }}" {{ 'selected' if mov.forma_pagamento == valor }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>
+        Conta
+        <select name="conta_id">
+          {% for conta in contas %}
+            <option value="{{ conta.id }}" {{ 'selected' if mov.conta_id == conta.id }}>{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% if mov.tipo == 'transferencia' %}
+      <label>
+        Destino
+        <select name="conta_destino_id">
+          {% for conta in contas %}
+            <option value="{{ conta.id }}" {{ 'selected' if mov.conta_destino_id == conta.id }}>{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% endif %}
+      <label>
+        Observação
+        <textarea name="observacao" rows="2">{{ mov.observacao or '' }}</textarea>
+      </label>
+      <label>
+        Substituir comprovante
+        <input type="file" name="comprovante" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf">
+      </label>
+      <button class="btn btn-primary" type="submit">Salvar alterações</button>
+    </form>
+  </article>
+
+  <div class="stack">
+    <article class="card">
+      <header class="card-head"><h2>Comprovante</h2></header>
+      {% if mov.comprovante %}
+        <p>📎 {{ mov.comprovante.nome_original }}</p>
+        <div class="btn-row">
+          <a class="btn btn-ghost" href="{{ url_for('comprovantes.ver', comp_id=mov.comprovante.id) }}" target="_blank">Ver comprovante</a>
+          <form action="{{ url_for('movimentacoes.remover_comp', mov_id=mov.id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-danger-ghost" type="submit">Remover</button>
+          </form>
+        </div>
+        {% if mov.comprovante.eh_imagem %}
+          <img class="preview" src="{{ url_for('comprovantes.ver', comp_id=mov.comprovante.id) }}" alt="Comprovante">
+        {% endif %}
+      {% else %}
+        <p class="muted">Nenhum comprovante anexado.</p>
+        <form action="{{ url_for('movimentacoes.enviar_comprovante', mov_id=mov.id) }}" method="post" enctype="multipart/form-data" class="stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="file" name="comprovante" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf" required>
+          <button class="btn btn-ghost" type="submit">Anexar</button>
+        </form>
+      {% endif %}
+    </article>
+
+    <article class="card danger-zone">
+      <header class="card-head"><h2>Excluir</h2></header>
+      <p class="muted">A exclusão é lógica: o lançamento sai dos totais, mas permanece no histórico de auditoria.</p>
+      <form action="{{ url_for('movimentacoes.excluir', mov_id=mov.id) }}" method="post" onsubmit="return confirm('Tem certeza que deseja excluir esta movimentação?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-danger" type="submit">Excluir movimentação</button>
+      </form>
+    </article>
+  </div>
+</div>
+{% endblock %}

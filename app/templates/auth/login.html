@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="claro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Entrar · FinCasa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="auth-body">
+  <main class="auth-card">
+    <div class="brand brand-lg">
+      <span class="brand-mark">R$</span>
+      <div>
+        <strong>FinCasa</strong>
+        <small>Controle financeiro pessoal e familiar</small>
+      </div>
+    </div>
+    <h1>Olá! Entre para ver seu saldo.</h1>
+    <p class="muted">Registre um gasto em poucos segundos e acompanhe para onde vai o dinheiro.</p>
+    {% if erro %}
+      <div class="flash flash-erro">{{ erro }}</div>
+    {% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Usuário
+        <input type="text" name="username" autocomplete="username" required autofocus>
+      </label>
+      <label>
+        Senha
+        <input type="password" name="senha" autocomplete="current-password" required>
+      </label>
+      <label class="check">
+        <input type="checkbox" name="lembrar" value="1"> Lembrar de mim
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+    </form>
+    <p class="hint">Primeiro acesso: usuário <code>admin</code> · senha <code>admin123</code></p>
+  </main>
+</body>
+</html>

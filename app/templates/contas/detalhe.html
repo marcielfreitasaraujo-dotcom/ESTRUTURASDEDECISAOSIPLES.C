@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}{{ conta.nome }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <a class="back" href="{{ url_for('contas.index') }}">← Contas</a>
+    <h1>{{ conta.nome }}</h1>
+    <p class="muted">{{ conta.tipo_label }}</p>
+  </div>
+  <strong class="hero-valor">{{ saldo | moeda }}</strong>
+</section>
+
+<div class="grid-2-dash">
+  <article class="card">
+    <header class="card-head"><h2>Dados da conta</h2></header>
+    <form action="{{ url_for('contas.editar', conta_id=conta.id) }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Nome <input type="text" name="nome" value="{{ conta.nome }}" required></label>
+      <label>
+        Tipo
+        <select name="tipo">
+          {% for valor, label in tipos %}
+            <option value="{{ valor }}" {{ 'selected' if conta.tipo == valor }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Saldo inicial <input type="text" name="saldo_inicial" value="{{ '%.2f'|format(conta.saldo_inicial) }}"></label>
+      <button class="btn btn-primary" type="submit">Salvar</button>
+    </form>
+  </article>
+
+  <div class="stack">
+    {% if conta.eh_carteira %}
+    <article class="card">
+      <header class="card-head"><h2>Conferência da carteira</h2></header>
+      <p>Saldo esperado: <strong>{{ saldo | moeda }}</strong></p>
+      {% if conta.saldo_informado is not none %}
+        <p>Saldo informado: <strong>{{ conta.saldo_informado | moeda }}</strong></p>
+        <p>Diferença: <strong class="{{ 'negativo' if diferenca != 0 else 'positivo' }}">{{ diferenca | moeda }}</strong></p>
+      {% endif %}
+      <form action="{{ url_for('contas.conferir', conta_id=conta.id) }}" method="post" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>
+          Quanto há agora na carteira?
+          <input type="text" name="saldo_informado" placeholder="R$ 0,00" required>
+        </label>
+        <button class="btn btn-ghost" type="submit">Conferir</button>
+      </form>
+    </article>
+    {% endif %}
+
+    <article class="card danger-zone">
+      <header class="card-head"><h2>Desativar</h2></header>
+      <form action="{{ url_for('contas.excluir', conta_id=conta.id) }}" method="post" onsubmit="return confirm('Desativar esta conta?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-danger" type="submit">Desativar conta</button>
+      </form>
+    </article>
+  </div>
+</div>
+
+<article class="card" style="margin-top:1.5rem">
+  <header class="card-head"><h2>Últimos lançamentos desta conta</h2></header>
+  <ul class="mov-list">
+    {% for mov in movimentacoes %}
+      <li>
+        <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
+          <span class="dot {{ mov.tipo }}"></span>
+          <div>
+            <strong>{{ mov.descricao }}</strong>
+            <small>{{ mov.data | data_br }}</small>
+          </div>
+          <em class="valor {{ mov.tipo }}">{{ mov.valor | moeda }}</em>
+        </a>
+      </li>
+    {% else %}
+      <li class="empty">Nenhum lançamento.</li>
+    {% endfor %}
+  </ul>
+</article>
+{% endblock %}

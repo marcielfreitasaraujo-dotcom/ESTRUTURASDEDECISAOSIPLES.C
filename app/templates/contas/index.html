@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Contas{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Onde está o dinheiro</p>
+    <h1>Contas e carteiras</h1>
+  </div>
+</section>
+
+<div class="account-grid">
+  {% for item in itens %}
+    <a class="account-card" href="{{ url_for('contas.detalhe', conta_id=item.conta.id) }}">
+      <span class="tag">{{ item.conta.tipo_label }}</span>
+      <h2>{{ item.conta.nome }}</h2>
+      <strong>{{ item.saldo | moeda }}</strong>
+      <small>Saldo inicial {{ item.conta.saldo_inicial | moeda }}</small>
+      {% if item.conta.eh_carteira and item.diferenca is not none %}
+        <em class="{{ 'negativo' if item.diferenca != 0 else 'positivo' }}">
+          Diferença: {{ item.diferenca | moeda }}
+        </em>
+      {% endif %}
+    </a>
+  {% else %}
+    <p class="empty">Nenhuma conta ativa.</p>
+  {% endfor %}
+</div>
+
+<article class="card" style="margin-top:1.5rem">
+  <header class="card-head"><h2>Nova conta</h2></header>
+  <form action="{{ url_for('contas.nova') }}" method="post" class="form-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="text" name="nome" placeholder="Nome (ex: Santander)" required>
+    <select name="tipo">
+      {% for valor, label in tipos %}
+        <option value="{{ valor }}">{{ label }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="saldo_inicial" placeholder="Saldo inicial" value="0,00">
+    <button class="btn btn-primary" type="submit">Cadastrar</button>
+  </form>
+</article>
+{% endblock %}

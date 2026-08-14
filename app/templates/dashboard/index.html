@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Resumo financeiro</p>
+    <h1>Olá, {{ current_user.nome.split(' ')[0] }} 👋</h1>
+    <p class="muted">{{ resumo.mes_nome }}</p>
+  </div>
+  <form class="period-pills" method="get">
+    {% for chave, label in [('hoje','Hoje'),('esta_semana','Esta semana'),('este_mes','Este mês'),('ultimos_30','30 dias')] %}
+      <button class="pill {{ 'ativo' if periodo == chave }}" name="periodo" value="{{ chave }}">{{ label }}</button>
+    {% endfor %}
+  </form>
+</section>
+
+<section class="kpi-grid">
+  <article class="kpi receita">
+    <span>💰 Receitas</span>
+    <strong>{{ resumo.receitas | moeda }}</strong>
+  </article>
+  <article class="kpi despesa">
+    <span>💸 Despesas</span>
+    <strong>{{ resumo.despesas | moeda }}</strong>
+  </article>
+  <article class="kpi investimento">
+    <span>📈 Investimentos</span>
+    <strong>{{ resumo.investimentos | moeda }}</strong>
+  </article>
+  <article class="kpi saldo {{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">
+    <span>💵 Saldo do período</span>
+    <strong>{{ resumo.saldo_periodo | moeda }}</strong>
+    <small>Nas contas: {{ resumo.saldo_contas | moeda }}</small>
+  </article>
+</section>
+
+<section class="grid-charts">
+  <article class="card">
+    <header class="card-head">
+      <h2>Receitas × Despesas</h2>
+    </header>
+    <canvas id="chart-rd" height="140"></canvas>
+  </article>
+  <article class="card">
+    <header class="card-head">
+      <h2>Gastos por categoria</h2>
+    </header>
+    <canvas id="chart-cat" height="140"></canvas>
+  </article>
+</section>
+
+<section class="grid-2-dash">
+  <article class="card">
+    <header class="card-head">
+      <h2>Evolução do saldo</h2>
+    </header>
+    <canvas id="chart-evo" height="120"></canvas>
+  </article>
+  <article class="card">
+    <header class="card-head">
+      <h2>Últimas movimentações</h2>
+      <a href="{{ url_for('movimentacoes.index') }}">Ver todas</a>
+    </header>
+    {% if ultimas %}
+      <ul class="mov-list">
+        {% for mov in ultimas %}
+          <li>
+            <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
+              <span class="dot {{ mov.tipo }}"></span>
+              <div>
+                <strong>{{ mov.descricao }}</strong>
+                <small>{{ mov.categoria.nome if mov.categoria else mov.tipo_label }} · {{ mov.data | data_br }}</small>
+              </div>
+              <em class="valor {{ mov.tipo }}">
+                {% if mov.tipo == 'receita' %}+{% else %}−{% endif %}
+                {{ mov.valor | moeda }}
+              </em>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">Nenhum lançamento ainda. Toque em <strong>+ Lançamento</strong> para começar.</p>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  window.FINCASA_CHARTS = {
+    rd: {{ grafico_rd | tojson }},
+    cat: {{ grafico_cat | tojson }},
+    evo: {{ grafico_evo | tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

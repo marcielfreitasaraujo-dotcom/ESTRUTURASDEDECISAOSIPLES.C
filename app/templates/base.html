@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="{{ current_user.tema if current_user.is_authenticated else 'claro' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>{% block title %}FinCasa{% endblock %} · FinCasa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-mark">R$</span>
+        <div>
+          <strong>FinCasa</strong>
+          <small>Controle financeiro</small>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <a href="{{ url_for('dashboard.index') }}" class="{{ 'ativo' if request.endpoint == 'dashboard.index' }}">
+          <span class="ico">🏠</span> Dashboard
+        </a>
+        <a href="{{ url_for('movimentacoes.receitas') }}" class="{{ 'ativo' if request.args.get('tipo') == 'receita' }}">
+          <span class="ico">💰</span> Receitas
+        </a>
+        <a href="{{ url_for('movimentacoes.despesas') }}" class="{{ 'ativo' if request.args.get('tipo') == 'despesa' }}">
+          <span class="ico">💸</span> Despesas
+        </a>
+        <a href="{{ url_for('movimentacoes.index') }}" class="{{ 'ativo' if request.endpoint == 'movimentacoes.index' and not request.args.get('tipo') }}">
+          <span class="ico">🔄</span> Movimentações
+        </a>
+        <a href="{{ url_for('contas.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('contas.') }}">
+          <span class="ico">🏦</span> Contas
+        </a>
+        <a href="{{ url_for('movimentacoes.investimentos') }}" class="{{ 'ativo' if request.args.get('tipo') == 'investimento' }}">
+          <span class="ico">📈</span> Investimentos
+        </a>
+        <a href="{{ url_for('categorias.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('categorias.') }}">
+          <span class="ico">🏷️</span> Categorias
+        </a>
+        <span class="nav-label">Em breve</span>
+        <span class="nav-soon" title="Fase 2">📅 Vencimentos</span>
+        <span class="nav-soon" title="Fase 3">💳 Cartões</span>
+        <span class="nav-soon" title="Fase 3">🎯 Orçamento</span>
+        <span class="nav-soon" title="Fase 2">📊 Relatórios</span>
+        <a href="{{ url_for('configuracoes.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('configuracoes.') }}">
+          <span class="ico">⚙️</span> Configurações
+        </a>
+      </nav>
+    </aside>
+
+    <div class="main-wrap">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" type="button" data-toggle-sidebar aria-label="Menu">☰</button>
+        <form class="search-box" action="{{ url_for('movimentacoes.index') }}" method="get">
+          <span>🔎</span>
+          <input type="search" name="q" id="busca-global" placeholder="Pesquisar movimentação..." autocomplete="off" value="{{ request.args.get('q', '') }}">
+          <div class="search-results" id="search-results" hidden></div>
+        </form>
+        <div class="top-actions">
+          <button class="btn btn-primary btn-sm" type="button" data-open-lancamento data-tipo="despesa">+ Lançamento</button>
+          <form action="{{ url_for('configuracoes.tema') }}" method="post" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="tema" value="{{ 'claro' if current_user.tema == 'escuro' else 'escuro' }}">
+            <input type="hidden" name="next" value="{{ request.full_path }}">
+            <button class="icon-btn" type="submit" title="Alternar tema">{{ '☀️' if current_user.tema == 'escuro' else '🌙' }}</button>
+          </form>
+          <div class="notify" title="Nenhuma notificação no momento">
+            <button class="icon-btn" type="button">🔔</button>
+          </div>
+          <a class="user-chip" href="{{ url_for('configuracoes.index') }}">
+            <span class="avatar">{{ current_user.nome[:1]|upper }}</span>
+            <span class="user-meta">
+              <strong>{{ current_user.nome }}</strong>
+              <small>{{ current_user.perfil }}</small>
+            </span>
+          </a>
+        </div>
+      </header>
+
+      <main class="content">
+        {% include 'components/flash.html' %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <button class="fab" type="button" data-open-lancamento data-tipo="despesa" aria-label="Nova movimentação">+</button>
+
+  {% include 'components/modal_lancamento.html' %}
+
+  <div class="sidebar-backdrop" data-toggle-sidebar></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

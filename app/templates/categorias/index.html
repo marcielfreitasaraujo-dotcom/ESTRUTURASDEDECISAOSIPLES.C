@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Categorias{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Organização</p>
+    <h1>Categorias</h1>
+  </div>
+</section>
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr><th>Nome</th><th>Tipo</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for cat in itens %}
+        <tr>
+          <td data-label="Nome">
+            <span class="swatch" style="background:{{ cat.cor or '#64748b' }}"></span>
+            {{ cat.nome }}
+            {% if cat.sistema %}<small class="muted">sistema</small>{% endif %}
+          </td>
+          <td data-label="Tipo"><span class="badge {{ cat.tipo }}">{{ cat.tipo }}</span></td>
+          <td data-label="">
+            {% if current_user.eh_admin and not cat.sistema %}
+              <form action="{{ url_for('categorias.excluir', cat_id=cat.id) }}" method="post" onsubmit="return confirm('Desativar categoria?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if current_user.eh_admin %}
+<article class="card" style="margin-top:1.5rem">
+  <header class="card-head"><h2>Nova categoria</h2></header>
+  <form action="{{ url_for('categorias.nova') }}" method="post" class="form-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="text" name="nome" placeholder="Nome" required>
+    <select name="tipo">
+      {% for valor, label in tipos %}
+        <option value="{{ valor }}">{{ label }}</option>
+      {% endfor %}
+    </select>
+    <input type="color" name="cor" value="#0d9488">
+    <button class="btn btn-primary" type="submit">Criar</button>
+  </form>
+</article>
+{% endif %}
+{% endblock %}

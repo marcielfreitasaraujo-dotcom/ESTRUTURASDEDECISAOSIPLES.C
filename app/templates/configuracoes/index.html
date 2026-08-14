@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Configurações{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Sua conta</p>
+    <h1>Configurações</h1>
+  </div>
+</section>
+
+<div class="grid-2-dash">
+  <article class="card">
+    <header class="card-head"><h2>Perfil</h2></header>
+    <form action="{{ url_for('configuracoes.perfil') }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Nome <input type="text" name="nome" value="{{ current_user.nome }}" required></label>
+      <p class="muted">Usuário: <code>{{ current_user.username }}</code> · perfil {{ current_user.perfil }}</p>
+      <button class="btn btn-primary" type="submit">Salvar nome</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><h2>Senha</h2></header>
+    <form action="{{ url_for('configuracoes.senha') }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Senha atual <input type="password" name="senha_atual" required></label>
+      <label>Nova senha <input type="password" name="senha_nova" minlength="6" required></label>
+      <label>Confirmar <input type="password" name="senha_confirma" minlength="6" required></label>
+      <button class="btn btn-primary" type="submit">Alterar senha</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><h2>Tema</h2></header>
+    <form action="{{ url_for('configuracoes.tema') }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="check"><input type="radio" name="tema" value="claro" {{ 'checked' if current_user.tema == 'claro' }}> 🌞 Claro</label>
+      <label class="check"><input type="radio" name="tema" value="escuro" {{ 'checked' if current_user.tema == 'escuro' }}> 🌙 Escuro</label>
+      <button class="btn btn-ghost" type="submit">Aplicar tema</button>
+    </form>
+  </article>
+
+  {% if current_user.eh_admin %}
+  <article class="card">
+    <header class="card-head"><h2>Dados de demonstração</h2></header>
+    <p class="muted">Insere lançamentos de agosto/2026 (salário, contas, alimentação, Honda, Nubank, investimentos) só para testar o dashboard. Não duplica se já tiver sido carregado.</p>
+    <form action="{{ url_for('configuracoes.demo') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-primary" type="submit">Inserir dados de demonstração</button>
+    </form>
+  </article>
+  {% endif %}
+</div>
+
+<p style="margin-top:2rem"><a class="btn btn-ghost" href="{{ url_for('auth.logout') }}">Sair</a></p>
+{% endblock %}

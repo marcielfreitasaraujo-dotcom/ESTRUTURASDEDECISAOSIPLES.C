@@ -1,0 +1,84 @@
+<div class="modal-backdrop" id="modal-lancamento" hidden>
+  <div class="modal sheet">
+    <div class="modal-head">
+      <h2>Nova movimentação</h2>
+      <button class="icon-btn" type="button" data-close-modal aria-label="Fechar">✕</button>
+    </div>
+    <div class="quick-types">
+      <button type="button" class="chip-tipo receita" data-set-tipo="receita">+ Receita</button>
+      <button type="button" class="chip-tipo despesa ativo" data-set-tipo="despesa">− Despesa</button>
+      <button type="button" class="chip-tipo transferencia" data-set-tipo="transferencia">⇄ Transferência</button>
+    </div>
+    <form action="{{ url_for('movimentacoes.nova') }}" method="post" enctype="multipart/form-data" id="form-lancamento">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="tipo" id="campo-tipo" value="despesa">
+      <input type="hidden" name="next" value="{{ request.full_path }}">
+
+      <label>
+        Valor
+        <input class="input-valor" type="text" name="valor" inputmode="decimal" placeholder="R$ 0,00" required>
+      </label>
+
+      <label>
+        Descrição
+        <input type="text" name="descricao" placeholder="Ex: Combustível" maxlength="180">
+      </label>
+
+      <label id="wrap-categoria">
+        Categoria
+        <select name="categoria_id" id="campo-categoria">
+          <option value="">Selecionar</option>
+          {% for cat in categorias_menu %}
+            <option value="{{ cat.id }}" data-tipo="{{ cat.tipo }}" {% if cat.eh_investimento %}data-investimento="1"{% endif %}>{{ cat.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="grid-2">
+        <label>
+          Data
+          <input type="date" name="data" value="{{ hoje.isoformat() }}">
+        </label>
+        <label>
+          Forma de pagamento
+          <select name="forma_pagamento">
+            {% for valor, label in formas_pagamento %}
+              <option value="{{ valor }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+
+      <label>
+        Conta
+        <select name="conta_id" required>
+          {% for conta in contas_menu %}
+            <option value="{{ conta.id }}">{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label id="wrap-destino" hidden>
+        Conta destino
+        <select name="conta_destino_id" id="campo-destino">
+          <option value="">Selecionar</option>
+          {% for conta in contas_menu %}
+            <option value="{{ conta.id }}">{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>
+        Comprovante <span class="opcional">opcional</span>
+        <input type="file" name="comprovante" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf">
+      </label>
+
+      <label>
+        Observação <span class="opcional">opcional</span>
+        <textarea name="observacao" rows="2" placeholder="Para onde foi o dinheiro?"></textarea>
+      </label>
+
+      <button class="btn btn-primary btn-block" type="submit">Salvar</button>
+    </form>
+  </div>
+</div>

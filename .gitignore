@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ambiente
+.env
+.env.local
+
+# Banco e arquivos de usuário
+instance/*.db
+instance/*.db-journal
+uploads/comprovantes/**
+!uploads/comprovantes/.gitkeep
+backups/**
+!backups/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Sistema
+.DS_Store
+Thumbs.db
