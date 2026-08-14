@@ -27,6 +27,11 @@ def index():
     receitas_despesas = dash.receitas_despesas_por_dia(current_user.id, inicio, fim)
     categorias = dash.gastos_por_categoria(current_user.id, inicio, fim)
     evolucao = dash.evolucao_saldo(current_user.id, inicio, fim)
+    from app.services.vencimentos import proximos, sincronizar_status
+    from app.extensions import db
+
+    sincronizar_status(current_user.id)
+    db.session.commit()
     return render_template(
         "dashboard/index.html",
         resumo=resumo,
@@ -35,6 +40,8 @@ def index():
         grafico_rd=receitas_despesas,
         grafico_cat=categorias,
         grafico_evo=evolucao,
+        proximos_pagar=proximos(current_user.id, "pagar", 5),
+        proximos_receber=proximos(current_user.id, "receber", 4),
         hoje=date.today(),
     )
 

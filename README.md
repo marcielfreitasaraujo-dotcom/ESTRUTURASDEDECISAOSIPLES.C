@@ -2,7 +2,7 @@
 
 Sistema web para registrar receitas, despesas e comprovantes em poucos segundos, com saldo calculado automaticamente.
 
-Esta entrega cobre a **Fase 1 (MVP)**: login, dashboard, contas, categorias, movimentações, comprovantes, histórico, filtros e tema claro/escuro. As fases 2–4 (vencimentos, relatórios, família, cartões, orçamento, PostgreSQL) ficam preparadas no banco, sem telas fictícias de dados.
+Esta entrega cobre a **Fase 1 (MVP)** e o início da **Fase 2**: login, dashboard, contas, categorias, movimentações, comprovantes, histórico, filtros, tema claro/escuro e **contas a pagar / a receber**. Relatórios, família, cartões, orçamento e PostgreSQL continuam para as próximas fases.
 
 ## Como executar
 
@@ -50,6 +50,7 @@ Para ver o dashboard preenchido, use **Configurações → Inserir dados de demo
 - Upload de comprovante (JPG, PNG, PDF, até 8 MB), vinculado ao lançamento
 - Histórico com filtros de período, tipo, categoria, conta, forma e comprovante
 - Pesquisa no topo
+- Contas a pagar e a receber (empréstimos), com atraso em vermelho
 - Exclusão lógica (o lançamento some dos totais, mas permanece na auditoria)
 - Tema claro e escuro
 - Layout responsivo (menu compacto e botão `+` no celular)

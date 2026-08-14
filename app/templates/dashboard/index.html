@@ -58,32 +58,71 @@
   </article>
   <article class="card">
     <header class="card-head">
-      <h2>Últimas movimentações</h2>
-      <a href="{{ url_for('movimentacoes.index') }}">Ver todas</a>
+      <h2>Próximos vencimentos</h2>
+      <a href="{{ url_for('vencimentos.index') }}">Ver todas</a>
     </header>
-    {% if ultimas %}
+    {% if proximos_pagar or proximos_receber %}
       <ul class="mov-list">
-        {% for mov in ultimas %}
+        {% for t in proximos_pagar %}
+          {% set st = t.status_atual() %}
           <li>
-            <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
-              <span class="dot {{ mov.tipo }}"></span>
+            <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}" class="{{ 'texto-atrasado' if st == 'atrasado' }}">
+              <span class="dot {{ 'despesa' if st == 'atrasado' else 'pendente' }}"></span>
               <div>
-                <strong>{{ mov.descricao }}</strong>
-                <small>{{ mov.categoria.nome if mov.categoria else mov.tipo_label }} · {{ mov.data | data_br }}</small>
+                <strong>{{ t.descricao }}</strong>
+                <small>A pagar · {{ t.vencimento | data_br }}{% if st == 'atrasado' %} · atrasada{% endif %}</small>
               </div>
-              <em class="valor {{ mov.tipo }}">
-                {% if mov.tipo == 'receita' %}+{% else %}−{% endif %}
-                {{ mov.valor | moeda }}
-              </em>
+              <em class="valor {{ 'despesa' if st == 'atrasado' else '' }}">{{ t.valor | moeda }}</em>
+            </a>
+          </li>
+        {% endfor %}
+        {% for t in proximos_receber %}
+          {% set st = t.status_atual() %}
+          <li>
+            <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}" class="{{ 'texto-atrasado' if st == 'atrasado' }}">
+              <span class="dot receita"></span>
+              <div>
+                <strong>{{ t.descricao }}</strong>
+                <small>A receber{% if t.pessoa %} · {{ t.pessoa }}{% endif %} · {{ t.vencimento | data_br }}</small>
+              </div>
+              <em class="valor receita">{{ t.valor | moeda }}</em>
             </a>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p class="empty">Nenhum lançamento ainda. Toque em <strong>+ Lançamento</strong> para começar.</p>
+      <p class="empty">Nenhum vencimento em aberto. Cadastre em <a href="{{ url_for('vencimentos.index') }}">Vencimentos</a>.</p>
     {% endif %}
   </article>
 </section>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head">
+    <h2>Últimas movimentações</h2>
+    <a href="{{ url_for('movimentacoes.index') }}">Ver todas</a>
+  </header>
+  {% if ultimas %}
+    <ul class="mov-list">
+      {% for mov in ultimas %}
+        <li>
+          <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
+            <span class="dot {{ mov.tipo }}"></span>
+            <div>
+              <strong>{{ mov.descricao }}</strong>
+              <small>{{ mov.categoria.nome if mov.categoria else mov.tipo_label }} · {{ mov.data | data_br }}</small>
+            </div>
+            <em class="valor {{ mov.tipo }}">
+              {% if mov.tipo == 'receita' %}+{% else %}−{% endif %}
+              {{ mov.valor | moeda }}
+            </em>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">Nenhum lançamento ainda. Toque em <strong>+ Lançamento</strong> para começar.</p>
+  {% endif %}
+</article>
 {% endblock %}
 
 {% block extra_js %}

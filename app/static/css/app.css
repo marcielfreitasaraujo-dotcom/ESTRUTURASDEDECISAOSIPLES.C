@@ -70,6 +70,58 @@ img { max-width: 100%; }
   padding: 0.65rem 0.8rem; border-radius: 12px;
   color: var(--text);
 }
+.nav-badge {
+  margin-left: auto;
+  background: var(--despesa); color: #fff;
+  font-size: 0.7rem; font-weight: 800;
+  min-width: 1.3rem; height: 1.3rem; border-radius: 999px;
+  display: grid; place-items: center; padding: 0 0.3rem;
+}
+.tabs { display: flex; gap: 0.4rem; margin-bottom: 1.1rem; }
+.tab {
+  padding: 0.55rem 1rem; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+}
+.tab.ativo { background: var(--primary); color: #fff; border-color: transparent; }
+.kpi-3 { grid-template-columns: repeat(3, 1fr); }
+.dot.pendente { background: #eab308; }
+.badge.atrasado, .badge.despesa { color: var(--despesa); }
+.badge.vence_hoje, .badge.pendente { color: #b45309; }
+.badge.pago, .badge.recebido { color: var(--receita); }
+.texto-atrasado,
+tr.atrasada,
+tr.atrasada td,
+tr.atrasada a,
+tr.atrasada strong,
+tr.atrasada em,
+tr.atrasada small,
+tr.atrasada td::before {
+  color: var(--despesa) !important;
+}
+tr.atrasada { font-weight: 700; }
+tr.vence-hoje td { color: #b45309; }
+tr.quitada { opacity: 0.72; }
+.notify { position: relative; }
+.notify-dot {
+  position: absolute; top: -2px; right: -2px;
+  background: var(--despesa); color: #fff;
+  font-size: 0.65rem; font-weight: 800;
+  min-width: 1.1rem; height: 1.1rem; border-radius: 999px;
+  display: grid; place-items: center; padding: 0 0.25rem;
+}
+.notify-panel {
+  position: absolute; right: 0; top: calc(100% + 8px);
+  width: min(320px, 80vw); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow); z-index: 40; overflow: hidden;
+}
+.notify-title { margin: 0; padding: 0.7rem 0.9rem 0.3rem; font-size: 0.8rem; color: var(--muted); }
+.notify-panel a {
+  display: block; padding: 0.65rem 0.9rem; border-top: 1px solid var(--border); color: var(--text);
+}
+.notify-panel a small { display: block; color: inherit; opacity: 0.8; }
+.chip-tipo input { display: none; }
+.chip-tipo { text-align: center; }
 .side-nav a:hover, .side-nav a.ativo { background: var(--surface-2); }
 .side-nav a.ativo { color: var(--primary); font-weight: 700; }
 .nav-label {
@@ -303,6 +355,7 @@ code { background: var(--surface-2); padding: 0.1rem 0.35rem; border-radius: 6px
 
 @media (max-width: 1100px) {
   .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .kpi-3 { grid-template-columns: 1fr; }
   .grid-charts, .grid-2-dash { grid-template-columns: 1fr; }
   .user-meta { display: none; }
 }

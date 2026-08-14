@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}{{ titulo.descricao }}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <a class="back" href="{{ url_for('vencimentos.index', tipo=titulo.tipo) }}">← Vencimentos</a>
+    <h1 class="{{ 'texto-atrasado' if status == 'atrasado' }}">{{ titulo.descricao }}</h1>
+    <p class="muted {{ 'texto-atrasado' if status == 'atrasado' }}">
+      {{ titulo.tipo_label }} · vence {{ titulo.vencimento | data_br }}
+      {% if titulo.pessoa %} · {{ titulo.pessoa }}{% endif %}
+    </p>
+  </div>
+  <strong class="hero-valor {{ 'texto-atrasado' if status == 'atrasado' }}">{{ titulo.valor | moeda }}</strong>
+</section>
+
+<p>
+  <span class="badge {{ status }}">
+    {% if status == 'atrasado' %}🔴 Atrasado{% elif status == 'vence_hoje' %}🟡 Vence hoje{% elif status == 'pago' %}🟢 Pago{% elif status == 'recebido' %}🟢 Recebido{% else %}🟡 Pendente{% endif %}
+  </span>
+  {% if status == 'atrasado' %}
+    <span class="texto-atrasado">Esta conta está atrasada há {{ titulo.dias_atraso }} dia{{ 's' if titulo.dias_atraso != 1 }}.</span>
+  {% endif %}
+</p>
+
+<div class="grid-2-dash">
+  {% if not titulo.quitado %}
+  <article class="card">
+    <header class="card-head">
+      <h2>{% if titulo.eh_pagar %}Marcar como pago{% else %}Marcar como recebido{% endif %}</h2>
+    </header>
+    <form action="{{ url_for('vencimentos.quitar', titulo_id=titulo.id) }}" method="post" enctype="multipart/form-data" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Valor
+        <input type="text" name="valor" value="{{ '%.2f'|format(titulo.valor) }}">
+      </label>
+      <div class="grid-2">
+        <label>Data
+          <input type="date" name="data_pagamento" value="{{ hoje.isoformat() }}">
+        </label>
+        <label>Forma
+          <select name="forma_pagamento">
+            {% for valor, label in formas %}
+              <option value="{{ valor }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>Conta
+        <select name="conta_id" required>
+          {% for conta in contas %}
+            <option value="{{ conta.id }}" {{ 'selected' if titulo.conta_id == conta.id }}>{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Comprovante <span class="opcional">opcional</span>
+        <input type="file" name="comprovante" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf">
+      </label>
+      <label class="check">
+        <input type="checkbox" name="lancar" value="1" checked>
+        Registrar movimentação e atualizar o saldo
+      </label>
+      <button class="btn btn-primary" type="submit">
+        {% if titulo.eh_pagar %}Confirmar pagamento{% else %}Confirmar recebimento{% endif %}
+      </button>
+    </form>
+  </article>
+  {% else %}
+  <article class="card">
+    <header class="card-head"><h2>Quitação</h2></header>
+    <p>Valor {{ (titulo.valor_pago or titulo.valor) | moeda }} em {{ titulo.data_pagamento | data_br }}.</p>
+    {% if titulo.movimentacao %}
+      <p><a href="{{ url_for('movimentacoes.detalhe', mov_id=titulo.movimentacao.id) }}">Ver movimentação gerada</a></p>
+    {% endif %}
+  </article>
+  {% endif %}
+
+  <div class="stack">
+    {% if not titulo.quitado %}
+    <article class="card">
+      <header class="card-head"><h2>Editar</h2></header>
+      <form action="{{ url_for('vencimentos.editar', titulo_id=titulo.id) }}" method="post" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="tipo" value="{{ titulo.tipo }}">
+        <label>Descrição <input type="text" name="descricao" value="{{ titulo.descricao }}" required></label>
+        <label>Pessoa <input type="text" name="pessoa" value="{{ titulo.pessoa or '' }}"></label>
+        <label>Valor <input type="text" name="valor" value="{{ '%.2f'|format(titulo.valor) }}"></label>
+        <label>Vencimento <input type="date" name="vencimento" value="{{ titulo.vencimento.isoformat() }}"></label>
+        <label>Categoria
+          <select name="categoria_id">
+            <option value="">Selecionar</option>
+            {% for cat in categorias %}
+              <option value="{{ cat.id }}" {{ 'selected' if titulo.categoria_id == cat.id }}>{{ cat.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Conta
+          <select name="conta_id">
+            <option value="">Selecionar depois</option>
+            {% for conta in contas %}
+              <option value="{{ conta.id }}" {{ 'selected' if titulo.conta_id == conta.id }}>{{ conta.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Observação <textarea name="observacao" rows="2">{{ titulo.observacao or '' }}</textarea></label>
+        <button class="btn btn-ghost" type="submit">Salvar alterações</button>
+      </form>
+    </article>
+    {% endif %}
+
+    <article class="card danger-zone">
+      <header class="card-head"><h2>Excluir</h2></header>
+      <form action="{{ url_for('vencimentos.excluir', titulo_id=titulo.id) }}" method="post" onsubmit="return confirm('Excluir este título?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-danger" type="submit">Excluir</button>
+      </form>
+    </article>
+  </div>
+</div>
+{% endblock %}

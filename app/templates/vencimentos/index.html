@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}{% if tipo == 'receber' %}Contas a receber{% else %}Contas a pagar{% endif %}{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Vencimentos</p>
+    <h1>{% if tipo == 'receber' %}Contas a receber{% else %}Contas a pagar{% endif %}</h1>
+    <p class="muted">
+      {% if tipo == 'receber' %}
+        Empréstimos e valores que você tem para receber.
+      {% else %}
+        Contas e boletos para não atrasar.
+      {% endif %}
+    </p>
+  </div>
+  <button class="btn btn-primary" type="button" data-open-titulo data-tipo="{{ tipo }}">
+    {% if tipo == 'receber' %}+ A receber{% else %}+ A pagar{% endif %}
+  </button>
+</section>
+
+<nav class="tabs">
+  <a class="tab {{ 'ativo' if tipo == 'pagar' }}" href="{{ url_for('vencimentos.index', tipo='pagar') }}">💸 A pagar</a>
+  <a class="tab {{ 'ativo' if tipo == 'receber' }}" href="{{ url_for('vencimentos.index', tipo='receber') }}">💵 A receber</a>
+</nav>
+
+<section class="kpi-grid kpi-3">
+  <article class="kpi">
+    <span>Em aberto</span>
+    <strong>{{ resumo.abertas | moeda }}</strong>
+    <small>{{ resumo.qtd_abertas }} título{{ 's' if resumo.qtd_abertas != 1 }}</small>
+  </article>
+  <article class="kpi despesa">
+    <span>Atrasadas</span>
+    <strong>{{ resumo.atrasadas | moeda }}</strong>
+    <small>{{ resumo.qtd_atrasadas }} vencida{{ 's' if resumo.qtd_atrasadas != 1 }}</small>
+  </article>
+  <article class="kpi receita">
+    <span>Vencem hoje</span>
+    <strong>{{ resumo.qtd_hoje }}</strong>
+    <small>não deixe passar</small>
+  </article>
+</section>
+
+<form class="period-pills" method="get">
+  <input type="hidden" name="tipo" value="{{ tipo }}">
+  {% for chave, label in [('abertas','Em aberto'),('atrasadas','Atrasadas'),('hoje','Hoje'),('quitadas','Quitadas'),('todas','Todas')] %}
+    <button class="pill {{ 'ativo' if situacao == chave }}" name="situacao" value="{{ chave }}">{{ label }}</button>
+  {% endfor %}
+</form>
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Vencimento</th>
+        <th>Descrição</th>
+        <th>{% if tipo == 'receber' %}Quem deve{% else %}Favorecido{% endif %}</th>
+        <th>Categoria</th>
+        <th class="num">Valor</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in titulos %}
+        {% set st = t.status_atual() %}
+        <tr class="{{ 'atrasada' if st == 'atrasado' }} {{ 'vence-hoje' if st == 'vence_hoje' }} {{ 'quitada' if t.quitado }}">
+          <td data-label="Vencimento">{{ t.vencimento | data_br }}</td>
+          <td data-label="Descrição">
+            <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}">{{ t.descricao }}</a>
+          </td>
+          <td data-label="Pessoa">{{ t.pessoa or '—' }}</td>
+          <td data-label="Categoria">{{ t.categoria.nome if t.categoria else '—' }}</td>
+          <td data-label="Valor" class="num">{{ t.valor | moeda }}</td>
+          <td data-label="Status">
+            <span class="badge {{ st }}">
+              {% if st == 'atrasado' %}🔴 Atrasado{% elif st == 'vence_hoje' %}🟡 Vence hoje{% elif st == 'pago' %}🟢 Pago{% elif st == 'recebido' %}🟢 Recebido{% else %}🟡 Pendente{% endif %}
+            </span>
+            {% if st == 'atrasado' and t.dias_atraso %}
+              <small>há {{ t.dias_atraso }} dia{{ 's' if t.dias_atraso != 1 }}</small>
+            {% endif %}
+          </td>
+          <td data-label="">
+            {% if not t.quitado %}
+              <a class="btn btn-ghost btn-sm" href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}">
+                {% if t.eh_pagar %}Pagar{% else %}Receber{% endif %}
+              </a>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="empty">Nenhum título neste filtro. Cadastre uma conta a {{ 'receber' if tipo == 'receber' else 'pagar' }}.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="modal-titulo" hidden>
+  <div class="modal sheet">
+    <div class="modal-head">
+      <h2>Novo título</h2>
+      <button class="icon-btn" type="button" data-close-titulo aria-label="Fechar">✕</button>
+    </div>
+    <form action="{{ url_for('vencimentos.nova') }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="quick-types">
+        <label class="chip-tipo despesa {{ 'ativo' if tipo == 'pagar' }}">
+          <input type="radio" name="tipo" value="pagar" {{ 'checked' if tipo != 'receber' }}> A pagar
+        </label>
+        <label class="chip-tipo receita {{ 'ativo' if tipo == 'receber' }}">
+          <input type="radio" name="tipo" value="receber" {{ 'checked' if tipo == 'receber' }}> A receber
+        </label>
+      </div>
+      <label>Descrição
+        <input type="text" name="descricao" placeholder="Ex: Bol. Honda ou Empréstimo para João" required maxlength="180">
+      </label>
+      <label>Pessoa / favorecido <span class="opcional">quem deve ou para quem você paga</span>
+        <input type="text" name="pessoa" placeholder="Ex: João, Nubank, Honda" maxlength="120">
+      </label>
+      <label>Valor
+        <input class="input-valor" type="text" name="valor" inputmode="decimal" placeholder="R$ 0,00" required>
+      </label>
+      <div class="grid-2">
+        <label>Vencimento
+          <input type="date" name="vencimento" value="{{ hoje.isoformat() }}" required>
+        </label>
+        <label>Categoria
+          <select name="categoria_id">
+            <option value="">Selecionar</option>
+            {% for cat in categorias %}
+              <option value="{{ cat.id }}">{{ cat.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>Conta prevista
+        <select name="conta_id">
+          <option value="">Selecionar depois</option>
+          {% for conta in contas %}
+            <option value="{{ conta.id }}">{{ conta.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Observação <span class="opcional">opcional</span>
+        <textarea name="observacao" rows="2" placeholder="Detalhe o empréstimo ou a conta"></textarea>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Salvar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (() => {
+    const modal = document.getElementById("modal-titulo");
+    document.querySelectorAll("[data-open-titulo]").forEach((btn) => {
+      btn.addEventListener("click", () => { if (modal) modal.hidden = false; });
+    });
+    document.querySelectorAll("[data-close-titulo]").forEach((btn) => {
+      btn.addEventListener("click", () => { if (modal) modal.hidden = true; });
+    });
+    modal?.addEventListener("click", (ev) => { if (ev.target === modal) modal.hidden = true; });
+    modal?.querySelectorAll("input[name=tipo]").forEach((radio) => {
+      radio.addEventListener("change", () => {
+        modal.querySelectorAll(".chip-tipo").forEach((el) => el.classList.remove("ativo"));
+        radio.closest(".chip-tipo")?.classList.add("ativo");
+      });
+    });
+  })();
+</script>
+{% endblock %}

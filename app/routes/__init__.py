@@ -6,3 +6,4 @@ from app.routes.contas import contas_bp
 from app.routes.categorias import categorias_bp
 from app.routes.configuracoes import configuracoes_bp
 from app.routes.pesquisa import pesquisa_bp
+from app.routes.vencimentos import vencimentos_bp

@@ -40,6 +40,7 @@ def create_app(config_class=Config) -> Flask:
     from app.routes.categorias import categorias_bp
     from app.routes.configuracoes import configuracoes_bp
     from app.routes.pesquisa import pesquisa_bp
+    from app.routes.vencimentos import vencimentos_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -49,6 +50,7 @@ def create_app(config_class=Config) -> Flask:
     app.register_blueprint(categorias_bp)
     app.register_blueprint(configuracoes_bp)
     app.register_blueprint(pesquisa_bp)
+    app.register_blueprint(vencimentos_bp)
 
     @app.context_processor
     def inject_globals():
@@ -57,18 +59,28 @@ def create_app(config_class=Config) -> Flask:
 
         contas = []
         categorias = []
+        qtd_atrasadas = 0
+        titulos_atrasados = []
         if current_user.is_authenticated:
+            from app.services.vencimentos import qtd_atrasadas as contar_atrasadas, query_titulos
+
             contas = (
                 Conta.query.filter_by(usuario_id=current_user.id, ativo=True)
                 .order_by(Conta.nome)
                 .all()
             )
             categorias = Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
+            qtd_atrasadas = contar_atrasadas(current_user.id)
+            titulos_atrasados = [
+                t for t in query_titulos(current_user.id).all() if t.status_atual() == "atrasado"
+            ][:6]
         return {
             "contas_menu": contas,
             "categorias_menu": categorias,
             "formas_pagamento": FORMAS_PAGAMENTO,
             "hoje": date.today(),
+            "qtd_atrasadas": qtd_atrasadas,
+            "titulos_atrasados": titulos_atrasados,
         }
 
     @app.errorhandler(403)
@@ -84,6 +96,9 @@ def create_app(config_class=Config) -> Flask:
         from app.services.seed import inicializar_sistema
 
         db.create_all()
+        from app.services.esquema import garantir_esquema
+
+        garantir_esquema()
         inicializar_sistema(app)
 
     return app

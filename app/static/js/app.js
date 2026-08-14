@@ -101,4 +101,16 @@
   document.addEventListener("click", (ev) => {
     if (results && !results.contains(ev.target) && ev.target !== busca) results.hidden = true;
   });
+
+  const notifyBtn = document.querySelector("[data-toggle-notify]");
+  const notifyPanel = document.getElementById("notify-panel");
+  notifyBtn?.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    if (notifyPanel) notifyPanel.hidden = !notifyPanel.hidden;
+  });
+  document.addEventListener("click", (ev) => {
+    if (notifyPanel && !notifyPanel.contains(ev.target) && ev.target !== notifyBtn) {
+      notifyPanel.hidden = true;
+    }
+  });
 })();
