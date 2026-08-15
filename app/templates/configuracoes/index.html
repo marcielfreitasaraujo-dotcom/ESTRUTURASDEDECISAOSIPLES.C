@@ -31,12 +31,40 @@
   </article>
 
   <article class="card">
-    <header class="card-head"><h2>Tema</h2></header>
-    <form action="{{ url_for('configuracoes.tema') }}" method="post" class="stack">
+    <header class="card-head">
+      <h2>Aparência</h2>
+    </header>
+    <p class="muted">Escolha o visual do sistema. O tema fica salvo na sua conta.</p>
+    <form action="{{ url_for('configuracoes.tema') }}" method="post" class="stack" id="form-tema">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label class="check"><input type="radio" name="tema" value="claro" {{ 'checked' if current_user.tema == 'claro' }}> 🌞 Claro</label>
-      <label class="check"><input type="radio" name="tema" value="escuro" {{ 'checked' if current_user.tema == 'escuro' }}> 🌙 Escuro</label>
-      <button class="btn btn-ghost" type="submit">Aplicar tema</button>
+      <input type="hidden" name="next" value="{{ url_for('configuracoes.index') }}">
+      <div class="tema-grid">
+        <label class="tema-opcao {{ 'ativo' if current_user.tema == 'claro' }}">
+          <input type="radio" name="tema" value="claro" {{ 'checked' if current_user.tema == 'claro' }}>
+          <span class="tema-preview tema-preview-claro" aria-hidden="true">
+            <span class="tema-preview-top"></span>
+            <span class="tema-preview-body">
+              <span></span><span></span><span></span>
+            </span>
+          </span>
+          <strong>Claro</strong>
+          <small>Fundo claro, bom durante o dia</small>
+          {% if current_user.tema == 'claro' %}<em class="tema-uso">Em uso</em>{% endif %}
+        </label>
+        <label class="tema-opcao {{ 'ativo' if current_user.tema == 'escuro' }}">
+          <input type="radio" name="tema" value="escuro" {{ 'checked' if current_user.tema == 'escuro' }}>
+          <span class="tema-preview tema-preview-escuro" aria-hidden="true">
+            <span class="tema-preview-top"></span>
+            <span class="tema-preview-body">
+              <span></span><span></span><span></span>
+            </span>
+          </span>
+          <strong>Escuro</strong>
+          <small>Fundo escuro, melhor à noite</small>
+          {% if current_user.tema == 'escuro' %}<em class="tema-uso">Em uso</em>{% endif %}
+        </label>
+      </div>
+      <button class="btn btn-primary" type="submit">Aplicar tema</button>
     </form>
   </article>
 
@@ -61,4 +89,20 @@
 </div>
 
 <p style="margin-top:2rem"><a class="btn btn-ghost" href="{{ url_for('auth.logout') }}">Sair</a></p>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (() => {
+    const form = document.getElementById("form-tema");
+    if (!form) return;
+    form.querySelectorAll("input[name=tema]").forEach((radio) => {
+      radio.addEventListener("change", () => {
+        form.querySelectorAll(".tema-opcao").forEach((el) => el.classList.remove("ativo"));
+        radio.closest(".tema-opcao")?.classList.add("ativo");
+        form.submit();
+      });
+    });
+  })();
+</script>
 {% endblock %}

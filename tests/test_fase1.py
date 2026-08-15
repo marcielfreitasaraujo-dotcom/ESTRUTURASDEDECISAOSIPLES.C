@@ -34,6 +34,13 @@ def test_login_e_dashboard(admin_client):
     assert "img/logo.png" in resp.get_data(as_text=True)
 
 
+def test_configuracoes_tema_visual(admin_client):
+    html = admin_client.get("/configuracoes").get_data(as_text=True)
+    assert "Aparência" in html
+    assert "tema-preview-claro" in html
+    assert "tema-preview-escuro" in html
+
+
 def test_parse_moeda():
     assert parse_moeda("35,00") == Decimal("35.00")
     assert parse_moeda("1.234,56") == Decimal("1234.56")
