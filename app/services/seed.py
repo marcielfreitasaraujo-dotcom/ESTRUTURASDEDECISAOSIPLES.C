@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from app.extensions import db
-from app.models import Categoria, Configuracao, Conta, ContaPagar, Movimentacao, Usuario
+from app.models import Categoria, Configuracao, Conta, ContaPagar, Movimentacao, Recorrencia, Usuario
 from app.models.usuario import agora
 
 
@@ -182,6 +182,8 @@ def inserir_dados_demo(usuario: Usuario) -> bool:
 
     if inserir_vencimentos_demo(usuario):
         criou = True
+    if inserir_recorrencias_demo(usuario):
+        criou = True
     return criou
 
 
@@ -238,5 +240,54 @@ def inserir_vencimentos_demo(usuario: Usuario) -> bool:
         flag.atualizado_em = agora()
     else:
         db.session.add(Configuracao(chave="demo_vencimentos", valor="1"))
+    db.session.commit()
+    return True
+
+
+def inserir_recorrencias_demo(usuario: Usuario) -> bool:
+    flag = _cfg("demo_recorrencias")
+    if flag and flag.valor == "1":
+        return False
+    if Recorrencia.query.filter_by(usuario_id=usuario.id, ativo=True).count():
+        if not flag:
+            db.session.add(Configuracao(chave="demo_recorrencias", valor="1"))
+            db.session.commit()
+        return False
+
+    contas = garantir_contas(usuario)
+    garantir_categorias()
+    db.session.flush()
+    nubank = contas["Nubank"]
+
+    itens = [
+        ("Faculdade", Decimal("129.00"), 6, "Faculdade", nubank),
+        ("Internet", Decimal("99.90"), 5, "Internet", nubank),
+        ("Chip celular", Decimal("75.00"), 6, "Telefone", nubank),
+    ]
+    for desc, valor, dia, cat_nome, conta in itens:
+        categoria = _cat(cat_nome)
+        db.session.add(
+            Recorrencia(
+                usuario_id=usuario.id,
+                conta_id=conta.id,
+                categoria_id=categoria.id if categoria else None,
+                tipo="pagar",
+                descricao=desc,
+                valor=valor,
+                periodicidade="mensal",
+                dia_vencimento=dia,
+                ativo=True,
+            )
+        )
+    db.session.flush()
+    from app.services.recorrencias import gerar_titulos_recorrentes
+
+    gerar_titulos_recorrentes(usuario.id)
+
+    if flag:
+        flag.valor = "1"
+        flag.atualizado_em = agora()
+    else:
+        db.session.add(Configuracao(chave="demo_recorrencias", valor="1"))
     db.session.commit()
     return True

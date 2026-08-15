@@ -9,7 +9,7 @@
       {% if tipo == 'receber' %}
         Empréstimos e valores que você tem para receber.
       {% else %}
-        Contas e boletos para não atrasar.
+        Contas e boletos para não atrasar. <a href="{{ url_for('recorrencias.index') }}">Cadastre recorrentes</a> para gerar todo mês.
       {% endif %}
     </p>
   </div>
@@ -68,6 +68,7 @@
           <td data-label="Vencimento">{{ t.vencimento | data_br }}</td>
           <td data-label="Descrição">
             <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}">{{ t.descricao }}</a>
+            {% if t.recorrencia_id %}<small class="muted"> 🔁</small>{% endif %}
           </td>
           <td data-label="Pessoa">{{ t.pessoa or '—' }}</td>
           <td data-label="Categoria">{{ t.categoria.nome if t.categoria else '—' }}</td>

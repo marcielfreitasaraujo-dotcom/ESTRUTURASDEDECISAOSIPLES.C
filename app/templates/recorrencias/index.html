@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Recorrentes{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Todo mês, no automático</p>
+    <h1>Contas recorrentes</h1>
+    <p class="muted">Faculdade, internet, aluguel, assinaturas. O sistema gera o vencimento do mês e do próximo, sem duplicar.</p>
+  </div>
+  <button class="btn btn-primary" type="button" data-open-recorrencia>+ Nova recorrente</button>
+</section>
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Descrição</th>
+        <th>Tipo</th>
+        <th>Categoria</th>
+        <th>Vencimento</th>
+        <th>Periodicidade</th>
+        <th class="num">Valor</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rec in itens %}
+        <tr>
+          <td data-label="Descrição">
+            <strong>{{ rec.descricao }}</strong>
+            {% if rec.pessoa %}<small class="muted"> · {{ rec.pessoa }}</small>{% endif %}
+          </td>
+          <td data-label="Tipo"><span class="badge {{ rec.tipo }}">{{ rec.tipo_label }}</span></td>
+          <td data-label="Categoria">{{ rec.categoria.nome if rec.categoria else '—' }}</td>
+          <td data-label="Vencimento">Dia {{ '%02d'|format(rec.dia_vencimento) }}{% if rec.periodicidade == 'anual' and rec.mes_vencimento %}/{{ '%02d'|format(rec.mes_vencimento) }}{% endif %}</td>
+          <td data-label="Periodicidade">{{ rec.periodicidade_label }}</td>
+          <td data-label="Valor" class="num">{{ rec.valor | moeda }}</td>
+          <td data-label="">
+            <form action="{{ url_for('recorrencias.desativar', rec_id=rec.id) }}" method="post" onsubmit="return confirm('Desativar esta recorrência?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar</button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="empty">Nenhuma conta recorrente. Cadastre Faculdade, internet, aluguel…</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="modal-backdrop" id="modal-recorrencia" hidden>
+  <div class="modal sheet">
+    <div class="modal-head">
+      <h2>Nova recorrente</h2>
+      <button class="icon-btn" type="button" data-close-recorrencia aria-label="Fechar">✕</button>
+    </div>
+    <form action="{{ url_for('recorrencias.nova') }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="quick-types">
+        <label class="chip-tipo despesa ativo">
+          <input type="radio" name="tipo" value="pagar" checked> A pagar
+        </label>
+        <label class="chip-tipo receita">
+          <input type="radio" name="tipo" value="receber"> A receber
+        </label>
+      </div>
+      <label>Descrição
+        <input type="text" name="descricao" placeholder="Ex: Faculdade" required maxlength="180">
+      </label>
+      <label>Valor
+        <input class="input-valor" type="text" name="valor" inputmode="decimal" placeholder="R$ 129,00" required>
+      </label>
+      <div class="grid-2">
+        <label>Categoria
+          <select name="categoria_id">
+            <option value="">Selecionar</option>
+            {% for cat in categorias %}
+              <option value="{{ cat.id }}">{{ cat.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Conta prevista
+          <select name="conta_id">
+            <option value="">Selecionar</option>
+            {% for conta in contas %}
+              <option value="{{ conta.id }}">{{ conta.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="grid-2">
+        <label>Periodicidade
+          <select name="periodicidade">
+            {% for valor, label in periodicidades %}
+              <option value="{{ valor }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Vencimento (dia)
+          <input type="number" name="dia_vencimento" min="1" max="31" value="6" required>
+        </label>
+      </div>
+      <label>Mês (só anual) <span class="opcional">opcional</span>
+        <input type="number" name="mes_vencimento" min="1" max="12" placeholder="Ex: 1 = janeiro">
+      </label>
+      <label>Observação <span class="opcional">opcional</span>
+        <textarea name="observacao" rows="2"></textarea>
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Salvar e gerar vencimentos</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (() => {
+    const modal = document.getElementById("modal-recorrencia");
+    document.querySelector("[data-open-recorrencia]")?.addEventListener("click", () => { if (modal) modal.hidden = false; });
+    document.querySelector("[data-close-recorrencia]")?.addEventListener("click", () => { if (modal) modal.hidden = true; });
+    modal?.addEventListener("click", (ev) => { if (ev.target === modal) modal.hidden = true; });
+    modal?.querySelectorAll("input[name=tipo]").forEach((radio) => {
+      radio.addEventListener("change", () => {
+        modal.querySelectorAll(".chip-tipo").forEach((el) => el.classList.remove("ativo"));
+        radio.closest(".chip-tipo")?.classList.add("ativo");
+      });
+    });
+  })();
+</script>
+{% endblock %}

@@ -2,7 +2,7 @@
 
 Sistema web para registrar receitas, despesas e comprovantes em poucos segundos, com saldo calculado automaticamente.
 
-Esta entrega cobre a **Fase 1 (MVP)** e o início da **Fase 2**: login, dashboard, contas, categorias, movimentações, comprovantes, histórico, filtros, tema claro/escuro e **contas a pagar / a receber**. Relatórios, família, cartões, orçamento e PostgreSQL continuam para as próximas fases.
+Esta entrega cobre a **Fase 1 (MVP)** e a **Fase 2 em andamento**: login, dashboard, movimentações, comprovantes, contas a pagar/receber e **contas recorrentes**. Relatórios, família, cartões, orçamento e PostgreSQL continuam para as próximas fases.
 
 ## Como executar
 
@@ -51,6 +51,7 @@ Para ver o dashboard preenchido, use **Configurações → Inserir dados de demo
 - Histórico com filtros de período, tipo, categoria, conta, forma e comprovante
 - Pesquisa no topo
 - Contas a pagar e a receber (empréstimos), com atraso em vermelho
+- Contas recorrentes (faculdade, internet, aluguel) gerando o próximo vencimento sem duplicar
 - Exclusão lógica (o lançamento some dos totais, mas permanece na auditoria)
 - Tema claro e escuro
 - Layout responsivo (menu compacto e botão `+` no celular)

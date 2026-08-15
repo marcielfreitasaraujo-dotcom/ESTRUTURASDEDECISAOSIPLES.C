@@ -44,6 +44,9 @@
             <span class="nav-badge">{{ qtd_atrasadas }}</span>
           {% endif %}
         </a>
+        <a href="{{ url_for('recorrencias.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('recorrencias.') }}">
+          <span class="ico">🔁</span> Recorrentes
+        </a>
         <a href="{{ url_for('movimentacoes.investimentos') }}" class="{{ 'ativo' if request.args.get('tipo') == 'investimento' }}">
           <span class="ico">📈</span> Investimentos
         </a>

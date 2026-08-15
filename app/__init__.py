@@ -41,6 +41,7 @@ def create_app(config_class=Config) -> Flask:
     from app.routes.configuracoes import configuracoes_bp
     from app.routes.pesquisa import pesquisa_bp
     from app.routes.vencimentos import vencimentos_bp
+    from app.routes.recorrencias import recorrencias_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -51,6 +52,20 @@ def create_app(config_class=Config) -> Flask:
     app.register_blueprint(configuracoes_bp)
     app.register_blueprint(pesquisa_bp)
     app.register_blueprint(vencimentos_bp)
+    app.register_blueprint(recorrencias_bp)
+
+    @app.before_request
+    def gerar_recorrentes_do_usuario():
+        from flask import request
+
+        if not current_user.is_authenticated:
+            return
+        if request.endpoint in (None, "static", "auth.login", "auth.logout"):
+            return
+        from app.services.recorrencias import gerar_titulos_recorrentes
+
+        if gerar_titulos_recorrentes(current_user.id):
+            db.session.commit()
 
     @app.context_processor
     def inject_globals():

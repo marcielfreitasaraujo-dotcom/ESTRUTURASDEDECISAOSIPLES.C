@@ -40,7 +40,7 @@ class ContaPagar(db.Model):
     status = db.Column(db.String(20), nullable=False, default="pendente")
     pago_por = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=True)
     comprovante_id = db.Column(db.Integer, db.ForeignKey("comprovantes.id"), nullable=True)
-    recorrencia_id = db.Column(db.Integer, db.ForeignKey("recorrencias.id"), nullable=True)
+    recorrencia_id = db.Column(db.Integer, db.ForeignKey("recorrencias.id"), nullable=True, index=True)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)
@@ -48,6 +48,7 @@ class ContaPagar(db.Model):
     conta = db.relationship("Conta", foreign_keys=[conta_id])
     categoria = db.relationship("Categoria", foreign_keys=[categoria_id])
     movimentacao = db.relationship("Movimentacao", foreign_keys=[movimentacao_id])
+    recorrencia = db.relationship("Recorrencia", back_populates="titulos")
 
     @property
     def eh_pagar(self) -> bool:
@@ -83,8 +84,14 @@ class ContaPagar(db.Model):
         return dict(TIPOS_TITULO).get(self.tipo, self.tipo)
 
 
+PERIODICIDADES = (
+    ("mensal", "Mensal"),
+    ("anual", "Anual"),
+)
+
+
 class Recorrencia(db.Model):
-    """Despesas recorrentes — geração automática na Fase 2."""
+    """Gera títulos em Contas a pagar/receber sem duplicar."""
 
     __tablename__ = "recorrencias"
 
@@ -92,11 +99,27 @@ class Recorrencia(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=False, index=True)
     conta_id = db.Column(db.Integer, db.ForeignKey("contas.id"), nullable=True)
     categoria_id = db.Column(db.Integer, db.ForeignKey("categorias.id"), nullable=True)
+    tipo = db.Column(db.String(20), nullable=False, default="pagar")
     descricao = db.Column(db.String(180), nullable=False)
+    pessoa = db.Column(db.String(120), nullable=True)
+    observacao = db.Column(db.Text, nullable=True)
     valor = db.Column(db.Numeric(14, 2), nullable=False, default=Decimal("0.00"))
     periodicidade = db.Column(db.String(20), nullable=False, default="mensal")
     dia_vencimento = db.Column(db.Integer, nullable=False, default=1)
+    mes_vencimento = db.Column(db.Integer, nullable=True)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     proxima_geracao = db.Column(db.Date, nullable=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)
+
+    conta = db.relationship("Conta", foreign_keys=[conta_id])
+    categoria = db.relationship("Categoria", foreign_keys=[categoria_id])
+    titulos = db.relationship("ContaPagar", back_populates="recorrencia")
+
+    @property
+    def periodicidade_label(self) -> str:
+        return dict(PERIODICIDADES).get(self.periodicidade, self.periodicidade)
+
+    @property
+    def tipo_label(self) -> str:
+        return dict(TIPOS_TITULO).get(self.tipo, self.tipo)
