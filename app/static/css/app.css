@@ -17,15 +17,41 @@
 }
 
 html[data-theme="escuro"] {
-  --bg: #0b1220;
-  --surface: #131b2c;
-  --surface-2: #1b2438;
-  --text: #f1f5f9;
-  --muted: #94a3b8;
-  --border: #243049;
-  --primary: #2dd4bf;
-  --primary-2: #5eead4;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  --bg: #020b16;
+  --surface: #071d33;
+  --surface-2: #0c3355;
+  --text: #eef6fc;
+  --muted: #8fb4d0;
+  --border: rgba(74, 168, 224, 0.22);
+  --primary: #4aa8e0;
+  --primary-2: #7ac143;
+  --shadow: 0 16px 40px rgba(2, 11, 22, 0.45);
+}
+
+html[data-theme="escuro"] body {
+  background-color: #020b16;
+  background-image:
+    radial-gradient(ellipse 58% 42% at 100% -8%, rgba(31, 143, 212, 0.32), transparent 55%),
+    radial-gradient(ellipse 42% 38% at -8% 108%, rgba(122, 193, 67, 0.16), transparent 52%),
+    radial-gradient(ellipse 36% 30% at 78% 100%, rgba(255, 143, 31, 0.14), transparent 50%),
+    linear-gradient(165deg, #020b16 0%, #071d33 55%, #0c3355 140%);
+  background-attachment: fixed;
+}
+
+html[data-theme="escuro"] .sidebar,
+html[data-theme="escuro"] .card,
+html[data-theme="escuro"] .kpi,
+html[data-theme="escuro"] .account-card,
+html[data-theme="escuro"] .table-wrap,
+html[data-theme="escuro"] .modal {
+  background: rgba(7, 29, 51, 0.88);
+  backdrop-filter: blur(10px);
+}
+
+html[data-theme="escuro"] .btn-primary { color: #020b16; }
+html[data-theme="escuro"] .avatar { color: #020b16; }
+html[data-theme="escuro"] .topbar {
+  background: color-mix(in srgb, #020b16 78%, transparent);
 }
 
 * { box-sizing: border-box; }
@@ -212,7 +238,6 @@ tr.quitada { opacity: 0.72; }
   width: 36px; height: 36px; border-radius: 50%;
   display: grid; place-items: center; background: var(--primary); color: #022; font-weight: 800;
 }
-html[data-theme="escuro"] .avatar { color: #042f2e; }
 
 .content { padding: 1.25rem 1.5rem 6rem; }
 .page-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; }
@@ -386,11 +411,11 @@ label { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; f
 .tema-preview-claro .tema-preview-body span:nth-child(1) { background: linear-gradient(#bbf7d0, #fff); }
 .tema-preview-claro .tema-preview-body span:nth-child(2) { background: linear-gradient(#fecdd3, #fff); }
 .tema-preview-claro .tema-preview-body span:nth-child(3) { background: #fff; }
-.tema-preview-escuro { background: #0b1220; }
-.tema-preview-escuro .tema-preview-top { background: #131b2c; border-bottom: 1px solid #243049; }
-.tema-preview-escuro .tema-preview-body span:nth-child(1) { background: linear-gradient(#065f46, #1b2438); }
-.tema-preview-escuro .tema-preview-body span:nth-child(2) { background: linear-gradient(#9f1239, #1b2438); }
-.tema-preview-escuro .tema-preview-body span:nth-child(3) { background: #1b2438; }
+.tema-preview-escuro { background: #020b16; }
+.tema-preview-escuro .tema-preview-top { background: #071d33; border-bottom: 1px solid rgba(74, 168, 224, 0.28); }
+.tema-preview-escuro .tema-preview-body span:nth-child(1) { background: linear-gradient(#0d6eb8, #0c3355); }
+.tema-preview-escuro .tema-preview-body span:nth-child(2) { background: linear-gradient(#e07800, #0c3355); }
+.tema-preview-escuro .tema-preview-body span:nth-child(3) { background: linear-gradient(#5f9e2f, #0c3355); }
 
 .pill {
   border: 1px solid var(--border); background: var(--surface); color: var(--text);
@@ -468,10 +493,11 @@ html[data-theme="escuro"] .flash-info { background: #0c4a6e; color: #bae6fd; }
   inset: 0;
   z-index: -1;
   background:
-    radial-gradient(ellipse 55% 50% at 88% 8%, rgba(34, 211, 238, 0.32), transparent 55%),
-    radial-gradient(ellipse 48% 48% at 8% 92%, rgba(13, 110, 184, 0.42), transparent 52%),
-    radial-gradient(ellipse 30% 30% at 72% 88%, rgba(255, 143, 31, 0.22), transparent 55%),
-    linear-gradient(148deg, #020b16 0%, #071d33 38%, #0c3d68 72%, #0d6eb8 120%);
+    radial-gradient(ellipse 52% 48% at 90% 6%, rgba(34, 211, 238, 0.38), transparent 55%),
+    radial-gradient(ellipse 36% 34% at 18% 18%, rgba(122, 193, 67, 0.26), transparent 55%),
+    radial-gradient(ellipse 50% 48% at 6% 92%, rgba(13, 110, 184, 0.48), transparent 52%),
+    radial-gradient(ellipse 34% 32% at 78% 88%, rgba(255, 143, 31, 0.28), transparent 55%),
+    linear-gradient(148deg, #020b16 0%, #071d33 34%, #0c3d68 68%, #0d6eb8 120%);
 }
 .auth-card {
   position: relative;
@@ -491,7 +517,7 @@ html[data-theme="escuro"] .flash-info { background: #0c4a6e; color: #bae6fd; }
   right: 0;
   top: 0;
   height: 5px;
-  background: linear-gradient(90deg, #22d3ee, #0d6eb8 55%, #ff8f1f);
+  background: linear-gradient(90deg, #22d3ee, #0d6eb8 40%, #7ac143 70%, #ff8f1f);
 }
 .auth-card h1 { margin: 0.4rem 0; color: #0f172a; }
 .auth-card .muted,
