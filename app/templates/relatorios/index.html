@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Relatórios{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Análise</p>
+    <h1>Relatórios</h1>
+    <p class="muted">{{ titulo_periodo }} · dados reais do seu usuário</p>
+  </div>
+  <div class="btn-row">
+    <a class="btn btn-ghost" href="{{ url_for('relatorios.pdf', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat()) }}">📄 PDF</a>
+    <a class="btn btn-primary" href="{{ url_for('relatorios.excel', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat()) }}">📊 Excel</a>
+  </div>
+</section>
+
+<form class="period-pills" method="get">
+  {% for chave, label in [('hoje','Hoje'),('esta_semana','Esta semana'),('este_mes','Este mês'),('mes_passado','Mês passado'),('ultimos_30','30 dias')] %}
+    <button class="pill {{ 'ativo' if periodo == chave }}" name="periodo" value="{{ chave }}">{{ label }}</button>
+  {% endfor %}
+</form>
+
+<section class="kpi-grid">
+  <article class="kpi receita"><span>Receitas</span><strong>{{ resumo.receitas | moeda }}</strong></article>
+  <article class="kpi despesa"><span>Despesas</span><strong>{{ resumo.despesas | moeda }}</strong></article>
+  <article class="kpi investimento"><span>Investimentos</span><strong>{{ resumo.investimentos | moeda }}</strong></article>
+  <article class="kpi saldo {{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">
+    <span>Saldo do período</span>
+    <strong>{{ resumo.saldo_periodo | moeda }}</strong>
+    <small>Nas contas: {{ resumo.saldo_contas | moeda }}</small>
+  </article>
+</section>
+
+<div class="grid-2-dash">
+  <article class="card">
+    <header class="card-head"><h2>Gastos por categoria</h2></header>
+    {% if categorias %}
+      <table class="data-table">
+        <thead><tr><th>Categoria</th><th class="num">Valor</th></tr></thead>
+        <tbody>
+          {% for nome, valor, cor in categorias %}
+            <tr>
+              <td data-label="Categoria"><span class="swatch" style="background:{{ cor }}"></span>{{ nome }}</td>
+              <td data-label="Valor" class="num">{{ valor | moeda }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="empty">Sem gastos categorizados neste período.</p>
+    {% endif %}
+  </article>
+  <article class="card">
+    <header class="card-head"><h2>Exportar</h2></header>
+    <p class="muted">O PDF e o Excel usam exatamente os lançamentos deste período, só da sua conta. Nada é apagado.</p>
+    <p class="muted">Período: {{ inicio | data_br }} → {{ fim | data_br }} · {{ lancamentos | length }} lançamento{{ 's' if lancamentos|length != 1 }}.</p>
+  </article>
+</div>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head">
+    <h2>Lançamentos do período</h2>
+    <a href="{{ url_for('movimentacoes.index', periodo=periodo) }}">Abrir histórico</a>
+  </header>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Descrição</th>
+          <th>Tipo</th>
+          <th>Categoria</th>
+          <th class="num">Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mov in lancamentos %}
+          <tr>
+            <td data-label="Data">{{ mov.data | data_br }}</td>
+            <td data-label="Descrição"><a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">{{ mov.descricao }}</a></td>
+            <td data-label="Tipo"><span class="badge {{ mov.tipo }}">{{ mov.tipo_label }}</span></td>
+            <td data-label="Categoria">{{ mov.categoria.nome if mov.categoria else '—' }}</td>
+            <td data-label="Valor" class="num valor {{ mov.tipo }}">{{ mov.valor | moeda }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="empty">Nenhum lançamento neste período.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endblock %}

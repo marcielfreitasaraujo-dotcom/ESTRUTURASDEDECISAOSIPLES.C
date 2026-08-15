@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Cartões{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Crédito</p>
+    <h1>Cartões</h1>
+    <p class="muted">Compras no crédito não baixam o saldo da conta até você pagar a fatura.</p>
+  </div>
+</section>
+
+<div class="account-grid">
+  {% for item in itens %}
+    <a class="account-card" href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
+      <span class="tag">fecha dia {{ item.cartao.dia_fechamento }} · vence dia {{ item.cartao.dia_vencimento }}</span>
+      <h2>{{ item.cartao.nome }}</h2>
+      <strong>{{ item.usado | moeda }}</strong>
+      <small>Limite {{ item.cartao.limite | moeda }} · disponível {{ item.disponivel | moeda }}</small>
+      <div class="barra {{ 'estouro' if item.percentual >= 100 else 'alerta' if item.percentual >= 80 else '' }}">
+        <span style="width: {{ [item.percentual, 100]|min }}%"></span>
+      </div>
+    </a>
+  {% else %}
+    <p class="empty">Nenhum cartão ainda. Cadastre o Nubank, o da Caixa ou o que você usar.</p>
+  {% endfor %}
+</div>
+
+<article class="card" style="margin-top:1.5rem">
+  <header class="card-head"><h2>Novo cartão</h2></header>
+  <form action="{{ url_for('cartoes.nova') }}" method="post" class="form-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="text" name="nome" placeholder="Nome (ex: Nubank)" required maxlength="80">
+    <input type="text" name="limite" placeholder="Limite" value="0,00">
+    <input type="number" name="dia_fechamento" min="1" max="28" value="8" title="Dia de fechamento">
+    <input type="number" name="dia_vencimento" min="1" max="28" value="15" title="Dia de vencimento">
+    <button class="btn btn-primary" type="submit">Cadastrar</button>
+  </form>
+</article>
+{% endblock %}

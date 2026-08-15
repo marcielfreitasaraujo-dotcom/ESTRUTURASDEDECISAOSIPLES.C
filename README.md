@@ -137,6 +137,9 @@ Provedores compatíveis (Render, Railway, Fly.io, VPS): use o `Procfile`. A esco
 - Histórico, filtros, tema claro/escuro
 - Contas a pagar/receber (atraso em vermelho)
 - Recorrentes sem duplicar vencimento
+- Relatórios em tela, PDF e Excel
+- Cartões de crédito com parcelas e pagamento de fatura (compra no crédito **não** baixa o saldo da conta até pagar a fatura)
+- Orçamento mensal por categoria (gasto = lançamentos + parcelas do cartão no mês)
 - Isolamento: usuário comum só vê os próprios dados
 - Backup local manual
 

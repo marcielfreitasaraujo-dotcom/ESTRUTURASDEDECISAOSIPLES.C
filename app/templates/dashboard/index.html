@@ -96,6 +96,55 @@
   </article>
 </section>
 
+{% if orcamentos_estouro or faturas_abertas %}
+<section class="grid-2-dash" style="margin-top:1rem">
+  {% if faturas_abertas %}
+  <article class="card">
+    <header class="card-head">
+      <h2>Faturas em aberto</h2>
+      <a href="{{ url_for('cartoes.index') }}">Cartões</a>
+    </header>
+    <ul class="mov-list">
+      {% for item in faturas_abertas %}
+        <li>
+          <a href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
+            <span class="dot despesa"></span>
+            <div>
+              <strong>{{ item.cartao.nome }}</strong>
+              <small>vence {{ item.vencimento | data_br }}</small>
+            </div>
+            <em class="valor despesa">{{ item.aberto | moeda }}</em>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+  {% endif %}
+  {% if orcamentos_estouro %}
+  <article class="card">
+    <header class="card-head">
+      <h2>Orçamento estourado</h2>
+      <a href="{{ url_for('orcamentos.index') }}">Ajustar</a>
+    </header>
+    <ul class="mov-list">
+      {% for item in orcamentos_estouro %}
+        <li>
+          <a href="{{ url_for('orcamentos.index') }}">
+            <span class="dot despesa"></span>
+            <div>
+              <strong>{{ item.categoria.nome }}</strong>
+              <small>limite {{ item.limite | moeda }}</small>
+            </div>
+            <em class="valor despesa">{{ item.gasto | moeda }}</em>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+  {% endif %}
+</section>
+{% endif %}
+
 <article class="card" style="margin-top:1rem">
   <header class="card-head">
     <h2>Últimas movimentações</h2>

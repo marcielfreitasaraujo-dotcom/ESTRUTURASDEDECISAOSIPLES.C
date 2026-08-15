@@ -53,10 +53,15 @@
         <a href="{{ url_for('categorias.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('categorias.') }}">
           <span class="ico">🏷️</span> Categorias
         </a>
-        <span class="nav-label">Em breve</span>
-        <span class="nav-soon" title="Fase 3">💳 Cartões</span>
-        <span class="nav-soon" title="Fase 3">🎯 Orçamento</span>
-        <span class="nav-soon" title="Fase 2">📊 Relatórios</span>
+        <a href="{{ url_for('relatorios.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('relatorios.') }}">
+          <span class="ico">📊</span> Relatórios
+        </a>
+        <a href="{{ url_for('cartoes.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('cartoes.') }}">
+          <span class="ico">💳</span> Cartões
+        </a>
+        <a href="{{ url_for('orcamentos.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('orcamentos.') }}">
+          <span class="ico">🎯</span> Orçamento
+        </a>
         <a href="{{ url_for('configuracoes.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('configuracoes.') }}">
           <span class="ico">⚙️</span> Configurações
         </a>

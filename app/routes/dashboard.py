@@ -32,6 +32,28 @@ def index():
 
     sincronizar_status(current_user.id)
     db.session.commit()
+    from app.services.orcamentos import estourados
+    from app.services.cartoes import (
+        competencia_da_compra,
+        parcelas_competencia,
+        query_cartoes,
+        total_fatura,
+        vencimento_fatura,
+    )
+
+    hoje = date.today()
+    faturas_abertas = []
+    for cartao in query_cartoes(current_user.id).all():
+        competencia = competencia_da_compra(cartao, hoje)
+        aberto = total_fatura(parcelas_competencia(cartao, competencia), somente_abertas=True)
+        if aberto > 0:
+            faturas_abertas.append(
+                {
+                    "cartao": cartao,
+                    "aberto": aberto,
+                    "vencimento": vencimento_fatura(cartao, competencia),
+                }
+            )
     return render_template(
         "dashboard/index.html",
         resumo=resumo,
@@ -42,7 +64,9 @@ def index():
         grafico_evo=evolucao,
         proximos_pagar=proximos(current_user.id, "pagar", 5),
         proximos_receber=proximos(current_user.id, "receber", 4),
-        hoje=date.today(),
+        hoje=hoje,
+        orcamentos_estouro=estourados(current_user.id, hoje.year, hoje.month),
+        faturas_abertas=faturas_abertas,
     )
 
 

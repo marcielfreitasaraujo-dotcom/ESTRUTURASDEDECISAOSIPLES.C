@@ -77,6 +77,21 @@ def nome_mes(ano: int, mes: int) -> str:
     return f"{MESES_PT[mes]} de {ano}"
 
 
+def somar_meses(referencia: date, meses: int) -> date:
+    mes0 = referencia.month - 1 + meses
+    ano = referencia.year + mes0 // 12
+    mes = mes0 % 12 + 1
+    return date(ano, mes, 1)
+
+
+def dia_seguro(ano: int, mes: int, dia: int) -> date:
+    if mes == 12:
+        ultimo = date(ano + 1, 1, 1) - timedelta(days=1)
+    else:
+        ultimo = date(ano, mes + 1, 1) - timedelta(days=1)
+    return date(ano, mes, min(max(dia, 1), ultimo.day))
+
+
 def periodo_preset(chave: str, inicio_custom=None, fim_custom=None):
     hoje = date.today()
     if chave == "hoje":

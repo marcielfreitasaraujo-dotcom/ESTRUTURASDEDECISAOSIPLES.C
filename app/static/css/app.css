@@ -131,6 +131,31 @@ tr.quitada { opacity: 0.72; }
 .nav-soon { color: var(--muted); opacity: 0.7; cursor: default; }
 .ico { width: 1.4rem; display: inline-block; }
 
+.barra {
+  height: 8px;
+  background: var(--surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 0.45rem;
+}
+.barra span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: 99px;
+}
+.barra.alerta span { background: #eab308; }
+.barra.estouro span { background: var(--despesa); }
+.data-table input {
+  width: 100%;
+  min-width: 7rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.45rem 0.6rem;
+}
+
 .main-wrap { flex: 1; min-width: 0; }
 .topbar {
   display: flex; align-items: center; gap: 0.8rem;

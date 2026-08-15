@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Orçamento{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Planejamento</p>
+    <h1>Orçamento</h1>
+    <p class="muted">{{ titulo_mes }} · limite por categoria, comparado com gastos reais e parcelas do cartão</p>
+  </div>
+  <nav class="tabs">
+    <a class="tab" href="{{ url_for('orcamentos.index', competencia=competencia_ant.strftime('%Y-%m')) }}">← {{ competencia_ant.strftime('%m/%Y') }}</a>
+    <span class="tab ativo">{{ competencia.strftime('%m/%Y') }}</span>
+    <a class="tab" href="{{ url_for('orcamentos.index', competencia=competencia_prox.strftime('%Y-%m')) }}">{{ competencia_prox.strftime('%m/%Y') }} →</a>
+  </nav>
+</section>
+
+<section class="kpi-grid kpi-3">
+  <article class="kpi">
+    <span>Limite do mês</span>
+    <strong>{{ total_limite | moeda }}</strong>
+  </article>
+  <article class="kpi despesa">
+    <span>Gasto (com limite)</span>
+    <strong>{{ total_gasto | moeda }}</strong>
+  </article>
+  <article class="kpi saldo {{ 'negativo' if total_gasto > total_limite and total_limite > 0 else 'positivo' }}">
+    <span>Restante</span>
+    <strong>{{ (total_limite - total_gasto) | moeda }}</strong>
+  </article>
+</section>
+
+<form action="{{ url_for('orcamentos.salvar') }}" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="competencia" value="{{ competencia.strftime('%Y-%m') }}">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Categoria</th>
+          <th class="num">Limite</th>
+          <th class="num">Gasto</th>
+          <th>Uso</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in itens %}
+          <tr class="{{ 'atrasada' if item.status == 'estouro' }}">
+            <td data-label="Categoria">
+              <span class="swatch" style="background:{{ item.categoria.cor or '#64748b' }}"></span>
+              {{ item.categoria.nome }}
+            </td>
+            <td data-label="Limite">
+              <input type="text" name="limite_{{ item.categoria.id }}" value="{{ item.limite }}" inputmode="decimal">
+            </td>
+            <td data-label="Gasto" class="num">{{ item.gasto | moeda }}</td>
+            <td data-label="Uso">
+              {% if item.limite > 0 %}
+                <div class="barra {{ item.status }}">
+                  <span style="width: {{ [item.percentual, 100]|min }}%"></span>
+                </div>
+                <small class="muted">{{ '%.0f'|format(item.percentual) }}% · restante {{ item.restante | moeda }}</small>
+              {% else %}
+                <small class="muted">sem limite</small>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:1rem">
+    <button class="btn btn-primary" type="submit">Salvar orçamento</button>
+  </p>
+</form>
+{% endblock %}

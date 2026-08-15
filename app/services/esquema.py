@@ -17,6 +17,10 @@ COLUNAS_RECORRENCIAS = {
     "mes_vencimento": "ALTER TABLE recorrencias ADD COLUMN mes_vencimento INTEGER",
 }
 
+COLUNAS_PARCELAS = {
+    "categoria_id": "ALTER TABLE parcelas ADD COLUMN categoria_id INTEGER",
+}
+
 
 def _adicionar_colunas(tabela: str, colunas: dict) -> None:
     inspetor = inspect(db.engine)
@@ -33,6 +37,7 @@ def garantir_esquema() -> None:
     """Acrescenta colunas novas em bancos SQLite já criados na Fase 1."""
     _adicionar_colunas("contas_pagar", COLUNAS_CONTAS_PAGAR)
     _adicionar_colunas("recorrencias", COLUNAS_RECORRENCIAS)
+    _adicionar_colunas("parcelas", COLUNAS_PARCELAS)
     inspetor = inspect(db.engine)
     if "contas_pagar" in inspetor.get_table_names():
         with db.engine.begin() as conn:

@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from app.extensions import db
-from app.models import Categoria, Configuracao, Conta, ContaPagar, Movimentacao, Recorrencia, Usuario
+from app.models import Categoria, Configuracao, Conta, ContaPagar, Cartao, Movimentacao, Orcamento, Recorrencia, Usuario
 from app.models.usuario import agora
 
 
@@ -187,6 +187,10 @@ def inserir_dados_demo(usuario: Usuario) -> bool:
         criou = True
     if inserir_recorrencias_demo(usuario):
         criou = True
+    if inserir_cartoes_demo(usuario):
+        criou = True
+    if inserir_orcamentos_demo(usuario):
+        criou = True
     return criou
 
 
@@ -292,5 +296,80 @@ def inserir_recorrencias_demo(usuario: Usuario) -> bool:
         flag.atualizado_em = agora()
     else:
         db.session.add(Configuracao(chave="demo_recorrencias", valor="1"))
+    db.session.commit()
+    return True
+
+
+def inserir_cartoes_demo(usuario: Usuario) -> bool:
+    flag = _cfg("demo_cartoes")
+    if flag and flag.valor == "1":
+        return False
+    if Cartao.query.filter_by(usuario_id=usuario.id, ativo=True).count():
+        if not flag:
+            db.session.add(Configuracao(chave="demo_cartoes", valor="1"))
+            db.session.commit()
+        return False
+
+    garantir_categorias()
+    from app.services.cartoes import criar_compra
+
+    cartao = Cartao(
+        usuario_id=usuario.id,
+        nome="Nubank crédito",
+        limite=Decimal("2500.00"),
+        dia_fechamento=8,
+        dia_vencimento=15,
+        ativo=True,
+    )
+    db.session.add(cartao)
+    db.session.flush()
+    criar_compra(cartao, "Suplemento", Decimal("89.90"), date(2026, 8, 4), 1, _cat("Suplemento").id if _cat("Suplemento") else None)
+    criar_compra(cartao, "Notebook restante", Decimal("600.00"), date(2026, 8, 10), 3, _cat("Compras").id if _cat("Compras") else None)
+
+    if flag:
+        flag.valor = "1"
+        flag.atualizado_em = agora()
+    else:
+        db.session.add(Configuracao(chave="demo_cartoes", valor="1"))
+    db.session.commit()
+    return True
+
+
+def inserir_orcamentos_demo(usuario: Usuario) -> bool:
+    flag = _cfg("demo_orcamentos")
+    if flag and flag.valor == "1":
+        return False
+    if Orcamento.query.filter_by(usuario_id=usuario.id, ativo=True).count():
+        if not flag:
+            db.session.add(Configuracao(chave="demo_orcamentos", valor="1"))
+            db.session.commit()
+        return False
+
+    garantir_categorias()
+    limites = [
+        ("Alimentação", Decimal("400.00")),
+        ("Transporte", Decimal("120.00")),
+        ("Assinaturas", Decimal("60.00")),
+        ("Lazer", Decimal("80.00")),
+    ]
+    for nome, limite in limites:
+        categoria = _cat(nome)
+        if not categoria:
+            continue
+        db.session.add(
+            Orcamento(
+                usuario_id=usuario.id,
+                categoria_id=categoria.id,
+                ano=2026,
+                mes=8,
+                limite=limite,
+                ativo=True,
+            )
+        )
+    if flag:
+        flag.valor = "1"
+        flag.atualizado_em = agora()
+    else:
+        db.session.add(Configuracao(chave="demo_orcamentos", valor="1"))
     db.session.commit()
     return True

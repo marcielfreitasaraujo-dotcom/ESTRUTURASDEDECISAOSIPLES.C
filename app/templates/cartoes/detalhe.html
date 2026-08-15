@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}{{ cartao.nome }}{% endblock %}
+{% block content %}
+<p class="back"><a href="{{ url_for('cartoes.index') }}">← Cartões</a></p>
+<section class="page-head">
+  <div>
+    <p class="kicker">Fatura</p>
+    <h1>{{ cartao.nome }}</h1>
+    <p class="muted">Fecha dia {{ cartao.dia_fechamento }} · vence dia {{ cartao.dia_vencimento }}</p>
+  </div>
+  <nav class="tabs">
+    <a class="tab" href="{{ url_for('cartoes.detalhe', cartao_id=cartao.id, competencia=competencia_ant.strftime('%Y-%m')) }}">← {{ competencia_ant.strftime('%m/%Y') }}</a>
+    <span class="tab ativo">{{ competencia.strftime('%m/%Y') }}</span>
+    <a class="tab" href="{{ url_for('cartoes.detalhe', cartao_id=cartao.id, competencia=competencia_prox.strftime('%Y-%m')) }}">{{ competencia_prox.strftime('%m/%Y') }} →</a>
+  </nav>
+</section>
+
+<section class="kpi-grid kpi-3">
+  <article class="kpi">
+    <span>Fatura {{ competencia.strftime('%m/%Y') }}</span>
+    <strong>{{ total | moeda }}</strong>
+    <small>vence {{ vencimento | data_br }}</small>
+  </article>
+  <article class="kpi despesa">
+    <span>Em aberto</span>
+    <strong>{{ aberto | moeda }}</strong>
+  </article>
+  <article class="kpi">
+    <span>Limite usado</span>
+    <strong>{{ usado | moeda }}</strong>
+    <small>disponível {{ disponivel | moeda }} de {{ cartao.limite | moeda }}</small>
+  </article>
+</section>
+
+<div class="grid-2-dash">
+  <article class="card">
+    <header class="card-head"><h2>Nova compra</h2></header>
+    <form action="{{ url_for('cartoes.compra', cartao_id=cartao.id) }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Descrição <input type="text" name="descricao" placeholder="Ex: Notebook" required maxlength="180"></label>
+      <label>Valor <input class="input-valor" type="text" name="valor" inputmode="decimal" placeholder="R$ 0,00" required></label>
+      <div class="grid-2">
+        <label>Data <input type="date" name="data" value="{{ hoje.isoformat() }}"></label>
+        <label>Parcelas
+          <input type="number" name="parcelas" min="1" max="48" value="1">
+        </label>
+      </div>
+      <label>Categoria
+        <select name="categoria_id">
+          <option value="">Selecionar</option>
+          {% for cat in categorias %}
+            <option value="{{ cat.id }}">{{ cat.nome }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="btn btn-primary" type="submit">Lançar no cartão</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <header class="card-head"><h2>Pagar fatura</h2></header>
+    {% if aberto > 0 %}
+      <form action="{{ url_for('cartoes.pagar', cartao_id=cartao.id) }}" method="post" class="stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="competencia" value="{{ competencia.strftime('%Y-%m') }}">
+        <p class="muted">Baixa {{ aberto | moeda }} da conta escolhida e marca as parcelas deste mês como pagas.</p>
+        <label>Conta
+          <select name="conta_id" required>
+            {% for conta in contas %}
+              <option value="{{ conta.id }}">{{ conta.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Data do pagamento <input type="date" name="data_pagamento" value="{{ hoje.isoformat() }}"></label>
+        <button class="btn btn-primary" type="submit">Pagar {{ aberto | moeda }}</button>
+      </form>
+    {% else %}
+      <p class="empty">Nada em aberto nesta fatura.</p>
+    {% endif %}
+  </article>
+</div>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Parcelas da fatura</h2></header>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Categoria</th>
+          <th class="num">Valor</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in parcelas %}
+          <tr class="{{ 'quitada' if p.pago }}">
+            <td data-label="Descrição">{{ p.rotulo_parcela }}</td>
+            <td data-label="Categoria">{{ p.categoria.nome if p.categoria else '—' }}</td>
+            <td data-label="Valor" class="num">{{ p.valor_parcela | moeda }}</td>
+            <td data-label="Status">
+              {% if p.pago %}
+                <span class="badge pago">Paga</span>
+              {% else %}
+                <span class="badge pendente">Em aberto</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="empty">Nenhuma parcela nesta competência.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Dados do cartão</h2></header>
+  <form action="{{ url_for('cartoes.editar', cartao_id=cartao.id) }}" method="post" class="form-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="text" name="nome" value="{{ cartao.nome }}" required>
+    <input type="text" name="limite" value="{{ cartao.limite }}">
+    <input type="number" name="dia_fechamento" min="1" max="28" value="{{ cartao.dia_fechamento }}">
+    <input type="number" name="dia_vencimento" min="1" max="28" value="{{ cartao.dia_vencimento }}">
+    <button class="btn btn-ghost" type="submit">Salvar</button>
+  </form>
+  <form action="{{ url_for('cartoes.excluir', cartao_id=cartao.id) }}" method="post" onsubmit="return confirm('Desativar este cartão? As parcelas não são apagadas.');" style="margin-top:1rem">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar cartão</button>
+  </form>
+</article>
+{% endblock %}

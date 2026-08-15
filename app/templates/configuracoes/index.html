@@ -43,7 +43,7 @@
   {% if current_user.eh_admin %}
   <article class="card">
     <header class="card-head"><h2>Dados de demonstração</h2></header>
-    <p class="muted">Insere lançamentos de agosto/2026 (salário, contas, alimentação, Honda, Nubank, investimentos) só para testar o dashboard. Não duplica se já tiver sido carregado.</p>
+    <p class="muted">Insere lançamentos, vencimentos, cartão e orçamento de agosto/2026 para testar. Não duplica se já tiver sido carregado.</p>
     <form action="{{ url_for('configuracoes.demo') }}" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="btn btn-primary" type="submit">Inserir dados de demonstração</button>

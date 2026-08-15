@@ -19,6 +19,8 @@ class Orcamento(db.Model):
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)
 
+    categoria = db.relationship("Categoria")
+
     __table_args__ = (
         db.UniqueConstraint("usuario_id", "categoria_id", "ano", "mes", name="uq_orcamento_periodo"),
     )

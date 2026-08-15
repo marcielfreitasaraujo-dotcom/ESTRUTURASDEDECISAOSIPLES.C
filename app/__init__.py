@@ -78,6 +78,9 @@ def create_app(config_class=None) -> Flask:
     from app.routes.pesquisa import pesquisa_bp
     from app.routes.vencimentos import vencimentos_bp
     from app.routes.recorrencias import recorrencias_bp
+    from app.routes.relatorios import relatorios_bp
+    from app.routes.cartoes import cartoes_bp
+    from app.routes.orcamentos import orcamentos_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -89,6 +92,9 @@ def create_app(config_class=None) -> Flask:
     app.register_blueprint(pesquisa_bp)
     app.register_blueprint(vencimentos_bp)
     app.register_blueprint(recorrencias_bp)
+    app.register_blueprint(relatorios_bp)
+    app.register_blueprint(cartoes_bp)
+    app.register_blueprint(orcamentos_bp)
 
     @app.after_request
     def registrar_requisicao(response):
