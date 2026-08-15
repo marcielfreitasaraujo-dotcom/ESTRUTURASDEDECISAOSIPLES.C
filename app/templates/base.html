@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}FinCasa{% endblock %} · FinCasa</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,7 +17,7 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <span class="brand-mark">R$</span>
+        <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="FinCasa" width="42" height="42">
         <div>
           <strong>FinCasa</strong>
           <small>Controle financeiro</small>

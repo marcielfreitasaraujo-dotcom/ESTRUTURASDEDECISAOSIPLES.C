@@ -21,10 +21,17 @@ def test_login_invalido(client):
     assert "inválidos" in resp.get_data(as_text=True)
 
 
+def test_login_mostra_logo(client):
+    html = client.get("/login").get_data(as_text=True)
+    assert "img/logo.png" in html
+    assert "brand-logo-capa" in html
+
+
 def test_login_e_dashboard(admin_client):
     resp = admin_client.get("/")
     assert resp.status_code == 200
     assert "Olá" in resp.get_data(as_text=True)
+    assert "img/logo.png" in resp.get_data(as_text=True)
 
 
 def test_parse_moeda():

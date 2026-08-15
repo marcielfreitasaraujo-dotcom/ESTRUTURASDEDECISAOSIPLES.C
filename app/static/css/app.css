@@ -54,12 +54,26 @@ img { max-width: 100%; }
   z-index: 30;
 }
 .brand { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; }
-.brand-lg { margin-bottom: 1rem; }
-.brand-mark {
-  width: 42px; height: 42px; border-radius: 14px;
-  display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--primary), #0ea5e9);
-  color: #fff; font-weight: 800;
+.brand-lg {
+  margin-bottom: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+.brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  object-fit: cover;
+  display: block;
+  background: #0a0a0a;
+  flex-shrink: 0;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+.brand-logo-capa {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
 }
 .brand strong { display: block; font-size: 1.05rem; }
 .brand small { color: var(--muted); }
