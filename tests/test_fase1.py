@@ -25,6 +25,7 @@ def test_login_mostra_logo(client):
     html = client.get("/login").get_data(as_text=True)
     assert "img/logo.png" in html
     assert "brand-logo-capa" in html
+    assert "auth-bg" in html
 
 
 def test_login_e_dashboard(admin_client):
