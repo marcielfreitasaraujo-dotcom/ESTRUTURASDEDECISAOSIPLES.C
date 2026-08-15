@@ -2,59 +2,112 @@
 
 Sistema web para registrar receitas, despesas e comprovantes em poucos segundos, com saldo calculado automaticamente.
 
-Esta entrega cobre a **Fase 1 (MVP)** e a **Fase 2 em andamento**: login, dashboard, movimentações, comprovantes, contas a pagar/receber e **contas recorrentes**. Relatórios, família, cartões, orçamento e PostgreSQL continuam para as próximas fases.
+O projeto continua **local com SQLite** no dia a dia. A arquitetura já está preparada para, no futuro, apontar para um **PostgreSQL na nuvem** e ser acessado de vários computadores — sem reescrever o sistema.
 
-## Como executar
+## Requisitos
 
-### Linux / macOS
+- Python 3.12+
+- pip
+- (opcional em produção) PostgreSQL e um proxy HTTPS (Caddy, Nginx, provedor)
 
-```bash
-chmod +x iniciar.sh
-./iniciar.sh
-```
-
-### Windows
-
-```bat
-iniciar.bat
-```
-
-### Manual
+## Instalação local
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python app.py
+cp .env.example .env       # opcional; ajuste a SECRET_KEY
 ```
+
+Linux/macOS: `./iniciar.sh`  
+Windows: `iniciar.bat`
 
 Abra [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
-**Primeiro acesso**
+**Primeiro acesso (somente desenvolvimento)**
 
 - Usuário: `admin`
 - Senha: `admin123`
 
-Altere a senha em **Configurações** depois do primeiro login.
+Altere a senha em **Configurações**. Em produção, defina `ADMIN_SENHA` no ambiente; a senha padrão não é criada.
 
-Para ver o dashboard preenchido, use **Configurações → Inserir dados de demonstração** (não duplica se já tiver sido carregado).
+Para preencher o dashboard de teste: **Configurações → Inserir dados de demonstração** (não duplica).
 
-## O que já funciona
+## Configuração (`.env`)
 
-- Login com senha em hash (Werkzeug)
-- Dashboard com totais reais, gráficos (Chart.js) e últimas movimentações
-- Lançamento rápido (`+ Lançamento`) em modal, de qualquer tela
-- Receita, despesa, investimento e transferência entre contas
-- Saldo automático por conta (saldo inicial + entradas − saídas)
-- Conferência da carteira (saldo esperado × saldo informado)
-- Upload de comprovante (JPG, PNG, PDF, até 8 MB), vinculado ao lançamento
-- Histórico com filtros de período, tipo, categoria, conta, forma e comprovante
-- Pesquisa no topo
-- Contas a pagar e a receber (empréstimos), com atraso em vermelho
-- Contas recorrentes (faculdade, internet, aluguel) gerando o próximo vencimento sem duplicar
-- Exclusão lógica (o lançamento some dos totais, mas permanece na auditoria)
-- Tema claro e escuro
-- Layout responsivo (menu compacto e botão `+` no celular)
+O arquivo `.env` é só para o seu computador. No servidor, use variáveis de ambiente. Nunca commite senha, token ou `SECRET_KEY` real.
+
+| Variável | Desenvolvimento | Produção |
+|---|---|---|
+| `FLASK_ENV` | `development` | `production` |
+| `DEBUG` | `true` | `false` |
+| `SECRET_KEY` | qualquer valor local | **obrigatória** e secreta |
+| `DATABASE_URL` | SQLite (padrão) | PostgreSQL |
+| `SERVER_URL` | `http://127.0.0.1:5000` | `https://seudominio` |
+| `ADMIN_SENHA` | padrão local | obrigatória se ainda não houver admin |
+| `SESSION_COOKIE_SECURE` | `false` | `true` (HTTPS) |
+| `STORAGE_BACKEND` | `local` | `local` (nuvem de arquivos depois) |
+
+Exemplo local (SQLite, o padrão):
+
+```
+FLASK_ENV=development
+SECRET_KEY=uma-chave-local
+```
+
+Exemplo de produção (não rode isso no seu PC se quiser manter o SQLite):
+
+```
+FLASK_ENV=production
+DEBUG=false
+SECRET_KEY=...          # gerada por você, nunca no Git
+DATABASE_URL=postgresql://usuario:senha@host:5432/fincasa
+SERVER_URL=https://meusistema.com.br
+ADMIN_SENHA=...
+```
+
+O código **não** grava senha do banco nem secret em arquivo de código.
+
+## Banco de dados
+
+- **Local:** SQLite em `instance/financeiro.db` (não vai para o Git).
+- **Produção:** PostgreSQL via `DATABASE_URL`. O aplicativo é que fala com o banco; o navegador nunca conecta no PostgreSQL.
+
+O SQLite **não é apagado** ao preparar a nuvem. Para copiar dados no futuro:
+
+```bash
+python scripts/backup.py
+DATABASE_URL_DESTINO=postgresql://... python scripts/migrar_sqlite_para_postgres.py
+# revise as contagens; só então:
+DATABASE_URL_DESTINO=postgresql://... python scripts/migrar_sqlite_para_postgres.py --executar
+```
+
+A origem SQLite permanece. Não rode `--executar` sem backup e sem a sua autorização explícita em um banco importante.
+
+## Backup e restauração
+
+Pelo sistema (admin): **Configurações → Gerar backup agora**.
+
+Pelo terminal:
+
+```bash
+python scripts/backup.py
+```
+
+Isso copia o SQLite (se estiver em uso) e a pasta de comprovantes para `backups/AAAAAMMDD-HHMMSS/`. O banco atual **não é apagado**.
+
+PostgreSQL em produção:
+
+```bash
+pg_dump "$DATABASE_URL" -F c -f backups/financeiro.dump
+pg_restore -d "$DATABASE_URL" backups/financeiro.dump
+```
+
+## Comprovantes
+
+Arquivos em `uploads/comprovantes/{usuario_id}/{uuid}.ext`. O banco guarda a **chave relativa**, não um caminho `C:\...`. Lançamentos antigos com caminho absoluto continuam sendo lidos.
+
+Formatos: JPG, PNG, WEBP, PDF. Tamanho máximo: 8 MB. Acesso só autenticado.
 
 ## Testes
 
@@ -63,8 +116,36 @@ source venv/bin/activate
 pytest -q
 ```
 
-## Stack
+## Execução em produção (quando você autorizar o deploy)
 
-Python 3 · Flask · SQLAlchemy · SQLite · HTML/CSS/JS · Chart.js · Pillow
+Ainda **não** publique sozinho. Quando for a hora, em um Linux com HTTPS na frente:
 
-O banco fica em `instance/financeiro.db`. Comprovantes em `uploads/comprovantes/` (acesso só autenticado).
+```bash
+export FLASK_ENV=production
+export SECRET_KEY=...
+export DATABASE_URL=postgresql://...
+gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
+```
+
+Provedores compatíveis (Render, Railway, Fly.io, VPS): use o `Procfile`. A escolha do provedor fica para depois.
+
+## O que já funciona no produto
+
+- Login com senha em hash (Werkzeug) e sessão
+- Dashboard com totais reais e gráficos
+- Lançamento rápido, contas, categorias, comprovantes
+- Histórico, filtros, tema claro/escuro
+- Contas a pagar/receber (atraso em vermelho)
+- Recorrentes sem duplicar vencimento
+- Isolamento: usuário comum só vê os próprios dados
+- Backup local manual
+
+## Arquitetura (hoje e amanhã)
+
+```
+Navegador  --HTTPS-->  Flask (FinCasa)  -->  SQLite (local)
+                                        \->  PostgreSQL (produção, quando apontar DATABASE_URL)
+                                        \->  arquivos de comprovantes
+```
+
+Vários PCs usam o **mesmo login no mesmo servidor**. Não crie um `.db` diferente em cada computador se a meta for sincronizar.

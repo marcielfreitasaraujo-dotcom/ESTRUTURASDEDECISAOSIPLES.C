@@ -50,10 +50,13 @@ def _cfg(chave: str) -> Configuracao | None:
     return Configuracao.query.filter_by(chave=chave).first()
 
 
-def garantir_admin(app) -> Usuario:
+def garantir_admin(app) -> Usuario | None:
     usuario = Usuario.query.filter_by(username=app.config["ADMIN_INICIAL_USUARIO"]).first()
     if usuario:
         return usuario
+    senha = app.config.get("ADMIN_INICIAL_SENHA")
+    if not senha:
+        return None
     usuario = Usuario(
         nome=app.config["ADMIN_INICIAL_NOME"],
         username=app.config["ADMIN_INICIAL_USUARIO"],
@@ -61,7 +64,7 @@ def garantir_admin(app) -> Usuario:
         tema="claro",
         ativo=True,
     )
-    usuario.definir_senha(app.config["ADMIN_INICIAL_SENHA"])
+    usuario.definir_senha(senha)
     db.session.add(usuario)
     db.session.flush()
     return usuario

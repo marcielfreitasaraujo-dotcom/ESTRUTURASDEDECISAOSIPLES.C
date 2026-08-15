@@ -5,6 +5,7 @@ ASSINATURAS = {
     "jpeg": (b"\xff\xd8\xff",),
     "png": (b"\x89PNG\r\n\x1a\n",),
     "pdf": (b"%PDF",),
+    "webp": (b"RIFF",),
 }
 
 MIME_POR_EXT = {
@@ -12,6 +13,7 @@ MIME_POR_EXT = {
     "jpeg": "image/jpeg",
     "png": "image/png",
     "pdf": "application/pdf",
+    "webp": "image/webp",
 }
 
 
@@ -30,4 +32,6 @@ def validar_conteudo(caminho: Path, ext: str) -> bool:
             cabeca = fh.read(16)
     except OSError:
         return False
+    if ext == "webp":
+        return cabeca.startswith(b"RIFF") and b"WEBP" in cabeca
     return any(cabeca.startswith(sig) for sig in ASSINATURAS[ext])

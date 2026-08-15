@@ -1,13 +1,41 @@
-from flask import Flask, render_template
-from flask_login import current_user
+import logging
+import os
+from pathlib import Path
 
-from config import Config
+from flask import Flask, jsonify, render_template, request
+from flask_login import current_user
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+from config import get_config, opcoes_engine
 from app.extensions import csrf, db, login_manager
 from app.models import Usuario
 from app.utils.formatters import formatar_data, formatar_moeda, nome_mes, parse_moeda
 
+logger = logging.getLogger("fincasa")
 
-def create_app(config_class=Config) -> Flask:
+
+def _configurar_log(app: Flask) -> None:
+    if app.testing:
+        return
+    nivel = logging.DEBUG if app.debug else logging.INFO
+    logging.basicConfig(
+        level=nivel,
+        format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+    )
+    uri = str(app.config.get("SQLALCHEMY_DATABASE_URI") or "")
+    tipo_banco = "sqlite" if uri.startswith("sqlite") else "postgres" if "postgres" in uri else "outro"
+    logger.info(
+        "FinCasa iniciado ambiente=%s debug=%s banco=%s",
+        os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development",
+        app.debug,
+        tipo_banco,
+    )
+
+
+def create_app(config_class=None) -> Flask:
+    if config_class is None:
+        config_class = get_config()
+
     app = Flask(
         __name__,
         instance_relative_config=True,
@@ -15,13 +43,21 @@ def create_app(config_class=Config) -> Flask:
         static_folder="static",
     )
     app.config.from_object(config_class)
+    app.config["UPLOAD_FOLDER"] = Path(app.config["UPLOAD_FOLDER"])
+    app.config["BACKUP_FOLDER"] = Path(app.config["BACKUP_FOLDER"])
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = opcoes_engine(app.config["SQLALCHEMY_DATABASE_URI"])
+    if hasattr(config_class, "init_app"):
+        config_class.init_app(app)
 
     app.config["UPLOAD_FOLDER"].mkdir(parents=True, exist_ok=True)
     app.config["BACKUP_FOLDER"].mkdir(parents=True, exist_ok=True)
 
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
+    _configurar_log(app)
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -54,13 +90,28 @@ def create_app(config_class=Config) -> Flask:
     app.register_blueprint(vencimentos_bp)
     app.register_blueprint(recorrencias_bp)
 
+    @app.after_request
+    def registrar_requisicao(response):
+        if app.testing or request.endpoint in (None, "static"):
+            return response
+        logger.info("%s %s -> %s", request.method, request.path, response.status_code)
+        return response
+
+    @app.get("/api/saude")
+    def saude():
+        return jsonify(
+            {
+                "ok": True,
+                "app": "fincasa",
+                "ambiente": os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development",
+            }
+        )
+
     @app.before_request
     def gerar_recorrentes_do_usuario():
-        from flask import request
-
         if not current_user.is_authenticated:
             return
-        if request.endpoint in (None, "static", "auth.login", "auth.logout"):
+        if request.endpoint in (None, "static", "auth.login", "auth.logout", "saude"):
             return
         from app.services.recorrencias import gerar_titulos_recorrentes
 

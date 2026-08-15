@@ -1,10 +1,9 @@
-from pathlib import Path
-
 from flask import Blueprint, abort, send_file
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 from app.extensions import db
 from app.models import Comprovante
+from app.services.comprovantes import arquivo_comprovante
 from app.utils.permissoes import exigir_dono
 
 comprovantes_bp = Blueprint("comprovantes", __name__)
@@ -15,8 +14,8 @@ comprovantes_bp = Blueprint("comprovantes", __name__)
 def ver(comp_id):
     comprovante = db.get_or_404(Comprovante, comp_id)
     exigir_dono(comprovante.usuario_id)
-    caminho = Path(comprovante.caminho)
-    if not caminho.exists():
+    caminho = arquivo_comprovante(comprovante)
+    if not caminho:
         abort(404)
     return send_file(
         caminho,

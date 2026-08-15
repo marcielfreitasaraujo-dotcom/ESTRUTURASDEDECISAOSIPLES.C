@@ -49,6 +49,14 @@
       <button class="btn btn-primary" type="submit">Inserir dados de demonstração</button>
     </form>
   </article>
+  <article class="card">
+    <header class="card-head"><h2>Backup</h2></header>
+    <p class="muted">Copia o banco SQLite (se estiver em uso) e os comprovantes para a pasta <code>backups/</code>. Não apaga nada.</p>
+    <form action="{{ url_for('configuracoes.backup') }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-ghost" type="submit">Gerar backup agora</button>
+    </form>
+  </article>
   {% endif %}
 </div>
 

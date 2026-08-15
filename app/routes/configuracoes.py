@@ -2,7 +2,9 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.extensions import db
+from app.services.backup import criar_backup
 from app.services.seed import inserir_dados_demo
+from app.utils.decorators import admin_obrigatorio
 
 configuracoes_bp = Blueprint("configuracoes", __name__)
 
@@ -71,3 +73,12 @@ def demo():
     else:
         flash("Os dados de demonstração já haviam sido carregados.", "info")
     return redirect(url_for("dashboard.index"))
+
+
+@configuracoes_bp.route("/configuracoes/backup", methods=["POST"])
+@login_required
+@admin_obrigatorio
+def backup():
+    pasta = criar_backup()
+    flash(f"Backup criado em {pasta}. O banco atual não foi apagado.", "sucesso")
+    return redirect(url_for("configuracoes.index"))
