@@ -31,6 +31,8 @@ Abra [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 Altere a senha em **Configurações**. Em produção, defina `ADMIN_SENHA` no ambiente; a senha padrão não é criada.
 
+Para começar do zero: **Configurações → Começar do zero** (digite `ZERAR`). Para a família: **Configurações → Família**.
+
 Para preencher o dashboard de teste: **Configurações → Inserir dados de demonstração** (não duplica).
 
 ## Configuração (`.env`)
@@ -116,18 +118,27 @@ source venv/bin/activate
 pytest -q
 ```
 
-## Execução em produção (quando você autorizar o deploy)
+## Execução em produção
 
-Ainda **não** publique sozinho. Quando for a hora, em um Linux com HTTPS na frente:
+O código já sobe com Gunicorn + PostgreSQL. O atalho mais simples é o [Render](https://render.com) (plano gratuito):
+
+1. Crie a conta no Render com o mesmo e-mail do GitHub.
+2. **New → Blueprint** e aponte para este repositório (`render.yaml` já está na raiz).
+3. Em `ADMIN_SENHA`, coloque a senha do `admin` (não use `admin123`).
+4. Depois do deploy, a URL fica `https://fincasa.onrender.com` (ou a que o Render mostrar).
+5. Entre com `admin` + a senha que você definiu. Em **Configurações → Família**, crie os logins das outras pessoas.
+
+No plano gratuito o site “dorme” depois de um tempo parado: o primeiro acesso do dia pode levar cerca de um minuto. O Postgres gratuito do Render expira em 30 dias — depois disso, suba o plano ou aponte `DATABASE_URL` para um Neon/Supabase.
+
+No servidor (VPS), as variáveis são as mesmas:
 
 ```bash
 export FLASK_ENV=production
 export SECRET_KEY=...
 export DATABASE_URL=postgresql://...
+export ADMIN_SENHA=...
 gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
 ```
-
-Provedores compatíveis (Render, Railway, Fly.io, VPS): use o `Procfile`. A escolha do provedor fica para depois.
 
 ## O que já funciona no produto
 

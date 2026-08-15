@@ -7,6 +7,7 @@ from app.extensions import db
 from app.services.auditoria import registrar
 from app.services.orcamentos import painel, salvar_limites
 from app.utils.formatters import nome_mes, parse_moeda, somar_meses
+from app.utils.casa import id_casa
 
 orcamentos_bp = Blueprint("orcamentos", __name__)
 
@@ -27,7 +28,7 @@ def _mes_atual():
 @login_required
 def index():
     competencia = _mes_atual()
-    itens = painel(current_user.id, competencia.year, competencia.month)
+    itens = painel(id_casa(), competencia.year, competencia.month)
     com_limite = [i for i in itens if i["limite"] > 0]
     total_limite = sum((i["limite"] for i in com_limite), 0)
     total_gasto = sum((i["gasto"] for i in com_limite), 0)
@@ -56,7 +57,7 @@ def salvar():
         except ValueError:
             continue
         pares.append((categoria_id, parse_moeda(valor)))
-    qtd = salvar_limites(current_user.id, competencia.year, competencia.month, pares)
+    qtd = salvar_limites(id_casa(), competencia.year, competencia.month, pares)
     registrar("editar", "orcamento", None, competencia.isoformat())
     db.session.commit()
     flash(f"Orçamento de {nome_mes(competencia.year, competencia.month)} salvo ({qtd} categoria(s)).", "sucesso")

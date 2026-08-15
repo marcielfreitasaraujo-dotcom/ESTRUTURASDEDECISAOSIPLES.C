@@ -10,6 +10,7 @@ from app.services.auditoria import registrar
 from app.services.comprovantes import ComprovanteInvalido, salvar_comprovante
 from app.services import vencimentos as svc
 from app.utils.formatters import parse_data, parse_moeda
+from app.utils.casa import id_casa
 from app.utils.permissoes import exigir_dono
 
 vencimentos_bp = Blueprint("vencimentos", __name__)
@@ -23,7 +24,7 @@ def _obter(titulo_id: int) -> ContaPagar:
 
 def _contas():
     return (
-        Conta.query.filter_by(usuario_id=current_user.id, ativo=True)
+        Conta.query.filter_by(usuario_id=id_casa(), ativo=True)
         .order_by(Conta.nome)
         .all()
     )
@@ -65,10 +66,10 @@ def index():
     if tipo not in ("pagar", "receber"):
         tipo = "pagar"
     situacao = request.args.get("situacao", "abertas")
-    svc.sincronizar_status(current_user.id)
+    svc.sincronizar_status(id_casa())
     db.session.commit()
-    titulos = svc.filtrar_por_situacao(svc.query_titulos(current_user.id, tipo).all(), situacao)
-    resumo = svc.totais(current_user.id, tipo)
+    titulos = svc.filtrar_por_situacao(svc.query_titulos(id_casa(), tipo).all(), situacao)
+    resumo = svc.totais(id_casa(), tipo)
     return render_template(
         "vencimentos/index.html",
         titulos=titulos,
@@ -84,7 +85,7 @@ def index():
 @vencimentos_bp.route("/vencimentos/nova", methods=["POST"])
 @login_required
 def nova():
-    titulo = ContaPagar(usuario_id=current_user.id, ativo=True, tipo="pagar", descricao="", valor=0, vencimento=date.today())
+    titulo = ContaPagar(usuario_id=id_casa(), ativo=True, tipo="pagar", descricao="", valor=0, vencimento=date.today())
     try:
         _aplicar(titulo, request.form)
         db.session.add(titulo)
@@ -137,7 +138,7 @@ def quitar(titulo_id):
     titulo = _obter(titulo_id)
     try:
         conta_id = int(request.form.get("conta_id") or 0)
-        conta = Conta.query.filter_by(id=conta_id, usuario_id=current_user.id, ativo=True).first()
+        conta = Conta.query.filter_by(id=conta_id, usuario_id=id_casa(), ativo=True).first()
         if not conta:
             raise ValueError("Selecione a conta para registrar o pagamento.")
         lancar = request.form.get("lancar") == "1"

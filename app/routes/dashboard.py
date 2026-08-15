@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, render_template, request
 from flask_login import current_user, login_required
 
 from app.services import dashboard as dash
+from app.utils.casa import id_casa
 from app.utils.formatters import periodo_preset
 
 dashboard_bp = Blueprint("dashboard", __name__)
@@ -22,15 +23,16 @@ def _periodo():
 @login_required
 def index():
     chave, inicio, fim = _periodo()
-    resumo = dash.resumo_periodo(current_user.id, inicio, fim)
-    ultimas = dash.ultimas_movimentacoes(current_user.id)
-    receitas_despesas = dash.receitas_despesas_por_dia(current_user.id, inicio, fim)
-    categorias = dash.gastos_por_categoria(current_user.id, inicio, fim)
-    evolucao = dash.evolucao_saldo(current_user.id, inicio, fim)
+    uid = id_casa()
+    resumo = dash.resumo_periodo(uid, inicio, fim)
+    ultimas = dash.ultimas_movimentacoes(uid)
+    receitas_despesas = dash.receitas_despesas_por_dia(uid, inicio, fim)
+    categorias = dash.gastos_por_categoria(uid, inicio, fim)
+    evolucao = dash.evolucao_saldo(uid, inicio, fim)
     from app.services.vencimentos import proximos, sincronizar_status
     from app.extensions import db
 
-    sincronizar_status(current_user.id)
+    sincronizar_status(uid)
     db.session.commit()
     from app.services.orcamentos import estourados
     from app.services.cartoes import (
@@ -43,7 +45,7 @@ def index():
 
     hoje = date.today()
     faturas_abertas = []
-    for cartao in query_cartoes(current_user.id).all():
+    for cartao in query_cartoes(uid).all():
         competencia = competencia_da_compra(cartao, hoje)
         aberto = total_fatura(parcelas_competencia(cartao, competencia), somente_abertas=True)
         if aberto > 0:
@@ -62,10 +64,10 @@ def index():
         grafico_rd=receitas_despesas,
         grafico_cat=categorias,
         grafico_evo=evolucao,
-        proximos_pagar=proximos(current_user.id, "pagar", 5),
-        proximos_receber=proximos(current_user.id, "receber", 4),
+        proximos_pagar=proximos(uid, "pagar", 5),
+        proximos_receber=proximos(uid, "receber", 4),
         hoje=hoje,
-        orcamentos_estouro=estourados(current_user.id, hoje.year, hoje.month),
+        orcamentos_estouro=estourados(uid, hoje.year, hoje.month),
         faturas_abertas=faturas_abertas,
     )
 
@@ -74,10 +76,11 @@ def index():
 @login_required
 def graficos():
     _, inicio, fim = _periodo()
+    uid = id_casa()
     return jsonify(
         {
-            "receitas_despesas": dash.receitas_despesas_por_dia(current_user.id, inicio, fim),
-            "categorias": dash.gastos_por_categoria(current_user.id, inicio, fim),
-            "evolucao": dash.evolucao_saldo(current_user.id, inicio, fim),
+            "receitas_despesas": dash.receitas_despesas_por_dia(uid, inicio, fim),
+            "categorias": dash.gastos_por_categoria(uid, inicio, fim),
+            "evolucao": dash.evolucao_saldo(uid, inicio, fim),
         }
     )

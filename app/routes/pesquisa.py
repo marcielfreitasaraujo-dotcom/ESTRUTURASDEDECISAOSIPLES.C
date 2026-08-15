@@ -4,6 +4,7 @@ from sqlalchemy import String, cast, or_
 
 from app.models import Movimentacao
 from app.utils.formatters import formatar_data, formatar_moeda
+from app.utils.casa import id_casa
 
 pesquisa_bp = Blueprint("pesquisa", __name__)
 
@@ -16,7 +17,7 @@ def pesquisar():
         return jsonify({"itens": []})
     like = f"%{termo}%"
     q = Movimentacao.query.filter(
-        Movimentacao.usuario_id == current_user.id,
+        Movimentacao.usuario_id == id_casa(),
         Movimentacao.ativo.is_(True),
         or_(
             Movimentacao.descricao.ilike(like),

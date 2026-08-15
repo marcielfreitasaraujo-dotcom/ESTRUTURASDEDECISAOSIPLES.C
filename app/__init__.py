@@ -120,8 +120,9 @@ def create_app(config_class=None) -> Flask:
         if request.endpoint in (None, "static", "auth.login", "auth.logout", "saude"):
             return
         from app.services.recorrencias import gerar_titulos_recorrentes
+        from app.utils.casa import id_casa
 
-        if gerar_titulos_recorrentes(current_user.id):
+        if gerar_titulos_recorrentes(id_casa()):
             db.session.commit()
 
     @app.context_processor
@@ -135,16 +136,18 @@ def create_app(config_class=None) -> Flask:
         titulos_atrasados = []
         if current_user.is_authenticated:
             from app.services.vencimentos import qtd_atrasadas as contar_atrasadas, query_titulos
+            from app.utils.casa import id_casa
 
+            uid = id_casa()
             contas = (
-                Conta.query.filter_by(usuario_id=current_user.id, ativo=True)
+                Conta.query.filter_by(usuario_id=uid, ativo=True)
                 .order_by(Conta.nome)
                 .all()
             )
             categorias = Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
-            qtd_atrasadas = contar_atrasadas(current_user.id)
+            qtd_atrasadas = contar_atrasadas(uid)
             titulos_atrasados = [
-                t for t in query_titulos(current_user.id).all() if t.status_atual() == "atrasado"
+                t for t in query_titulos(uid).all() if t.status_atual() == "atrasado"
             ][:6]
         return {
             "contas_menu": contas,

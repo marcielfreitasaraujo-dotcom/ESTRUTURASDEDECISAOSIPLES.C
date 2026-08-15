@@ -19,6 +19,7 @@ class Usuario(UserMixin, db.Model):
     senha_hash = db.Column(db.String(256), nullable=False)
     perfil = db.Column(db.String(20), nullable=False, default="usuario")
     tema = db.Column(db.String(10), nullable=False, default="claro")
+    ver_familia = db.Column(db.Boolean, nullable=False, default=False)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)

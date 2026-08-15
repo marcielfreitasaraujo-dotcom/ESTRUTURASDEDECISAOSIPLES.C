@@ -8,6 +8,7 @@ from app.models import Categoria, Conta, Movimentacao, FORMAS_PAGAMENTO
 from app.models.usuario import agora
 from app.services.auditoria import registrar
 from app.services.comprovantes import ComprovanteInvalido, remover_comprovante, salvar_comprovante
+from app.utils.casa import id_casa
 from app.utils.formatters import parse_data, parse_moeda, periodo_preset
 from app.utils.permissoes import exigir_dono
 
@@ -16,7 +17,7 @@ movimentacoes_bp = Blueprint("movimentacoes", __name__)
 
 def _contas_ativas():
     return (
-        Conta.query.filter_by(usuario_id=current_user.id, ativo=True)
+        Conta.query.filter_by(usuario_id=id_casa(), ativo=True)
         .order_by(Conta.nome)
         .all()
     )
@@ -48,14 +49,14 @@ def _aplicar_formulario(mov: Movimentacao, form) -> None:
         raise ValueError("Informe um valor maior que zero.")
 
     conta_id = int(form.get("conta_id") or 0)
-    conta = Conta.query.filter_by(id=conta_id, usuario_id=current_user.id, ativo=True).first()
+    conta = Conta.query.filter_by(id=conta_id, usuario_id=id_casa(), ativo=True).first()
     if not conta:
         raise ValueError("Selecione uma conta válida.")
 
     conta_destino_id = None
     if tipo == "transferencia":
         dest_id = int(form.get("conta_destino_id") or 0)
-        destino = Conta.query.filter_by(id=dest_id, usuario_id=current_user.id, ativo=True).first()
+        destino = Conta.query.filter_by(id=dest_id, usuario_id=id_casa(), ativo=True).first()
         if not destino:
             raise ValueError("Selecione a conta de destino.")
         if destino.id == conta.id:
@@ -93,7 +94,7 @@ def index():
     chave = request.args.get("periodo", "este_mes")
     inicio, fim = periodo_preset(chave, request.args.get("inicio"), request.args.get("fim"))
     q = Movimentacao.query.filter(
-        Movimentacao.usuario_id == current_user.id,
+        Movimentacao.usuario_id == id_casa(),
         Movimentacao.ativo.is_(True),
         Movimentacao.data >= inicio,
         Movimentacao.data <= fim,
@@ -163,7 +164,7 @@ def investimentos():
 @login_required
 def nova():
     mov = Movimentacao(
-        usuario_id=current_user.id,
+        usuario_id=id_casa(),
         criado_por=current_user.id,
         ativo=True,
         tipo="despesa",

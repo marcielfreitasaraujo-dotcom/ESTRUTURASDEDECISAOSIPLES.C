@@ -38,7 +38,7 @@ CATEGORIAS_PADRAO = [
 
 
 CONTAS_PADRAO = [
-    ("Carteira", "carteira", Decimal("200.00")),
+    ("Carteira", "carteira", Decimal("0.00")),
     ("Nubank", "conta_digital", Decimal("0.00")),
     ("Caixa", "banco", Decimal("0.00")),
     ("Mercado Pago", "conta_digital", Decimal("0.00")),
@@ -53,6 +53,9 @@ def _cfg(chave: str) -> Configuracao | None:
 def garantir_admin(app) -> Usuario | None:
     usuario = Usuario.query.filter_by(username=app.config["ADMIN_INICIAL_USUARIO"]).first()
     if usuario:
+        if usuario.eh_admin and not usuario.ver_familia:
+            usuario.ver_familia = True
+            db.session.commit()
         return usuario
     senha = app.config.get("ADMIN_INICIAL_SENHA")
     if not senha:
@@ -62,6 +65,7 @@ def garantir_admin(app) -> Usuario | None:
         username=app.config["ADMIN_INICIAL_USUARIO"],
         perfil="admin",
         tema="claro",
+        ver_familia=True,
         ativo=True,
     )
     usuario.definir_senha(senha)
@@ -373,3 +377,84 @@ def inserir_orcamentos_demo(usuario: Usuario) -> bool:
         db.session.add(Configuracao(chave="demo_orcamentos", valor="1"))
     db.session.commit()
     return True
+
+
+def criar_membro_familia(
+    nome: str,
+    username: str,
+    senha: str,
+    perfil: str = "usuario",
+    ver_familia: bool = True,
+) -> Usuario:
+    username = (username or "").strip().lower()
+    nome = (nome or "").strip()
+    if not nome:
+        raise ValueError("Informe o nome.")
+    if len(username) < 3:
+        raise ValueError("O usuário precisa ter pelo menos 3 caracteres.")
+    if any(ch for ch in username if not (ch.isalnum() or ch in "._-")):
+        raise ValueError("Use só letras, números, ponto, hífen ou underline no usuário.")
+    if Usuario.query.filter(Usuario.username.ilike(username)).first():
+        raise ValueError("Este usuário já existe.")
+    if len(senha or "") < 6:
+        raise ValueError("A senha deve ter pelo menos 6 caracteres.")
+    if perfil not in ("usuario", "admin"):
+        perfil = "usuario"
+    membro = Usuario(
+        nome=nome[:120],
+        username=username[:80],
+        perfil=perfil,
+        tema="claro",
+        ver_familia=bool(ver_familia),
+        ativo=True,
+    )
+    membro.definir_senha(senha)
+    db.session.add(membro)
+    db.session.flush()
+    if not membro.ver_familia:
+        garantir_contas(membro)
+    return membro
+
+
+def zerar_dados_financeiros() -> None:
+    """Apaga lançamentos e valores. Mantém usuários, categorias e contas (saldo zerado)."""
+    from pathlib import Path
+
+    from flask import current_app
+
+    from app.models import (
+        Auditoria,
+        Cartao,
+        Comprovante,
+        Conta,
+        ContaPagar,
+        Movimentacao,
+        Notificacao,
+        Orcamento,
+        Parcela,
+        Recorrencia,
+    )
+
+    Parcela.query.delete()
+    ContaPagar.query.delete()
+    Recorrencia.query.delete()
+    Comprovante.query.delete()
+    Movimentacao.query.delete()
+    Cartao.query.delete()
+    Orcamento.query.delete()
+    Notificacao.query.delete()
+    Auditoria.query.delete()
+    for conta in Conta.query.all():
+        conta.saldo_inicial = Decimal("0.00")
+        conta.saldo_informado = None
+        conta.data_conferencia = None
+    Configuracao.query.filter(Configuracao.chave.like("demo_%")).delete(synchronize_session=False)
+    pasta = Path(current_app.config["UPLOAD_FOLDER"])
+    if pasta.is_dir():
+        for item in pasta.iterdir():
+            if item.is_file():
+                item.unlink(missing_ok=True)
+            elif item.is_dir():
+                for arquivo in item.rglob("*"):
+                    if arquivo.is_file():
+                        arquivo.unlink(missing_ok=True)

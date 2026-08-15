@@ -41,7 +41,11 @@
       </label>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
-    <p class="hint">Primeiro acesso: usuário <code>admin</code> · senha <code>admin123</code></p>
+    {% if config.DEBUG %}
+    <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
+    {% else %}
+    <p class="hint">Acesse com o usuário e a senha da sua casa.</p>
+    {% endif %}
   </main>
 </body>
 </html>

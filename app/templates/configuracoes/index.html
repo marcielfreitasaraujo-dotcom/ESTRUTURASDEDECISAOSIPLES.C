@@ -70,11 +70,73 @@
 
   {% if current_user.eh_admin %}
   <article class="card">
+    <header class="card-head"><h2>Família</h2></header>
+    <p class="muted">Crie um login para cada pessoa. Com “ver contas da casa” marcado, todo mundo usa as mesmas contas e o mesmo saldo.</p>
+    {% if membros %}
+      <div class="table-wrap" style="margin-bottom:1rem">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in membros %}
+              <tr>
+                <td data-label="Nome">
+                  <strong>{{ m.nome }}</strong>
+                  {% if not m.ativo %}<span class="badge">inativo</span>{% endif %}
+                  {% if m.ver_familia %}<small>casa compartilhada</small>{% endif %}
+                </td>
+                <td data-label="Usuário"><code>{{ m.username }}</code></td>
+                <td data-label="Perfil">{{ m.perfil }}</td>
+                <td data-label="Ações">
+                  <form action="{{ url_for('configuracoes.familia_senha', usuario_id=m.id) }}" method="post" class="form-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="password" name="senha_nova" placeholder="Nova senha" minlength="6" required>
+                    <button class="btn btn-ghost btn-sm" type="submit">Trocar senha</button>
+                  </form>
+                  {% if m.id != current_user.id %}
+                    <form action="{{ url_for('configuracoes.familia_ativo', usuario_id=m.id) }}" method="post" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn-ghost btn-sm" type="submit">{{ 'Ativar' if not m.ativo else 'Desativar' }}</button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+    <form action="{{ url_for('configuracoes.familia_nova') }}" method="post" class="stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Nome <input type="text" name="nome" placeholder="Ex: Ana" required></label>
+      <label>Usuário para login <input type="text" name="username" placeholder="ex: ana" autocomplete="off" required></label>
+      <label>Senha inicial <input type="password" name="senha" minlength="6" autocomplete="new-password" required></label>
+      <label>Perfil
+        <select name="perfil">
+          <option value="usuario">Membro da família</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </label>
+      <label class="check">
+        <input type="checkbox" name="ver_familia" value="1" checked>
+        Pode ver e lançar nas contas da casa
+      </label>
+      <button class="btn btn-primary" type="submit">Criar membro</button>
+    </form>
+  </article>
+
+  <article class="card">
     <header class="card-head"><h2>Dados de demonstração</h2></header>
-    <p class="muted">Insere lançamentos, vencimentos, cartão e orçamento de agosto/2026 para testar. Não duplica se já tiver sido carregado.</p>
+    <p class="muted">Só para testar a tela. Insere lançamentos fictícios. Não use se já estiver lançando a vida real.</p>
     <form action="{{ url_for('configuracoes.demo') }}" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="btn btn-primary" type="submit">Inserir dados de demonstração</button>
+      <button class="btn btn-ghost" type="submit">Inserir dados de demonstração</button>
     </form>
   </article>
   <article class="card">
@@ -83,6 +145,15 @@
     <form action="{{ url_for('configuracoes.backup') }}" method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <button class="btn btn-ghost" type="submit">Gerar backup agora</button>
+    </form>
+  </article>
+  <article class="card danger-zone">
+    <header class="card-head"><h2>Começar do zero</h2></header>
+    <p class="muted">Apaga lançamentos, vencimentos, cartões e orçamentos. Contas ficam em R$ 0,00. Usuários da família e categorias permanecem.</p>
+    <form action="{{ url_for('configuracoes.zerar') }}" method="post" class="stack" onsubmit="return confirm('Isso apaga todos os valores. Continuar?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Digite ZERAR para confirmar <input type="text" name="confirmacao" placeholder="ZERAR" autocomplete="off" required></label>
+      <button class="btn btn-danger" type="submit">Zerar valores</button>
     </form>
   </article>
   {% endif %}

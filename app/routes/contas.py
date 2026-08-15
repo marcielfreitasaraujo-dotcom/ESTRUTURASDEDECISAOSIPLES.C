@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 from app.extensions import db
 from app.models import Conta, Movimentacao, TIPOS_CONTA
@@ -7,16 +7,15 @@ from app.models.usuario import agora
 from app.services.auditoria import registrar
 from app.services.saldo import saldo_conta
 from app.utils.formatters import parse_moeda
+from app.utils.casa import id_casa
+from app.utils.permissoes import exigir_dono
 
 contas_bp = Blueprint("contas", __name__)
 
 
 def _obter(conta_id: int) -> Conta:
-    from flask import abort
-
     conta = db.get_or_404(Conta, conta_id)
-    if conta.usuario_id != current_user.id:
-        abort(403)
+    exigir_dono(conta.usuario_id)
     return conta
 
 
@@ -24,7 +23,7 @@ def _obter(conta_id: int) -> Conta:
 @login_required
 def index():
     contas = (
-        Conta.query.filter_by(usuario_id=current_user.id, ativo=True)
+        Conta.query.filter_by(usuario_id=id_casa(), ativo=True)
         .order_by(Conta.nome)
         .all()
     )
@@ -46,7 +45,7 @@ def nova():
         flash("Informe o nome da conta.", "erro")
         return redirect(url_for("contas.index"))
     conta = Conta(
-        usuario_id=current_user.id,
+        usuario_id=id_casa(),
         nome=nome[:80],
         tipo=request.form.get("tipo") or "banco",
         saldo_inicial=parse_moeda(request.form.get("saldo_inicial")),

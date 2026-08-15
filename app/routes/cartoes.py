@@ -17,6 +17,7 @@ from app.services.cartoes import (
     vencimento_fatura,
 )
 from app.utils.formatters import parse_data, parse_moeda, somar_meses
+from app.utils.casa import id_casa
 from app.utils.permissoes import exigir_dono
 
 cartoes_bp = Blueprint("cartoes", __name__)
@@ -29,7 +30,7 @@ def _obter(cartao_id: int) -> Cartao:
 
 
 def _contas():
-    return Conta.query.filter_by(usuario_id=current_user.id, ativo=True).order_by(Conta.nome).all()
+    return Conta.query.filter_by(usuario_id=id_casa(), ativo=True).order_by(Conta.nome).all()
 
 
 def _categorias_despesa():
@@ -60,7 +61,7 @@ def _competencia_arg(cartao: Cartao | None = None) -> date:
 @login_required
 def index():
     itens = []
-    for cartao in query_cartoes(current_user.id).all():
+    for cartao in query_cartoes(id_casa()).all():
         usado = limite_usado(cartao)
         itens.append(
             {
@@ -86,7 +87,7 @@ def nova():
         flash("Use dias de fechamento e vencimento entre 1 e 28.", "erro")
         return redirect(url_for("cartoes.index"))
     cartao = Cartao(
-        usuario_id=current_user.id,
+        usuario_id=id_casa(),
         nome=nome[:80],
         limite=parse_moeda(request.form.get("limite")),
         dia_fechamento=fechamento,
@@ -193,7 +194,7 @@ def pagar(cartao_id):
     cartao = _obter(cartao_id)
     competencia = _competencia_arg(cartao)
     conta_id = int(request.form.get("conta_id") or 0)
-    conta = Conta.query.filter_by(id=conta_id, usuario_id=current_user.id, ativo=True).first()
+    conta = Conta.query.filter_by(id=conta_id, usuario_id=id_casa(), ativo=True).first()
     if not conta:
         flash("Selecione uma conta válida para pagar a fatura.", "erro")
         return redirect(url_for("cartoes.detalhe", cartao_id=cartao.id, competencia=competencia.strftime("%Y-%m")))

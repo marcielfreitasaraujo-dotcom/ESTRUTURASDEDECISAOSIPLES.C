@@ -21,6 +21,10 @@ COLUNAS_PARCELAS = {
     "categoria_id": "ALTER TABLE parcelas ADD COLUMN categoria_id INTEGER",
 }
 
+COLUNAS_USUARIOS = {
+    "ver_familia": "ALTER TABLE usuarios ADD COLUMN ver_familia BOOLEAN DEFAULT FALSE",
+}
+
 
 def _adicionar_colunas(tabela: str, colunas: dict) -> None:
     inspetor = inspect(db.engine)
@@ -38,6 +42,7 @@ def garantir_esquema() -> None:
     _adicionar_colunas("contas_pagar", COLUNAS_CONTAS_PAGAR)
     _adicionar_colunas("recorrencias", COLUNAS_RECORRENCIAS)
     _adicionar_colunas("parcelas", COLUNAS_PARCELAS)
+    _adicionar_colunas("usuarios", COLUNAS_USUARIOS)
     inspetor = inspect(db.engine)
     if "contas_pagar" in inspetor.get_table_names():
         with db.engine.begin() as conn:

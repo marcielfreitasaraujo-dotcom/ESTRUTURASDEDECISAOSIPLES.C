@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 
 from app.services.relatorios import gerar_excel, gerar_pdf, montar
 from app.utils.formatters import periodo_preset
+from app.utils.casa import id_casa
 
 relatorios_bp = Blueprint("relatorios", __name__)
 
@@ -17,7 +18,7 @@ def _periodo():
 @login_required
 def index():
     chave, inicio, fim = _periodo()
-    dados = montar(current_user.id, inicio, fim)
+    dados = montar(id_casa(), inicio, fim)
     return render_template(
         "relatorios/index.html",
         periodo=chave,
@@ -34,7 +35,7 @@ def index():
 @login_required
 def pdf():
     _, inicio, fim = _periodo()
-    arquivo = gerar_pdf(current_user.id, inicio, fim, current_user.nome)
+    arquivo = gerar_pdf(id_casa(), inicio, fim, current_user.nome)
     nome = f"fincasa-relatorio-{inicio.isoformat()}_{fim.isoformat()}.pdf"
     return send_file(arquivo, mimetype="application/pdf", as_attachment=True, download_name=nome)
 
@@ -43,7 +44,7 @@ def pdf():
 @login_required
 def excel():
     _, inicio, fim = _periodo()
-    arquivo = gerar_excel(current_user.id, inicio, fim)
+    arquivo = gerar_excel(id_casa(), inicio, fim)
     nome = f"fincasa-relatorio-{inicio.isoformat()}_{fim.isoformat()}.xlsx"
     return send_file(
         arquivo,

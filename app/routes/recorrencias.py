@@ -7,6 +7,7 @@ from app.models.usuario import agora
 from app.services.auditoria import registrar
 from app.services.recorrencias import gerar_titulos_recorrentes
 from app.utils.formatters import parse_moeda
+from app.utils.casa import id_casa
 from app.utils.permissoes import exigir_dono
 
 recorrencias_bp = Blueprint("recorrencias", __name__)
@@ -20,7 +21,7 @@ def _obter(rec_id: int) -> Recorrencia:
 
 def _contas():
     return (
-        Conta.query.filter_by(usuario_id=current_user.id, ativo=True)
+        Conta.query.filter_by(usuario_id=id_casa(), ativo=True)
         .order_by(Conta.nome)
         .all()
     )
@@ -64,10 +65,10 @@ def _aplicar(rec: Recorrencia, form) -> None:
 @recorrencias_bp.route("/recorrentes")
 @login_required
 def index():
-    gerar_titulos_recorrentes(current_user.id)
+    gerar_titulos_recorrentes(id_casa())
     db.session.commit()
     itens = (
-        Recorrencia.query.filter_by(usuario_id=current_user.id, ativo=True)
+        Recorrencia.query.filter_by(usuario_id=id_casa(), ativo=True)
         .order_by(Recorrencia.dia_vencimento, Recorrencia.descricao)
         .all()
     )
@@ -84,7 +85,7 @@ def index():
 @login_required
 def nova():
     rec = Recorrencia(
-        usuario_id=current_user.id,
+        usuario_id=id_casa(),
         descricao="",
         valor=0,
         tipo="pagar",
@@ -96,7 +97,7 @@ def nova():
         _aplicar(rec, request.form)
         db.session.add(rec)
         db.session.flush()
-        gerar_titulos_recorrentes(current_user.id)
+        gerar_titulos_recorrentes(id_casa())
         registrar("criar", "recorrencia", rec.id, rec.descricao)
         db.session.commit()
         flash("Recorrência criada. Os próximos vencimentos foram gerados.", "sucesso")
@@ -112,7 +113,7 @@ def editar(rec_id):
     rec = _obter(rec_id)
     try:
         _aplicar(rec, request.form)
-        gerar_titulos_recorrentes(current_user.id)
+        gerar_titulos_recorrentes(id_casa())
         registrar("editar", "recorrencia", rec.id, rec.descricao)
         db.session.commit()
         flash("Recorrência atualizada.", "sucesso")
