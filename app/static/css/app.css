@@ -17,14 +17,18 @@
 }
 
 html[data-theme="escuro"] {
+  color-scheme: dark;
   --bg: #020b16;
   --surface: #071d33;
   --surface-2: #0c3355;
-  --text: #eef6fc;
-  --muted: #8fb4d0;
-  --border: rgba(74, 168, 224, 0.22);
-  --primary: #4aa8e0;
-  --primary-2: #7ac143;
+  --text: #f4faff;
+  --muted: #c5d9ea;
+  --border: rgba(74, 168, 224, 0.28);
+  --primary: #7ec8f0;
+  --primary-2: #98d466;
+  --receita: #34d399;
+  --despesa: #fb7185;
+  --investimento: #c4b5fd;
   --shadow: 0 16px 40px rgba(2, 11, 22, 0.45);
 }
 
@@ -52,6 +56,76 @@ html[data-theme="escuro"] .btn-primary { color: #020b16; }
 html[data-theme="escuro"] .avatar { color: #020b16; }
 html[data-theme="escuro"] .topbar {
   background: color-mix(in srgb, #020b16 78%, transparent);
+}
+html[data-theme="escuro"] .card-head h2,
+html[data-theme="escuro"] .page-head h1,
+html[data-theme="escuro"] .side-nav a,
+html[data-theme="escuro"] .mov-list a,
+html[data-theme="escuro"] .data-table td {
+  color: var(--text);
+}
+html[data-theme="escuro"] .mov-list small,
+html[data-theme="escuro"] .kpi span,
+html[data-theme="escuro"] .kpi small,
+html[data-theme="escuro"] .kicker,
+html[data-theme="escuro"] .muted,
+html[data-theme="escuro"] .empty,
+html[data-theme="escuro"] .tag,
+html[data-theme="escuro"] .data-table th,
+html[data-theme="escuro"] .data-table td::before,
+html[data-theme="escuro"] .opcional,
+html[data-theme="escuro"] .hint,
+html[data-theme="escuro"] .brand small,
+html[data-theme="escuro"] .user-meta small,
+html[data-theme="escuro"] .notify-title,
+html[data-theme="escuro"] .back,
+html[data-theme="escuro"] .nav-label,
+html[data-theme="escuro"] .nav-soon,
+html[data-theme="escuro"] .tema-opcao small {
+  color: #d6e7f5;
+}
+html[data-theme="escuro"] ::placeholder {
+  color: #9ec0d8;
+  opacity: 1;
+}
+html[data-theme="escuro"] .icon-btn {
+  background: #0c3355;
+  color: #f4faff;
+}
+html[data-theme="escuro"] .fab {
+  color: #020b16;
+}
+html[data-theme="escuro"] input:-webkit-autofill,
+html[data-theme="escuro"] textarea:-webkit-autofill,
+html[data-theme="escuro"] select:-webkit-autofill {
+  -webkit-text-fill-color: #f4faff;
+  caret-color: #f4faff;
+  box-shadow: 0 0 0 1000px #0c3355 inset;
+}
+html[data-theme="escuro"] .badge.vence_hoje,
+html[data-theme="escuro"] .badge.pendente,
+html[data-theme="escuro"] tr.vence-hoje td {
+  color: #fbbf24;
+}
+html[data-theme="escuro"] .chip-tipo.ativo.receita {
+  background: #064e3b;
+  color: #a7f3d0;
+}
+html[data-theme="escuro"] .chip-tipo.ativo.despesa {
+  background: #4c0519;
+  color: #fecdd3;
+}
+html[data-theme="escuro"] .chip-tipo.ativo.transferencia {
+  background: #0c4a6e;
+  color: #bae6fd;
+}
+html[data-theme="escuro"] .pill.ativo,
+html[data-theme="escuro"] .tab.ativo {
+  color: #020b16;
+}
+html[data-theme="escuro"] code {
+  background: #0c3355;
+  color: #eef6fc;
 }
 
 * { box-sizing: border-box; }

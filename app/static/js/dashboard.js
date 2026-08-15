@@ -2,10 +2,16 @@
   const data = window.FINCASA_CHARTS;
   if (!data || typeof Chart === "undefined") return;
 
-  const muted = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim();
-  Chart.defaults.color = muted;
+  const css = getComputedStyle(document.documentElement);
+  const texto = (css.getPropertyValue("--text") || "#eef6fc").trim();
+  const muted = (css.getPropertyValue("--muted") || "#c5d9ea").trim();
+  const grade = "rgba(148, 197, 232, 0.18)";
+  Chart.defaults.color = texto;
+  Chart.defaults.borderColor = grade;
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+  Chart.defaults.font.color = texto;
   Chart.defaults.plugins.legend.labels.boxWidth = 12;
+  Chart.defaults.plugins.legend.labels.color = texto;
 
   const formatarMoeda = (valor) => {
     const n = Number(valor) || 0;
@@ -29,8 +35,11 @@
       },
       options: {
         responsive: true,
-        plugins: { legend: { position: "bottom" } },
-        scales: { x: { grid: { display: false } }, y: { beginAtZero: true } },
+        plugins: { legend: { position: "bottom", labels: { color: texto } } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: muted } },
+          y: { beginAtZero: true, ticks: { color: muted }, grid: { color: grade } },
+        },
       },
     });
   }
@@ -60,20 +69,23 @@
             labels: {
               padding: 10,
               font: { size: 11 },
+              color: texto,
               generateLabels(chart) {
                 const dataset = chart.data.datasets[0];
                 return chart.data.labels.map((label, i) => {
                   const valor = Number(dataset.data[i] || 0);
                   const pct = total > 0 ? Math.round((valor / total) * 100) : 0;
-                  const texto = temGastos
+                  const item = temGastos
                     ? `${label} · ${formatarMoeda(valor)} (${pct}%)`
                     : label;
                   return {
-                    text: texto,
+                    text: item,
                     fillStyle: Array.isArray(dataset.backgroundColor)
                       ? dataset.backgroundColor[i]
                       : dataset.backgroundColor,
                     strokeStyle: "transparent",
+                    fontColor: texto,
+                    color: texto,
                     hidden: chart.getDataVisibility(i) === false,
                     datasetIndex: 0,
                     index: i,
@@ -117,7 +129,10 @@
       },
       options: {
         plugins: { legend: { display: false } },
-        scales: { x: { grid: { display: false } }, y: { beginAtZero: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: muted } },
+          y: { beginAtZero: false, ticks: { color: muted }, grid: { color: grade } },
+        },
       },
     });
   }
