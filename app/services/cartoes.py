@@ -23,6 +23,11 @@ def vencimento_fatura(cartao: Cartao, competencia: date) -> date:
     return dia_seguro(proximo.year, proximo.month, cartao.dia_vencimento)
 
 
+def fechamento_fatura(cartao: Cartao, competencia: date) -> date:
+    """Último dia da competência em que a compra ainda entra nesta fatura."""
+    return dia_seguro(competencia.year, competencia.month, cartao.dia_fechamento)
+
+
 def dividir_parcelas(total: Decimal, quantidade: int) -> list[Decimal]:
     quantidade = max(1, int(quantidade))
     total = Decimal(total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)

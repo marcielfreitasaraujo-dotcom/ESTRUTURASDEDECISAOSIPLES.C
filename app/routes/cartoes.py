@@ -8,6 +8,7 @@ from app.models import Cartao, Categoria, Conta
 from app.services.auditoria import registrar
 from app.services.cartoes import (
     criar_compra,
+    fechamento_fatura,
     limite_usado,
     pagar_fatura,
     parcelas_competencia,
@@ -119,6 +120,7 @@ def detalhe(cartao_id):
         total=total_fatura(parcelas),
         aberto=total_fatura(parcelas, somente_abertas=True),
         vencimento=vencimento_fatura(cartao, competencia),
+        fechamento=fechamento_fatura(cartao, competencia),
         usado=usado,
         disponivel=cartao.limite - usado,
         contas=_contas(),

@@ -145,7 +145,15 @@ tr.quitada { opacity: 0.72; }
   border-radius: 99px;
 }
 .barra.alerta span { background: #eab308; }
-.barra.estouro span { background: var(--despesa); }
+.hint-fatura {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
 .data-table input {
   width: 100%;
   min-width: 7rem;

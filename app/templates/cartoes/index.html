@@ -12,7 +12,7 @@
 <div class="account-grid">
   {% for item in itens %}
     <a class="account-card" href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
-      <span class="tag">fecha dia {{ item.cartao.dia_fechamento }} · vence dia {{ item.cartao.dia_vencimento }}</span>
+      <span class="tag">fecha dia {{ item.cartao.dia_fechamento }} · pagamento dia {{ item.cartao.dia_vencimento }}</span>
       <h2>{{ item.cartao.nome }}</h2>
       <strong>{{ item.usado | moeda }}</strong>
       <small>Limite {{ item.cartao.limite | moeda }} · disponível {{ item.disponivel | moeda }}</small>
@@ -27,12 +27,26 @@
 
 <article class="card" style="margin-top:1.5rem">
   <header class="card-head"><h2>Novo cartão</h2></header>
-  <form action="{{ url_for('cartoes.nova') }}" method="post" class="form-inline">
+  <form action="{{ url_for('cartoes.nova') }}" method="post" class="stack">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="text" name="nome" placeholder="Nome (ex: Nubank)" required maxlength="80">
-    <input type="text" name="limite" placeholder="Limite" value="0,00">
-    <input type="number" name="dia_fechamento" min="1" max="28" value="8" title="Dia de fechamento">
-    <input type="number" name="dia_vencimento" min="1" max="28" value="15" title="Dia de vencimento">
+    <div class="grid-2">
+      <label>Nome do cartão
+        <input type="text" name="nome" placeholder="Ex: XP Investimentos" required maxlength="80">
+      </label>
+      <label>Limite
+        <input type="text" name="limite" placeholder="0,00" value="0,00" inputmode="decimal">
+      </label>
+    </div>
+    <div class="grid-2">
+      <label>Dia do fechamento da fatura
+        <input type="number" name="dia_fechamento" min="1" max="28" value="8" required>
+        <small class="muted">Último dia em que a compra ainda entra nesta fatura</small>
+      </label>
+      <label>Dia do pagamento da fatura
+        <input type="number" name="dia_vencimento" min="1" max="28" value="15" required>
+        <small class="muted">Dia em que a fatura vence e você paga</small>
+      </label>
+    </div>
     <button class="btn btn-primary" type="submit">Cadastrar</button>
   </form>
 </article>

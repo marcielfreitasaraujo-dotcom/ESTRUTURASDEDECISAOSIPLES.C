@@ -6,7 +6,7 @@
   <div>
     <p class="kicker">Fatura</p>
     <h1>{{ cartao.nome }}</h1>
-    <p class="muted">Fecha dia {{ cartao.dia_fechamento }} · vence dia {{ cartao.dia_vencimento }}</p>
+    <p class="muted">Fecha todo dia {{ cartao.dia_fechamento }} · pagamento todo dia {{ cartao.dia_vencimento }}</p>
   </div>
   <nav class="tabs">
     <a class="tab" href="{{ url_for('cartoes.detalhe', cartao_id=cartao.id, competencia=competencia_ant.strftime('%Y-%m')) }}">← {{ competencia_ant.strftime('%m/%Y') }}</a>
@@ -15,36 +15,45 @@
   </nav>
 </section>
 
-<section class="kpi-grid kpi-3">
+<section class="kpi-grid">
   <article class="kpi">
     <span>Fatura {{ competencia.strftime('%m/%Y') }}</span>
     <strong>{{ total | moeda }}</strong>
-    <small>vence {{ vencimento | data_br }}</small>
+    <small>competência desta tela</small>
+  </article>
+  <article class="kpi">
+    <span>Fechamento</span>
+    <strong>{{ fechamento | data_br }}</strong>
+    <small>compras até este dia entram aqui</small>
+  </article>
+  <article class="kpi">
+    <span>Pagamento</span>
+    <strong>{{ vencimento | data_br }}</strong>
+    <small>dia de vencer / pagar a fatura</small>
   </article>
   <article class="kpi despesa">
     <span>Em aberto</span>
     <strong>{{ aberto | moeda }}</strong>
-  </article>
-  <article class="kpi">
-    <span>Limite usado</span>
-    <strong>{{ usado | moeda }}</strong>
-    <small>disponível {{ disponivel | moeda }} de {{ cartao.limite | moeda }}</small>
+    <small>limite usado {{ usado | moeda }} · disponível {{ disponivel | moeda }}</small>
   </article>
 </section>
 
 <div class="grid-2-dash">
   <article class="card">
-    <header class="card-head"><h2>Nova compra</h2></header>
-    <form action="{{ url_for('cartoes.compra', cartao_id=cartao.id) }}" method="post" class="stack">
+    <header class="card-head"><h2>Nova compra no cartão</h2></header>
+    <form action="{{ url_for('cartoes.compra', cartao_id=cartao.id) }}" method="post" class="stack" id="form-compra-cartao"
+          data-dia-fechamento="{{ cartao.dia_fechamento }}"
+          data-dia-pagamento="{{ cartao.dia_vencimento }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>Descrição <input type="text" name="descricao" placeholder="Ex: Notebook" required maxlength="180"></label>
       <label>Valor <input class="input-valor" type="text" name="valor" inputmode="decimal" placeholder="R$ 0,00" required></label>
       <div class="grid-2">
-        <label>Data <input type="date" name="data" value="{{ hoje.isoformat() }}"></label>
+        <label>Data da compra <input type="date" name="data" id="compra-data" value="{{ hoje.isoformat() }}"></label>
         <label>Parcelas
-          <input type="number" name="parcelas" min="1" max="48" value="1">
+          <input type="number" name="parcelas" id="compra-parcelas" min="1" max="48" value="1">
         </label>
       </div>
+      <p class="hint-fatura" id="hint-fatura"></p>
       <label>Categoria
         <select name="categoria_id">
           <option value="">Selecionar</option>
@@ -63,25 +72,35 @@
       <form action="{{ url_for('cartoes.pagar', cartao_id=cartao.id) }}" method="post" class="stack">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="competencia" value="{{ competencia.strftime('%Y-%m') }}">
-        <p class="muted">Baixa {{ aberto | moeda }} da conta escolhida e marca as parcelas deste mês como pagas.</p>
-        <label>Conta
+        <p class="muted">
+          Fatura que <strong>fechou em {{ fechamento | data_br }}</strong>
+          e <strong>vence (pagamento) em {{ vencimento | data_br }}</strong>.
+          Baixa {{ aberto | moeda }} da conta escolhida.
+        </p>
+        <label>Conta para débito
           <select name="conta_id" required>
             {% for conta in contas %}
               <option value="{{ conta.id }}">{{ conta.nome }}</option>
             {% endfor %}
           </select>
         </label>
-        <label>Data do pagamento <input type="date" name="data_pagamento" value="{{ hoje.isoformat() }}"></label>
+        <label>Dia do pagamento
+          <input type="date" name="data_pagamento" value="{{ vencimento.isoformat() }}">
+        </label>
         <button class="btn btn-primary" type="submit">Pagar {{ aberto | moeda }}</button>
       </form>
     {% else %}
       <p class="empty">Nada em aberto nesta fatura.</p>
+      <p class="muted">Fechamento {{ fechamento | data_br }} · pagamento {{ vencimento | data_br }}.</p>
     {% endif %}
   </article>
 </div>
 
 <article class="card" style="margin-top:1rem">
-  <header class="card-head"><h2>Parcelas da fatura</h2></header>
+  <header class="card-head">
+    <h2>Parcelas desta fatura</h2>
+    <small class="muted">fecha {{ fechamento | data_br }} · pagamento {{ vencimento | data_br }}</small>
+  </header>
   <div class="table-wrap">
     <table class="data-table">
       <thead>
@@ -107,7 +126,7 @@
             </td>
           </tr>
         {% else %}
-          <tr><td colspan="4" class="empty">Nenhuma parcela nesta competência.</td></tr>
+          <tr><td colspan="4" class="empty">Nenhuma parcela nesta fatura (fecha {{ fechamento | data_br }} · pagamento {{ vencimento | data_br }}).</td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -116,17 +135,75 @@
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Dados do cartão</h2></header>
-  <form action="{{ url_for('cartoes.editar', cartao_id=cartao.id) }}" method="post" class="form-inline">
+  <form action="{{ url_for('cartoes.editar', cartao_id=cartao.id) }}" method="post" class="stack">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="text" name="nome" value="{{ cartao.nome }}" required>
-    <input type="text" name="limite" value="{{ cartao.limite }}">
-    <input type="number" name="dia_fechamento" min="1" max="28" value="{{ cartao.dia_fechamento }}">
-    <input type="number" name="dia_vencimento" min="1" max="28" value="{{ cartao.dia_vencimento }}">
-    <button class="btn btn-ghost" type="submit">Salvar</button>
+    <div class="grid-2">
+      <label>Nome
+        <input type="text" name="nome" value="{{ cartao.nome }}" required>
+      </label>
+      <label>Limite
+        <input type="text" name="limite" value="{{ cartao.limite }}" inputmode="decimal">
+      </label>
+    </div>
+    <div class="grid-2">
+      <label>Dia do fechamento da fatura
+        <input type="number" name="dia_fechamento" min="1" max="28" value="{{ cartao.dia_fechamento }}" required>
+        <small class="muted">Compras até este dia do mês entram na fatura do mês</small>
+      </label>
+      <label>Dia do pagamento da fatura
+        <input type="number" name="dia_vencimento" min="1" max="28" value="{{ cartao.dia_vencimento }}" required>
+        <small class="muted">Dia em que a fatura vence e você paga</small>
+      </label>
+    </div>
+    <button class="btn btn-ghost" type="submit">Salvar dados do cartão</button>
   </form>
   <form action="{{ url_for('cartoes.excluir', cartao_id=cartao.id) }}" method="post" onsubmit="return confirm('Desativar este cartão? As parcelas não são apagadas.');" style="margin-top:1rem">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar cartão</button>
   </form>
 </article>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (() => {
+    const form = document.getElementById("form-compra-cartao");
+    const hint = document.getElementById("hint-fatura");
+    if (!form || !hint) return;
+    const diaFecha = Number(form.dataset.diaFechamento);
+    const diaPaga = Number(form.dataset.diaPagamento);
+
+    const pad = (n) => String(n).padStart(2, "0");
+    const fmt = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+    const ultimoDia = (ano, mes) => new Date(ano, mes + 1, 0).getDate();
+    const diaSeguro = (ano, mes, dia) => new Date(ano, mes, Math.min(dia, ultimoDia(ano, mes)));
+
+    const atualizar = () => {
+      const raw = document.getElementById("compra-data")?.value;
+      const parcelas = Math.max(1, Number(document.getElementById("compra-parcelas")?.value || 1));
+      if (!raw) { hint.textContent = ""; return; }
+      const compra = new Date(`${raw}T00:00:00`);
+      let ano = compra.getFullYear();
+      let mes = compra.getMonth();
+      if (compra.getDate() > diaFecha) {
+        mes += 1;
+        if (mes > 11) { mes = 0; ano += 1; }
+      }
+      const fecha = diaSeguro(ano, mes, diaFecha);
+      const paga = diaPaga >= diaFecha
+        ? diaSeguro(ano, mes, diaPaga)
+        : diaSeguro(mes === 11 ? ano + 1 : ano, (mes + 1) % 12, diaPaga);
+      let texto = `1ª parcela: fatura fecha em ${fmt(fecha)} · pagamento em ${fmt(paga)}.`;
+      if (parcelas > 1) {
+        texto += ` As outras ${parcelas - 1} parcela(s) entram nas faturas seguintes, no mesmo dia de fechamento e de pagamento.`;
+      } else {
+        texto += " Compra depois do fechamento vai para a próxima fatura.";
+      }
+      hint.textContent = texto;
+    };
+
+    form.addEventListener("input", atualizar);
+    atualizar();
+  })();
+</script>
 {% endblock %}

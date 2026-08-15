@@ -3,7 +3,14 @@ from decimal import Decimal
 
 from app.extensions import db
 from app.models import Cartao, Conta, Movimentacao, Parcela, Usuario
-from app.services.cartoes import competencia_da_compra, dividir_parcelas, limite_usado, parcelas_competencia
+from app.services.cartoes import (
+    competencia_da_compra,
+    dividir_parcelas,
+    fechamento_fatura,
+    limite_usado,
+    parcelas_competencia,
+    vencimento_fatura,
+)
 from app.services.orcamentos import painel
 from app.services.saldo import saldo_conta
 from app.utils.formatters import somar_meses
@@ -18,6 +25,17 @@ def test_dividir_parcelas_nao_perde_centavos():
     partes = dividir_parcelas(Decimal("100.00"), 3)
     assert sum(partes, Decimal("0")) == Decimal("100.00")
     assert len(partes) == 3
+
+
+def test_fechamento_e_pagamento_da_fatura():
+    cartao = type("C", (), {"dia_fechamento": 4, "dia_vencimento": 15})()
+    competencia = date(2026, 9, 1)
+    assert fechamento_fatura(cartao, competencia) == date(2026, 9, 4)
+    assert vencimento_fatura(cartao, competencia) == date(2026, 9, 15)
+
+    cartao_inverso = type("C", (), {"dia_fechamento": 25, "dia_vencimento": 5})()
+    assert fechamento_fatura(cartao_inverso, competencia) == date(2026, 9, 25)
+    assert vencimento_fatura(cartao_inverso, competencia) == date(2026, 10, 5)
 
 
 def test_relatorio_exige_login(client):
@@ -106,8 +124,13 @@ def test_cartao_compra_e_fatura(admin_client, app):
         competencia = competencia_da_compra(cartao, date.today())
 
     detalhe = admin_client.get(f"/cartoes/{cartao_id}")
+    html = detalhe.get_data(as_text=True)
     assert detalhe.status_code == 200
-    assert "Mercado cartao" in detalhe.get_data(as_text=True)
+    assert "Mercado cartao" in html
+    assert "Fechamento" in html
+    assert "Pagamento" in html
+    assert "Dia do fechamento da fatura" in html
+    assert "Dia do pagamento da fatura" in html
 
     with app.app_context():
         cartao = db.session.get(Cartao, cartao_id)
