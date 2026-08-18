@@ -26,7 +26,7 @@
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
-    <form method="post">
+    <form method="post" data-login-sessao>
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
         Usuário
@@ -36,7 +36,7 @@
         Senha
         <input type="password" name="senha" autocomplete="current-password" required>
       </label>
-      <p class="hint" style="margin:0 0 0.75rem">Por segurança, ao sair será preciso entrar de novo.</p>
+      <p class="hint" style="margin:0 0 0.75rem">Por segurança, ao fechar o navegador (ou sair) será preciso entrar de novo com a senha.</p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
     {% if config.DEBUG %}
@@ -45,5 +45,6 @@
     <p class="hint">Acesse com o usuário e a senha da sua casa.</p>
     {% endif %}
   </main>
+  <script src="{{ url_for('static', filename='js/sessao.js') }}"></script>
 </body>
 </html>

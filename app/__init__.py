@@ -2,7 +2,7 @@ import logging
 import os
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -98,6 +98,16 @@ def create_app(config_class=None) -> Flask:
 
     @app.after_request
     def registrar_requisicao(response):
+        session.permanent = False
+        nome_lembrar = app.config.get("REMEMBER_COOKIE_NAME", "remember_token")
+        if request.cookies.get(nome_lembrar):
+            response.delete_cookie(
+                nome_lembrar,
+                path=app.config.get("REMEMBER_COOKIE_PATH", "/"),
+                secure=bool(app.config.get("REMEMBER_COOKIE_SECURE")),
+                httponly=True,
+                samesite=app.config.get("SESSION_COOKIE_SAMESITE", "Lax"),
+            )
         if app.testing or request.endpoint in (None, "static"):
             return response
         logger.info("%s %s -> %s", request.method, request.path, response.status_code)

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   {% block extra_head %}{% endblock %}
 </head>
-<body>
+<body data-autenticado="1">
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
@@ -129,6 +129,7 @@
   {% include 'components/modal_lancamento.html' %}
 
   <div class="sidebar-backdrop" data-toggle-sidebar></div>
+  <script src="{{ url_for('static', filename='js/sessao.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block extra_js %}{% endblock %}
 </body>

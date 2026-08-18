@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from pathlib import Path
 
@@ -70,12 +71,12 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = _bool_env("SESSION_COOKIE_SECURE", False)
-    # Sessão de navegador: ao sair ou fechar, precisa logar de novo
     SESSION_PERMANENT = False
-    PERMANENT_SESSION_LIFETIME = 60 * 60 * 8
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SECURE = _bool_env("SESSION_COOKIE_SECURE", False)
-    REMEMBER_COOKIE_DURATION = 0
+    REMEMBER_COOKIE_DURATION = timedelta(0)
+    REMEMBER_COOKIE_NAME = "remember_token"
     PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME", "http")
     SERVER_URL = os.environ.get("SERVER_URL", "http://127.0.0.1:5000")
 
