@@ -25,7 +25,6 @@ def login():
             logger.warning("Tentativa de acesso com conta desativada usuario=%s", username)
             erro = "Esta conta está desativada."
         else:
-            # Sem "lembrar": ao sair/fechar, exige login de novo
             session.clear()
             login_user(usuario, remember=False)
             session.permanent = False
@@ -33,8 +32,17 @@ def login():
             destino = request.args.get("next") or url_for("dashboard.index")
             if not destino.startswith("/"):
                 destino = url_for("dashboard.index")
-            return redirect(destino)
+            return redirect(url_for("auth.sessao_iniciar", next=destino))
     return render_template("auth/login.html", erro=erro)
+
+
+@auth_bp.route("/sessao/iniciar")
+@login_required
+def sessao_iniciar():
+    destino = request.args.get("next") or url_for("dashboard.index")
+    if not destino.startswith("/"):
+        destino = url_for("dashboard.index")
+    return render_template("auth/sessao_iniciar.html", next_url=destino)
 
 
 @auth_bp.route("/logout")
