@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="{{ current_user.tema if current_user.is_authenticated else 'claro' }}">
+<html lang="pt-BR" data-theme="{{ current_user.tema if current_user.is_authenticated else 'claro' }}" data-autenticado="1">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,9 +11,25 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script>
+    (function () {
+      var CHAVE = "fincasa_sessao_navegador";
+      var NOME = "fincasa_ativo";
+      if (document.documentElement.dataset.autenticado !== "1") {
+        return;
+      }
+      try {
+        if (sessionStorage.getItem(CHAVE) !== "1" || window.name !== NOME) {
+          window.location.replace("/logout");
+        }
+      } catch (_erro) {
+        window.location.replace("/logout");
+      }
+    })();
+  </script>
   <script src="{{ url_for('static', filename='js/sessao.js') }}"></script>
 </head>
-<body data-autenticado="1">
+<body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">

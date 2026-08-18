@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
+from app.extensions import csrf
 from app.models import Usuario
 import logging
 
@@ -8,10 +9,21 @@ auth_bp = Blueprint("auth", __name__)
 logger = logging.getLogger("fincasa.auth")
 
 
+def _destino_seguro(valor: str | None, padrao: str) -> str:
+    destino = valor or padrao
+    if not destino.startswith("/"):
+        return padrao
+    return destino
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("dashboard.index"))
+        destino = _destino_seguro(
+            request.args.get("next"),
+            url_for("dashboard.index"),
+        )
+        return redirect(url_for("auth.sessao_verificar", next=destino))
 
     erro = None
     if request.method == "POST":
@@ -39,10 +51,30 @@ def login():
 @auth_bp.route("/sessao/iniciar")
 @login_required
 def sessao_iniciar():
-    destino = request.args.get("next") or url_for("dashboard.index")
-    if not destino.startswith("/"):
-        destino = url_for("dashboard.index")
+    destino = _destino_seguro(
+        request.args.get("next"),
+        url_for("dashboard.index"),
+    )
     return render_template("auth/sessao_iniciar.html", next_url=destino)
+
+
+@auth_bp.route("/sessao/verificar")
+@login_required
+def sessao_verificar():
+    destino = _destino_seguro(
+        request.args.get("next"),
+        url_for("dashboard.index"),
+    )
+    return render_template("auth/sessao_verificar.html", next_url=destino)
+
+
+@auth_bp.route("/api/sessao/fechar", methods=["POST"])
+@csrf.exempt
+def sessao_fechar():
+    if current_user.is_authenticated:
+        logout_user()
+        session.clear()
+    return "", 204
 
 
 @auth_bp.route("/logout")

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificando sessão… · FinCasa</title>
+  <script>
+    (function () {
+      var CHAVE = "fincasa_sessao_navegador";
+      var NOME = "fincasa_ativo";
+      var destino = {{ next_url|tojson }};
+      try {
+        if (sessionStorage.getItem(CHAVE) === "1" && window.name === NOME) {
+          window.location.replace(destino);
+          return;
+        }
+      } catch (_erro) {}
+      window.location.replace("/logout");
+    })();
+  </script>
+</head>
+<body>
+  <p>Verificando sessão…</p>
+</body>
+</html>

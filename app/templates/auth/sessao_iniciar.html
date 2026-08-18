@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Entrando… · FinCasa</title>
   <script>
-    try {
-      sessionStorage.setItem("fincasa_sessao_navegador", "1");
-    } catch (_erro) {}
-    window.location.replace({{ next_url|tojson }});
+    (function () {
+      try {
+        sessionStorage.setItem("fincasa_sessao_navegador", "1");
+        window.name = "fincasa_ativo";
+      } catch (_erro) {}
+      window.location.replace({{ next_url|tojson }});
+    })();
   </script>
 </head>
 <body>

@@ -127,7 +127,16 @@ def create_app(config_class=None) -> Flask:
     def gerar_recorrentes_do_usuario():
         if not current_user.is_authenticated:
             return
-        if request.endpoint in (None, "static", "auth.login", "auth.logout", "auth.sessao_iniciar", "saude"):
+        if request.endpoint in (
+            None,
+            "static",
+            "auth.login",
+            "auth.logout",
+            "auth.sessao_iniciar",
+            "auth.sessao_verificar",
+            "auth.sessao_fechar",
+            "saude",
+        ):
             return
         from app.services.recorrencias import gerar_titulos_recorrentes
         from app.utils.casa import id_casa

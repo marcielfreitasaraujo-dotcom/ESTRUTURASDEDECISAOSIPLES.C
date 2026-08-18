@@ -1,17 +1,21 @@
 (() => {
   const CHAVE = "fincasa_sessao_navegador";
-  const autenticado = document.body?.dataset?.autenticado === "1";
+  const NOME = "fincasa_ativo";
+  const autenticado = document.documentElement?.dataset?.autenticado === "1";
 
   if (!autenticado) {
     return;
   }
 
-  try {
-    if (sessionStorage.getItem(CHAVE) !== "1") {
-      window.location.replace("/logout");
-      return;
+  const sessaoInvalida = () => {
+    try {
+      return sessionStorage.getItem(CHAVE) !== "1" || window.name !== NOME;
+    } catch (_erro) {
+      return true;
     }
-  } catch (_erro) {
+  };
+
+  if (sessaoInvalida()) {
     window.location.replace("/logout");
     return;
   }
@@ -46,7 +50,7 @@
       return;
     }
     try {
-      navigator.sendBeacon("/logout");
+      navigator.sendBeacon("/api/sessao/fechar");
     } catch (_erro) {
       /* ignore */
     }
