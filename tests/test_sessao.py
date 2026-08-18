@@ -25,7 +25,7 @@ def test_sessao_nao_e_permanente_depois_do_login(client):
 def test_login_marca_script_de_sessao_do_navegador(client):
     pagina = client.get("/login")
     html = pagina.get_data(as_text=True)
-    assert "fechar o navegador" in html
+    assert "fechar a aba" in html
 
     resp = client.post("/login", data={"username": "admin", "senha": "admin123"})
     assert "/sessao/iniciar" in (resp.headers.get("Location") or "")

@@ -142,7 +142,7 @@ gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
 
 ## O que já funciona no produto
 
-- Login com senha em hash (Werkzeug) e sessão (ao fechar o navegador, pede senha de novo)
+- Login com senha em hash (Werkzeug) e sessão (ao fechar a aba, pede senha de novo)
 - Dashboard com totais reais e gráficos
 - Lançamento rápido, contas, categorias, comprovantes
 - Histórico, filtros, tema claro/escuro
