@@ -5,7 +5,7 @@ from app.models import Conta, Movimentacao, Usuario
 from app.services.seed import criar_membro_familia
 
 
-def test_admin_cria_membro_familia(admin_client, app):
+def test_admin_cria_membro_com_contas_proprias(admin_client, app):
     resp = admin_client.post(
         "/configuracoes/familia",
         data={
@@ -13,7 +13,6 @@ def test_admin_cria_membro_familia(admin_client, app):
             "username": "ana.casa",
             "senha": "familia1",
             "perfil": "usuario",
-            "ver_familia": "1",
         },
         follow_redirects=True,
     )
@@ -23,22 +22,21 @@ def test_admin_cria_membro_familia(admin_client, app):
     with app.app_context():
         ana = Usuario.query.filter_by(username="ana.casa").first()
         assert ana is not None
-        assert ana.ver_familia is True
-        assert Conta.query.filter_by(usuario_id=ana.id).count() == 0
+        assert ana.ver_familia is False
+        assert Conta.query.filter_by(usuario_id=ana.id).count() >= 1
 
 
-def test_membro_familia_ve_conta_da_casa(app, client):
+def test_membro_nao_ve_conta_do_admin(app, client):
     with app.app_context():
         admin = Usuario.query.filter_by(username="admin").first()
-        criar_membro_familia("Ana", "ana.casa", "familia1", ver_familia=True)
+        criar_membro_familia("Ana", "ana.casa", "familia1", ver_familia=False)
         db.session.commit()
         conta_id = Conta.query.filter_by(usuario_id=admin.id, nome="Carteira").first().id
 
     client.post("/login", data={"username": "ana.casa", "senha": "familia1"})
     resp = client.get("/contas")
     assert resp.status_code == 200
-    assert "Carteira" in resp.get_data(as_text=True)
-    assert client.get(f"/contas/{conta_id}").status_code == 200
+    assert client.get(f"/contas/{conta_id}").status_code == 403
 
 
 def test_usuario_isolado_nao_ve_casa(app, client):
@@ -51,6 +49,15 @@ def test_usuario_isolado_nao_ve_casa(app, client):
 
     client.post("/login", data={"username": "beta.iso", "senha": "senha123"})
     assert client.get(f"/contas/{conta_id}").status_code == 403
+
+
+def test_logout_exige_login_de_novo(admin_client, client):
+    assert client.get("/").status_code == 200
+    client.get("/logout", follow_redirects=True)
+    resp = client.get("/", follow_redirects=False)
+    assert resp.status_code in (302, 401)
+    loc = resp.headers.get("Location", "")
+    assert "login" in loc or resp.status_code == 401
 
 
 def test_zerar_apaga_lancamentos_e_mantem_usuarios(admin_client, app):
@@ -98,7 +105,7 @@ def test_zerar_exige_confirmacao(admin_client, app):
                 usuario_id=admin.id,
                 conta_id=conta.id,
                 tipo="despesa",
-                descricao="Nao apagar",
+                descricao="Nao zerar",
                 valor=Decimal("5.00"),
                 data=date.today(),
                 forma_pagamento="dinheiro",
@@ -106,6 +113,12 @@ def test_zerar_exige_confirmacao(admin_client, app):
             )
         )
         db.session.commit()
-    admin_client.post("/configuracoes/zerar", data={"confirmacao": "nao"}, follow_redirects=True)
+
+    resp = admin_client.post(
+        "/configuracoes/zerar",
+        data={"confirmacao": "nao"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
     with app.app_context():
-        assert Movimentacao.query.filter_by(descricao="Nao apagar").count() == 1
+        assert Movimentacao.query.count() == 1

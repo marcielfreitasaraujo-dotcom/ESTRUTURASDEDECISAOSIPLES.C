@@ -86,6 +86,7 @@
             <input type="hidden" name="next" value="{{ request.full_path }}">
             <button class="icon-btn" type="submit" title="Alternar tema">{{ '☀️' if current_user.tema == 'escuro' else '🌙' }}</button>
           </form>
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.logout') }}" title="Sair e pedir login novamente">Sair</a>
           <div class="notify">
             <button class="icon-btn" type="button" data-toggle-notify aria-label="Notificações">
               🔔

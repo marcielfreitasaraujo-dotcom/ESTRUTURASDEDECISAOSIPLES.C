@@ -89,7 +89,7 @@
                 <td data-label="Nome">
                   <strong>{{ m.nome }}</strong>
                   {% if not m.ativo %}<span class="badge">inativo</span>{% endif %}
-                  {% if m.ver_familia %}<small>casa compartilhada</small>{% endif %}
+                  {% if m.ver_familia %}<small>legado: compartilhava casa</small>{% else %}<small>dados individuais</small>{% endif %}
                 </td>
                 <td data-label="Usuário"><code>{{ m.username }}</code></td>
                 <td data-label="Perfil">{{ m.perfil }}</td>
@@ -123,10 +123,7 @@
           <option value="admin">Administrador</option>
         </select>
       </label>
-      <label class="check">
-        <input type="checkbox" name="ver_familia" value="1" checked>
-        Pode ver e lançar nas contas da casa
-      </label>
+      <p class="muted">Cada pessoa terá contas e lançamentos só dela. Ninguém vê ou altera o financeiro do outro.</p>
       <button class="btn btn-primary" type="submit">Criar membro</button>
     </form>
   </article>

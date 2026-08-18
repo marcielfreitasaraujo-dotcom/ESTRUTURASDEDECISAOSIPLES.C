@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.models import Usuario
@@ -17,7 +17,6 @@ def login():
     if request.method == "POST":
         username = (request.form.get("username") or "").strip().lower()
         senha = request.form.get("senha") or ""
-        lembrar = bool(request.form.get("lembrar"))
         usuario = Usuario.query.filter(Usuario.username.ilike(username)).first()
         if not usuario or not usuario.verificar_senha(senha):
             logger.warning("Falha de autenticação para usuario=%s", username or "(vazio)")
@@ -26,7 +25,10 @@ def login():
             logger.warning("Tentativa de acesso com conta desativada usuario=%s", username)
             erro = "Esta conta está desativada."
         else:
-            login_user(usuario, remember=lembrar)
+            # Sem "lembrar": ao sair/fechar, exige login de novo
+            session.clear()
+            login_user(usuario, remember=False)
+            session.permanent = False
             logger.info("Login ok usuario=%s", username)
             destino = request.args.get("next") or url_for("dashboard.index")
             if not destino.startswith("/"):
@@ -39,5 +41,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("Você saiu da sua conta.", "info")
+    session.clear()
+    flash("Você saiu. Entre novamente com usuário e senha.", "info")
     return redirect(url_for("auth.login"))

@@ -36,9 +36,7 @@
         Senha
         <input type="password" name="senha" autocomplete="current-password" required>
       </label>
-      <label class="check">
-        <input type="checkbox" name="lembrar" value="1"> Lembrar de mim
-      </label>
+      <p class="hint" style="margin:0 0 0.75rem">Por segurança, ao sair será preciso entrar de novo.</p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
     {% if config.DEBUG %}

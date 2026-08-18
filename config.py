@@ -70,15 +70,20 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_SECURE = _bool_env("SESSION_COOKIE_SECURE", False)
+    # Sessão de navegador: ao sair ou fechar, precisa logar de novo
+    SESSION_PERMANENT = False
+    PERMANENT_SESSION_LIFETIME = 60 * 60 * 8
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_SECURE = _bool_env("SESSION_COOKIE_SECURE", False)
+    REMEMBER_COOKIE_DURATION = 0
     PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME", "http")
     SERVER_URL = os.environ.get("SERVER_URL", "http://127.0.0.1:5000")
 
     ADMIN_INICIAL_USUARIO = os.environ.get("ADMIN_USUARIO", "admin")
     ADMIN_INICIAL_SENHA = os.environ.get("ADMIN_SENHA", "admin123")
     ADMIN_INICIAL_NOME = os.environ.get("ADMIN_NOME", "Marciel")
-    ADMIN_ACESSA_TUDO = _bool_env("ADMIN_ACESSA_TUDO", True)
+    # Dados financeiros sempre por usuário; admin não vê lançamentos alheios
+    ADMIN_ACESSA_TUDO = _bool_env("ADMIN_ACESSA_TUDO", False)
 
     @staticmethod
     def init_app(app) -> None:
