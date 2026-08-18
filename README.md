@@ -31,7 +31,7 @@ Abra [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
 Altere a senha em **Configurações**. Em produção, defina `ADMIN_SENHA` no ambiente; a senha padrão não é criada.
 
-Para começar do zero: **Configurações → Começar do zero** (digite `ZERAR`). Para a família: **Configurações → Família**.
+Para começar do zero: **Configurações → Começar do zero** (digite `ZERAR`). Para a família: **Configurações → Família** (cada pessoa fica com o próprio financeiro). Ao sair, o sistema pede usuário e senha de novo.
 
 Para preencher o dashboard de teste: **Configurações → Inserir dados de demonstração** (não duplica).
 
@@ -126,7 +126,7 @@ O código já sobe com Gunicorn + PostgreSQL. O atalho mais simples é o [Render
 2. **New → Blueprint** e aponte para este repositório (`render.yaml` já está na raiz).
 3. Em `ADMIN_SENHA`, coloque a senha do `admin` (não use `admin123`).
 4. Depois do deploy, a URL fica `https://fincasa.onrender.com` (ou a que o Render mostrar).
-5. Entre com `admin` + a senha que você definiu. Em **Configurações → Família**, crie os logins das outras pessoas.
+5. Entre com `admin` + a senha que você definiu. Em **Configurações → Família**, crie os logins das outras pessoas — cada um vê só as próprias contas e lançamentos.
 
 No plano gratuito o site “dorme” depois de um tempo parado: o primeiro acesso do dia pode levar cerca de um minuto. O Postgres gratuito do Render expira em 30 dias — depois disso, suba o plano ou aponte `DATABASE_URL` para um Neon/Supabase.
 
@@ -151,7 +151,7 @@ gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
 - Relatórios em tela, PDF e Excel
 - Cartões de crédito com parcelas e pagamento de fatura (compra no crédito **não** baixa o saldo da conta até pagar a fatura)
 - Orçamento mensal por categoria (gasto = lançamentos + parcelas do cartão no mês)
-- Isolamento: usuário comum só vê os próprios dados
+- Isolamento: cada usuário vê, edita e exclui só o próprio financeiro
 - Backup local manual
 
 ## Arquitetura (hoje e amanhã)

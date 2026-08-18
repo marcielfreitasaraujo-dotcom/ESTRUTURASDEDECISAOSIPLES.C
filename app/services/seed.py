@@ -53,9 +53,6 @@ def _cfg(chave: str) -> Configuracao | None:
 def garantir_admin(app) -> Usuario | None:
     usuario = Usuario.query.filter_by(username=app.config["ADMIN_INICIAL_USUARIO"]).first()
     if usuario:
-        if usuario.eh_admin and not usuario.ver_familia:
-            usuario.ver_familia = True
-            db.session.commit()
         return usuario
     senha = app.config.get("ADMIN_INICIAL_SENHA")
     if not senha:
@@ -65,7 +62,7 @@ def garantir_admin(app) -> Usuario | None:
         username=app.config["ADMIN_INICIAL_USUARIO"],
         perfil="admin",
         tema="claro",
-        ver_familia=True,
+        ver_familia=False,
         ativo=True,
     )
     usuario.definir_senha(senha)
@@ -113,9 +110,8 @@ def garantir_contas(usuario: Usuario) -> dict[str, Conta]:
 def inicializar_sistema(app) -> None:
     garantir_admin(app)
     garantir_categorias()
-    admin = Usuario.query.filter_by(perfil="admin").first()
-    if admin:
-        garantir_contas(admin)
+    for usuario in Usuario.query.filter_by(ativo=True).all():
+        garantir_contas(usuario)
     db.session.commit()
 
 
@@ -384,7 +380,7 @@ def criar_membro_familia(
     username: str,
     senha: str,
     perfil: str = "usuario",
-    ver_familia: bool = True,
+    ver_familia: bool = False,
 ) -> Usuario:
     username = (username or "").strip().lower()
     nome = (nome or "").strip()
@@ -405,14 +401,13 @@ def criar_membro_familia(
         username=username[:80],
         perfil=perfil,
         tema="claro",
-        ver_familia=bool(ver_familia),
+        ver_familia=False,
         ativo=True,
     )
     membro.definir_senha(senha)
     db.session.add(membro)
     db.session.flush()
-    if not membro.ver_familia:
-        garantir_contas(membro)
+    garantir_contas(membro)
     return membro
 
 

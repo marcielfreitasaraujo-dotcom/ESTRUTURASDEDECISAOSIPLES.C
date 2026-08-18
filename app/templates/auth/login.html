@@ -23,6 +23,7 @@
     </div>
     <h1>Olá! Entre para ver seu saldo.</h1>
     <p class="muted">Registre um gasto em poucos segundos e acompanhe para onde vai o dinheiro.</p>
+    {% include 'components/flash.html' %}
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
@@ -36,15 +37,13 @@
         Senha
         <input type="password" name="senha" autocomplete="current-password" required>
       </label>
-      <label class="check">
-        <input type="checkbox" name="lembrar" value="1"> Lembrar de mim
-      </label>
+      <p class="hint">Por segurança, a senha é pedida de novo sempre que você sair.</p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
     {% if config.DEBUG %}
     <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
     {% else %}
-    <p class="hint">Acesse com o usuário e a senha da sua casa.</p>
+    <p class="hint">Acesse com o seu usuário e a sua senha.</p>
     {% endif %}
   </main>
 </body>

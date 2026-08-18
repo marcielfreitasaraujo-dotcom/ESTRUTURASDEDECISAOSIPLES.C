@@ -78,7 +78,7 @@ class Config:
     ADMIN_INICIAL_USUARIO = os.environ.get("ADMIN_USUARIO", "admin")
     ADMIN_INICIAL_SENHA = os.environ.get("ADMIN_SENHA", "admin123")
     ADMIN_INICIAL_NOME = os.environ.get("ADMIN_NOME", "Marciel")
-    ADMIN_ACESSA_TUDO = _bool_env("ADMIN_ACESSA_TUDO", True)
+    ADMIN_ACESSA_TUDO = _bool_env("ADMIN_ACESSA_TUDO", False)
 
     @staticmethod
     def init_app(app) -> None:

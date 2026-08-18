@@ -113,6 +113,10 @@
               <small>{{ current_user.perfil }}</small>
             </span>
           </a>
+          <form action="{{ url_for('auth.logout') }}" method="post" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-ghost btn-sm" type="submit">Sair</button>
+          </form>
         </div>
       </header>
 
