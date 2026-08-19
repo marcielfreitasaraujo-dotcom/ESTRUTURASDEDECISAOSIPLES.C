@@ -100,7 +100,13 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
   gap: 0.7rem;
   color: var(--ink);
 }
-.brand img { width: 42px; height: 42px; }
+.brand img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff;
+  object-fit: cover;
+}
 .brand strong { display: block; font-size: 0.95rem; letter-spacing: 0.04em; }
 .brand small { display: block; color: var(--muted); font-size: 0.72rem; }
 
@@ -132,6 +138,11 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
 }
 .btn-whatsapp { background: #128c7e; color: #fff; }
 .btn-whatsapp:hover { background: #0e7a6e; color: #fff; }
+.btn-insta {
+  background: #111;
+  color: #fff;
+}
+.btn-insta:hover { background: #000; color: #fff; }
 .btn-dark { background: var(--ink); color: var(--white); }
 .btn-dark:hover { background: #10161f; color: var(--white); }
 .btn-ghost {
@@ -389,14 +400,9 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
 }
 .footer-grid h3 { font-family: var(--font); font-size: 0.86rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.7rem; }
 .footer-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
-.social-slot {
-  margin-top: 0.8rem;
-  font-size: 0.88rem;
-  color: #b8b2a4;
-  border: 1px dashed rgba(244, 239, 228, 0.25);
-  border-radius: 12px;
-  padding: 0.7rem 0.8rem;
-}
+.servicos { margin-top: 0.6rem; }
+.servicos-title { margin-top: 2rem; }
+.footer-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
 .copy {
   margin: 1.6rem 0 0;
   padding-top: 1rem;
