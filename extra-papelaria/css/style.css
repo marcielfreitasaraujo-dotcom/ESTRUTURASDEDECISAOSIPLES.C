@@ -410,7 +410,11 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
 }
 .footer-grid h3 { font-family: var(--font); font-size: 0.86rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.7rem; }
 .footer-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
-.servicos { margin-top: 0.6rem; }
+.servicos {
+  margin-top: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 46rem;
+}
 .servicos-title { margin-top: 2rem; }
 .footer-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.8rem; }
 .copy {
