@@ -139,10 +139,20 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
 .btn-whatsapp { background: #128c7e; color: #fff; }
 .btn-whatsapp:hover { background: #0e7a6e; color: #fff; }
 .btn-insta {
-  background: #111;
+  background: linear-gradient(45deg, #f9ce34 0%, #ee2a7b 50%, #6228d7 100%);
   color: #fff;
+  box-shadow: 0 6px 16px rgba(238, 42, 123, 0.35);
 }
-.btn-insta:hover { background: #000; color: #fff; }
+.btn-insta:hover {
+  color: #fff;
+  filter: brightness(1.08);
+  box-shadow: 0 8px 20px rgba(238, 42, 123, 0.45);
+}
+.btn-insta svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
 .btn-dark { background: var(--ink); color: var(--white); }
 .btn-dark:hover { background: #10161f; color: var(--white); }
 .btn-ghost {
