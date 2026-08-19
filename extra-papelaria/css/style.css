@@ -33,7 +33,7 @@ body {
   line-height: 1.55;
 }
 
-img { max-width: 100%; display: block; }
+img { max-width: 100%; display: block; -webkit-user-drag: none; user-select: none; }
 
 a:focus-visible,
 button:focus-visible {
@@ -327,7 +327,7 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
   font-size: 3.4rem;
   line-height: 1;
 }
-.stars { color: #e0a106; letter-spacing: 0.08em; font-size: 1.1rem; }
+.score p { margin: 0.2rem 0 0; }
 
 .quote {
   padding: 1.2rem;
@@ -364,6 +364,7 @@ h2 { font-size: clamp(1.8rem, 3vw, 2.6rem); }
   padding: 1.3rem 1.25rem;
   box-shadow: var(--shadow);
 }
+.hours-card { margin-top: 1rem; }
 .info-card p { margin: 0.45rem 0 1rem; }
 .map-frame {
   min-height: 340px;
