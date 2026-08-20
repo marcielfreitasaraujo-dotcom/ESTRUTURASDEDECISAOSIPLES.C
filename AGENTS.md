@@ -3,7 +3,7 @@
 ## Cursor Cloud specific instructions
 
 ### Product
-FinUP is a single Flask web app (personal/family finance). Local default DB is SQLite (`instance/financeiro.db`); no Redis/Postgres daemon is required for day-to-day development.
+FinUP is a single Flask web app (personal/family finance). Local default DB is SQLite (`instance/financeiro.db`); no Redis/Postgres daemon is required for day-to-day development. Production target is Railway + PostgreSQL (`railway.json`).
 
 ### Start / stop
 - Activate venv and run: `source venv/bin/activate && python app.py` (or `./iniciar.sh`, which also refreshes deps).
