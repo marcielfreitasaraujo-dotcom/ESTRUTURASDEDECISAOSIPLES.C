@@ -113,4 +113,16 @@
       notifyPanel.hidden = true;
     }
   });
+
+  document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const campo = document.getElementById(btn.dataset.alvo);
+      if (!campo) return;
+      const mostrar = campo.type === "password";
+      campo.type = mostrar ? "text" : "password";
+      btn.textContent = mostrar ? "Ocultar" : "Mostrar";
+      btn.setAttribute("aria-pressed", mostrar ? "true" : "false");
+      btn.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+    });
+  });
 })();

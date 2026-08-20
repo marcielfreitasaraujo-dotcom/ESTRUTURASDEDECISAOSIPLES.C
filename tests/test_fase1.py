@@ -27,6 +27,8 @@ def test_login_mostra_logo(client):
     assert "brand-logo-full" in html
     assert "auth-bg" in html
     assert "FinUP" in html
+    assert "data-toggle-senha" in html
+    assert "Mostrar" in html
 
 
 def test_login_e_dashboard(admin_client):

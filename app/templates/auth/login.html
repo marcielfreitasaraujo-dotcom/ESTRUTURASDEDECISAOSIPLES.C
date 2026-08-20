@@ -36,7 +36,17 @@
       </label>
       <label>
         Senha
-        <input type="password" name="senha" autocomplete="current-password" required>
+        <span class="senha-field">
+          <input type="password" name="senha" id="campo-senha" autocomplete="current-password" required>
+          <button
+            type="button"
+            class="senha-toggle"
+            data-toggle-senha
+            data-alvo="campo-senha"
+            aria-label="Mostrar senha"
+            aria-pressed="false"
+          >Mostrar</button>
+        </span>
       </label>
       <p class="hint" style="margin:0 0 0.75rem">Por segurança, ao fechar a aba (ou sair) será preciso entrar de novo com a senha.</p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
@@ -47,5 +57,18 @@
     <p class="hint">Acesse com o usuário e a senha da sua casa.</p>
     {% endif %}
   </main>
+  <script>
+    document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const campo = document.getElementById(btn.dataset.alvo);
+        if (!campo) return;
+        const mostrar = campo.type === "password";
+        campo.type = mostrar ? "text" : "password";
+        btn.textContent = mostrar ? "Ocultar" : "Mostrar";
+        btn.setAttribute("aria-pressed", mostrar ? "true" : "false");
+        btn.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+      });
+    });
+  </script>
 </body>
 </html>

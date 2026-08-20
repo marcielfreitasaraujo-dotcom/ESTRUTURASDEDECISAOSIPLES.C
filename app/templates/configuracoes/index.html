@@ -23,9 +23,24 @@
     <header class="card-head"><h2>Senha</h2></header>
     <form action="{{ url_for('configuracoes.senha') }}" method="post" class="stack">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>Senha atual <input type="password" name="senha_atual" required></label>
-      <label>Nova senha <input type="password" name="senha_nova" minlength="6" required></label>
-      <label>Confirmar <input type="password" name="senha_confirma" minlength="6" required></label>
+      <label>Senha atual
+        <span class="senha-field">
+          <input type="password" name="senha_atual" id="senha-atual" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-atual" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
+      <label>Nova senha
+        <span class="senha-field">
+          <input type="password" name="senha_nova" id="senha-nova" minlength="6" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-nova" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
+      <label>Confirmar
+        <span class="senha-field">
+          <input type="password" name="senha_confirma" id="senha-confirma" minlength="6" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-confirma" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
       <button class="btn btn-primary" type="submit">Alterar senha</button>
     </form>
   </article>
@@ -116,7 +131,12 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>Nome <input type="text" name="nome" placeholder="Ex: Ana" required></label>
       <label>Usuário para login <input type="text" name="username" placeholder="ex: ana" autocomplete="off" required></label>
-      <label>Senha inicial <input type="password" name="senha" minlength="6" autocomplete="new-password" required></label>
+      <label>Senha inicial
+        <span class="senha-field">
+          <input type="password" name="senha" id="senha-familia" minlength="6" autocomplete="new-password" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-familia" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
       <label>Perfil
         <select name="perfil">
           <option value="usuario">Membro da família</option>
