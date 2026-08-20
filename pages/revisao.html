@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revisão do site | Realiza Consultoria Caixa</title>
+    <meta name="description" content="Prévia do site da Realiza para análise do cliente e envio das fotos necessárias." />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" href="../assets/img/logo-realiza.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <style>
+      .review-hero {
+        padding: calc(var(--header-h) + 2.5rem) 0 2rem;
+        background:
+          radial-gradient(ellipse at top left, rgba(255, 143, 31, 0.12), transparent 45%),
+          linear-gradient(165deg, #f7fafc 0%, #e8f1f7 100%);
+      }
+      .review-hero h1 { max-width: 18ch; }
+      .review-list {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .review-card {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: start;
+        padding: 1.15rem 1.25rem;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius-lg);
+        background: #fff;
+        box-shadow: var(--shadow-xs);
+      }
+      .review-card__n {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        font-family: var(--font-display);
+        background: var(--color-navy-900);
+        color: #fff;
+        flex-shrink: 0;
+      }
+      .review-card h3 {
+        margin: 0 0 0.35rem;
+        font-size: 1.05rem;
+      }
+      .review-card p {
+        margin: 0;
+        color: var(--color-muted);
+        font-size: 0.95rem;
+      }
+      .review-card code {
+        font-size: 0.8rem;
+        background: var(--color-blue-50);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+      }
+      .review-tip {
+        margin-top: 1.5rem;
+        padding: 1.25rem 1.35rem;
+        border-radius: var(--radius-lg);
+        background: rgba(0, 58, 102, 0.06);
+        border-left: 4px solid var(--color-orange-500);
+      }
+      .review-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+    </style>
+  </head>
+  <body data-page="revisao" data-base="pages" data-header="solid">
+    <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
+    <div data-site-header></div>
+
+    <main id="conteudo">
+      <section class="review-hero">
+        <div class="container reveal">
+          <p class="section__eyebrow">Prévia para o cliente</p>
+          <h1>Site pronto para análise — faltam as suas fotos</h1>
+          <p style="max-width: 42rem; margin-top: 0.85rem; font-size: 1.1rem">
+            A Realiza Consultoria Caixa já tem o site estruturado. Revise o conteúdo, o visual e envie as fotos do consultor Eduardo Guimarães para finalizarmos.
+          </p>
+          <div class="review-actions">
+            <a class="btn btn--primary" href="../index.html">Ver o site completo</a>
+            <a class="btn btn--whatsapp" href="https://wa.me/5599984681048?text=Ol%C3%A1!%20Analisei%20a%20pr%C3%A9via%20do%20site%20e%20vou%20enviar%20as%20fotos." target="_blank" rel="noopener noreferrer">Enviar fotos no WhatsApp</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tight">
+        <div class="container">
+          <div class="section__head reveal">
+            <p class="section__eyebrow">Checklist</p>
+            <h2>3 fotos necessárias</h2>
+            <p>Pode enviar pelo WhatsApp. Ideal em boa luz, nítidas, sem filtros pesados.</p>
+          </div>
+
+          <div class="review-list reveal">
+            <article class="review-card">
+              <div class="review-card__n">1</div>
+              <div>
+                <h3>Retrato do Eduardo (principal)</h3>
+                <p>
+                  Foto vertical do consultor, de preferência do peito para cima, sorrindo ou em pose profissional.
+                  Vai na primeira tela do site (hero).
+                </p>
+                <p style="margin-top:0.5rem"><code>eduardo-hero.jpg</code> · vertical · boa resolução</p>
+              </div>
+            </article>
+
+            <article class="review-card">
+              <div class="review-card__n">2</div>
+              <div>
+                <h3>Foto do Eduardo no atendimento / escritório</h3>
+                <p>
+                  Horizontal ou quase quadrada. Pode ser no balcão, com cliente (com autorização) ou no ambiente da Realiza.
+                  Aparece na seção Sobre.
+                </p>
+                <p style="margin-top:0.5rem"><code>eduardo-sobre.jpg</code> · horizontal</p>
+              </div>
+            </article>
+
+            <article class="review-card">
+              <div class="review-card__n">3</div>
+              <div>
+                <h3>Foto de atendimento / Realiza</h3>
+                <p>
+                  Mais uma foto do Eduardo ou da equipe/ambiente, para a seção de destaque e páginas internas.
+                </p>
+                <p style="margin-top:0.5rem"><code>eduardo-atendimento.jpg</code> · quadrada ou vertical</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="review-tip reveal">
+            <strong>Dicas rápidas</strong>
+            <ul style="margin:0.6rem 0 0; padding-left:1.2rem; color:var(--color-muted)">
+              <li>Celular em boa resolução já serve.</li>
+              <li>Evite fotos muito escuras ou cortadas.</li>
+              <li>Se tiver foto da fachada da Realiza, também podemos incluir.</li>
+              <li>Logo oficial já está no site.</li>
+            </ul>
+          </div>
+
+          <div class="review-actions reveal" style="margin-top:2rem">
+            <a class="btn btn--secondary" href="../index.html">Voltar ao início</a>
+            <a class="btn btn--ghost" href="contato.html">Ver página de contato</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div data-site-footer></div>
+    <script type="module" src="../assets/js/main.js"></script>
+    <script src="../assets/js/nav-fallback.js" defer></script>
+  </body>
+</html>
