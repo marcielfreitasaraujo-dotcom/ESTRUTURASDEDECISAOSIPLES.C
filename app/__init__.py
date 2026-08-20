@@ -11,7 +11,7 @@ from app.extensions import csrf, db, login_manager
 from app.models import Usuario
 from app.utils.formatters import formatar_data, formatar_moeda, nome_mes, parse_moeda
 
-logger = logging.getLogger("fincasa")
+logger = logging.getLogger("finup")
 
 
 def _configurar_log(app: Flask) -> None:
@@ -25,8 +25,11 @@ def _configurar_log(app: Flask) -> None:
     uri = str(app.config.get("SQLALCHEMY_DATABASE_URI") or "")
     tipo_banco = "sqlite" if uri.startswith("sqlite") else "postgres" if "postgres" in uri else "outro"
     logger.info(
-        "FinCasa iniciado ambiente=%s debug=%s banco=%s",
-        os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development",
+        "FinUP iniciado ambiente=%s debug=%s banco=%s",
+        os.environ.get("FLASK_ENV")
+        or os.environ.get("FINUP_ENV")
+        or os.environ.get("FINCASA_ENV")
+        or "development",
         app.debug,
         tipo_banco,
     )
@@ -118,8 +121,11 @@ def create_app(config_class=None) -> Flask:
         return jsonify(
             {
                 "ok": True,
-                "app": "fincasa",
-                "ambiente": os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development",
+                "app": "finup",
+                "ambiente": os.environ.get("FLASK_ENV")
+                or os.environ.get("FINUP_ENV")
+                or os.environ.get("FINCASA_ENV")
+                or "development",
             }
         )
 

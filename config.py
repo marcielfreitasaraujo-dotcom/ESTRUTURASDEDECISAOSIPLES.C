@@ -11,7 +11,7 @@ try:
 except ImportError:
     pass
 
-_DEV_SECRET = "fincasa-dev-altere-em-producao"
+_DEV_SECRET = "finup-dev-altere-em-producao"
 
 
 def _bool_env(nome: str, padrao: bool = False) -> bool:
@@ -120,7 +120,12 @@ class TestingConfig(Config):
 
 
 def get_config():
-    nome = (os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development").lower()
+    nome = (
+        os.environ.get("FLASK_ENV")
+        or os.environ.get("FINUP_ENV")
+        or os.environ.get("FINCASA_ENV")  # compatibilidade com env antigo
+        or "development"
+    ).lower()
     if nome in {"prod", "production"}:
         return ProductionConfig
     if nome in {"test", "testing"}:

@@ -36,7 +36,7 @@ def index():
 def pdf():
     _, inicio, fim = _periodo()
     arquivo = gerar_pdf(id_casa(), inicio, fim, current_user.nome)
-    nome = f"fincasa-relatorio-{inicio.isoformat()}_{fim.isoformat()}.pdf"
+    nome = f"finup-relatorio-{inicio.isoformat()}_{fim.isoformat()}.pdf"
     return send_file(arquivo, mimetype="application/pdf", as_attachment=True, download_name=nome)
 
 
@@ -45,7 +45,7 @@ def pdf():
 def excel():
     _, inicio, fim = _periodo()
     arquivo = gerar_excel(id_casa(), inicio, fim)
-    nome = f"fincasa-relatorio-{inicio.isoformat()}_{fim.isoformat()}.xlsx"
+    nome = f"finup-relatorio-{inicio.isoformat()}_{fim.isoformat()}.xlsx"
     return send_file(
         arquivo,
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

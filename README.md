@@ -1,4 +1,4 @@
-# FinCasa — Controle Financeiro Pessoal e Familiar
+# FinUP — Controle Financeiro Pessoal e Familiar
 
 Sistema web para registrar receitas, despesas e comprovantes em poucos segundos, com saldo calculado automaticamente.
 
@@ -63,7 +63,7 @@ Exemplo de produção (não rode isso no seu PC se quiser manter o SQLite):
 FLASK_ENV=production
 DEBUG=false
 SECRET_KEY=...          # gerada por você, nunca no Git
-DATABASE_URL=postgresql://usuario:senha@host:5432/fincasa
+DATABASE_URL=postgresql://usuario:senha@host:5432/finup
 SERVER_URL=https://meusistema.com.br
 ADMIN_SENHA=...
 ```
@@ -125,7 +125,7 @@ O código já sobe com Gunicorn + PostgreSQL. O atalho mais simples é o [Render
 1. Crie a conta no Render com o mesmo e-mail do GitHub.
 2. **New → Blueprint** e aponte para este repositório (`render.yaml` já está na raiz).
 3. Em `ADMIN_SENHA`, coloque a senha do `admin` (não use `admin123`).
-4. Depois do deploy, a URL fica `https://fincasa.onrender.com` (ou a que o Render mostrar).
+4. Depois do deploy, a URL fica `https://finup.onrender.com` (ou a que o Render mostrar).
 5. Entre com `admin` + a senha que você definiu. Em **Configurações → Família**, crie os logins das outras pessoas.
 
 No plano gratuito o site “dorme” depois de um tempo parado: o primeiro acesso do dia pode levar cerca de um minuto. O Postgres gratuito do Render expira em 30 dias — depois disso, suba o plano ou aponte `DATABASE_URL` para um Neon/Supabase.
@@ -157,7 +157,7 @@ gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
 ## Arquitetura (hoje e amanhã)
 
 ```
-Navegador  --HTTPS-->  Flask (FinCasa)  -->  SQLite (local)
+Navegador  --HTTPS-->  Flask (FinUP)  -->  SQLite (local)
                                         \->  PostgreSQL (produção, quando apontar DATABASE_URL)
                                         \->  arquivos de comprovantes
 ```

@@ -1,6 +1,6 @@
 (() => {
-  const CHAVE = "fincasa_sessao_navegador";
-  const NOME = "fincasa_ativo";
+  const CHAVE = "finup_sessao_navegador";
+  const NOME = "finup_ativo";
   const autenticado = document.documentElement?.dataset?.autenticado === "1";
 
   if (!autenticado) {

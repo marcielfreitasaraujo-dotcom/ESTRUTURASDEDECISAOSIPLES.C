@@ -82,11 +82,11 @@ def gerar_pdf(usuario_id: int, inicio: date, fim: date, nome_usuario: str) -> By
         rightMargin=1.6 * cm,
         topMargin=1.4 * cm,
         bottomMargin=1.4 * cm,
-        title="Relatório FinCasa",
+        title="Relatório FinUP",
     )
     estilos = _estilos()
     story = [
-        Paragraph("FinCasa — Relatório financeiro", estilos["TituloFin"]),
+        Paragraph("FinUP — Relatório financeiro", estilos["TituloFin"]),
         Paragraph(
             f"{nome_usuario} · {dados['titulo_periodo']} · {formatar_data(inicio)} a {formatar_data(fim)}",
             estilos["SubFin"],
@@ -180,7 +180,7 @@ def gerar_excel(usuario_id: int, inicio: date, fim: date) -> BytesIO:
     wb = Workbook()
     ws = wb.active
     ws.title = "Resumo"
-    ws["A1"] = "FinCasa — Relatório"
+    ws["A1"] = "FinUP — Relatório"
     ws["A1"].font = Font(bold=True, size=14)
     ws["A2"] = f"{formatar_data(inicio)} a {formatar_data(fim)}"
     ws["A4"] = "Receitas"

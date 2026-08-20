@@ -1,5 +1,5 @@
 (() => {
-  const data = window.FINCASA_CHARTS;
+  const data = window.FINUP_CHARTS;
   if (!data || typeof Chart === "undefined") return;
 
   const css = getComputedStyle(document.documentElement);

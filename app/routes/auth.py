@@ -6,7 +6,7 @@ from app.models import Usuario
 import logging
 
 auth_bp = Blueprint("auth", __name__)
-logger = logging.getLogger("fincasa.auth")
+logger = logging.getLogger("finup.auth")
 
 
 def _destino_seguro(valor: str | None, padrao: str) -> str:

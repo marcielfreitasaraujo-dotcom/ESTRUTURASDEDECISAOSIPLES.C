@@ -32,9 +32,9 @@ def test_login_marca_script_de_sessao_do_navegador(client):
 
     iniciar = client.get(resp.headers["Location"])
     html_iniciar = iniciar.get_data(as_text=True)
-    assert "fincasa_sessao_navegador" in html_iniciar
+    assert "finup_sessao_navegador" in html_iniciar
     assert "sessionStorage.setItem" in html_iniciar
-    assert 'window.name = "fincasa_ativo"' in html_iniciar
+    assert 'window.name = "finup_ativo"' in html_iniciar
 
 
 def test_login_autenticado_vai_para_verificacao(client):
@@ -45,8 +45,8 @@ def test_login_autenticado_vai_para_verificacao(client):
 
     pagina = client.get(resp.headers["Location"])
     html = pagina.get_data(as_text=True)
-    assert "fincasa_sessao_navegador" in html
-    assert "fincasa_ativo" in html
+    assert "finup_sessao_navegador" in html
+    assert "finup_ativo" in html
 
 
 def test_api_sessao_fechar_encerra_login(client):
@@ -64,8 +64,8 @@ def test_pagina_autenticada_inclui_guarda_de_sessao(admin_client):
     html = resp.get_data(as_text=True)
     assert "sessao.js" in html
     assert 'data-autenticado="1"' in html
-    assert "fincasa_sessao_navegador" in html
-    assert "fincasa_ativo" in html
+    assert "finup_sessao_navegador" in html
+    assert "finup_ativo" in html
 
     js = admin_client.get("/static/js/sessao.js")
     assert js.status_code == 200

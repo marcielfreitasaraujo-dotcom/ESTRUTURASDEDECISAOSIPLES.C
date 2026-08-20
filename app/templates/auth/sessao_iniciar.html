@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entrando… · FinCasa</title>
+  <title>Entrando… · FinUP</title>
   <script>
     (function () {
       try {
-        sessionStorage.setItem("fincasa_sessao_navegador", "1");
-        window.name = "fincasa_ativo";
+        sessionStorage.setItem("finup_sessao_navegador", "1");
+        window.name = "finup_ativo";
       } catch (_erro) {}
       window.location.replace({{ next_url|tojson }});
     })();

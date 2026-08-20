@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>{% block title %}FinCasa{% endblock %} · FinCasa</title>
+  <title>{% block title %}FinUP{% endblock %} · FinUP</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <script>
     (function () {
-      var CHAVE = "fincasa_sessao_navegador";
-      var NOME = "fincasa_ativo";
+      var CHAVE = "finup_sessao_navegador";
+      var NOME = "finup_ativo";
       if (document.documentElement.dataset.autenticado !== "1") {
         return;
       }
@@ -33,9 +33,9 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <div class="brand">
-        <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="FinCasa" width="42" height="42">
+        <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="FinUP" width="42" height="42">
         <div>
-          <strong>FinCasa</strong>
+          <strong>FinUP</strong>
           <small>Controle financeiro</small>
         </div>
       </div>

@@ -14,7 +14,7 @@ def test_saude_publico(client):
     assert resp.status_code == 200
     dados = resp.get_json()
     assert dados["ok"] is True
-    assert dados["app"] == "fincasa"
+    assert dados["app"] == "finup"
 
 
 def test_normaliza_postgres_heroku():
