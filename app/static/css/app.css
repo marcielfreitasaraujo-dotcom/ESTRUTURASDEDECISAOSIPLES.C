@@ -422,6 +422,33 @@ html[data-theme="claro"] .btn-primary { color: #fff; }
 .filters, .form-inline, .period-pills {
   display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;
 }
+.relatorio-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.25rem;
+  align-items: end;
+  margin: 0 0 1.1rem;
+}
+.relatorio-filtros .filters {
+  margin-bottom: 0;
+  align-items: end;
+}
+.filtro-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.filtro-label input {
+  min-width: 150px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.65rem 0.8rem;
+}
 .filters input, .filters select, .form-inline input, .form-inline select,
 label input, label select, label textarea {
   background: var(--surface); color: var(--text);

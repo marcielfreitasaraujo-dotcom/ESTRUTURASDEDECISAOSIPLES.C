@@ -8,16 +8,50 @@
     <p class="muted">{{ titulo_periodo }} · dados reais do seu usuário</p>
   </div>
   <div class="btn-row">
-    <a class="btn btn-ghost" href="{{ url_for('relatorios.pdf', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat()) }}">📄 PDF</a>
-    <a class="btn btn-primary" href="{{ url_for('relatorios.excel', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat()) }}">📊 Excel</a>
+    <a class="btn btn-ghost" href="{{ url_for('relatorios.pdf', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">📄 PDF</a>
+    <a class="btn btn-primary" href="{{ url_for('relatorios.excel', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">📊 Excel</a>
   </div>
 </section>
 
 <form class="period-pills" method="get">
-  {% for chave, label in [('hoje','Hoje'),('esta_semana','Esta semana'),('este_mes','Este mês'),('mes_passado','Mês passado'),('ultimos_30','30 dias')] %}
+  {% for chave, label in [
+    ('hoje','Hoje'),
+    ('ontem','Ontem'),
+    ('esta_semana','Esta semana'),
+    ('este_mes','Este mês'),
+    ('mes_passado','Mês passado'),
+    ('ultimos_30','30 dias'),
+    ('ultimos_90','90 dias'),
+    ('este_ano','Este ano'),
+    ('ano_passado','Ano passado')
+  ] %}
     <button class="pill {{ 'ativo' if periodo == chave }}" name="periodo" value="{{ chave }}">{{ label }}</button>
   {% endfor %}
 </form>
+
+<div class="relatorio-filtros">
+  <form class="filters" method="get">
+    <input type="hidden" name="periodo" value="mes">
+    <label class="filtro-label">
+      Mês / ano
+      <input type="month" name="mes" value="{{ mes }}" required>
+    </label>
+    <button class="btn btn-ghost" type="submit">Ver mês</button>
+  </form>
+
+  <form class="filters" method="get">
+    <input type="hidden" name="periodo" value="personalizado">
+    <label class="filtro-label">
+      De
+      <input type="date" name="inicio" value="{{ inicio.isoformat() }}" required>
+    </label>
+    <label class="filtro-label">
+      Até
+      <input type="date" name="fim" value="{{ fim.isoformat() }}" required>
+    </label>
+    <button class="btn btn-primary" type="submit">Filtrar período</button>
+  </form>
+</div>
 
 <section class="kpi-grid">
   <article class="kpi receita"><span>Receitas</span><strong>{{ resumo.receitas | moeda }}</strong></article>
@@ -59,7 +93,7 @@
 <article class="card" style="margin-top:1rem">
   <header class="card-head">
     <h2>Lançamentos do período</h2>
-    <a href="{{ url_for('movimentacoes.index', periodo=periodo) }}">Abrir histórico</a>
+    <a href="{{ url_for('movimentacoes.index', periodo='personalizado', inicio=inicio.isoformat(), fim=fim.isoformat()) }}">Abrir histórico</a>
   </header>
   <div class="table-wrap">
     <table class="data-table">

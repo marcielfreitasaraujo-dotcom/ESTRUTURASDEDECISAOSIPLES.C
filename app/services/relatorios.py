@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from io import BytesIO
 
 from openpyxl import Workbook
@@ -34,11 +34,7 @@ def montar(usuario_id: int, inicio: date, fim: date) -> dict:
     linhas_cat = list(
         zip(categorias.get("labels") or [], categorias.get("valores") or [], categorias.get("cores") or [])
     )
-    titulo_periodo = (
-        nome_mes(inicio.year, inicio.month)
-        if inicio.month == fim.month and inicio.year == fim.year and inicio.day == 1
-        else f"{formatar_data(inicio)} a {formatar_data(fim)}"
-    )
+    titulo_periodo = _titulo_periodo(inicio, fim)
     return {
         "resumo": resumo,
         "categorias": linhas_cat,
@@ -47,6 +43,19 @@ def montar(usuario_id: int, inicio: date, fim: date) -> dict:
         "fim": fim,
         "titulo_periodo": titulo_periodo,
     }
+
+
+def _titulo_periodo(inicio: date, fim: date) -> str:
+    if inicio.year == fim.year and inicio.month == 1 and inicio.day == 1 and fim.month == 12 and fim.day == 31:
+        return f"Ano de {inicio.year}"
+    if inicio.year == fim.year and inicio.month == fim.month and inicio.day == 1:
+        if fim.month == 12:
+            ultimo = date(fim.year, 12, 31)
+        else:
+            ultimo = date(fim.year, fim.month + 1, 1) - timedelta(days=1)
+        if fim == ultimo:
+            return nome_mes(inicio.year, inicio.month)
+    return f"{formatar_data(inicio)} a {formatar_data(fim)}"
 
 
 def _estilos():
