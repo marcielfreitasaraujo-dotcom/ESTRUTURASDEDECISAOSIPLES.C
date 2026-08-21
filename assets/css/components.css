@@ -1,76 +1,8 @@
-/* ========== Review banner (prévia cliente) ========== */
-.review-banner {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: 130;
-  background: linear-gradient(90deg, var(--color-navy-950), var(--color-navy-800));
-  color: #fff;
-  font-size: 0.88rem;
-  font-weight: 600;
-}
-
-.review-banner__inner {
-  width: min(100% - 2rem, var(--container));
-  margin-inline: auto;
-  min-height: 2.55rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  padding: 0.45rem 0;
-}
-
-.review-banner a {
-  color: var(--color-orange-400);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.review-banner a:hover {
-  color: #fff;
-}
-
-[data-site-header] {
-  min-height: calc(var(--header-h) + 2.55rem);
-}
-
-@media (max-width: 640px) {
-  .review-banner__inner {
-    justify-content: center;
-    text-align: center;
-    font-size: 0.8rem;
-  }
-}
-
-/* Photo pending badge */
-.photo-slot[data-pending]::before {
-  content: "Aguardando foto";
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  z-index: 3;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  background: rgba(2, 11, 22, 0.78);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  backdrop-filter: blur(6px);
-  pointer-events: none;
-}
-
-.photo-slot--light[data-pending]::before {
-  background: rgba(0, 58, 102, 0.9);
-}
-
 /* ========== Header ========== */
 .site-header {
   position: fixed;
   inset: 0 0 auto;
   z-index: 100;
-  top: 2.55rem;
   height: var(--header-h);
   display: flex;
   align-items: center;

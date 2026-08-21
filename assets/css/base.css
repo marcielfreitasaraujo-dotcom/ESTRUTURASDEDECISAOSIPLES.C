@@ -108,7 +108,7 @@ strong {
 }
 
 [data-site-header] {
-  min-height: calc(var(--header-h) + 2.55rem);
+  min-height: var(--header-h);
 }
 
 .skip-link {

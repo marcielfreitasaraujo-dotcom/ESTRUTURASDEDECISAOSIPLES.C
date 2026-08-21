@@ -24,15 +24,8 @@ export function renderHeader({ base = "", current = "inicio", solid = false } = 
   const logo = asset("img/logo-realiza.png", base ? "../assets/" : "assets/");
   const items = navItems(base, current);
   const wa = waLink(WA_MESSAGES.general);
-  const reviewHref = base === "" ? "pages/revisao.html" : "revisao.html";
 
   return `
-    <div class="review-banner" role="note">
-      <div class="review-banner__inner">
-        <span>Prévia para revisão do cliente · faltam as fotos do Eduardo Guimarães</span>
-        <a href="${reviewHref}">Ver fotos necessárias</a>
-      </div>
-    </div>
     <header class="site-header${solid ? " site-header--solid" : ""}" data-header>
       <div class="site-header__inner">
         <a class="brand" href="${base === "" ? "index.html" : "../index.html"}" aria-label="${SITE.name} — página inicial">
