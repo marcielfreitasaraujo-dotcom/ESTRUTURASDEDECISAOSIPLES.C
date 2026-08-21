@@ -1,64 +1,43 @@
 # Realiza Consultoria Caixa
 
-Site institucional premium da **Realiza Consultoria Caixa** — Estreito — MA.
+Site institucional da **Realiza Consultoria Caixa** — Estreito — MA.
 
-## Dados do negócio
+Pronto para publicar na web. As fotos do Eduardo Guimarães podem ser trocadas depois.
+
+## Dados
 
 | Item | Valor |
 |------|--------|
 | Nome | Realiza Consultoria Caixa |
 | Endereço | R. Graça Aranha, n° 1567 — Centro, Estreito — MA, 65975-000 |
-| Telefone / WhatsApp | (99) 98468-1048 |
+| WhatsApp | (99) 98468-1048 |
 | Consultor | Eduardo Guimarães |
 
-## Prévia para o cliente
+## Publicar hoje (GitHub Pages)
 
-Página de checklist das fotos: `pages/revisao.html`
+1. Abra: https://github.com/marcielfreitasaraujo-dotcom/ESTRUTURASDEDECISAOSIPLES.C/settings/pages  
+2. Em **Build and deployment → Source**, escolha **GitHub Actions**  
+3. Salve. O workflow `Deploy GitHub Pages` sobe o site automaticamente.  
+4. Link público (após o deploy):  
+   **https://marcielfreitasaraujo-dotcom.github.io/ESTRUTURASDEDECISAOSIPLES.C/**
 
-### Mensagem pronta para enviar no WhatsApp
+Também funciona com Netlify Drop: arraste a pasta do projeto em https://app.netlify.com/drop
 
-```
-Olá, Eduardo! Segue a prévia do site da Realiza Consultoria Caixa para você analisar.
+## Fotos depois (sem republicar o site inteiro)
 
-Link do site: [COLE O LINK AQUI]
+Substitua **mantendo o mesmo nome**:
 
-O que já está pronto: identidade, serviços, endereço, WhatsApp, mapa, depoimentos e galeria.
+| Arquivo | Onde aparece |
+|---------|----------------|
+| `assets/img/team/eduardo-hero.jpg` | Primeira tela (hero) — vertical |
+| `assets/img/team/eduardo-sobre.jpg` | Sobre / Quem somos — horizontal |
+| `assets/img/team/eduardo-atendimento.jpg` | Destaque e páginas internas |
 
-Para finalizar, preciso de 3 fotos suas:
-1) Retrato vertical (primeira tela)
-2) Foto no atendimento/escritório (horizontal)
-3) Mais uma foto de atendimento ou ambiente
+Depois: `git add` → `git commit` → `git push` (o Pages atualiza sozinho).
 
-Pode enviar por aqui mesmo. Qualquer ajuste de texto, me avise!
-```
+Checklist interno: `pages/revisao.html` (não aparece no menu).
 
-## Fotos necessárias
-
-| Arquivo | Uso | Formato |
-|---------|-----|---------|
-| `assets/img/team/eduardo-hero.jpg` | Hero (primeira dobra) | Vertical |
-| `assets/img/team/eduardo-sobre.jpg` | Sobre / Quem somos | Horizontal |
-| `assets/img/team/eduardo-atendimento.jpg` | Destaque e páginas internas | Quadrada ou vertical |
-
-Opcional: foto da fachada da Realiza.
-
-## Estrutura
-
-```
-/
-├── index.html
-├── pages/           # serviços, habitação, fgts, consignado, quem-somos, contato, revisao
-├── assets/
-│   ├── css/
-│   ├── js/
-│   ├── icons/
-│   └── img/
-├── robots.txt
-├── sitemap.xml
-└── README.md
-```
-
-## Como visualizar localmente
+## Rodar local
 
 ```bash
 git checkout cursor/site-correspondente-caixa-f09a
@@ -66,13 +45,11 @@ git pull
 python3 -m http.server 8080
 ```
 
-Abra `http://localhost:8080`.
+Abra http://localhost:8080
 
-## Publicar no GitHub Pages (link fixo)
+## Domínio próprio
 
-1. No GitHub: **Settings → Pages**
-2. Source: **GitHub Actions**
-3. Após o deploy, o link ficará em:
-   `https://marcielfreitasaraujo-dotcom.github.io/ESTRUTURASDEDECISAOSIPLES.C/`
-
-Depois de publicar, atualize o domínio em `robots.txt`, `sitemap.xml` e tags `canonical` / Open Graph.
+Quando tiver domínio (ex.: realizaconsultoria.com.br), atualize:
+- `robots.txt`
+- `sitemap.xml`
+- tags `canonical` / Open Graph no HTML
