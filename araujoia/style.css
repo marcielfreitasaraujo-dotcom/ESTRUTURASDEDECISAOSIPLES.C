@@ -480,9 +480,14 @@ a {
   font-size: 0.95rem;
 }
 
-.contact__meta span {
+.contact__meta a {
   color: var(--ink);
   font-weight: 500;
+  text-decoration: none;
+}
+
+.contact__meta a:hover {
+  color: var(--accent);
 }
 
 /* Footer */
@@ -509,6 +514,15 @@ a {
 
 .footer__note {
   font-size: 0.9rem;
+}
+
+.footer__note a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.footer__note a:hover {
+  color: var(--accent);
 }
 
 /* —— Motion —— */

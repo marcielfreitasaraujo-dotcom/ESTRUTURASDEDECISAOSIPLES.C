@@ -13,7 +13,8 @@ def test_conteudo_principal_da_pagina():
     assert "AraujoIA" in html
     assert 'id="contato"' in html
     assert "https://wa.me/5599991677463" in html
-    assert "https://www.instagram.com/arauj0.ia/" in html
+    assert "https://www.instagram.com/araujo.ia/" in html
+    assert "arauj0.ia" not in html
     assert "btn__icon" in html
     assert "mailto:" not in html
     assert "marcielfreitasaraujo@gmail.com" not in html
