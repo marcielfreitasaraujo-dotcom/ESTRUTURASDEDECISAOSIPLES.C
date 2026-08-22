@@ -1,0 +1,16 @@
+# EXTRA PAPELARIA — proteção básica no Apache
+Options -Indexes
+
+<IfModule mod_headers.c>
+  Header always set X-Frame-Options "DENY"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://maps.google.com https://www.google.com; base-uri 'self'; form-action 'self' https://wa.me; frame-ancestors 'none'; upgrade-insecure-requests"
+</IfModule>
+
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(json|md|git|env|htaccess)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>
