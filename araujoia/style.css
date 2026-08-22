@@ -463,30 +463,53 @@ a {
   color: var(--muted);
 }
 
-.contact__actions {
+.contact__social {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-bottom: 2rem;
+  align-items: center;
+  gap: 1rem;
 }
 
-.contact__meta {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.35rem;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.contact__meta a {
-  color: var(--ink);
-  font-weight: 500;
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
   text-decoration: none;
+  color: var(--ink);
 }
 
-.contact__meta a:hover {
+.icon-link__mark {
+  display: grid;
+  place-items: center;
+  width: 3.15rem;
+  height: 3.15rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--accent);
+  transition: transform 0.25s var(--ease), border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.icon-link__mark svg {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+
+.icon-link:hover .icon-link__mark {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #070a0a;
+}
+
+.icon-link__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.icon-link:hover .icon-link__name {
   color: var(--accent);
 }
 

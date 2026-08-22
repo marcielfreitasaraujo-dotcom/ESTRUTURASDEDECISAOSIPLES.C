@@ -14,8 +14,10 @@ def test_conteudo_principal_da_pagina():
     assert 'id="contato"' in html
     assert "https://wa.me/5599991677463" in html
     assert "https://www.instagram.com/araujo.ia/" in html
+    assert "@araujo.ia" in html
     assert "arauj0.ia" not in html
-    assert "btn__icon" in html
+    assert "(99) 99167-7463" not in html
+    assert "contact__social" in html
     assert "mailto:" not in html
     assert "marcielfreitasaraujo@gmail.com" not in html
     assert "Sites profissionais para empresas" in html
