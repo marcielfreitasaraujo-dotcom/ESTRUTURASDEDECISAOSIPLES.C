@@ -21,6 +21,8 @@ export const SITE = {
   mapsEmbed:
     "https://maps.google.com/maps?q=R.%20Gra%C3%A7a%20Aranha,%201567%20-%20Centro,%20Estreito%20-%20MA,%2065975-000&z=16&output=embed",
   consultant: "Eduardo Guimarães",
+  instagram: "https://www.instagram.com/realizaconsultoriaoficial/",
+  instagramHandle: "@realizaconsultoriaoficial",
 };
 
 export function waLink(message) {
