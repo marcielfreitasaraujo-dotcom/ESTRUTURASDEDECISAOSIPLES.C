@@ -405,7 +405,8 @@ a {
 .work-list a,
 .work-list__slot {
   display: grid;
-  gap: 0.35rem;
+  align-content: start;
+  gap: 0.4rem;
   padding: 1.75rem 1.5rem;
   text-decoration: none;
   min-height: 100%;
@@ -414,6 +415,18 @@ a {
 
 .work-list a:hover {
   background: var(--accent-soft);
+}
+
+.work-list__go {
+  margin-top: 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.work-list a:hover .work-list__go {
+  color: var(--accent-hover);
 }
 
 .work-list__label {
@@ -431,8 +444,7 @@ a {
   letter-spacing: -0.02em;
 }
 
-.work-list a > span:last-child,
-.work-list__slot > span:last-child {
+.work-list__desc {
   color: var(--muted);
   font-size: 0.95rem;
 }

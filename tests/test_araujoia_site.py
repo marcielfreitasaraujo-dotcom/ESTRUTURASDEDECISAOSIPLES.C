@@ -21,6 +21,11 @@ def test_conteudo_principal_da_pagina():
     assert "mailto:" not in html
     assert "marcielfreitasaraujo@gmail.com" not in html
     assert "Sites profissionais para empresas" in html
+    assert "https://finup-araujo-ia.netlify.app/" in html
+    assert "https://marcielfreitasaraujo-dotcom.github.io/ESTRUTURASDEDECISAOSIPLES.C/" in html
+    assert "../teste-cidade/" not in html
+    assert "../auditoria-final/" not in html
+    assert "../demo-pendrive/" not in html
 
 
 def test_estilo_e_script_referenciados():
