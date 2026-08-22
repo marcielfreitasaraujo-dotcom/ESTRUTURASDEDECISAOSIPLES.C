@@ -54,7 +54,10 @@ def test_usuario_isolado_nao_ve_casa(app, client):
 def test_logout_exige_login_de_novo(admin_client, client):
     assert client.get("/").status_code == 200
     client.get("/logout", follow_redirects=True)
-    resp = client.get("/", follow_redirects=False)
+    inicio = client.get("/", follow_redirects=False)
+    assert inicio.status_code == 200
+    assert "Entrar no sistema" in inicio.get_data(as_text=True)
+    resp = client.get("/movimentacoes", follow_redirects=False)
     assert resp.status_code in (302, 401)
     loc = resp.headers.get("Location", "")
     assert "login" in loc or resp.status_code == 401

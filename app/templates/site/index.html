@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinUP — Seu dinheiro. Seus planos. Seu futuro.</title>
+  <meta name="description" content="Controle financeiro pessoal e familiar. Lance um gasto em poucos segundos, acompanhe o saldo, vencimentos, cartões e orçamento da casa.">
+  <meta name="theme-color" content="#020b16">
+  <meta property="og:title" content="FinUP — Controle financeiro pessoal e familiar">
+  <meta property="og:description" content="Registre receitas e despesas em segundos. Saldo, vencimentos, cartões e relatórios no mesmo lugar.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="{{ url_for('static', filename='img/logo-full.png', _external=True) }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+</head>
+<body class="site">
+  <a class="skip" href="#conteudo">Ir para o conteúdo</a>
+  <div class="site-bg" aria-hidden="true"></div>
+
+  <header class="site-header" id="topo">
+    <div class="site-wrap site-header-inner">
+      <a class="site-brand" href="#topo" aria-label="FinUP — início">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" width="40" height="40">
+        <span>FinUP</span>
+      </a>
+      <nav class="site-nav" id="menu" aria-label="Seções do site">
+        <a href="#recursos">Recursos</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#familia">Família</a>
+        <a href="#seguranca">Segurança</a>
+        <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Entrar</a>
+      </nav>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    {% include 'components/flash.html' %}
+
+    <section class="hero site-wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">Controle financeiro pessoal e familiar</p>
+        <h1>Seu dinheiro. <em>Seus planos.</em> Seu futuro.</h1>
+        <p class="lead">Registre um gasto em poucos segundos e veja, com clareza, para onde vai o dinheiro da casa — saldo, vencimentos, cartões e orçamento no mesmo lugar.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Entrar no sistema</a>
+          <a class="btn btn-outline" href="#recursos">Ver o que já funciona</a>
+        </div>
+        <p class="hero-note">Controle · Planeje · Evolua</p>
+      </div>
+
+      <aside class="preview" aria-label="Prévia do painel FinUP">
+        <div class="preview-frame">
+          <div class="preview-bar">
+            <span></span><span></span><span></span>
+            <strong>Dashboard</strong>
+          </div>
+          <div class="preview-kpis">
+            <article>
+              <small>Receitas</small>
+              <b class="ok">R$ 8.420,00</b>
+            </article>
+            <article>
+              <small>Despesas</small>
+              <b class="bad">R$ 3.180,50</b>
+            </article>
+            <article>
+              <small>Saldo do mês</small>
+              <b class="ok">R$ 5.239,50</b>
+            </article>
+          </div>
+          <div class="preview-chart" aria-hidden="true">
+            <i style="--h:42%"></i>
+            <i style="--h:58%"></i>
+            <i style="--h:36%"></i>
+            <i style="--h:74%"></i>
+            <i style="--h:51%"></i>
+            <i style="--h:88%"></i>
+            <i style="--h:64%"></i>
+          </div>
+          <ul class="preview-list">
+            <li><span class="dot receita"></span> Salário · Nubank <em class="ok">+ R$ 4.200,00</em></li>
+            <li><span class="dot despesa"></span> Mercado · Cartão <em class="bad">− R$ 312,40</em></li>
+            <li><span class="dot pendente"></span> Energia · vence dia 25 <em>R$ 186,00</em></li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <section class="stats site-wrap" aria-label="O que o FinUP entrega">
+      <article>
+        <strong>Segundos</strong>
+        <span>para lançar uma receita ou despesa</span>
+      </article>
+      <article>
+        <strong>Família</strong>
+        <span>cada pessoa com o próprio login e saldo</span>
+      </article>
+      <article>
+        <strong>PDF e Excel</strong>
+        <span>relatórios prontos para imprimir ou guardar</span>
+      </article>
+    </section>
+
+    <section class="section site-wrap" id="recursos">
+      <header class="section-head">
+        <p class="eyebrow">Recursos</p>
+        <h2>Tudo o que a casa precisa para não perder o fio da meada</h2>
+        <p>O FinUP já está no dia a dia: do lançamento rápido até fatura do cartão e orçamento do mês.</p>
+      </header>
+      <div class="cards">
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">⚡</span>
+          <h3>Lançamento rápido</h3>
+          <p>Despesa, receita, transferência ou investimento em um único fluxo, com comprovante se quiser.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">📊</span>
+          <h3>Dashboard real</h3>
+          <p>Totais, gráficos e evolução do saldo com os números que você realmente lançou — sem planilha paralela.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">📅</span>
+          <h3>Vencimentos</h3>
+          <p>Contas a pagar e a receber. Atraso aparece em vermelho para ninguém deixar passar.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">🔁</span>
+          <h3>Recorrentes</h3>
+          <p>Aluguel, internet, academia: gera o vencimento sozinho, sem duplicar o título.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">💳</span>
+          <h3>Cartões</h3>
+          <p>Compras parceladas e fatura. A compra no crédito só baixa o saldo da conta quando a fatura é paga.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">🎯</span>
+          <h3>Orçamento</h3>
+          <p>Teto por categoria no mês, somando lançamentos e parcelas do cartão para não estourar no silêncio.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">🏦</span>
+          <h3>Várias contas</h3>
+          <p>Carteira, Nubank, caixa da casa — o saldo de cada uma atualiza sozinho a cada lançamento.</p>
+        </article>
+        <article class="card">
+          <span class="card-ico" aria-hidden="true">📎</span>
+          <h3>Comprovantes</h3>
+          <p>Foto ou PDF no lançamento. Depois você acha o arquivo sem vasculhar o WhatsApp.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section site-wrap" id="como-funciona">
+      <header class="section-head">
+        <p class="eyebrow">Como funciona</p>
+        <h2>Três passos. Sem curso, sem planilha.</h2>
+      </header>
+      <ol class="steps">
+        <li>
+          <span>1</span>
+          <h3>Entre com seu usuário</h3>
+          <p>Cada pessoa da casa tem login próprio. Ao fechar a aba, o FinUP pede a senha de novo.</p>
+        </li>
+        <li>
+          <span>2</span>
+          <h3>Lance o que aconteceu</h3>
+          <p>Mercado, Pix, fatura, investimento. Demora segundos e já entra no saldo certo.</p>
+        </li>
+        <li>
+          <span>3</span>
+          <h3>Acompanhe o mês</h3>
+          <p>Dashboard, vencimentos, orçamento e relatório quando precisar mostrar os números.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="section familia site-wrap" id="familia">
+      <div class="familia-copy">
+        <p class="eyebrow">Para a casa inteira</p>
+        <h2>Um sistema, vários logins, cada um no seu canto</h2>
+        <p>O administrador cria os membros da família. Quem é usuário comum vê só os próprios lançamentos, contas e cartões. Quem precisa ver a casa toda usa o perfil com essa permissão.</p>
+        <ul class="checks">
+          <li>Isolamento por pessoa</li>
+          <li>Contas padrão na hora de criar o membro</li>
+          <li>Tema claro ou escuro por usuário</li>
+        </ul>
+      </div>
+      <div class="familia-panel" aria-hidden="true">
+        <div class="chip"><b>M</b> Marciel · admin</div>
+        <div class="chip"><b>A</b> Ana · os próprios dados</div>
+        <div class="chip"><b>J</b> João · os próprios dados</div>
+      </div>
+    </section>
+
+    <section class="section site-wrap" id="seguranca">
+      <header class="section-head">
+        <p class="eyebrow">Segurança</p>
+        <h2>Feito para usar em casa, com cuidado de sistema sério</h2>
+      </header>
+      <div class="cards cards-3">
+        <article class="card">
+          <h3>Senha em hash</h3>
+          <p>A senha não fica guardada em texto. O login usa sessão do navegador, sem “lembrar para sempre”.</p>
+        </article>
+        <article class="card">
+          <h3>Fecha a aba, pede senha</h3>
+          <p>Se outra pessoa sentar no computador, não entra na sua conta só porque o Chrome ficou aberto ontem.</p>
+        </article>
+        <article class="card">
+          <h3>Pronto para a nuvem</h3>
+          <p>No dia a dia roda local com SQLite. Em produção aponta para PostgreSQL — o mesmo sistema, vários PCs.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta site-wrap">
+      <div class="cta-box">
+        <h2>Comece pelo que importa: o saldo da casa.</h2>
+        <p>Entre com seu usuário. Se for o primeiro acesso neste computador, o administrador já está pronto para criar o resto da família.</p>
+        <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Entrar no FinUP</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-wrap footer-inner">
+      <a class="site-brand" href="#topo">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" width="32" height="32">
+        <span>FinUP</span>
+      </a>
+      <p>Controle financeiro pessoal e familiar.</p>
+      <p class="copy">© <span data-ano></span> FinUP</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/site.js') }}"></script>
+</body>
+</html>

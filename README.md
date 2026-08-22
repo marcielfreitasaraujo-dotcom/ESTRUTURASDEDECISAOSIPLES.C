@@ -22,7 +22,7 @@ cp .env.example .env       # opcional; ajuste a SECRET_KEY
 Linux/macOS: `./iniciar.sh`  
 Windows: `iniciar.bat`
 
-Abra [http://127.0.0.1:5000](http://127.0.0.1:5000).
+Abra [http://127.0.0.1:5000](http://127.0.0.1:5000). Sem login, a página inicial apresenta o FinUP. **Entrar no sistema** abre o login.
 
 **Primeiro acesso (somente desenvolvimento)**
 
@@ -162,6 +162,7 @@ gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2
 
 ## O que já funciona no produto
 
+- Página inicial pública (site) com recursos, família e segurança; o painel continua atrás do login
 - Login com senha em hash (Werkzeug) e sessão (ao fechar a aba, pede senha de novo)
 - Dashboard com totais reais e gráficos
 - Lançamento rápido, contas, categorias, comprovantes
