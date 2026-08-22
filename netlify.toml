@@ -1,0 +1,5 @@
+# Deploy Git do site AraujoIA (ex.: projeto monumental-cannoli no Netlify).
+# O Flask/Railway ignora este arquivo. O FinUP estático usa a pasta site/ via CLI.
+[build]
+  publish = "araujoia"
+  command = "echo 'AraujoIA static — sem build'"

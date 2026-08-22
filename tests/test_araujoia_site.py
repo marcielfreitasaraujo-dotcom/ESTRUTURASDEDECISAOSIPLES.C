@@ -1,11 +1,17 @@
 from pathlib import Path
 
-SITE = Path(__file__).resolve().parents[1] / "araujoia"
+ROOT = Path(__file__).resolve().parents[1]
+SITE = ROOT / "araujoia"
 
 
 def test_arquivos_do_site_existem():
-    for nome in ("index.html", "style.css", "script.js"):
+    for nome in ("index.html", "style.css", "script.js", "netlify.toml"):
         assert (SITE / nome).is_file(), f"faltou {nome}"
+
+
+def test_netlify_raiz_publica_araujoia():
+    toml = (ROOT / "netlify.toml").read_text(encoding="utf-8")
+    assert 'publish = "araujoia"' in toml
 
 
 def test_conteudo_principal_da_pagina():
