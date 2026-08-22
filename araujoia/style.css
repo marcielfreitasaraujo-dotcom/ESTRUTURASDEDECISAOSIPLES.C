@@ -232,6 +232,7 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.55rem;
   padding: 0.9rem 1.4rem;
   font-family: var(--font-body);
   font-size: 1rem;
@@ -240,6 +241,12 @@ a {
   border-radius: var(--radius);
   border: 1.5px solid transparent;
   transition: transform 0.25s var(--ease), background 0.2s, border-color 0.2s, box-shadow 0.25s var(--ease);
+}
+
+.btn__icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
 }
 
 .btn--primary {

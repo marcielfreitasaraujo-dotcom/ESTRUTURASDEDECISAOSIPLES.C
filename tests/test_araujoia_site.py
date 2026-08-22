@@ -12,8 +12,11 @@ def test_conteudo_principal_da_pagina():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     assert "AraujoIA" in html
     assert 'id="contato"' in html
-    assert "marcielfreitasaraujo@gmail.com" in html
     assert "https://wa.me/5599991677463" in html
+    assert "https://www.instagram.com/arauj0.ia/" in html
+    assert "btn__icon" in html
+    assert "mailto:" not in html
+    assert "marcielfreitasaraujo@gmail.com" not in html
     assert "Sites profissionais para empresas" in html
 
 
