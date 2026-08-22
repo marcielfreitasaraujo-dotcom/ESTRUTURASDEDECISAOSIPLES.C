@@ -20,10 +20,8 @@ def _periodo():
 
 
 @dashboard_bp.route("/")
+@login_required
 def index():
-    if not current_user.is_authenticated:
-        return render_template("site/index.html")
-
     chave, inicio, fim = _periodo()
     uid = id_casa()
     resumo = dash.resumo_periodo(uid, inicio, fim)

@@ -55,14 +55,8 @@ def test_api_sessao_fechar_encerra_login(client):
     assert resp.status_code == 204
 
     home = client.get("/")
-    assert home.status_code == 200
-    html = home.get_data(as_text=True)
-    assert "Entrar no sistema" in html
-    assert "Olá," not in html
-
-    protegida = client.get("/movimentacoes")
-    assert protegida.status_code == 302
-    assert "/login" in (protegida.headers.get("Location") or "")
+    assert home.status_code == 302
+    assert "/login" in (home.headers.get("Location") or "")
 
 
 def test_pagina_autenticada_inclui_guarda_de_sessao(admin_client):

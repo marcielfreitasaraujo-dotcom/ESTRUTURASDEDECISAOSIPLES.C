@@ -663,8 +663,6 @@ html[data-theme="escuro"] .flash-info { background: #0c4a6e; color: #bae6fd; }
   height: 5px;
   background: linear-gradient(90deg, #22d3ee, #0d6eb8 40%, #7ac143 70%, #ff8f1f);
 }
-.auth-back { margin: 0 0 0.65rem; }
-.auth-back a { color: #0f766e; font-weight: 700; font-size: 0.9rem; }
 .auth-card h1 { margin: 0.4rem 0; color: #0f172a; }
 .auth-card .muted,
 .auth-card .hint { color: #64748b; }

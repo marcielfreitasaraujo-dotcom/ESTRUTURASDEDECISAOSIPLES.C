@@ -9,13 +9,13 @@
   <meta property="og:title" content="FinUP — Controle financeiro pessoal e familiar">
   <meta property="og:description" content="Registre receitas e despesas em segundos. Saldo, vencimentos, cartões e relatórios no mesmo lugar.">
   <meta property="og:type" content="website">
-  <meta property="og:image" content="{{ url_for('static', filename='img/logo-full.png', _external=True) }}">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
-  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <meta property="og:image" content="img/logo-full.png">
+  <link rel="icon" type="image/png" href="img/favicon-32.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="site">
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -24,7 +24,7 @@
   <header class="site-header" id="topo">
     <div class="site-wrap site-header-inner">
       <a class="site-brand" href="#topo" aria-label="FinUP — início">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" width="40" height="40">
+        <img src="img/logo.png" alt="" width="40" height="40">
         <span>FinUP</span>
       </a>
       <nav class="site-nav" id="menu" aria-label="Seções do site">
@@ -32,7 +32,7 @@
         <a href="#como-funciona">Como funciona</a>
         <a href="#familia">Família</a>
         <a href="#seguranca">Segurança</a>
-        <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Entrar</a>
+        <a class="btn btn-ghost" href="#contato">Contato</a>
       </nav>
       <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
         <span></span><span></span><span></span>
@@ -41,16 +41,14 @@
   </header>
 
   <main id="conteudo">
-    {% include 'components/flash.html' %}
-
     <section class="hero site-wrap">
       <div class="hero-copy">
         <p class="eyebrow">Controle financeiro pessoal e familiar</p>
         <h1>Seu dinheiro. <em>Seus planos.</em> Seu futuro.</h1>
         <p class="lead">Registre um gasto em poucos segundos e veja, com clareza, para onde vai o dinheiro da casa — saldo, vencimentos, cartões e orçamento no mesmo lugar.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Entrar no sistema</a>
-          <a class="btn btn-outline" href="#recursos">Ver o que já funciona</a>
+          <a class="btn btn-primary" href="#recursos">Ver o que já funciona</a>
+          <a class="btn btn-outline" href="#como-funciona">Como funciona</a>
         </div>
         <p class="hero-note">Controle · Planeje · Evolua</p>
       </div>
@@ -112,7 +110,7 @@
       <header class="section-head">
         <p class="eyebrow">Recursos</p>
         <h2>Tudo o que a casa precisa para não perder o fio da meada</h2>
-        <p>O FinUP já está no dia a dia: do lançamento rápido até fatura do cartão e orçamento do mês.</p>
+        <p>Do lançamento rápido até fatura do cartão e orçamento do mês — no mesmo lugar.</p>
       </header>
       <div class="cards">
         <article class="card">
@@ -216,16 +214,16 @@
         </article>
         <article class="card">
           <h3>Pronto para a nuvem</h3>
-          <p>No dia a dia roda local com SQLite. Em produção aponta para PostgreSQL — o mesmo sistema, vários PCs.</p>
+          <p>No dia a dia roda local. Em produção aponta para a nuvem — o mesmo jeito de usar, vários PCs.</p>
         </article>
       </div>
     </section>
 
-    <section class="cta site-wrap">
+    <section class="cta site-wrap" id="contato">
       <div class="cta-box">
         <h2>Comece pelo que importa: o saldo da casa.</h2>
-        <p>Entre com seu usuário. Se for o primeiro acesso neste computador, o administrador já está pronto para criar o resto da família.</p>
-        <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Entrar no FinUP</a>
+        <p>O FinUP reúne lançamento, vencimento, cartão e orçamento num só lugar — para a casa inteira, cada um no seu login.</p>
+        <a class="btn btn-primary" href="#recursos">Ver os recursos</a>
       </div>
     </section>
   </main>
@@ -233,7 +231,7 @@
   <footer class="site-footer">
     <div class="site-wrap footer-inner">
       <a class="site-brand" href="#topo">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" width="32" height="32">
+        <img src="img/logo.png" alt="" width="32" height="32">
         <span>FinUP</span>
       </a>
       <p>Controle financeiro pessoal e familiar.</p>
@@ -241,6 +239,6 @@
     </div>
   </footer>
 
-  <script src="{{ url_for('static', filename='js/site.js') }}"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
