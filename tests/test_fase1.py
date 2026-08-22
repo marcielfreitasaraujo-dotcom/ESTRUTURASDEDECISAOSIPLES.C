@@ -230,3 +230,11 @@ def test_demo_idempotente(app):
         assert inserir_dados_demo(admin) is False
         qtd = Movimentacao.query.filter_by(usuario_id=admin.id, ativo=True).count()
         assert qtd >= 20
+
+
+def test_sidebar_tem_rolagem_e_recolher(admin_client):
+    html = admin_client.get("/").get_data(as_text=True)
+    assert 'id="sidebar"' in html
+    assert "data-collapse-sidebar" in html
+    assert "nav-label" in html
+    assert "side-nav" in html

@@ -32,63 +32,72 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="FinUP" width="42" height="42">
-        <div>
-          <strong>FinUP</strong>
-          <small>Controle financeiro</small>
+      <div class="sidebar-top">
+        <div class="brand">
+          <img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="FinUP" width="42" height="42">
+          <div>
+            <strong>FinUP</strong>
+            <small>Controle financeiro</small>
+          </div>
         </div>
+        <button
+          class="icon-btn sidebar-collapse-btn"
+          type="button"
+          data-collapse-sidebar
+          aria-label="Recolher menu"
+          title="Recolher menu"
+        >«</button>
       </div>
 
       <nav class="side-nav">
         <a href="{{ url_for('dashboard.index') }}" class="{{ 'ativo' if request.endpoint == 'dashboard.index' }}">
-          <span class="ico">🏠</span> Dashboard
+          <span class="ico">🏠</span><span class="nav-label">Dashboard</span>
         </a>
         <a href="{{ url_for('movimentacoes.receitas') }}" class="{{ 'ativo' if request.args.get('tipo') == 'receita' }}">
-          <span class="ico">💰</span> Receitas
+          <span class="ico">💰</span><span class="nav-label">Receitas</span>
         </a>
         <a href="{{ url_for('movimentacoes.despesas') }}" class="{{ 'ativo' if request.args.get('tipo') == 'despesa' }}">
-          <span class="ico">💸</span> Despesas
+          <span class="ico">💸</span><span class="nav-label">Despesas</span>
         </a>
         <a href="{{ url_for('movimentacoes.index') }}" class="{{ 'ativo' if request.endpoint == 'movimentacoes.index' and not request.args.get('tipo') }}">
-          <span class="ico">🔄</span> Movimentações
+          <span class="ico">🔄</span><span class="nav-label">Movimentações</span>
         </a>
         <a href="{{ url_for('contas.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('contas.') }}">
-          <span class="ico">🏦</span> Contas
+          <span class="ico">🏦</span><span class="nav-label">Contas</span>
         </a>
         <a href="{{ url_for('vencimentos.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('vencimentos.') }}">
-          <span class="ico">📅</span> Vencimentos
+          <span class="ico">📅</span><span class="nav-label">Vencimentos</span>
           {% if qtd_atrasadas %}
             <span class="nav-badge">{{ qtd_atrasadas }}</span>
           {% endif %}
         </a>
         <a href="{{ url_for('recorrencias.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('recorrencias.') }}">
-          <span class="ico">🔁</span> Recorrentes
+          <span class="ico">🔁</span><span class="nav-label">Recorrentes</span>
         </a>
         <a href="{{ url_for('movimentacoes.investimentos') }}" class="{{ 'ativo' if request.args.get('tipo') == 'investimento' }}">
-          <span class="ico">📈</span> Investimentos
+          <span class="ico">📈</span><span class="nav-label">Investimentos</span>
         </a>
         <a href="{{ url_for('categorias.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('categorias.') }}">
-          <span class="ico">🏷️</span> Categorias
+          <span class="ico">🏷️</span><span class="nav-label">Categorias</span>
         </a>
         <a href="{{ url_for('relatorios.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('relatorios.') }}">
-          <span class="ico">📊</span> Relatórios
+          <span class="ico">📊</span><span class="nav-label">Relatórios</span>
         </a>
         <a href="{{ url_for('cartoes.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('cartoes.') }}">
-          <span class="ico">💳</span> Cartões
+          <span class="ico">💳</span><span class="nav-label">Cartões</span>
         </a>
         <a href="{{ url_for('orcamentos.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('orcamentos.') }}">
-          <span class="ico">🎯</span> Orçamento
+          <span class="ico">🎯</span><span class="nav-label">Orçamento</span>
         </a>
         <a href="{{ url_for('configuracoes.index') }}" class="{{ 'ativo' if request.endpoint and request.endpoint.startswith('configuracoes.') }}">
-          <span class="ico">⚙️</span> Configurações
+          <span class="ico">⚙️</span><span class="nav-label">Configurações</span>
         </a>
       </nav>
     </aside>
 
     <div class="main-wrap">
       <header class="topbar">
-        <button class="icon-btn menu-btn" type="button" data-toggle-sidebar aria-label="Menu">☰</button>
+        <button class="icon-btn menu-btn" type="button" data-toggle-sidebar aria-label="Menu" title="Abrir ou fechar menu">☰</button>
         <form class="search-box" action="{{ url_for('movimentacoes.index') }}" method="get">
           <span>🔎</span>
           <input type="search" name="q" id="busca-global" placeholder="Pesquisar movimentação..." autocomplete="off" value="{{ request.args.get('q', '') }}">

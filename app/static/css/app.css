@@ -143,15 +143,92 @@ img { max-width: 100%; }
 
 .app-shell { display: flex; min-height: 100vh; }
 .sidebar {
+  --sidebar-pad-x: 1rem;
   width: var(--sidebar);
   background: var(--surface);
   border-right: 1px solid var(--border);
-  padding: 1.25rem 1rem 2rem;
+  padding: 1rem var(--sidebar-pad-x) 1.25rem;
   position: sticky;
   top: 0;
   height: 100vh;
-  overflow: auto;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow: hidden;
   z-index: 30;
+  flex-shrink: 0;
+  transition: width 0.2s ease, padding 0.2s ease, transform 0.2s ease;
+}
+.sidebar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+.sidebar-top .brand {
+  margin-bottom: 0;
+  min-width: 0;
+  flex: 1;
+}
+.sidebar-collapse-btn {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 0.15rem;
+  padding-bottom: 0.5rem;
+  scrollbar-gutter: stable;
+}
+.side-nav .nav-label { min-width: 0; }
+.side-nav .nav-badge { margin-left: auto; }
+
+html.sidebar-recolhida {
+  --sidebar: 76px;
+}
+html.sidebar-recolhida .sidebar {
+  --sidebar-pad-x: 0.55rem;
+  padding-left: var(--sidebar-pad-x);
+  padding-right: var(--sidebar-pad-x);
+}
+html.sidebar-recolhida .brand > div,
+html.sidebar-recolhida .side-nav .nav-label {
+  display: none;
+}
+html.sidebar-recolhida .brand {
+  justify-content: center;
+}
+html.sidebar-recolhida .sidebar-top {
+  flex-direction: column;
+  align-items: center;
+}
+html.sidebar-recolhida .side-nav a {
+  justify-content: center;
+  padding-left: 0.55rem;
+  padding-right: 0.55rem;
+}
+html.sidebar-recolhida .side-nav .nav-badge {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  margin-left: 0;
+}
+html.sidebar-recolhida .side-nav a {
+  position: relative;
+}
+html.sidebar-recolhida .menu-btn {
+  display: grid;
+  place-items: center;
 }
 .brand { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.5rem; }
 .brand-lg {
@@ -191,7 +268,6 @@ img { max-width: 100%; }
 .brand strong { display: block; font-size: 1.05rem; }
 .brand small { color: var(--muted); }
 
-.side-nav { display: flex; flex-direction: column; gap: 0.2rem; }
 .side-nav a, .nav-soon {
   display: flex; align-items: center; gap: 0.65rem;
   padding: 0.65rem 0.8rem; border-radius: 12px;
@@ -679,8 +755,43 @@ code { background: var(--surface-2); padding: 0.1rem 0.35rem; border-radius: 6px
 @media (max-width: 860px) {
   .sidebar {
     position: fixed; left: 0; transform: translateX(-105%);
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, width 0.2s ease, padding 0.2s ease;
+    width: min(86vw, var(--sidebar));
   }
+  html.sidebar-recolhida {
+    --sidebar: 260px;
+  }
+  html.sidebar-recolhida .sidebar {
+    --sidebar-pad-x: 1rem;
+  }
+  html.sidebar-recolhida .brand > div,
+  html.sidebar-recolhida .side-nav .nav-label {
+    display: initial;
+  }
+  html.sidebar-recolhida .brand > div {
+    display: block;
+  }
+  html.sidebar-recolhida .side-nav .nav-label {
+    display: inline;
+  }
+  html.sidebar-recolhida .brand {
+    justify-content: flex-start;
+  }
+  html.sidebar-recolhida .sidebar-top {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  html.sidebar-recolhida .side-nav a {
+    justify-content: flex-start;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    position: static;
+  }
+  html.sidebar-recolhida .side-nav .nav-badge {
+    position: static;
+    margin-left: auto;
+  }
+  .sidebar-collapse-btn { display: none; }
   .sidebar.aberto { transform: none; }
   .menu-btn, .fab { display: grid; place-items: center; }
   .sidebar-backdrop.visivel {

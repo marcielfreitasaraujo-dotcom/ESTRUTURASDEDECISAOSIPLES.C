@@ -4,8 +4,48 @@
 
   const sidebar = $("#sidebar");
   const backdrop = $(".sidebar-backdrop");
+  const CHAVE_SIDEBAR = "finup_sidebar_recolhida";
+
+  function aplicarSidebarRecolhida(recolhida) {
+    document.documentElement.classList.toggle("sidebar-recolhida", recolhida);
+    $$("[data-collapse-sidebar]").forEach((btn) => {
+      btn.textContent = recolhida ? "»" : "«";
+      btn.setAttribute("aria-label", recolhida ? "Expandir menu" : "Recolher menu");
+      btn.title = recolhida ? "Expandir menu" : "Recolher menu";
+      btn.setAttribute("aria-pressed", recolhida ? "true" : "false");
+    });
+  }
+
+  try {
+    aplicarSidebarRecolhida(localStorage.getItem(CHAVE_SIDEBAR) === "1");
+  } catch (_erro) {
+    aplicarSidebarRecolhida(false);
+  }
+
+  $$("[data-collapse-sidebar]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const recolhida = !document.documentElement.classList.contains("sidebar-recolhida");
+      aplicarSidebarRecolhida(recolhida);
+      try {
+        localStorage.setItem(CHAVE_SIDEBAR, recolhida ? "1" : "0");
+      } catch (_erro) {
+        /* ignore */
+      }
+    });
+  });
+
   $$("[data-toggle-sidebar]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (window.matchMedia("(min-width: 861px)").matches) {
+        const recolhida = !document.documentElement.classList.contains("sidebar-recolhida");
+        aplicarSidebarRecolhida(recolhida);
+        try {
+          localStorage.setItem(CHAVE_SIDEBAR, recolhida ? "1" : "0");
+        } catch (_erro) {
+          /* ignore */
+        }
+        return;
+      }
       sidebar?.classList.toggle("aberto");
       backdrop?.classList.toggle("visivel");
     });
