@@ -406,17 +406,30 @@ button { font-family: inherit; }
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
-.btn svg { flex-shrink: 0; }
-.btn-whatsapp {
+.ico-social {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.ico-social:hover { transform: translateY(-3px); }
+.ico-social-sm {
+  width: 42px;
+  height: 42px;
+}
+.ico-whatsapp {
   background: #25d366;
   color: #052e16;
-  box-shadow: 0 12px 28px rgba(37, 211, 102, 0.28);
+  box-shadow: 0 10px 24px rgba(37, 211, 102, 0.32);
 }
-.btn-instagram {
+.ico-instagram {
   background: linear-gradient(45deg, #f58529, #dd2a7b 52%, #8134af);
   color: #fff;
+  box-shadow: 0 10px 24px rgba(221, 42, 123, 0.32);
 }
 
 .zap-float {
@@ -424,14 +437,13 @@ button { font-family: inherit; }
   right: 1.1rem;
   bottom: 1.1rem;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.72rem 1rem 0.72rem 0.85rem;
-  border-radius: 999px;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
   background: #25d366;
   color: #052e16;
-  font-weight: 800;
   box-shadow: 0 12px 28px rgba(37, 211, 102, 0.38);
   animation: zap-pulse 2.4s ease-in-out infinite;
 }
@@ -441,8 +453,12 @@ button { font-family: inherit; }
   50% { box-shadow: 0 12px 28px rgba(37, 211, 102, 0.38), 0 0 0 10px rgba(37, 211, 102, 0.16); }
 }
 
-.footer-contato { margin: 0; }
-.footer-contato a { color: var(--cyan); font-weight: 700; }
+.footer-contato {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
 
 .site-footer {
   border-top: 1px solid var(--line);
@@ -496,14 +512,12 @@ button { font-family: inherit; }
   .site-nav.aberto { display: flex; }
   .site-nav .btn-ghost { text-align: center; }
   .cards, .cards-3, .steps, .stats, .preview-kpis { grid-template-columns: 1fr; }
-  .hero-actions .btn,
-  .contato-acoes .btn { width: 100%; }
-  .zap-float span { display: none; }
-  .zap-float { padding: 0.85rem; }
+  .hero-actions .btn { width: 100%; }
+  .zap-float { padding: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .btn, .card, .zap-float { transition: none; animation: none; }
-  .btn:hover, .card:hover, .zap-float:hover { transform: none; }
+  .btn, .card, .zap-float, .ico-social { transition: none; animation: none; }
+  .btn:hover, .card:hover, .zap-float:hover, .ico-social:hover { transform: none; }
 }
