@@ -49,7 +49,6 @@ Abra http://localhost:8080
 
 ## Domínio próprio
 
-Quando tiver domínio (ex.: realizaconsultoria.com.br), atualize:
-- `robots.txt`
-- `sitemap.xml`
-- tags `canonical` / Open Graph no HTML
+Domínio oficial: **https://realizaconsultoriaoficial.com.br**
+
+No GitHub: Settings → Pages → Custom domain = `realizaconsultoriaoficial.com.br` → Enforce HTTPS.

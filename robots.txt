@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://realizaconsultoria.com.br/sitemap.xml
+Sitemap: https://realizaconsultoriaoficial.com.br/sitemap.xml
