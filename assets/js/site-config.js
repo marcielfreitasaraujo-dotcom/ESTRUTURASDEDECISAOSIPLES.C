@@ -7,6 +7,7 @@ export const SITE = {
   shortName: "Realiza",
   tagline: "Consultoria Caixa",
   city: "Estreito — MA",
+  domain: "https://realizaconsultoriaoficial.com.br",
   phoneDisplay: "(99) 98468-1048",
   phoneTel: "+5599984681048",
   whatsapp: "5599984681048",
