@@ -3,6 +3,16 @@
   const botao = document.querySelector("[data-menu-toggle]");
   const menu = document.getElementById("menu");
   const ano = document.querySelector("[data-ano]");
+  const metaSistema = document.querySelector('meta[name="finup-sistema"]');
+  const baseSistema = (metaSistema && metaSistema.getAttribute("content")
+    ? metaSistema.getAttribute("content")
+    : "http://127.0.0.1:5000"
+  ).replace(/\/$/, "");
+  const urlSistema = baseSistema + "/login";
+
+  document.querySelectorAll("[data-sistema]").forEach((link) => {
+    link.setAttribute("href", urlSistema);
+  });
 
   if (ano) {
     ano.textContent = String(new Date().getFullYear());

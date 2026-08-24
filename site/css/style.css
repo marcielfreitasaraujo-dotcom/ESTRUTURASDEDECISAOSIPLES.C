@@ -97,6 +97,12 @@ button { font-family: inherit; }
 }
 .site-nav a { color: var(--muted); font-weight: 600; font-size: 0.95rem; }
 .site-nav a:hover { color: var(--ink); }
+.site-nav a.btn-primary {
+  color: #021018;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+.site-nav a.btn-primary:hover { color: #021018; }
 .menu-toggle {
   display: none;
   width: 44px;
@@ -408,6 +414,7 @@ button { font-family: inherit; }
   text-align: center;
 }
 .cta-box p { color: var(--muted); max-width: 36rem; margin: 0.9rem auto 1.3rem; }
+.cta-sistema { margin: 0 0 1.4rem; }
 .contato-acoes {
   display: flex;
   flex-wrap: wrap;
@@ -517,7 +524,8 @@ button { font-family: inherit; }
     box-shadow: var(--shadow);
   }
   .site-nav.aberto { display: flex; }
-  .site-nav .btn-ghost { text-align: center; }
+  .site-nav .btn-ghost,
+  .site-nav .btn-primary { text-align: center; width: 100%; }
   .cards, .cards-3, .steps, .preview-kpis { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr; max-width: 28rem; }
   .hero-actions .btn { width: 100%; }

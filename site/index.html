@@ -16,6 +16,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <!-- Endereço do sistema FinUP (Flask). Troque pelo https://….up.railway.app quando o Railway tiver domínio. -->
+  <meta name="finup-sistema" content="http://127.0.0.1:5000">
 </head>
 <body class="site">
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -33,6 +35,7 @@
         <a href="#familia">Família</a>
         <a href="#seguranca">Segurança</a>
         <a class="btn btn-ghost" href="#contato">Contato</a>
+        <a class="btn btn-primary" data-sistema href="http://127.0.0.1:5000/login">Entrar no sistema</a>
       </nav>
       <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
         <span></span><span></span><span></span>
@@ -47,8 +50,8 @@
         <h1>Seu dinheiro. <em>Seus planos.</em> Seu futuro.</h1>
         <p class="lead">Registre um gasto em poucos segundos e veja, com clareza, para onde vai o dinheiro da casa — saldo, vencimentos, cartões e orçamento no mesmo lugar.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#recursos">Ver o que já funciona</a>
-          <a class="btn btn-outline" href="#como-funciona">Como funciona</a>
+          <a class="btn btn-primary" data-sistema href="http://127.0.0.1:5000/login">Entrar no sistema financeiro</a>
+          <a class="btn btn-outline" href="#recursos">Ver o que já funciona</a>
         </div>
         <p class="hero-note">Controle · Planeje · Evolua</p>
       </div>
@@ -224,6 +227,9 @@
         <p class="eyebrow">Contato</p>
         <h2>Fale com a Araujo.IA</h2>
         <p>Dúvida, ideia ou para conhecer o FinUP de perto: chama no WhatsApp ou no Instagram.</p>
+        <div class="cta-sistema">
+          <a class="btn btn-primary" data-sistema href="http://127.0.0.1:5000/login">Entrar no sistema financeiro</a>
+        </div>
         <div class="contato-acoes">
           <a
             class="ico-social ico-whatsapp"
