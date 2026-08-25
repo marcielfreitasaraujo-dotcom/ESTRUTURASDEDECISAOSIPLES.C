@@ -125,24 +125,40 @@
                 <span class="badge pendente">Em aberto</span>
               {% endif %}
             </td>
-            <td data-label="Ações" class="num">
+            <td data-label="Ações" class="acoes-parcela">
               {% if not p.pago %}
-                <div class="menu-acoes">
+                <div class="acoes-parcela-btns">
                   <button
                     type="button"
-                    class="icon-btn menu-acoes-btn"
-                    data-menu-acoes
-                    data-parcela-id="{{ p.id }}"
+                    class="btn btn-ghost btn-sm"
+                    data-editar-parcela
+                    data-id="{{ p.id }}"
                     data-descricao="{{ p.descricao }}"
                     data-valor="{{ p.valor_parcela }}"
                     data-categoria="{{ p.categoria_id or '' }}"
                     data-rotulo="{{ p.rotulo_parcela }}"
-                    data-total-parcelas="{{ p.total_parcelas }}"
-                    data-excluir-url="{{ url_for('cartoes.excluir_parcela_rota', cartao_id=cartao.id, parcela_id=p.id) }}"
-                    aria-label="Ações do lançamento"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >⋯</button>
+                  >Editar</button>
+                  <form
+                    class="inline"
+                    action="{{ url_for('cartoes.excluir_parcela_rota', cartao_id=cartao.id, parcela_id=p.id) }}"
+                    method="post"
+                    onsubmit="return confirm('Remover este lançamento da fatura?');"
+                  >
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-danger-ghost btn-sm" type="submit">Excluir</button>
+                  </form>
+                  {% if p.total_parcelas > 1 %}
+                    <form
+                      class="inline"
+                      action="{{ url_for('cartoes.excluir_parcela_rota', cartao_id=cartao.id, parcela_id=p.id) }}"
+                      method="post"
+                      onsubmit="return confirm('Remover TODAS as parcelas em aberto desta compra?');"
+                    >
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="compra_inteira" value="1">
+                      <button class="btn btn-danger-ghost btn-sm" type="submit" title="Remove todas as parcelas desta compra">Excluir compra</button>
+                    </form>
+                  {% endif %}
                 </div>
               {% else %}
                 <span class="muted">—</span>
@@ -182,18 +198,6 @@
   </form>
 </dialog>
 
-<div id="portal-menu-acoes" class="menu-acoes-portal" hidden>
-  <button type="button" class="menu-acoes-item" data-portal-editar>Editar</button>
-  <form id="portal-form-excluir" method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button class="menu-acoes-item perigo" type="submit">Excluir</button>
-  </form>
-  <form id="portal-form-excluir-compra" method="post" hidden>
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="compra_inteira" value="1">
-    <button class="menu-acoes-item perigo" type="submit">Excluir compra</button>
-  </form>
-</div>
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Dados do cartão</h2></header>
@@ -265,105 +269,24 @@
       atualizar();
     }
 
-    const portal = document.getElementById("portal-menu-acoes");
-    const formExcluir = document.getElementById("portal-form-excluir");
-    const formExcluirCompra = document.getElementById("portal-form-excluir-compra");
-    const btnPortalEditar = portal?.querySelector("[data-portal-editar]");
     const modal = document.getElementById("modal-editar-parcela");
     const formEdit = document.getElementById("form-editar-parcela");
     const cartaoId = {{ cartao.id }};
-    let botaoAtivo = null;
-
-    const fecharPortal = () => {
-      if (!portal) return;
-      portal.hidden = true;
-      portal.classList.remove("aberto");
-      portal.style.top = "";
-      portal.style.left = "";
-      document.querySelectorAll("[data-menu-acoes]").forEach((btn) => {
-        btn.setAttribute("aria-expanded", "false");
-      });
-      botaoAtivo = null;
-    };
-
-    const abrirPortal = (btn) => {
-      if (!portal || !formExcluir || !formExcluirCompra) return;
-      botaoAtivo = btn;
-      formExcluir.action = btn.dataset.excluirUrl || "";
-      formExcluirCompra.action = btn.dataset.excluirUrl || "";
-      formExcluir.onsubmit = () => confirm("Remover este lançamento da fatura?");
-      formExcluirCompra.onsubmit = () => confirm("Remover TODAS as parcelas em aberto desta compra?");
-      formExcluirCompra.hidden = Number(btn.dataset.totalParcelas || 1) <= 1;
-
-      document.body.appendChild(portal);
-      portal.hidden = false;
-      portal.classList.add("aberto");
-      portal.style.position = "fixed";
-      portal.style.zIndex = "4000";
-      portal.style.minWidth = "168px";
-      portal.style.display = "flex";
-
-      const largura = Math.max(portal.offsetWidth, 168);
-      const altura = Math.max(portal.offsetHeight, 80);
-      const rect = btn.getBoundingClientRect();
-      const margem = 10;
-      let top = rect.bottom + 8;
-      let left = rect.right - largura;
-      if (top + altura > window.innerHeight - margem) {
-        top = rect.top - altura - 8;
-      }
-      if (top < margem) top = margem;
-      if (left < margem) left = margem;
-      if (left + largura > window.innerWidth - margem) {
-        left = Math.max(margem, window.innerWidth - largura - margem);
-      }
-      portal.style.top = `${Math.round(top)}px`;
-      portal.style.left = `${Math.round(left)}px`;
-      portal.style.right = "auto";
-      btn.setAttribute("aria-expanded", "true");
-    };
-
-    document.querySelectorAll("[data-menu-acoes]").forEach((btn) => {
-      btn.addEventListener("click", (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const jaAberto = botaoAtivo === btn && portal && !portal.hidden;
-        fecharPortal();
-        if (!jaAberto) abrirPortal(btn);
+    document.querySelectorAll("[data-editar-parcela]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (!modal || !formEdit) return;
+        formEdit.action = `/cartoes/${cartaoId}/parcelas/${btn.dataset.id}/editar`;
+        document.getElementById("editar-parcela-rotulo").textContent = btn.dataset.rotulo || "";
+        document.getElementById("editar-parcela-descricao").value = btn.dataset.descricao || "";
+        const valor = btn.dataset.valor || "";
+        document.getElementById("editar-parcela-valor").value = valor
+          ? Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          : "";
+        document.getElementById("editar-parcela-categoria").value = btn.dataset.categoria || "";
+        if (typeof modal.showModal === "function") modal.showModal();
+        else modal.setAttribute("open", "open");
       });
     });
-
-    portal?.addEventListener("click", (ev) => ev.stopPropagation());
-    document.addEventListener("click", fecharPortal);
-    window.addEventListener("resize", fecharPortal);
-
-    const abrirEditar = (dados) => {
-      if (!modal || !formEdit) return;
-      formEdit.action = `/cartoes/${cartaoId}/parcelas/${dados.id}/editar`;
-      document.getElementById("editar-parcela-rotulo").textContent = dados.rotulo || "";
-      document.getElementById("editar-parcela-descricao").value = dados.descricao || "";
-      const valor = dados.valor || "";
-      document.getElementById("editar-parcela-valor").value = valor
-        ? Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-        : "";
-      document.getElementById("editar-parcela-categoria").value = dados.categoria || "";
-      if (typeof modal.showModal === "function") modal.showModal();
-      else modal.setAttribute("open", "open");
-    };
-
-    btnPortalEditar?.addEventListener("click", () => {
-      if (!botaoAtivo) return;
-      const dados = {
-        id: botaoAtivo.dataset.parcelaId,
-        descricao: botaoAtivo.dataset.descricao,
-        valor: botaoAtivo.dataset.valor,
-        categoria: botaoAtivo.dataset.categoria,
-        rotulo: botaoAtivo.dataset.rotulo,
-      };
-      fecharPortal();
-      abrirEditar(dados);
-    });
-
     document.querySelectorAll("[data-fechar-editar-parcela]").forEach((btn) => {
       btn.addEventListener("click", () => {
         if (typeof modal?.close === "function") modal.close();

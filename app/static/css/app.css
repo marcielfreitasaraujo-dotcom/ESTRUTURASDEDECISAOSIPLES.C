@@ -643,6 +643,21 @@ label { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; f
 }
 .pill.ativo { background: var(--primary); color: #fff; border-color: transparent; }
 
+.acoes-parcela {
+  text-align: right;
+  white-space: nowrap;
+}
+.acoes-parcela-btns {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+.acoes-parcela-btns .inline {
+  display: inline;
+  margin: 0;
+}
 .menu-acoes {
   position: relative;
   display: inline-flex;
