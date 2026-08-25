@@ -109,6 +109,7 @@
           <th>Categoria</th>
           <th class="num">Valor</th>
           <th>Status</th>
+          <th class="num">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -124,14 +125,86 @@
                 <span class="badge pendente">Em aberto</span>
               {% endif %}
             </td>
+            <td data-label="Ações" class="num">
+              {% if not p.pago %}
+                <div class="menu-acoes">
+                  <button
+                    type="button"
+                    class="icon-btn menu-acoes-btn"
+                    data-menu-acoes
+                    aria-label="Ações do lançamento"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >⋯</button>
+                  <div class="menu-acoes-lista" hidden>
+                    <button
+                      type="button"
+                      class="menu-acoes-item"
+                      data-editar-parcela
+                      data-id="{{ p.id }}"
+                      data-descricao="{{ p.descricao }}"
+                      data-valor="{{ p.valor_parcela }}"
+                      data-categoria="{{ p.categoria_id or '' }}"
+                      data-rotulo="{{ p.rotulo_parcela }}"
+                    >Editar</button>
+                    <form
+                      action="{{ url_for('cartoes.excluir_parcela_rota', cartao_id=cartao.id, parcela_id=p.id) }}"
+                      method="post"
+                      onsubmit="return confirm('Remover este lançamento da fatura?');"
+                    >
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="menu-acoes-item perigo" type="submit">Excluir</button>
+                    </form>
+                    {% if p.total_parcelas > 1 %}
+                      <form
+                        action="{{ url_for('cartoes.excluir_parcela_rota', cartao_id=cartao.id, parcela_id=p.id) }}"
+                        method="post"
+                        onsubmit="return confirm('Remover TODAS as parcelas em aberto desta compra?');"
+                      >
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="compra_inteira" value="1">
+                        <button class="menu-acoes-item perigo" type="submit">Excluir compra</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
+            </td>
           </tr>
         {% else %}
-          <tr><td colspan="4" class="empty">Nenhuma parcela nesta fatura (fecha {{ fechamento | data_br }} · pagamento {{ vencimento | data_br }}).</td></tr>
+          <tr><td colspan="5" class="empty">Nenhuma parcela nesta fatura (fecha {{ fechamento | data_br }} · pagamento {{ vencimento | data_br }}).</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </article>
+
+<dialog class="modal-dialog" id="modal-editar-parcela">
+  <form method="post" class="stack modal-dialog-card" id="form-editar-parcela">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <header class="card-head">
+      <h2>Editar lançamento</h2>
+      <button type="button" class="icon-btn" data-fechar-editar-parcela aria-label="Fechar">✕</button>
+    </header>
+    <p class="muted" id="editar-parcela-rotulo"></p>
+    <label>Descrição <input type="text" name="descricao" id="editar-parcela-descricao" required maxlength="180"></label>
+    <label>Valor <input class="input-valor" type="text" name="valor" id="editar-parcela-valor" inputmode="decimal" required></label>
+    <label>Categoria
+      <select name="categoria_id" id="editar-parcela-categoria">
+        <option value="">Selecionar</option>
+        {% for cat in categorias %}
+          <option value="{{ cat.id }}">{{ cat.nome }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" data-fechar-editar-parcela>Cancelar</button>
+      <button type="submit" class="btn btn-primary">Salvar</button>
+    </div>
+  </form>
+</dialog>
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Dados do cartão</h2></header>
@@ -169,41 +242,92 @@
   (() => {
     const form = document.getElementById("form-compra-cartao");
     const hint = document.getElementById("hint-fatura");
-    if (!form || !hint) return;
-    const diaFecha = Number(form.dataset.diaFechamento);
-    const diaPaga = Number(form.dataset.diaPagamento);
+    if (form && hint) {
+      const diaFecha = Number(form.dataset.diaFechamento);
+      const diaPaga = Number(form.dataset.diaPagamento);
 
-    const pad = (n) => String(n).padStart(2, "0");
-    const fmt = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-    const ultimoDia = (ano, mes) => new Date(ano, mes + 1, 0).getDate();
-    const diaSeguro = (ano, mes, dia) => new Date(ano, mes, Math.min(dia, ultimoDia(ano, mes)));
+      const pad = (n) => String(n).padStart(2, "0");
+      const fmt = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+      const ultimoDia = (ano, mes) => new Date(ano, mes + 1, 0).getDate();
+      const diaSeguro = (ano, mes, dia) => new Date(ano, mes, Math.min(dia, ultimoDia(ano, mes)));
 
-    const atualizar = () => {
-      const raw = document.getElementById("compra-data")?.value;
-      const parcelas = Math.max(1, Number(document.getElementById("compra-parcelas")?.value || 1));
-      if (!raw) { hint.textContent = ""; return; }
-      const compra = new Date(`${raw}T00:00:00`);
-      let ano = compra.getFullYear();
-      let mes = compra.getMonth();
-      if (compra.getDate() > diaFecha) {
-        mes += 1;
-        if (mes > 11) { mes = 0; ano += 1; }
-      }
-      const fecha = diaSeguro(ano, mes, diaFecha);
-      const paga = diaPaga >= diaFecha
-        ? diaSeguro(ano, mes, diaPaga)
-        : diaSeguro(mes === 11 ? ano + 1 : ano, (mes + 1) % 12, diaPaga);
-      let texto = `1ª parcela: fatura fecha em ${fmt(fecha)} · pagamento em ${fmt(paga)}.`;
-      if (parcelas > 1) {
-        texto += ` As outras ${parcelas - 1} parcela(s) entram nas faturas seguintes, no mesmo dia de fechamento e de pagamento.`;
-      } else {
-        texto += " Compra depois do fechamento vai para a próxima fatura.";
-      }
-      hint.textContent = texto;
+      const atualizar = () => {
+        const raw = document.getElementById("compra-data")?.value;
+        const parcelas = Math.max(1, Number(document.getElementById("compra-parcelas")?.value || 1));
+        if (!raw) { hint.textContent = ""; return; }
+        const compra = new Date(`${raw}T00:00:00`);
+        let ano = compra.getFullYear();
+        let mes = compra.getMonth();
+        if (compra.getDate() > diaFecha) {
+          mes += 1;
+          if (mes > 11) { mes = 0; ano += 1; }
+        }
+        const fecha = diaSeguro(ano, mes, diaFecha);
+        const paga = diaPaga >= diaFecha
+          ? diaSeguro(ano, mes, diaPaga)
+          : diaSeguro(mes === 11 ? ano + 1 : ano, (mes + 1) % 12, diaPaga);
+        let texto = `1ª parcela: fatura fecha em ${fmt(fecha)} · pagamento em ${fmt(paga)}.`;
+        if (parcelas > 1) {
+          texto += ` As outras ${parcelas - 1} parcela(s) entram nas faturas seguintes, no mesmo dia de fechamento e de pagamento.`;
+        } else {
+          texto += " Compra depois do fechamento vai para a próxima fatura.";
+        }
+        hint.textContent = texto;
+      };
+
+      form.addEventListener("input", atualizar);
+      atualizar();
+    }
+
+    const fecharMenus = () => {
+      document.querySelectorAll(".menu-acoes-lista").forEach((el) => { el.hidden = true; });
+      document.querySelectorAll("[data-menu-acoes]").forEach((btn) => {
+        btn.setAttribute("aria-expanded", "false");
+      });
     };
 
-    form.addEventListener("input", atualizar);
-    atualizar();
+    document.querySelectorAll("[data-menu-acoes]").forEach((btn) => {
+      btn.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const lista = btn.parentElement?.querySelector(".menu-acoes-lista");
+        const aberto = lista && !lista.hidden;
+        fecharMenus();
+        if (lista && !aberto) {
+          lista.hidden = false;
+          btn.setAttribute("aria-expanded", "true");
+        }
+      });
+    });
+    document.addEventListener("click", fecharMenus);
+
+    const modal = document.getElementById("modal-editar-parcela");
+    const formEdit = document.getElementById("form-editar-parcela");
+    const cartaoId = {{ cartao.id }};
+    const abrirEditar = (btn) => {
+      if (!modal || !formEdit) return;
+      formEdit.action = `/cartoes/${cartaoId}/parcelas/${btn.dataset.id}/editar`;
+      document.getElementById("editar-parcela-rotulo").textContent = btn.dataset.rotulo || "";
+      document.getElementById("editar-parcela-descricao").value = btn.dataset.descricao || "";
+      const valor = btn.dataset.valor || "";
+      document.getElementById("editar-parcela-valor").value = valor
+        ? Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        : "";
+      document.getElementById("editar-parcela-categoria").value = btn.dataset.categoria || "";
+      if (typeof modal.showModal === "function") modal.showModal();
+      else modal.setAttribute("open", "open");
+    };
+    document.querySelectorAll("[data-editar-parcela]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        fecharMenus();
+        abrirEditar(btn);
+      });
+    });
+    document.querySelectorAll("[data-fechar-editar-parcela]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (typeof modal?.close === "function") modal.close();
+        else modal?.removeAttribute("open");
+      });
+    });
   })();
 </script>
 {% endblock %}

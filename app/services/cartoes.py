@@ -142,3 +142,86 @@ def pagar_fatura(
     cartao.atualizado_em = agora()
     db.session.flush()
     return mov
+
+
+def _garantir_parcela_editavel(parcela: Parcela) -> None:
+    if not parcela.ativo:
+        raise ValueError("Esta parcela já foi removida.")
+    if parcela.pago:
+        raise ValueError("Parcela já paga. Não é possível editar ou excluir.")
+
+
+def irmaos_compra(parcela: Parcela) -> list[Parcela]:
+    """Outras parcelas da mesma compra (mesma descrição/total/quantidade no cartão)."""
+    return (
+        Parcela.query.filter(
+            Parcela.cartao_id == parcela.cartao_id,
+            Parcela.ativo.is_(True),
+            Parcela.descricao == parcela.descricao,
+            Parcela.valor_total == parcela.valor_total,
+            Parcela.total_parcelas == parcela.total_parcelas,
+        )
+        .order_by(Parcela.numero)
+        .all()
+    )
+
+
+def editar_parcela(
+    parcela: Parcela,
+    descricao: str,
+    valor_parcela: Decimal,
+    categoria_id: int | None,
+) -> Parcela:
+    _garantir_parcela_editavel(parcela)
+    descricao = (descricao or "").strip()
+    if not descricao:
+        raise ValueError("Informe a descrição.")
+    if valor_parcela <= 0:
+        raise ValueError("Informe um valor maior que zero.")
+
+    descricao = descricao[:180]
+    valor_parcela = Decimal(valor_parcela).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    antiga_descricao = parcela.descricao
+    antigo_total = parcela.valor_total
+    total_parcelas = parcela.total_parcelas
+
+    parcela.descricao = descricao
+    parcela.valor_parcela = valor_parcela
+    parcela.categoria_id = categoria_id
+
+    # Mantém descrição/categoria alinhadas nas outras parcelas em aberto da mesma compra
+    if total_parcelas > 1:
+        for irma in (
+            Parcela.query.filter(
+                Parcela.cartao_id == parcela.cartao_id,
+                Parcela.ativo.is_(True),
+                Parcela.pago.is_(False),
+                Parcela.descricao == antiga_descricao,
+                Parcela.valor_total == antigo_total,
+                Parcela.total_parcelas == total_parcelas,
+            ).all()
+        ):
+            if irma.id == parcela.id:
+                continue
+            irma.descricao = descricao
+            irma.categoria_id = categoria_id
+
+    parcela.cartao.atualizado_em = agora()
+    db.session.flush()
+    return parcela
+
+
+def excluir_parcela(parcela: Parcela, excluir_compra_inteira: bool = False) -> int:
+    _garantir_parcela_editavel(parcela)
+    alvos = [parcela]
+    if excluir_compra_inteira and parcela.total_parcelas > 1:
+        alvos = [p for p in irmaos_compra(parcela) if not p.pago] or [parcela]
+    removidas = 0
+    for alvo in alvos:
+        if alvo.pago or not alvo.ativo:
+            continue
+        alvo.ativo = False
+        removidas += 1
+    parcela.cartao.atualizado_em = agora()
+    db.session.flush()
+    return removidas
