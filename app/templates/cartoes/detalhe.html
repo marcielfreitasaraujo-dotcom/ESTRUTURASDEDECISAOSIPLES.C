@@ -280,25 +280,74 @@
     }
 
     const fecharMenus = () => {
-      document.querySelectorAll(".menu-acoes-lista").forEach((el) => { el.hidden = true; });
+      document.querySelectorAll(".menu-acoes-lista").forEach((el) => {
+        el.hidden = true;
+        el.classList.remove("flutuante");
+        el.style.top = "";
+        el.style.left = "";
+        el.style.right = "";
+        if (el._menuOrigem && el.parentElement !== el._menuOrigem) {
+          el._menuOrigem.appendChild(el);
+        }
+      });
       document.querySelectorAll("[data-menu-acoes]").forEach((btn) => {
         btn.setAttribute("aria-expanded", "false");
       });
     };
 
+    const obterLista = (btn) => {
+      const wrap = btn.closest(".menu-acoes");
+      if (!wrap) return null;
+      return wrap.querySelector(".menu-acoes-lista")
+        || [...document.body.children].find((el) => el.classList?.contains("menu-acoes-lista") && el._menuOrigem === wrap)
+        || null;
+    };
+
+    const posicionarMenu = (btn, lista) => {
+      const origem = btn.closest(".menu-acoes");
+      if (!origem) return;
+      lista._menuOrigem = origem;
+      document.body.appendChild(lista);
+      lista.classList.add("flutuante");
+      lista.hidden = false;
+
+      const rect = btn.getBoundingClientRect();
+      const menuRect = lista.getBoundingClientRect();
+      const margem = 8;
+      let top = rect.bottom + 6;
+      let left = rect.right - menuRect.width;
+
+      if (top + menuRect.height > window.innerHeight - margem) {
+        top = rect.top - menuRect.height - 6;
+      }
+      if (top < margem) top = margem;
+      if (left < margem) left = margem;
+      if (left + menuRect.width > window.innerWidth - margem) {
+        left = Math.max(margem, window.innerWidth - menuRect.width - margem);
+      }
+
+      lista.style.top = `${Math.round(top)}px`;
+      lista.style.left = `${Math.round(left)}px`;
+      lista.style.right = "auto";
+      lista.onclick = (ev) => ev.stopPropagation();
+    };
+
     document.querySelectorAll("[data-menu-acoes]").forEach((btn) => {
       btn.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        const lista = btn.parentElement?.querySelector(".menu-acoes-lista");
-        const aberto = lista && !lista.hidden;
+        const lista = obterLista(btn);
+        const aberto = lista && !lista.hidden && lista.classList.contains("flutuante");
         fecharMenus();
         if (lista && !aberto) {
-          lista.hidden = false;
+          const listaAtual = obterLista(btn) || lista;
+          posicionarMenu(btn, listaAtual);
           btn.setAttribute("aria-expanded", "true");
         }
       });
     });
     document.addEventListener("click", fecharMenus);
+    window.addEventListener("resize", fecharMenus);
+    window.addEventListener("scroll", fecharMenus, true);
 
     const modal = document.getElementById("modal-editar-parcela");
     const formEdit = document.getElementById("form-editar-parcela");
