@@ -31,10 +31,10 @@ def test_detalhe_cartao_tem_menu_acoes(admin_client, app):
     )
     html = admin_client.get(f"/cartoes/{cartao_id}").get_data(as_text=True)
     assert "data-menu-acoes" in html
-    assert "data-editar-parcela" in html
-    assert "Excluir" in html
+    assert "portal-menu-acoes" in html
+    assert "data-portal-editar" in html
     assert "modal-editar-parcela" in html
-
+    assert "Excluir" in html
 
 def test_editar_e_excluir_parcela_em_aberto(admin_client, app):
     admin_client.post(

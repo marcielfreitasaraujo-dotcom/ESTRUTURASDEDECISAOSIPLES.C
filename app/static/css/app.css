@@ -653,20 +653,33 @@ label { display: flex; flex-direction: column; gap: 0.35rem; font-weight: 600; f
   line-height: 1;
   letter-spacing: 0.05em;
 }
+.menu-acoes-portal,
 .menu-acoes-lista {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 0.25rem);
   min-width: 168px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(2, 11, 22, 0.28);
+  box-shadow: 0 16px 40px rgba(2, 11, 22, 0.35);
   padding: 0.35rem;
-  z-index: 80;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+}
+.menu-acoes-portal {
+  position: fixed;
+  z-index: 4000;
+}
+.menu-acoes-portal[hidden] {
+  display: none !important;
+}
+.table-wrap-menu {
+  overflow: visible;
+}
+.menu-acoes-lista {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 80;
 }
 .menu-acoes-lista.flutuante {
   position: fixed;
