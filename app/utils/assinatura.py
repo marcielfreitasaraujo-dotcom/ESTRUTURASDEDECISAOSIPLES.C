@@ -44,6 +44,8 @@ def endpoints_livres_assinatura() -> set[str]:
     return {
         "static",
         "saude",
+        "web_manifest",
+        "service_worker",
         "auth.login",
         "auth.logout",
         "auth.sessao_iniciar",

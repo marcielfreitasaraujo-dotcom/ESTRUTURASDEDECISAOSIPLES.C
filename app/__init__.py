@@ -131,6 +131,31 @@ def create_app(config_class=None) -> Flask:
             }
         )
 
+    @app.get("/manifest.webmanifest")
+    def web_manifest():
+        from flask import send_from_directory
+
+        resp = send_from_directory(
+            app.static_folder,
+            "manifest.webmanifest",
+            mimetype="application/manifest+json",
+        )
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
+    @app.get("/sw.js")
+    def service_worker():
+        from flask import send_from_directory
+
+        resp = send_from_directory(
+            Path(app.static_folder) / "js",
+            "sw.js",
+            mimetype="application/javascript",
+        )
+        resp.headers["Cache-Control"] = "no-cache"
+        resp.headers["Service-Worker-Allowed"] = "/"
+        return resp
+
     @app.before_request
     def gerar_recorrentes_do_usuario():
         if not current_user.is_authenticated:
@@ -144,6 +169,8 @@ def create_app(config_class=None) -> Flask:
             "auth.sessao_verificar",
             "auth.sessao_fechar",
             "saude",
+            "web_manifest",
+            "service_worker",
         ):
             return
         from app.services.recorrencias import gerar_titulos_recorrentes
