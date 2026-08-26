@@ -61,6 +61,39 @@ def test_verificar_email_libera_acesso(client, app):
         assert db.session.get(Usuario, uid).email_verificado is True
 
 
+def test_confirmar_com_codigo_de_verificacao(client, app):
+    from app.services.auth_email import gerar_codigo_verificacao
+
+    limpar_outbox()
+    client.post(
+        "/cadastro",
+        data={
+            "nome": "Codigo User",
+            "username": "codigo@exemplo.com",
+            "senha": "senha123",
+            "senha2": "senha123",
+        },
+        follow_redirects=True,
+    )
+    with app.app_context():
+        u = Usuario.query.filter_by(username="codigo@exemplo.com").first()
+        codigo = gerar_codigo_verificacao(u)
+        db.session.commit()
+
+    page = client.get("/aguardando-verificacao")
+    assert "Código de verificação" in page.get_data(as_text=True)
+
+    resp = client.post(
+        "/aguardando-verificacao",
+        data={"acao": "codigo", "codigo": codigo},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    with app.app_context():
+        u = Usuario.query.filter_by(username="codigo@exemplo.com").first()
+        assert u.email_verificado is True
+
+
 def test_esqueci_senha_e_redefinir(client, app):
     limpar_outbox()
     with app.app_context():

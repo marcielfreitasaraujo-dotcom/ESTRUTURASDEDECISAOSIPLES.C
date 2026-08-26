@@ -92,19 +92,27 @@ def cadastro():
                 )
                 db.session.commit()
                 try:
-                    enviar_verificacao(membro)
-                except Exception:
+                    enviado = enviar_verificacao(membro)
+                    db.session.commit()
+                except Exception as exc:
+                    db.session.commit()  # conta já criada; código pode ter sido gerado
                     logger.exception("Falha ao enviar e-mail de verificação para %s", username)
                     flash(
-                        "Conta criada, mas não foi possível enviar o e-mail agora. "
-                        "Use “Reenviar e-mail” na próxima tela.",
-                        "info",
+                        f"Conta criada, mas o e-mail não saiu: {exc}. "
+                        "Você pode tentar “Reenviar” ou digitar o código quando chegar.",
+                        "erro",
                     )
                 else:
-                    flash(
-                        "Conta criada! Enviamos um link de verificação para o seu e-mail.",
-                        "sucesso",
-                    )
+                    if enviado:
+                        flash(
+                            "Conta criada! Enviamos um código e um link para o seu e-mail.",
+                            "sucesso",
+                        )
+                    else:
+                        flash(
+                            "Conta criada, mas o e-mail não foi enviado. Configure o SMTP no servidor.",
+                            "erro",
+                        )
                 session.clear()
                 login_user(membro, remember=False)
                 session.permanent = False
@@ -143,20 +151,35 @@ def verificar_email(token):
 @auth_bp.route("/aguardando-verificacao", methods=["GET", "POST"])
 @login_required
 def aguardando_verificacao():
+    from app.services.auth_email import validar_codigo_verificacao
+    from app.services.email import email_configurado
+
     if not usuario_precisa_verificar_email(current_user):
         return redirect(url_for("dashboard.index"))
     erro = None
     if request.method == "POST":
-        try:
-            enviar_verificacao(current_user)
-            flash("Reenviamos o e-mail de verificação. Confira sua caixa de entrada.", "sucesso")
-        except Exception:
-            logger.exception("Falha ao reenviar verificação")
-            erro = "Não foi possível enviar o e-mail agora. Tente de novo em instantes."
+        acao = (request.form.get("acao") or "reenviar").strip()
+        if acao == "codigo":
+            codigo = request.form.get("codigo") or ""
+            if validar_codigo_verificacao(current_user, codigo):
+                db.session.commit()
+                flash("E-mail confirmado! Agora você já pode usar o FinUP.", "sucesso")
+                return redirect(url_for("dashboard.index"))
+            erro = "Código inválido ou expirado. Confira o e-mail ou peça um novo código."
+        else:
+            try:
+                enviar_verificacao(current_user)
+                db.session.commit()
+                flash("Reenviamos o código e o link. Confira sua caixa de entrada (e o spam).", "sucesso")
+            except Exception as exc:
+                db.session.rollback()
+                logger.exception("Falha ao reenviar verificação")
+                erro = str(exc)
     return render_template(
         "auth/aguardando_verificacao.html",
         erro=erro,
         email=current_user.username,
+        email_ok=email_configurado(),
     )
 
 

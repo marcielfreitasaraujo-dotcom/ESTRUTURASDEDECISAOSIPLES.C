@@ -28,6 +28,8 @@ COLUNAS_USUARIOS = {
     "assinatura_ativa": "ALTER TABLE usuarios ADD COLUMN assinatura_ativa BOOLEAN DEFAULT TRUE",
     "assinatura_vence_em": "ALTER TABLE usuarios ADD COLUMN assinatura_vence_em DATE",
     "email_verificado": "ALTER TABLE usuarios ADD COLUMN email_verificado BOOLEAN DEFAULT TRUE",
+    "email_codigo_hash": "ALTER TABLE usuarios ADD COLUMN email_codigo_hash VARCHAR(256)",
+    "email_codigo_expira": "ALTER TABLE usuarios ADD COLUMN email_codigo_expira TIMESTAMP",
 }
 
 
@@ -36,11 +38,19 @@ def _adicionar_colunas(tabela: str, colunas: dict) -> None:
     if tabela not in inspetor.get_table_names():
         return
     existentes = {col["name"] for col in inspetor.get_columns(tabela)}
-    with db.engine.begin() as conn:
-        for nome, sql in colunas.items():
-            if nome not in existentes:
+    for nome, sql in colunas.items():
+        if nome in existentes:
+            continue
+        try:
+            with db.engine.begin() as conn:
                 conn.execute(text(sql))
-
+        except Exception as exc:
+            # Dois workers podem tentar criar a mesma coluna no boot
+            msg = str(exc).lower()
+            if "duplicate column" in msg or "already exists" in msg:
+                continue
+            raise
+        existentes.add(nome)
 
 def _migrar_assinatura_segura() -> None:
     """Garante que o deploy não trave ninguém: assinatura liberada + família pré-existente marcada."""
