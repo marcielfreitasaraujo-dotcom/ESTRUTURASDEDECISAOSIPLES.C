@@ -211,20 +211,31 @@ def esqueci_senha():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard.index"))
     msg = None
+    erro = None
     if request.method == "POST":
         email = (request.form.get("username") or "").strip().lower()
-        # Resposta genérica para não revelar se o e-mail existe
-        msg = (
-            "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
-            "Confira sua caixa de entrada."
-        )
         usuario = Usuario.query.filter(Usuario.username.ilike(email)).first()
         if usuario and usuario.ativo and usuario.eh_email:
             try:
-                enviar_reset_senha(usuario)
-            except Exception:
+                enviado = enviar_reset_senha(usuario)
+                if enviado:
+                    msg = (
+                        "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
+                        "Confira sua caixa de entrada (e o spam)."
+                    )
+            except Exception as exc:
                 logger.exception("Falha ao enviar reset de senha para %s", email)
-    return render_template("auth/esqueci_senha.html", msg=msg)
+                erro = (
+                    f"Não foi possível enviar o e-mail: {exc} "
+                    "Peça ao administrador para redefinir sua senha em Configurações."
+                )
+        else:
+            # Resposta genérica — não revela se o e-mail existe
+            msg = (
+                "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
+                "Confira sua caixa de entrada."
+            )
+    return render_template("auth/esqueci_senha.html", msg=msg, erro=erro)
 
 
 @auth_bp.route("/redefinir-senha/<token>", methods=["GET", "POST"])
