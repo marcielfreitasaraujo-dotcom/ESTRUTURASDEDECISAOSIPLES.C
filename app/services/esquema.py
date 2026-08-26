@@ -26,6 +26,7 @@ COLUNAS_USUARIOS = {
     "ver_familia": "ALTER TABLE usuarios ADD COLUMN ver_familia BOOLEAN DEFAULT FALSE",
     "eh_familia": "ALTER TABLE usuarios ADD COLUMN eh_familia BOOLEAN DEFAULT FALSE",
     "assinatura_ativa": "ALTER TABLE usuarios ADD COLUMN assinatura_ativa BOOLEAN DEFAULT TRUE",
+    "assinatura_vence_em": "ALTER TABLE usuarios ADD COLUMN assinatura_vence_em DATE",
 }
 
 
