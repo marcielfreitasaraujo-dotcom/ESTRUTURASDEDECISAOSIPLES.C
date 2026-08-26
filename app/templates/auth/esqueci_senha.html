@@ -22,7 +22,9 @@
     </div>
     <h1>Esqueci a senha</h1>
     <p class="muted">Digite o e-mail da sua conta. Se estiver cadastrado, mandamos um link para criar uma nova senha.</p>
-    {% if msg %}
+    {% if erro %}
+      <div class="flash flash-erro">{{ erro }}</div>
+    {% elif msg %}
       <div class="flash flash-sucesso">{{ msg }}</div>
     {% endif %}
     <form method="post">
