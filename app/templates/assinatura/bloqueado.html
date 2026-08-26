@@ -60,6 +60,11 @@
       >
     </div>
     <h1>Assinatura necessária</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
     <p class="muted">
       Olá, <strong>{{ current_user.nome }}</strong>. Sua conta existe, mas o acesso ao FinUP
       depende da assinatura paga.

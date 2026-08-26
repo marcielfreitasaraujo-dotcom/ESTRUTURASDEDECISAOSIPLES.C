@@ -73,10 +73,23 @@ def test_sem_familia_sem_pagamento_e_bloqueado(admin_client, client, app):
         )
         db.session.commit()
         assert bloqueio_assinatura_ativo() is True
-    _login(client, "pago_nao", "senha123")
-    resp = client.get("/contas", follow_redirects=True)
-    assert resp.status_code == 200
-    assert "Assinatura necessária" in resp.get_data(as_text=True)
+    client.get("/logout", follow_redirects=True)
+    resp = client.post(
+        "/login",
+        data={"username": "pago_nao", "senha": "senha123"},
+        follow_redirects=False,
+    )
+    assert resp.status_code == 302
+    loc = resp.headers.get("Location") or ""
+    assert "/sessao/iniciar" in loc
+    assert "bloqueado" in loc
+    client.get(loc)  # marca sessão do navegador (JS não roda no test client)
+    pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
+    assert pagina.status_code == 200
+    html = pagina.get_data(as_text=True)
+    assert "Assinatura necessária" in html
+    assert client.get("/contas", follow_redirects=True).status_code == 200
+    assert "Assinatura necessária" in client.get("/contas", follow_redirects=True).get_data(as_text=True)
     assert client.get("/assinatura/bloqueado").status_code == 200
 
 
