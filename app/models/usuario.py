@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -22,6 +22,7 @@ class Usuario(UserMixin, db.Model):
     ver_familia = db.Column(db.Boolean, nullable=False, default=False)
     eh_familia = db.Column(db.Boolean, nullable=False, default=False)
     assinatura_ativa = db.Column(db.Boolean, nullable=False, default=True)
+    assinatura_vence_em = db.Column(db.Date, nullable=True)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)
@@ -45,7 +46,19 @@ class Usuario(UserMixin, db.Model):
             return True
         if self.eh_familia:
             return True
-        return bool(self.assinatura_ativa)
+        if not bool(self.assinatura_ativa):
+            return False
+        if self.assinatura_vence_em and self.assinatura_vence_em < date.today():
+            return False
+        return True
+
+    @property
+    def assinatura_vencida(self) -> bool:
+        if self.eh_admin or self.eh_familia:
+            return False
+        if not self.assinatura_vence_em:
+            return False
+        return self.assinatura_vence_em < date.today()
 
     def get_id(self) -> str:
         return str(self.id)

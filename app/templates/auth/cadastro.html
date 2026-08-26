@@ -7,7 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="FinUP">
-  <title>Entrar · FinUP</title>
+  <title>Criar conta · FinUP</title>
   <link rel="manifest" href="{{ url_for('web_manifest') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
@@ -29,41 +29,48 @@
         height="280"
       >
     </div>
-    <h1>Olá! Entre para ver seu saldo.</h1>
-    <p class="muted">Já tem conta? Entre com usuário e senha. Ainda não? Crie a conta e assine o plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
+    <h1>Criar sua conta</h1>
+    <p class="muted">
+      Plano <strong>{{ plano.nome }}</strong> · <strong>{{ plano.valor | moeda }}</strong>
+      / {{ plano.dias }} dias. Depois do cadastro, pague a assinatura para liberar o uso.
+    </p>
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
+        Nome completo
+        <input type="text" name="nome" autocomplete="name" required autofocus maxlength="120">
+      </label>
+      <label>
         Usuário
-        <input type="text" name="username" autocomplete="username" required autofocus>
+        <input type="text" name="username" autocomplete="username" required minlength="3" maxlength="80">
       </label>
       <label>
         Senha
         <span class="senha-field">
-          <input type="password" name="senha" id="campo-senha" autocomplete="current-password" required>
+          <input type="password" name="senha" id="campo-senha-cadastro" autocomplete="new-password" required minlength="6">
           <button
             type="button"
             class="senha-toggle"
             data-toggle-senha
-            data-alvo="campo-senha"
+            data-alvo="campo-senha-cadastro"
             aria-label="Mostrar senha"
             aria-pressed="false"
           >Mostrar</button>
         </span>
       </label>
-      <p class="hint" style="margin:0 0 0.75rem">Por segurança, ao fechar a aba (ou sair) será preciso entrar de novo com a senha.</p>
-      <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+      <label>
+        Confirmar senha
+        <input type="password" name="senha2" autocomplete="new-password" required minlength="6">
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Criar conta e continuar</button>
     </form>
     <p class="hint" style="margin-top:1rem">
-      Novo por aqui?
-      <a href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
+      Já tem cadastro?
+      <a href="{{ url_for('auth.login') }}">Entrar</a>
     </p>
-    {% if config.DEBUG %}
-    <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
-    {% endif %}
   </main>
   <script>
     document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {

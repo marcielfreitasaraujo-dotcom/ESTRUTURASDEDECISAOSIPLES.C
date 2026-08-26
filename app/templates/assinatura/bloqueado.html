@@ -38,10 +38,22 @@
     </div>
     <h1>Assinatura necessária</h1>
     <p class="muted">
-      Olá, <strong>{{ current_user.nome }}</strong>. Sua conta está ativa, mas ainda não tem
-      assinatura liberada para usar o FinUP.
+      Olá, <strong>{{ current_user.nome }}</strong>. Sua conta existe, mas o acesso ao FinUP
+      depende da assinatura paga.
     </p>
-    <p class="muted">Fale com o administrador para liberar o acesso (família isenta ou assinatura paga).</p>
+    <p>
+      Plano <strong>{{ plano.nome }}</strong>:
+      <strong>{{ plano.valor | moeda }}</strong>
+      a cada {{ plano.dias }} dias.
+    </p>
+    {% if current_user.assinatura_vence_em %}
+      <p class="muted">
+        Último vencimento:
+        <strong>{{ current_user.assinatura_vence_em.strftime('%d/%m/%Y') }}</strong>
+        {% if status == 'vencida' %}(vencido){% endif %}
+      </p>
+    {% endif %}
+    <p class="muted" style="white-space:pre-wrap">{{ plano.instrucoes }}</p>
     <p style="margin-top:1.25rem">
       <a class="btn btn-primary" href="{{ url_for('auth.logout') }}">Sair</a>
     </p>
