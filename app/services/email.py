@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import smtplib
+import socket
 from email.message import EmailMessage
 
 from flask import current_app, has_app_context
@@ -25,6 +26,45 @@ def email_configurado() -> bool:
         return True
     host = (current_app.config.get("MAIL_SERVER") or "").strip()
     return bool(host)
+
+
+def _socket_ipv4(host: str, port: int, timeout: float = 30):
+    """Abre socket IPv4 (Railway costuma falhar em IPv6 com Network unreachable)."""
+    erros: list[OSError] = []
+    for family, socktype, proto, _canon, sockaddr in socket.getaddrinfo(
+        host, port, socket.AF_INET, socket.SOCK_STREAM
+    ):
+        sock = None
+        try:
+            sock = socket.socket(family, socktype, proto)
+            sock.settimeout(timeout)
+            sock.connect(sockaddr)
+            return sock
+        except OSError as exc:
+            erros.append(exc)
+            if sock is not None:
+                try:
+                    sock.close()
+                except OSError:
+                    pass
+    if erros:
+        raise erros[-1]
+    raise OSError(f"Não foi possível conectar em {host}:{port} via IPv4")
+
+
+class _SMTP_IPv4(smtplib.SMTP):
+    def _get_socket(self, host, port, timeout):
+        return _socket_ipv4(host, port, timeout)
+
+
+class _SMTP_SSL_IPv4(smtplib.SMTP_SSL):
+    def _get_socket(self, host, port, timeout):
+        # SMTP_SSL espera o socket já envolvido em SSL depois; base class wraps it.
+        from ssl import create_default_context
+
+        raw = _socket_ipv4(host, port, timeout)
+        context = self.context if getattr(self, "context", None) else create_default_context()
+        return context.wrap_socket(raw, server_hostname=host)
 
 
 def enviar_email(*, para: str, assunto: str, texto: str, html: str | None = None) -> bool:
@@ -74,13 +114,13 @@ def enviar_email(*, para: str, assunto: str, texto: str, html: str | None = None
         msg.add_alternative(html, subtype="html")
 
     try:
-        if usar_ssl:
-            with smtplib.SMTP_SSL(host, porta, timeout=30) as smtp:
+        if usar_ssl or porta == 465:
+            with _SMTP_SSL_IPv4(host, porta, timeout=30) as smtp:
                 if usuario and senha:
                     smtp.login(usuario, senha)
                 smtp.send_message(msg)
         else:
-            with smtplib.SMTP(host, porta, timeout=30) as smtp:
+            with _SMTP_IPv4(host, porta, timeout=30) as smtp:
                 if usar_tls:
                     smtp.starttls()
                 if usuario and senha:
