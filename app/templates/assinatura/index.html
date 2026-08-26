@@ -47,7 +47,7 @@
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Valores da assinatura</h2></header>
-  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou.</p>
+  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. Cadastre a chave PIX para gerar QR Code e copia e cola.</p>
   <form action="{{ url_for('assinatura.salvar_plano') }}" method="post" class="form-grid">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>
@@ -63,13 +63,30 @@
       <input type="number" name="plano_dias" value="{{ plano.dias }}" min="1" max="366" required>
     </label>
     <label class="full">
-      Instruções de pagamento (PIX, WhatsApp, etc.)
+      Chave PIX (e-mail, celular, CPF/CNPJ ou chave aleatória)
+      <input type="text" name="pix_chave" value="{{ plano.pix_chave }}" maxlength="120" placeholder="sua-chave@email.com ou chave aleatória">
+    </label>
+    <label>
+      Nome no PIX (recebedor)
+      <input type="text" name="pix_nome" value="{{ plano.pix_nome }}" maxlength="60" placeholder="Seu nome ou FinUP">
+    </label>
+    <label>
+      Cidade no PIX
+      <input type="text" name="pix_cidade" value="{{ plano.pix_cidade }}" maxlength="40" placeholder="SAO PAULO">
+    </label>
+    <label class="full">
+      Instruções extras (WhatsApp, observações…)
       <textarea name="plano_instrucoes" rows="3" maxlength="2000">{{ plano.instrucoes }}</textarea>
     </label>
     <div class="btn-row full">
-      <button class="btn btn-primary" type="submit">Salvar valores</button>
+      <button class="btn btn-primary" type="submit">Salvar valores e PIX</button>
     </div>
   </form>
+  {% if plano.pix_configurado %}
+    <p class="muted" style="margin-top:0.75rem">PIX configurado: quem estiver bloqueado vê QR Code + copia e cola e pode liberar o acesso após pagar.</p>
+  {% else %}
+    <p class="muted" style="margin-top:0.75rem">Ainda sem chave PIX — a tela de bloqueio não mostra QR Code.</p>
+  {% endif %}
 </article>
 
 <article class="card" style="margin-top:1rem">

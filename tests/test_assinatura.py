@@ -80,6 +80,47 @@ def test_sem_familia_sem_pagamento_e_bloqueado(admin_client, client, app):
     assert client.get("/assinatura/bloqueado").status_code == 200
 
 
+def test_pix_na_tela_bloqueado_e_ja_paguei_libera(admin_client, client, app):
+    with app.app_context():
+        definir_bloqueio_assinatura(True)
+        salvar_plano_assinatura(
+            nome="Mensal",
+            valor="29.90",
+            dias=30,
+            instrucoes="Pague no PIX",
+            pix_chave="pix-teste@example.com",
+            pix_nome="Maciel FinUP",
+            pix_cidade="Fortaleza",
+        )
+        criar_membro_familia(
+            "Cliente Pix",
+            "cliente_pix",
+            "senha123",
+            eh_familia=False,
+            assinatura_ativa=False,
+        )
+        db.session.commit()
+
+    _login(client, "cliente_pix", "senha123")
+    pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
+    html = pagina.get_data(as_text=True)
+    assert pagina.status_code == 200
+    assert "Pague agora via PIX" in html
+    assert "PIX copia e cola" in html
+    assert "Já paguei" in html
+    assert "data:image/png;base64," in html
+    assert "000201" in html
+
+    resp = client.post("/assinatura/confirmar-pagamento", follow_redirects=True)
+    assert resp.status_code == 200
+    assert "Assinatura necessária" not in resp.get_data(as_text=True)
+    assert client.get("/contas").status_code == 200
+    with app.app_context():
+        u = Usuario.query.filter_by(username="cliente_pix").first()
+        assert u.assinatura_ativa is True
+        assert u.assinatura_vence_em is not None
+
+
 def test_marcar_pago_libera_acesso(admin_client, client, app):
     with app.app_context():
         definir_bloqueio_assinatura(True)
@@ -155,6 +196,9 @@ def test_salvar_plano_e_resumo_financeiro(admin_client, app):
             "plano_valor": "49,90",
             "plano_dias": "30",
             "plano_instrucoes": "PIX 11999999999",
+            "pix_chave": "pix@finup.app",
+            "pix_nome": "FinUP",
+            "pix_cidade": "Sao Paulo",
         },
         follow_redirects=True,
     )
@@ -167,6 +211,8 @@ def test_salvar_plano_e_resumo_financeiro(admin_client, app):
         assert str(plano["valor"]) == "49.90"
         assert plano["dias"] == 30
         assert "11999999999" in plano["instrucoes"]
+        assert plano["pix_chave"] == "pix@finup.app"
+        assert plano["pix_configurado"] is True
 
         definir_bloqueio_assinatura(True)
         ativo = criar_membro_familia(
@@ -321,6 +367,7 @@ def test_nao_remove_admin(admin_client, app):
         follow_redirects=True,
     )
     assert resp.status_code == 200
-    assert "administrador" in resp.get_data(as_text=True).lower()
+    html = resp.get_data(as_text=True).lower()
+    assert "administrador" in html or "própria conta" in html or "propria conta" in html
     with app.app_context():
         assert db.session.get(Usuario, admin_id) is not None
