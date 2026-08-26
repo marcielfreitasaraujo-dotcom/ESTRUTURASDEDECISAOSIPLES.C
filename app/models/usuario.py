@@ -20,6 +20,8 @@ class Usuario(UserMixin, db.Model):
     perfil = db.Column(db.String(20), nullable=False, default="usuario")
     tema = db.Column(db.String(10), nullable=False, default="claro")
     ver_familia = db.Column(db.Boolean, nullable=False, default=False)
+    eh_familia = db.Column(db.Boolean, nullable=False, default=False)
+    assinatura_ativa = db.Column(db.Boolean, nullable=False, default=True)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)
@@ -36,6 +38,14 @@ class Usuario(UserMixin, db.Model):
     @property
     def eh_admin(self) -> bool:
         return self.perfil == "admin"
+
+    @property
+    def tem_acesso_assinatura(self) -> bool:
+        if self.eh_admin:
+            return True
+        if self.eh_familia:
+            return True
+        return bool(self.assinatura_ativa)
 
     def get_id(self) -> str:
         return str(self.id)

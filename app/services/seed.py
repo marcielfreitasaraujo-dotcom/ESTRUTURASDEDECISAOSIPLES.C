@@ -63,6 +63,8 @@ def garantir_admin(app) -> Usuario | None:
         perfil="admin",
         tema="claro",
         ver_familia=False,
+        eh_familia=False,
+        assinatura_ativa=True,
         ativo=True,
     )
     usuario.definir_senha(senha)
@@ -382,6 +384,8 @@ def criar_membro_familia(
     senha: str,
     perfil: str = "usuario",
     ver_familia: bool = False,
+    eh_familia: bool = True,
+    assinatura_ativa: bool = True,
 ) -> Usuario:
     """Cria membro com dados financeiros próprios (não compartilha lançamentos)."""
     username = (username or "").strip().lower()
@@ -404,6 +408,8 @@ def criar_membro_familia(
         perfil=perfil,
         tema="claro",
         ver_familia=False,
+        eh_familia=bool(eh_familia) if perfil != "admin" else False,
+        assinatura_ativa=True if perfil == "admin" else bool(assinatura_ativa),
         ativo=True,
     )
     membro.definir_senha(senha)
