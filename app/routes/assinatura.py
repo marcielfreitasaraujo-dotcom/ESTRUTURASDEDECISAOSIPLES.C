@@ -139,3 +139,38 @@ def alternar_pagamento(usuario_id):
         "sucesso",
     )
     return redirect(url_for("assinatura.index"))
+
+
+@assinatura_bp.route("/assinatura/<int:usuario_id>/remover", methods=["POST"])
+@login_required
+@admin_obrigatorio
+def remover_usuario(usuario_id):
+    from app.services.usuarios import remover_usuario_completo
+
+    membro = db.get_or_404(Usuario, usuario_id)
+    if membro.id == current_user.id:
+        flash("Você não pode remover a própria conta enquanto estiver logado.", "erro")
+        return redirect(url_for("assinatura.index"))
+    if membro.eh_admin:
+        flash("Não é permitido remover administrador por aqui.", "erro")
+        return redirect(url_for("assinatura.index"))
+
+    confirmacao = (request.form.get("confirmacao") or "").strip().lower()
+    if confirmacao != (membro.username or "").strip().lower():
+        flash(
+            f"Remoção cancelada. Digite exatamente o usuário “{membro.username}” para confirmar.",
+            "erro",
+        )
+        return redirect(url_for("assinatura.index"))
+
+    try:
+        rotulo = remover_usuario_completo(membro)
+        db.session.commit()
+        flash(f"Usuário {rotulo} removido permanentemente.", "sucesso")
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "erro")
+    except Exception:
+        db.session.rollback()
+        flash("Não foi possível remover o usuário. Tente novamente.", "erro")
+    return redirect(url_for("assinatura.index"))
