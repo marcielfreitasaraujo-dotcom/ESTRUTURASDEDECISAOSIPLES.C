@@ -86,6 +86,19 @@ class Config:
     # Dados financeiros sempre por usuário; admin não vê lançamentos alheios
     ADMIN_ACESSA_TUDO = _bool_env("ADMIN_ACESSA_TUDO", False)
 
+    # E-mail (verificação e recuperação de senha)
+    MAIL_SERVER = os.environ.get("MAIL_SERVER", "").strip()
+    MAIL_PORT = int(os.environ.get("MAIL_PORT", "587") or 587)
+    MAIL_USE_TLS = _bool_env("MAIL_USE_TLS", True)
+    MAIL_USE_SSL = _bool_env("MAIL_USE_SSL", False)
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME", "")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
+    MAIL_DEFAULT_SENDER = os.environ.get(
+        "MAIL_DEFAULT_SENDER",
+        os.environ.get("MAIL_USERNAME", "FinUP <noreply@finup.local>"),
+    )
+    MAIL_SUPPRESS_SEND = _bool_env("MAIL_SUPPRESS_SEND", False)
+
     @staticmethod
     def init_app(app) -> None:
         return
@@ -117,6 +130,8 @@ class TestingConfig(Config):
     DEBUG = False
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "teste"
+    MAIL_SUPPRESS_SEND = True
+    MAIL_SERVER = ""
 
 
 def get_config():

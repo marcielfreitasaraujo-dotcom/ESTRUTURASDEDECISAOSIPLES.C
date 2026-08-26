@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="claro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Verifique seu e-mail · FinUP</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script>
+    (function () {
+      var CHAVE = "finup_sessao_navegador";
+      var NOME = "finup_ativo";
+      try {
+        if (sessionStorage.getItem(CHAVE) !== "1" || window.name !== NOME) {
+          window.location.replace("/logout");
+        }
+      } catch (_erro) {
+        window.location.replace("/logout");
+      }
+    })();
+  </script>
+</head>
+<body class="auth-body">
+  <div class="auth-bg" aria-hidden="true"></div>
+  <main class="auth-card">
+    <div class="brand brand-lg brand-lockup">
+      <img
+        class="brand-logo brand-logo-full"
+        src="{{ url_for('static', filename='img/logo-full.png') }}"
+        alt="FinUP"
+        width="220"
+        height="220"
+      >
+    </div>
+    <h1>Confirme seu e-mail</h1>
+    <p class="muted">
+      Enviamos um link para <strong>{{ email }}</strong>.
+      Abra o e-mail e clique em verificar para continuar.
+    </p>
+    {% if erro %}
+      <div class="flash flash-erro">{{ erro }}</div>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="post" style="margin-top:1rem">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button class="btn btn-primary btn-block" type="submit">Reenviar e-mail</button>
+    </form>
+    <p class="hint" style="margin-top:1rem">
+      <a href="{{ url_for('auth.logout') }}">Sair</a>
+    </p>
+  </main>
+</body>
+</html>

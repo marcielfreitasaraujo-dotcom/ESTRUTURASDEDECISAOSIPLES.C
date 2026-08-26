@@ -205,5 +205,9 @@ def endpoints_livres_assinatura() -> set[str]:
         "auth.sessao_iniciar",
         "auth.sessao_verificar",
         "auth.sessao_fechar",
+        "auth.verificar_email",
+        "auth.aguardando_verificacao",
+        "auth.esqueci_senha",
+        "auth.redefinir_senha",
         "assinatura.bloqueado",
     }

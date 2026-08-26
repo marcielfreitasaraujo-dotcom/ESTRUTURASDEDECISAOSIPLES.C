@@ -15,7 +15,7 @@ class Usuario(UserMixin, db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(120), nullable=False)
-    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
+    username = db.Column(db.String(190), unique=True, nullable=False, index=True)
     senha_hash = db.Column(db.String(256), nullable=False)
     perfil = db.Column(db.String(20), nullable=False, default="usuario")
     tema = db.Column(db.String(10), nullable=False, default="claro")
@@ -23,6 +23,7 @@ class Usuario(UserMixin, db.Model):
     eh_familia = db.Column(db.Boolean, nullable=False, default=False)
     assinatura_ativa = db.Column(db.Boolean, nullable=False, default=True)
     assinatura_vence_em = db.Column(db.Date, nullable=True)
+    email_verificado = db.Column(db.Boolean, nullable=False, default=True)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)
@@ -39,6 +40,11 @@ class Usuario(UserMixin, db.Model):
     @property
     def eh_admin(self) -> bool:
         return self.perfil == "admin"
+
+    @property
+    def eh_email(self) -> bool:
+        u = (self.username or "").strip()
+        return "@" in u and "." in u.split("@")[-1]
 
     @property
     def tem_acesso_assinatura(self) -> bool:

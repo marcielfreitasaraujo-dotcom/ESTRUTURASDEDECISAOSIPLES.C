@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="claro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <title>Esqueci a senha · FinUP</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="auth-body">
+  <div class="auth-bg" aria-hidden="true"></div>
+  <main class="auth-card">
+    <div class="brand brand-lg brand-lockup">
+      <img
+        class="brand-logo brand-logo-full"
+        src="{{ url_for('static', filename='img/logo-full.png') }}"
+        alt="FinUP"
+        width="220"
+        height="220"
+      >
+    </div>
+    <h1>Esqueci a senha</h1>
+    <p class="muted">Digite o e-mail da sua conta. Se estiver cadastrado, mandamos um link para criar uma nova senha.</p>
+    {% if msg %}
+      <div class="flash flash-sucesso">{{ msg }}</div>
+    {% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        E-mail
+        <input type="email" name="username" autocomplete="email" required autofocus placeholder="nome@email.com">
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Enviar link</button>
+    </form>
+    <p class="hint" style="margin-top:1rem">
+      <a href="{{ url_for('auth.login') }}">Voltar ao login</a>
+    </p>
+  </main>
+</body>
+</html>

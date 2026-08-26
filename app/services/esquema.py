@@ -27,6 +27,7 @@ COLUNAS_USUARIOS = {
     "eh_familia": "ALTER TABLE usuarios ADD COLUMN eh_familia BOOLEAN DEFAULT FALSE",
     "assinatura_ativa": "ALTER TABLE usuarios ADD COLUMN assinatura_ativa BOOLEAN DEFAULT TRUE",
     "assinatura_vence_em": "ALTER TABLE usuarios ADD COLUMN assinatura_vence_em DATE",
+    "email_verificado": "ALTER TABLE usuarios ADD COLUMN email_verificado BOOLEAN DEFAULT TRUE",
 }
 
 
@@ -54,6 +55,12 @@ def _migrar_assinatura_segura() -> None:
         conn.execute(
             text("UPDATE usuarios SET assinatura_ativa = TRUE WHERE assinatura_ativa IS NULL")
         )
+        if "email_verificado" in cols:
+            conn.execute(
+                text(
+                    "UPDATE usuarios SET email_verificado = TRUE WHERE email_verificado IS NULL"
+                )
+            )
         # Uma vez só: usuários já existentes (não admin) viram família isenta,
         # para o site não mudar o acesso no primeiro deploy.
         if "configuracoes" in inspetor.get_table_names():

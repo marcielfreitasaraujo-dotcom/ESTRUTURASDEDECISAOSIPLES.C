@@ -4,9 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0f766e">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="FinUP">
   <title>Criar conta · FinUP</title>
   <link rel="manifest" href="{{ url_for('web_manifest') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
@@ -24,15 +21,16 @@
       <img
         class="brand-logo brand-logo-full"
         src="{{ url_for('static', filename='img/logo-full.png') }}"
-        alt="FinUP — Seu dinheiro. Seus planos. Seu futuro."
+        alt="FinUP"
         width="280"
         height="280"
       >
     </div>
     <h1>Criar sua conta</h1>
     <p class="muted">
+      Informe nome, e-mail e senha. Depois confirme o e-mail para liberar o acesso.
       Plano <strong>{{ plano.nome }}</strong> · <strong>{{ plano.valor | moeda }}</strong>
-      / {{ plano.dias }} dias. Depois do cadastro, pague a assinatura para liberar o uso.
+      / {{ plano.dias }} dias.
     </p>
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
@@ -40,12 +38,12 @@
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
-        Nome completo
+        Nome
         <input type="text" name="nome" autocomplete="name" required autofocus maxlength="120">
       </label>
       <label>
-        Usuário
-        <input type="text" name="username" autocomplete="username" required minlength="3" maxlength="80">
+        E-mail (será seu usuário)
+        <input type="email" name="username" autocomplete="email" required maxlength="190" placeholder="nome@email.com">
       </label>
       <label>
         Senha
@@ -65,7 +63,7 @@
         Confirmar senha
         <input type="password" name="senha2" autocomplete="new-password" required minlength="6">
       </label>
-      <button class="btn btn-primary btn-block" type="submit">Criar conta e continuar</button>
+      <button class="btn btn-primary btn-block" type="submit">Criar conta</button>
     </form>
     <p class="hint" style="margin-top:1rem">
       Já tem cadastro?

@@ -208,6 +208,10 @@ def test_vencimento_bloqueia_automaticamente(admin_client, client, app):
 
 
 def test_cadastro_publico_cria_conta_bloqueada(client, app):
+    from app.services.email import limpar_outbox
+    from app.utils.tokens import gerar_token_verificacao
+
+    limpar_outbox()
     with app.app_context():
         definir_bloqueio_assinatura(True)
         salvar_plano_assinatura(
@@ -226,7 +230,7 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
         "/cadastro",
         data={
             "nome": "Novo Cliente",
-            "username": "novo_cli",
+            "username": "novo_cli@exemplo.com",
             "senha": "senha123",
             "senha2": "senha123",
         },
@@ -234,12 +238,20 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
     )
     assert resp.status_code == 302
     with app.app_context():
-        u = Usuario.query.filter_by(username="novo_cli").first()
+        u = Usuario.query.filter_by(username="novo_cli@exemplo.com").first()
         assert u is not None
         assert u.eh_familia is False
         assert u.assinatura_ativa is False
+        assert u.email_verificado is False
+        token = gerar_token_verificacao(u.id)
 
     client.get(resp.headers["Location"], follow_redirects=True)
+    assert "Confirme seu e-mail" in client.get("/aguardando-verificacao").get_data(as_text=True)
+
+    client.get(f"/verificar-email/{token}", follow_redirects=True)
+    with app.app_context():
+        assert Usuario.query.filter_by(username="novo_cli@exemplo.com").first().email_verificado is True
+
     bloqueado = client.get("/assinatura/bloqueado")
     assert bloqueado.status_code == 200
     texto = bloqueado.get_data(as_text=True)

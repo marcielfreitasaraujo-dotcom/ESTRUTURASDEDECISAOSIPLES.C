@@ -30,15 +30,20 @@
       >
     </div>
     <h1>Olá! Entre para ver seu saldo.</h1>
-    <p class="muted">Já tem conta? Entre com usuário e senha. Ainda não? Crie a conta e assine o plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
+    <p class="muted">Já tem conta? Entre com e-mail e senha. Ainda não? Crie a conta e assine o plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
-        Usuário
-        <input type="text" name="username" autocomplete="username" required autofocus>
+        E-mail ou usuário
+        <input type="text" name="username" autocomplete="username" required autofocus placeholder="nome@email.com">
       </label>
       <label>
         Senha
@@ -54,7 +59,10 @@
           >Mostrar</button>
         </span>
       </label>
-      <p class="hint" style="margin:0 0 0.75rem">Por segurança, ao fechar a aba (ou sair) será preciso entrar de novo com a senha.</p>
+      <p class="hint" style="margin:0 0 0.75rem">
+        <a href="{{ url_for('auth.esqueci_senha') }}">Esqueci a senha</a>
+        · Por segurança, ao fechar a aba (ou sair) será preciso entrar de novo com a senha.
+      </p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
     <p class="hint" style="margin-top:1rem">

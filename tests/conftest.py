@@ -9,6 +9,8 @@ class TestConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "teste"
+    MAIL_SUPPRESS_SEND = True
+    MAIL_SERVER = ""
 
 
 @pytest.fixture()

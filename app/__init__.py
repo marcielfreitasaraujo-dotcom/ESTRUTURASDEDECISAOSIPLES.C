@@ -165,6 +165,11 @@ def create_app(config_class=None) -> Flask:
             "static",
             "auth.login",
             "auth.logout",
+            "auth.cadastro",
+            "auth.verificar_email",
+            "auth.aguardando_verificacao",
+            "auth.esqueci_senha",
+            "auth.redefinir_senha",
             "auth.sessao_iniciar",
             "auth.sessao_verificar",
             "auth.sessao_fechar",
@@ -178,6 +183,21 @@ def create_app(config_class=None) -> Flask:
 
         if gerar_titulos_recorrentes(id_casa()):
             db.session.commit()
+
+    @app.before_request
+    def exigir_email_verificado():
+        from flask import redirect, url_for
+
+        from app.services.auth_email import usuario_precisa_verificar_email
+        from app.utils.assinatura import endpoints_livres_assinatura
+
+        if not current_user.is_authenticated:
+            return
+        if request.endpoint in endpoints_livres_assinatura():
+            return
+        if not usuario_precisa_verificar_email(current_user):
+            return
+        return redirect(url_for("auth.aguardando_verificacao"))
 
     @app.before_request
     def exigir_assinatura_ou_familia():
