@@ -18,7 +18,7 @@ from app.services.cartoes import (
     total_fatura,
     vencimento_fatura,
 )
-from app.utils.formatters import parse_data, parse_moeda, somar_meses
+from app.utils.formatters import formatar_moeda, parse_data, parse_moeda, somar_meses
 from app.utils.casa import id_casa
 from app.utils.permissoes import exigir_dono
 
@@ -201,16 +201,29 @@ def pagar(cartao_id):
         flash("Selecione uma conta válida para pagar a fatura.", "erro")
         return redirect(url_for("cartoes.detalhe", cartao_id=cartao.id, competencia=competencia.strftime("%Y-%m")))
     try:
-        pagar_fatura(
+        valor_informado = request.form.get("valor")
+        valor_pagamento = None
+        if valor_informado is not None and str(valor_informado).strip() != "":
+            valor_pagamento = parse_moeda(valor_informado)
+        mov = pagar_fatura(
             cartao,
             competencia,
             conta,
             parse_data(request.form.get("data_pagamento"), date.today()),
             current_user.id,
+            valor=valor_pagamento,
         )
-        registrar("pagar", "fatura_cartao", cartao.id, competencia.isoformat())
+        registrar("pagar", "fatura_cartao", cartao.id, f"{competencia.isoformat()}:{mov.valor}")
+        aberto_restante = total_fatura(parcelas_competencia(cartao, competencia), somente_abertas=True)
         db.session.commit()
-        flash("Fatura paga. O saldo da conta foi atualizado.", "sucesso")
+        if aberto_restante > 0:
+            flash(
+                f"Pagamento parcial de {formatar_moeda(mov.valor)} registrado. "
+                f"Ainda restam {formatar_moeda(aberto_restante)} em aberto.",
+                "sucesso",
+            )
+        else:
+            flash("Fatura paga. O saldo da conta foi atualizado.", "sucesso")
     except ValueError as exc:
         db.session.rollback()
         flash(str(exc), "erro")
