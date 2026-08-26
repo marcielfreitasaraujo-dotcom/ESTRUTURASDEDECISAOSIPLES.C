@@ -83,8 +83,8 @@ def enviar_verificacao(usuario: Usuario) -> bool:
         raise ValueError("Esta conta não usa e-mail como usuário.")
     if not email_configurado() and not current_app.config.get("TESTING"):
         raise RuntimeError(
-            "O envio de e-mail ainda não está configurado no servidor (MAIL_SERVER). "
-            "Peça ao administrador para configurar o SMTP no Railway."
+            "O envio de e-mail ainda não está configurado (RESEND_API_KEY ou MAIL_SERVER). "
+            "No Railway use Resend (HTTPS)."
         )
 
     codigo = gerar_codigo_verificacao(usuario)
