@@ -77,6 +77,7 @@ def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente:
         "text": texto,
         "html": html,
     }
+    # Cloudflare/Resend bloqueia o User-Agent padrão do urllib (erro 1010).
     req = urllib.request.Request(
         "https://api.resend.com/emails",
         data=json.dumps(payload).encode("utf-8"),
@@ -84,6 +85,8 @@ def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente:
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "User-Agent": "FinUP/1.0 (https://resend.com)",
+            "Accept": "application/json",
         },
     )
     try:
