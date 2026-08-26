@@ -61,6 +61,23 @@ def validar_codigo_verificacao(usuario: Usuario, codigo: str) -> bool:
     return True
 
 
+def _url_absoluta(caminho: str) -> str:
+    """Monta URL absoluta preferindo SERVER_URL (estável fora de request)."""
+    base = (current_app.config.get("SERVER_URL") or "").rstrip("/")
+    if not caminho.startswith("/"):
+        caminho = "/" + caminho
+    if base:
+        return f"{base}{caminho}"
+    try:
+        from flask import request
+
+        if request:
+            return request.url_root.rstrip("/") + caminho
+    except Exception:
+        pass
+    return caminho
+
+
 def enviar_verificacao(usuario: Usuario) -> bool:
     if not usuario.eh_email:
         raise ValueError("Esta conta não usa e-mail como usuário.")
@@ -72,7 +89,7 @@ def enviar_verificacao(usuario: Usuario) -> bool:
 
     codigo = gerar_codigo_verificacao(usuario)
     token = gerar_token_verificacao(usuario.id)
-    link = url_for("auth.verificar_email", token=token, _external=True)
+    link = _url_absoluta(f"/verificar-email/{token}")
     nome = usuario.nome or "olá"
     texto = (
         f"Olá, {nome}!\n\n"
@@ -110,7 +127,7 @@ def enviar_reset_senha(usuario: Usuario) -> bool:
             "O envio de e-mail ainda não está configurado no servidor (MAIL_SERVER)."
         )
     token = gerar_token_reset(usuario.id)
-    link = url_for("auth.redefinir_senha", token=token, _external=True)
+    link = _url_absoluta(f"/redefinir-senha/{token}")
     nome = usuario.nome or "olá"
     texto = (
         f"Olá, {nome}!\n\n"
