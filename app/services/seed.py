@@ -386,30 +386,43 @@ def criar_membro_familia(
     ver_familia: bool = False,
     eh_familia: bool = True,
     assinatura_ativa: bool = True,
+    email_verificado: bool | None = None,
+    exigir_email: bool = False,
 ) -> Usuario:
     """Cria membro com dados financeiros próprios (não compartilha lançamentos)."""
+    from app.services.auth_email import eh_email_valido
+
     username = (username or "").strip().lower()
     nome = (nome or "").strip()
     if not nome:
         raise ValueError("Informe o nome.")
     if len(username) < 3:
         raise ValueError("O usuário precisa ter pelo menos 3 caracteres.")
-    if any(ch for ch in username if not (ch.isalnum() or ch in "._-")):
+    if exigir_email or "@" in username:
+        if not eh_email_valido(username):
+            raise ValueError("Informe um e-mail válido (ex.: nome@email.com).")
+    elif any(ch for ch in username if not (ch.isalnum() or ch in "._-")):
         raise ValueError("Use só letras, números, ponto, hífen ou underline no usuário.")
+    if len(username) > 190:
+        raise ValueError("E-mail/usuário muito longo.")
     if Usuario.query.filter(Usuario.username.ilike(username)).first():
         raise ValueError("Este usuário já existe.")
     if len(senha or "") < 6:
         raise ValueError("A senha deve ter pelo menos 6 caracteres.")
     if perfil not in ("usuario", "admin"):
         perfil = "usuario"
+    if email_verificado is None:
+        # Contas públicas com e-mail começam pendentes; admin/família locais já liberados
+        email_verificado = not (exigir_email or "@" in username)
     membro = Usuario(
         nome=nome[:120],
-        username=username[:80],
+        username=username[:190],
         perfil=perfil,
         tema="claro",
         ver_familia=False,
         eh_familia=bool(eh_familia) if perfil != "admin" else False,
         assinatura_ativa=True if perfil == "admin" else bool(assinatura_ativa),
+        email_verificado=True if perfil == "admin" else bool(email_verificado),
         ativo=True,
     )
     membro.definir_senha(senha)
