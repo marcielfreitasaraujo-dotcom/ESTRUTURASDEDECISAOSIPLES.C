@@ -184,6 +184,12 @@
                   <input type="hidden" name="confirmacao" value="">
                   <button class="btn btn-ghost btn-sm" type="submit" style="color:var(--despesa)">Remover usuário</button>
                 </form>
+                {% if m.eh_email and not m.email_verificado %}
+                  <form action="{{ url_for('assinatura.confirmar_email', usuario_id=m.id) }}" method="post" class="inline" style="margin-top:0.35rem;display:block">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-ghost btn-sm" type="submit">Confirmar e-mail manualmente</button>
+                  </form>
+                {% endif %}
               {% else %}
                 <span class="muted">—</span>
               {% endif %}

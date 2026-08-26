@@ -36,9 +36,15 @@
     </div>
     <h1>Confirme seu e-mail</h1>
     <p class="muted">
-      Enviamos um link para <strong>{{ email }}</strong>.
-      Abra o e-mail e clique em verificar para continuar.
+      Enviamos um <strong>código de 6 dígitos</strong> e um link para
+      <strong>{{ email }}</strong>. Digite o código abaixo ou abra o link do e-mail.
     </p>
+    {% if not email_ok %}
+      <div class="flash flash-erro">
+        O servidor ainda não está com SMTP configurado — o e-mail pode não chegar.
+        Peça ao admin para configurar MAIL_SERVER no Railway.
+      </div>
+    {% endif %}
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
@@ -47,9 +53,33 @@
         <div class="flash flash-{{ cat }}">{{ msg }}</div>
       {% endfor %}
     {% endwith %}
+
     <form method="post" style="margin-top:1rem">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button class="btn btn-primary btn-block" type="submit">Reenviar e-mail</button>
+      <input type="hidden" name="acao" value="codigo">
+      <label>
+        Código de verificação
+        <input
+          type="text"
+          name="codigo"
+          inputmode="numeric"
+          pattern="[0-9]{6}"
+          maxlength="6"
+          minlength="6"
+          autocomplete="one-time-code"
+          placeholder="000000"
+          required
+          autofocus
+          style="letter-spacing:0.35em;font-size:1.35rem;font-weight:700;text-align:center"
+        >
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Confirmar código</button>
+    </form>
+
+    <form method="post" style="margin-top:0.85rem">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="acao" value="reenviar">
+      <button class="btn btn-ghost btn-block" type="submit">Reenviar código e link</button>
     </form>
     <p class="hint" style="margin-top:1rem">
       <a href="{{ url_for('auth.logout') }}">Sair</a>

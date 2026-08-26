@@ -24,6 +24,8 @@ class Usuario(UserMixin, db.Model):
     assinatura_ativa = db.Column(db.Boolean, nullable=False, default=True)
     assinatura_vence_em = db.Column(db.Date, nullable=True)
     email_verificado = db.Column(db.Boolean, nullable=False, default=True)
+    email_codigo_hash = db.Column(db.String(256), nullable=True)
+    email_codigo_expira = db.Column(db.DateTime, nullable=True)
     ativo = db.Column(db.Boolean, nullable=False, default=True)
     criado_em = db.Column(db.DateTime, nullable=False, default=agora)
     atualizado_em = db.Column(db.DateTime, nullable=False, default=agora, onupdate=agora)

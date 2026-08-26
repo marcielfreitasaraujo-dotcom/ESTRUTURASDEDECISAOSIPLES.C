@@ -174,3 +174,19 @@ def remover_usuario(usuario_id):
         db.session.rollback()
         flash("Não foi possível remover o usuário. Tente novamente.", "erro")
     return redirect(url_for("assinatura.index"))
+
+
+@assinatura_bp.route("/assinatura/<int:usuario_id>/confirmar-email", methods=["POST"])
+@login_required
+@admin_obrigatorio
+def confirmar_email(usuario_id):
+    membro = db.get_or_404(Usuario, usuario_id)
+    if membro.eh_admin:
+        flash("Admin não precisa confirmar e-mail.", "info")
+        return redirect(url_for("assinatura.index"))
+    membro.email_verificado = True
+    membro.email_codigo_hash = None
+    membro.email_codigo_expira = None
+    db.session.commit()
+    flash(f"E-mail de {membro.nome} confirmado manualmente.", "sucesso")
+    return redirect(url_for("assinatura.index"))
