@@ -84,6 +84,7 @@ def create_app(config_class=None) -> Flask:
     from app.routes.relatorios import relatorios_bp
     from app.routes.cartoes import cartoes_bp
     from app.routes.orcamentos import orcamentos_bp
+    from app.routes.assinatura import assinatura_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -98,6 +99,7 @@ def create_app(config_class=None) -> Flask:
     app.register_blueprint(relatorios_bp)
     app.register_blueprint(cartoes_bp)
     app.register_blueprint(orcamentos_bp)
+    app.register_blueprint(assinatura_bp)
 
     @app.after_request
     def registrar_requisicao(response):
@@ -149,6 +151,26 @@ def create_app(config_class=None) -> Flask:
 
         if gerar_titulos_recorrentes(id_casa()):
             db.session.commit()
+
+    @app.before_request
+    def exigir_assinatura_ou_familia():
+        from flask import redirect, url_for
+
+        from app.utils.assinatura import (
+            bloqueio_assinatura_ativo,
+            endpoints_livres_assinatura,
+            usuario_tem_acesso,
+        )
+
+        if not current_user.is_authenticated:
+            return
+        if request.endpoint in endpoints_livres_assinatura():
+            return
+        if not bloqueio_assinatura_ativo():
+            return
+        if usuario_tem_acesso(current_user):
+            return
+        return redirect(url_for("assinatura.bloqueado"))
 
     @app.context_processor
     def inject_globals():

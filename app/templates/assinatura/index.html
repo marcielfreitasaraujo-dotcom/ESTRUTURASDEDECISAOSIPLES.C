@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Assinatura{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Admin</p>
+    <h1>Assinatura</h1>
+    <p class="muted">Só você (admin) controla quem é família (isento) e quem já pagou para usar o FinUP.</p>
+  </div>
+</section>
+
+<article class="card">
+  <header class="card-head"><h2>Bloqueio de acesso</h2></header>
+  <p class="muted">
+    Com o bloqueio <strong>ligado</strong>: entra quem for admin, família ou tiver assinatura paga.
+    Desligue só em emergência para ninguém ficar de fora.
+  </p>
+  <form action="{{ url_for('assinatura.alternar_bloqueio') }}" method="post" class="btn-row">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if bloqueio_ativo %}
+      <input type="hidden" name="ativo" value="0">
+      <span class="badge pago">Bloqueio ligado</span>
+      <button class="btn btn-ghost" type="submit">Desligar bloqueio (emergência)</button>
+    {% else %}
+      <input type="hidden" name="ativo" value="1">
+      <span class="badge pendente">Bloqueio desligado</span>
+      <button class="btn btn-primary" type="submit">Ligar bloqueio</button>
+    {% endif %}
+  </form>
+</article>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Usuários</h2></header>
+  <p class="muted">Família = não paga. Demais precisam de assinatura paga para acessar.</p>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Usuário</th>
+          <th>Perfil</th>
+          <th>Acesso</th>
+          <th class="num">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in membros %}
+          <tr class="{{ 'quitada' if not m.ativo }}">
+            <td data-label="Nome">
+              <strong>{{ m.nome }}</strong>
+              {% if not m.ativo %}<span class="badge">inativo</span>{% endif %}
+            </td>
+            <td data-label="Usuário"><code>{{ m.username }}</code></td>
+            <td data-label="Perfil">{{ m.perfil }}</td>
+            <td data-label="Acesso">
+              {% if m.eh_admin %}
+                <span class="badge pago">Admin · sempre liberado</span>
+              {% elif m.eh_familia %}
+                <span class="badge pago">Família · isento</span>
+              {% elif m.assinatura_ativa %}
+                <span class="badge pago">Assinatura paga</span>
+              {% else %}
+                <span class="badge despesa">Sem assinatura</span>
+              {% endif %}
+            </td>
+            <td data-label="Ações" class="num">
+              {% if not m.eh_admin %}
+                <form action="{{ url_for('assinatura.alternar_familia', usuario_id=m.id) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ghost btn-sm" type="submit">
+                    {{ 'Remover da família' if m.eh_familia else 'Marcar família' }}
+                  </button>
+                </form>
+                <form action="{{ url_for('assinatura.alternar_pagamento', usuario_id=m.id) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ghost btn-sm" type="submit">
+                    {{ 'Marcar sem pagar' if m.assinatura_ativa else 'Marcar como pago' }}
+                  </button>
+                </form>
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="empty">Nenhum usuário cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+{% endblock %}

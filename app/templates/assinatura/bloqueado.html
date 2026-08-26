@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="{{ current_user.tema if current_user.is_authenticated else 'claro' }}" data-autenticado="1">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Assinatura · FinUP</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script>
+    (function () {
+      var CHAVE = "finup_sessao_navegador";
+      var NOME = "finup_ativo";
+      try {
+        if (sessionStorage.getItem(CHAVE) !== "1" || window.name !== NOME) {
+          window.location.replace("/logout");
+        }
+      } catch (_erro) {
+        window.location.replace("/logout");
+      }
+    })();
+  </script>
+</head>
+<body class="auth-body">
+  <div class="auth-bg" aria-hidden="true"></div>
+  <main class="auth-card">
+    <div class="brand brand-lg brand-lockup">
+      <img
+        class="brand-logo brand-logo-full"
+        src="{{ url_for('static', filename='img/logo-full.png') }}"
+        alt="FinUP"
+        width="220"
+        height="220"
+      >
+    </div>
+    <h1>Assinatura necessária</h1>
+    <p class="muted">
+      Olá, <strong>{{ current_user.nome }}</strong>. Sua conta está ativa, mas ainda não tem
+      assinatura liberada para usar o FinUP.
+    </p>
+    <p class="muted">Fale com o administrador para liberar o acesso (família isenta ou assinatura paga).</p>
+    <p style="margin-top:1.25rem">
+      <a class="btn btn-primary" href="{{ url_for('auth.logout') }}">Sair</a>
+    </p>
+  </main>
+</body>
+</html>

@@ -11,3 +11,4 @@ from app.routes.recorrencias import recorrencias_bp
 from app.routes.relatorios import relatorios_bp
 from app.routes.cartoes import cartoes_bp
 from app.routes.orcamentos import orcamentos_bp
+from app.routes.assinatura import assinatura_bp
