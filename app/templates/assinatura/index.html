@@ -172,6 +172,18 @@
                     </form>
                   {% endif %}
                 {% endif %}
+                <form
+                  action="{{ url_for('assinatura.remover_usuario', usuario_id=m.id) }}"
+                  method="post"
+                  class="inline form-remover-usuario"
+                  style="margin-top:0.5rem;display:block;text-align:left"
+                  data-username="{{ m.username }}"
+                  data-nome="{{ m.nome }}"
+                >
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="confirmacao" value="">
+                  <button class="btn btn-ghost btn-sm" type="submit" style="color:var(--despesa)">Remover usuário</button>
+                </form>
               {% else %}
                 <span class="muted">—</span>
               {% endif %}
@@ -184,4 +196,29 @@
     </table>
   </div>
 </article>
+<script>
+  document.querySelectorAll("form.form-remover-usuario").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      const username = form.dataset.username || "";
+      const nome = form.dataset.nome || "";
+      const ok = window.confirm(
+        "Remover permanentemente “" + nome + "” (@" + username + ")?\n\n" +
+        "Isso apaga a conta e os dados financeiros desse usuário. Não tem volta."
+      );
+      if (!ok) {
+        event.preventDefault();
+        return;
+      }
+      const digitado = window.prompt(
+        "Para confirmar, digite o usuário exatamente:\n" + username
+      );
+      if (!digitado || digitado.trim().toLowerCase() !== username.toLowerCase()) {
+        event.preventDefault();
+        window.alert("Remoção cancelada. O usuário digitado não confere.");
+        return;
+      }
+      form.querySelector("input[name=confirmacao]").value = digitado.trim();
+    });
+  });
+</script>
 {% endblock %}

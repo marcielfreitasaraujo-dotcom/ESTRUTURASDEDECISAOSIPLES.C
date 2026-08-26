@@ -251,3 +251,64 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
         .find("Assinatura necessária")
         >= 0
     )
+
+
+def test_admin_ve_botao_remover_usuario(admin_client, app):
+    with app.app_context():
+        criar_membro_familia("Removivel", "rem_user", "senha123", eh_familia=True)
+        db.session.commit()
+    html = admin_client.get("/assinatura").get_data(as_text=True)
+    assert "Remover usuário" in html
+    assert "form-remover-usuario" in html
+
+
+def test_remover_usuario_exige_confirmacao(admin_client, app):
+    with app.app_context():
+        membro = criar_membro_familia("Nao Apaga", "nao_apaga", "senha123", eh_familia=False)
+        db.session.commit()
+        uid = membro.id
+
+    resp = admin_client.post(
+        f"/assinatura/{uid}/remover",
+        data={"confirmacao": "errado"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "Remoção cancelada" in resp.get_data(as_text=True)
+    with app.app_context():
+        assert db.session.get(Usuario, uid) is not None
+
+
+def test_remover_usuario_com_confirmacao(admin_client, app):
+    with app.app_context():
+        membro = criar_membro_familia("Apaga Ja", "apaga_ja", "senha123", eh_familia=True)
+        db.session.commit()
+        uid = membro.id
+
+    resp = admin_client.post(
+        f"/assinatura/{uid}/remover",
+        data={"confirmacao": "apaga_ja"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "removido permanentemente" in resp.get_data(as_text=True)
+    with app.app_context():
+        assert db.session.get(Usuario, uid) is None
+        assert Usuario.query.filter_by(username="apaga_ja").first() is None
+
+
+def test_nao_remove_admin(admin_client, app):
+    with app.app_context():
+        admin = Usuario.query.filter_by(perfil="admin").first()
+        admin_id = admin.id
+        admin_user = admin.username
+
+    resp = admin_client.post(
+        f"/assinatura/{admin_id}/remover",
+        data={"confirmacao": admin_user},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "administrador" in resp.get_data(as_text=True).lower()
+    with app.app_context():
+        assert db.session.get(Usuario, admin_id) is not None
