@@ -19,6 +19,7 @@ COLUNAS_RECORRENCIAS = {
 
 COLUNAS_PARCELAS = {
     "categoria_id": "ALTER TABLE parcelas ADD COLUMN categoria_id INTEGER",
+    "valor_pago": "ALTER TABLE parcelas ADD COLUMN valor_pago NUMERIC(14, 2) DEFAULT 0",
 }
 
 COLUNAS_USUARIOS = {

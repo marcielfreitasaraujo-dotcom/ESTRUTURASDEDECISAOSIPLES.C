@@ -69,13 +69,13 @@
   <article class="card">
     <header class="card-head"><h2>Pagar fatura</h2></header>
     {% if aberto > 0 %}
-      <form action="{{ url_for('cartoes.pagar', cartao_id=cartao.id) }}" method="post" class="stack">
+      <form action="{{ url_for('cartoes.pagar', cartao_id=cartao.id) }}" method="post" class="stack" id="form-pagar-fatura">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="competencia" value="{{ competencia.strftime('%Y-%m') }}">
         <p class="muted">
           Fatura que <strong>fechou em {{ fechamento | data_br }}</strong>
           e <strong>vence (pagamento) em {{ vencimento | data_br }}</strong>.
-          Baixa {{ aberto | moeda }} da conta escolhida.
+          Em aberto: <strong>{{ aberto | moeda }}</strong>. Pode pagar o total ou só uma parte e quitar o resto depois.
         </p>
         <label>Conta para débito
           <select name="conta_id" required>
@@ -84,10 +84,23 @@
             {% endfor %}
           </select>
         </label>
+        <label>Valor do pagamento
+          <input
+            class="input-valor"
+            type="text"
+            name="valor"
+            id="valor-pagamento-fatura"
+            inputmode="decimal"
+            required
+            value="{{ '%.2f'|format(aberto)|replace('.', ',') }}"
+            data-aberto="{{ '%.2f'|format(aberto) }}"
+          >
+          <small class="muted">Deixe o total para quitar tudo, ou digite só a parte que vai pagar agora.</small>
+        </label>
         <label>Dia do pagamento
           <input type="date" name="data_pagamento" value="{{ vencimento.isoformat() }}">
         </label>
-        <button class="btn btn-primary" type="submit">Pagar {{ aberto | moeda }}</button>
+        <button class="btn btn-primary" type="submit" id="btn-pagar-fatura">Pagar {{ aberto | moeda }}</button>
       </form>
     {% else %}
       <p class="empty">Nada em aberto nesta fatura.</p>
@@ -117,16 +130,23 @@
           <tr class="{{ 'quitada' if p.pago }}">
             <td data-label="Descrição">{{ p.rotulo_parcela }}</td>
             <td data-label="Categoria">{{ p.categoria.nome if p.categoria else '—' }}</td>
-            <td data-label="Valor" class="num">{{ p.valor_parcela | moeda }}</td>
+            <td data-label="Valor" class="num">
+              {{ p.valor_parcela | moeda }}
+              {% if p.pagamento_parcial %}
+                <br><small class="muted">pago {{ p.pago_acumulado | moeda }} · falta {{ p.residual | moeda }}</small>
+              {% endif %}
+            </td>
             <td data-label="Status">
               {% if p.pago %}
                 <span class="badge pago">Paga</span>
+              {% elif p.pagamento_parcial %}
+                <span class="badge parcial">Parcial</span>
               {% else %}
                 <span class="badge pendente">Em aberto</span>
               {% endif %}
             </td>
             <td data-label="Ações" class="acoes-parcela">
-              {% if not p.pago %}
+              {% if not p.pago and not p.pagamento_parcial %}
                 <button
                   type="button"
                   class="btn-mais"
@@ -271,6 +291,23 @@
       };
       form.addEventListener("input", atualizar);
       atualizar();
+    }
+
+    const inputPagamento = document.getElementById("valor-pagamento-fatura");
+    const btnPagamento = document.getElementById("btn-pagar-fatura");
+    if (inputPagamento && btnPagamento) {
+      const moedaBr = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      const parseBr = (texto) => {
+        const limpo = String(texto || "").replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+        const n = Number(limpo);
+        return Number.isFinite(n) ? n : 0;
+      };
+      const atualizarBotao = () => {
+        const valor = parseBr(inputPagamento.value);
+        btnPagamento.textContent = valor > 0 ? `Pagar ${moedaBr(valor)}` : "Pagar fatura";
+      };
+      inputPagamento.addEventListener("input", atualizarBotao);
+      atualizarBotao();
     }
 
     const menu = document.getElementById("menu-acoes-parcela");

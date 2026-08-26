@@ -42,12 +42,19 @@ def query_cartoes(usuario_id: int):
 
 
 def limite_usado(cartao: Cartao) -> Decimal:
+    """Soma o que ainda falta pagar nas parcelas em aberto (considera pagamento parcial)."""
     valor = (
-        db.session.query(func.coalesce(func.sum(Parcela.valor_parcela), 0))
+        db.session.query(
+            func.coalesce(
+                func.sum(Parcela.valor_parcela - func.coalesce(Parcela.valor_pago, 0)),
+                0,
+            )
+        )
         .filter(Parcela.cartao_id == cartao.id, Parcela.ativo.is_(True), Parcela.pago.is_(False))
         .scalar()
     )
-    return Decimal(str(valor))
+    usado = Decimal(str(valor))
+    return usado if usado > 0 else Decimal("0.00")
 
 
 def parcelas_competencia(cartao: Cartao, competencia: date):
@@ -66,8 +73,9 @@ def parcelas_competencia(cartao: Cartao, competencia: date):
 
 
 def total_fatura(parcelas: list[Parcela], somente_abertas: bool = False) -> Decimal:
-    itens = [p for p in parcelas if (not somente_abertas) or (not p.pago)]
-    return sum((p.valor_parcela for p in itens), Decimal("0.00"))
+    if somente_abertas:
+        return sum((p.residual for p in parcelas if not p.pago), Decimal("0.00"))
+    return sum((Decimal(str(p.valor_parcela)) for p in parcelas), Decimal("0.00"))
 
 
 def criar_compra(
@@ -114,20 +122,39 @@ def pagar_fatura(
     conta: Conta,
     data_pagamento: date,
     usuario_id: int,
+    valor: Decimal | None = None,
 ) -> Movimentacao:
+    """Paga a fatura integralmente ou só uma parte (aloca nas parcelas em aberto, FIFO)."""
     parcelas = [p for p in parcelas_competencia(cartao, competencia) if not p.pago]
     if not parcelas:
         raise ValueError("Não há parcelas em aberto nesta fatura.")
-    total = total_fatura(parcelas)
+
+    aberto = sum((p.residual for p in parcelas), Decimal("0.00")).quantize(Decimal("0.01"))
+    if valor is None:
+        a_pagar = aberto
+    else:
+        a_pagar = Decimal(valor).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        if a_pagar <= 0:
+            raise ValueError("Informe um valor maior que zero.")
+        if a_pagar > aberto:
+            raise ValueError(
+                f"O valor não pode ser maior que o em aberto ({aberto})."
+            )
+
     categoria = Categoria.query.filter_by(nome="Cartão", ativo=True).first()
     mes_nome = f"{competencia.month:02d}/{competencia.year}"
+    parcial = a_pagar < aberto
+    descricao = f"Fatura {cartao.nome} {mes_nome}"
+    if parcial:
+        descricao = f"{descricao} (parcial)"
+
     mov = Movimentacao(
         usuario_id=usuario_id,
         conta_id=conta.id,
         categoria_id=categoria.id if categoria else None,
         tipo="despesa",
-        descricao=f"Fatura {cartao.nome} {mes_nome}",
-        valor=total,
+        descricao=descricao,
+        valor=a_pagar,
         data=data_pagamento,
         forma_pagamento="debito",
         observacao=f"fatura_cartao:{cartao.id}:{competencia.isoformat()}",
@@ -136,9 +163,26 @@ def pagar_fatura(
     )
     db.session.add(mov)
     db.session.flush()
+
+    restante = a_pagar
     for parcela in parcelas:
-        parcela.pago = True
+        if restante <= 0:
+            break
+        residual = parcela.residual
+        if residual <= 0:
+            continue
+        aplicado = residual if residual <= restante else restante
+        novo_pago = (parcela.pago_acumulado + aplicado).quantize(Decimal("0.01"))
+        valor_parcela = Decimal(str(parcela.valor_parcela)).quantize(Decimal("0.01"))
+        if novo_pago >= valor_parcela:
+            parcela.valor_pago = valor_parcela
+            parcela.pago = True
+        else:
+            parcela.valor_pago = novo_pago
+            parcela.pago = False
         parcela.movimentacao_id = mov.id
+        restante = (restante - aplicado).quantize(Decimal("0.01"))
+
     cartao.atualizado_em = agora()
     db.session.flush()
     return mov
@@ -149,6 +193,10 @@ def _garantir_parcela_editavel(parcela: Parcela) -> None:
         raise ValueError("Esta parcela já foi removida.")
     if parcela.pago:
         raise ValueError("Parcela já paga. Não é possível editar ou excluir.")
+    if parcela.pagamento_parcial:
+        raise ValueError(
+            "Parcela com pagamento parcial. Não é possível editar ou excluir."
+        )
 
 
 def irmaos_compra(parcela: Parcela) -> list[Parcela]:
@@ -215,7 +263,7 @@ def excluir_parcela(parcela: Parcela, excluir_compra_inteira: bool = False) -> i
     _garantir_parcela_editavel(parcela)
     alvos = [parcela]
     if excluir_compra_inteira and parcela.total_parcelas > 1:
-        alvos = [p for p in irmaos_compra(parcela) if not p.pago] or [parcela]
+        alvos = [p for p in irmaos_compra(parcela) if not p.pago and not p.pagamento_parcial] or [parcela]
     removidas = 0
     for alvo in alvos:
         if alvo.pago or not alvo.ativo:

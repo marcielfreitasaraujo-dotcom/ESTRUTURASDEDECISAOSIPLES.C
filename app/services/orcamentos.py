@@ -31,6 +31,17 @@ def gastos_por_categoria(usuario_id: int, ano: int, mes: int) -> dict[int, Decim
         .all()
         if row[0]
     }
+    ids_fatura |= {
+        row[0]
+        for row in db.session.query(Movimentacao.id)
+        .filter(
+            Movimentacao.usuario_id == usuario_id,
+            Movimentacao.ativo.is_(True),
+            Movimentacao.observacao.like("fatura_cartao:%"),
+        )
+        .all()
+        if row[0]
+    }
 
     q_mov = db.session.query(
         Movimentacao.categoria_id,

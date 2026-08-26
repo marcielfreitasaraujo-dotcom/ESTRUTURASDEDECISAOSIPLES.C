@@ -290,6 +290,7 @@ html.sidebar-recolhida .menu-btn {
 .dot.pendente { background: #eab308; }
 .badge.atrasado, .badge.despesa { color: var(--despesa); }
 .badge.vence_hoje, .badge.pendente { color: #b45309; }
+.badge.parcial { color: #c2410c; }
 .badge.pago, .badge.recebido { color: var(--receita); }
 .texto-atrasado,
 tr.atrasada,
