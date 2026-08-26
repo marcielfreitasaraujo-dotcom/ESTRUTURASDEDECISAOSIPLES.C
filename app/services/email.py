@@ -1,17 +1,19 @@
-"""Envio de e-mails (SMTP). Em teste/dev sem SMTP, guarda no outbox em memória."""
+"""Envio de e-mails via Resend (HTTPS) ou SMTP. Em teste, usa outbox."""
 
 from __future__ import annotations
 
+import json
 import logging
 import smtplib
 import socket
+import urllib.error
+import urllib.request
 from email.message import EmailMessage
 
 from flask import current_app, has_app_context
 
 logger = logging.getLogger("finup.email")
 
-# Outbox compartilhado (útil em testes e debug local)
 OUTBOX: list[dict] = []
 
 
@@ -24,12 +26,13 @@ def email_configurado() -> bool:
         return False
     if current_app.config.get("TESTING"):
         return True
+    if (current_app.config.get("RESEND_API_KEY") or "").strip():
+        return True
     host = (current_app.config.get("MAIL_SERVER") or "").strip()
     return bool(host)
 
 
 def _socket_ipv4(host: str, port: int, timeout: float = 30):
-    """Abre socket IPv4 (Railway costuma falhar em IPv6 com Network unreachable)."""
     erros: list[OSError] = []
     for family, socktype, proto, _canon, sockaddr in socket.getaddrinfo(
         host, port, socket.AF_INET, socket.SOCK_STREAM
@@ -59,7 +62,6 @@ class _SMTP_IPv4(smtplib.SMTP):
 
 class _SMTP_SSL_IPv4(smtplib.SMTP_SSL):
     def _get_socket(self, host, port, timeout):
-        # SMTP_SSL espera o socket já envolvido em SSL depois; base class wraps it.
         from ssl import create_default_context
 
         raw = _socket_ipv4(host, port, timeout)
@@ -67,38 +69,36 @@ class _SMTP_SSL_IPv4(smtplib.SMTP_SSL):
         return context.wrap_socket(raw, server_hostname=host)
 
 
-def enviar_email(*, para: str, assunto: str, texto: str, html: str | None = None) -> bool:
-    """Envia e-mail. Retorna True se enviou (ou registrou no outbox)."""
-    para = (para or "").strip().lower()
-    if not para or "@" not in para:
-        raise ValueError("Destinatário de e-mail inválido.")
-
-    remetente = (
-        current_app.config.get("MAIL_DEFAULT_SENDER")
-        or current_app.config.get("MAIL_USERNAME")
-        or "noreply@finup.local"
-    )
-    registro = {
-        "para": para,
-        "assunto": assunto,
-        "texto": texto,
-        "html": html or texto,
-        "remetente": remetente,
+def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente: str, api_key: str) -> bool:
+    payload = {
+        "from": remetente,
+        "to": [para],
+        "subject": assunto,
+        "text": texto,
+        "html": html,
     }
-    OUTBOX.append(registro)
+    req = urllib.request.Request(
+        "https://api.resend.com/emails",
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            corpo = resp.read().decode("utf-8", "replace")
+            logger.info("E-mail Resend ok para=%s status=%s body=%s", para, resp.status, corpo[:200])
+            return True
+    except urllib.error.HTTPError as exc:
+        detalhe = exc.read().decode("utf-8", "replace")
+        logger.error("Resend HTTP %s: %s", exc.code, detalhe)
+        raise RuntimeError(f"Falha Resend ({exc.code}): {detalhe}") from exc
 
-    if current_app.config.get("TESTING") or current_app.config.get("MAIL_SUPPRESS_SEND"):
-        logger.info("E-mail (outbox/teste) para=%s assunto=%s", para, assunto)
-        return True
 
+def _enviar_smtp(*, para: str, assunto: str, texto: str, html: str, remetente: str) -> bool:
     host = (current_app.config.get("MAIL_SERVER") or "").strip()
-    if not host:
-        logger.warning(
-            "MAIL_SERVER não configurado — e-mail para %s só ficou no outbox local.",
-            para,
-        )
-        return False
-
     porta = int(current_app.config.get("MAIL_PORT") or 587)
     usar_tls = bool(current_app.config.get("MAIL_USE_TLS", True))
     usar_ssl = bool(current_app.config.get("MAIL_USE_SSL", False))
@@ -113,21 +113,70 @@ def enviar_email(*, para: str, assunto: str, texto: str, html: str | None = None
     if html:
         msg.add_alternative(html, subtype="html")
 
-    try:
-        if usar_ssl or porta == 465:
-            with _SMTP_SSL_IPv4(host, porta, timeout=30) as smtp:
-                if usuario and senha:
-                    smtp.login(usuario, senha)
-                smtp.send_message(msg)
-        else:
-            with _SMTP_IPv4(host, porta, timeout=30) as smtp:
-                if usar_tls:
-                    smtp.starttls()
-                if usuario and senha:
-                    smtp.login(usuario, senha)
-                smtp.send_message(msg)
-        logger.info("E-mail enviado para=%s assunto=%s", para, assunto)
+    if usar_ssl or porta == 465:
+        with _SMTP_SSL_IPv4(host, porta, timeout=30) as smtp:
+            if usuario and senha:
+                smtp.login(usuario, senha)
+            smtp.send_message(msg)
+    else:
+        with _SMTP_IPv4(host, porta, timeout=30) as smtp:
+            if usar_tls:
+                smtp.starttls()
+            if usuario and senha:
+                smtp.login(usuario, senha)
+            smtp.send_message(msg)
+    logger.info("E-mail SMTP enviado para=%s assunto=%s", para, assunto)
+    return True
+
+
+def enviar_email(*, para: str, assunto: str, texto: str, html: str | None = None) -> bool:
+    """Envia e-mail. Prefere Resend (HTTPS); cai para SMTP se não houver API key."""
+    para = (para or "").strip().lower()
+    if not para or "@" not in para:
+        raise ValueError("Destinatário de e-mail inválido.")
+
+    remetente = (
+        current_app.config.get("MAIL_DEFAULT_SENDER")
+        or current_app.config.get("MAIL_USERNAME")
+        or "FinUP <onboarding@resend.dev>"
+    )
+    html_final = html or texto
+    registro = {
+        "para": para,
+        "assunto": assunto,
+        "texto": texto,
+        "html": html_final,
+        "remetente": remetente,
+    }
+    OUTBOX.append(registro)
+
+    if current_app.config.get("TESTING") or current_app.config.get("MAIL_SUPPRESS_SEND"):
+        logger.info("E-mail (outbox/teste) para=%s assunto=%s", para, assunto)
         return True
+
+    api_key = (current_app.config.get("RESEND_API_KEY") or "").strip()
+    host = (current_app.config.get("MAIL_SERVER") or "").strip()
+
+    try:
+        if api_key:
+            return _enviar_resend(
+                para=para,
+                assunto=assunto,
+                texto=texto,
+                html=html_final,
+                remetente=remetente,
+                api_key=api_key,
+            )
+        if host:
+            return _enviar_smtp(
+                para=para,
+                assunto=assunto,
+                texto=texto,
+                html=html_final,
+                remetente=remetente,
+            )
+        logger.warning("Sem RESEND_API_KEY/MAIL_SERVER — e-mail para %s só no outbox.", para)
+        return False
     except Exception:
         logger.exception("Falha ao enviar e-mail para=%s", para)
         raise

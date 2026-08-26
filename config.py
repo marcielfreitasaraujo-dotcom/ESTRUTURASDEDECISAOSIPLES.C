@@ -98,6 +98,8 @@ class Config:
         os.environ.get("MAIL_USERNAME", "FinUP <noreply@finup.local>"),
     )
     MAIL_SUPPRESS_SEND = _bool_env("MAIL_SUPPRESS_SEND", False)
+    # Preferido no Railway: API HTTPS (SMTP costuma ser bloqueado no serviço web)
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
 
     @staticmethod
     def init_app(app) -> None:
