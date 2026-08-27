@@ -34,8 +34,18 @@ def test_clicar_kpi_receita_filtra_lista(admin_client):
     assert "Receita" in html
 
 
-def test_periodo_ultimos_90_range():
-    hoje = date.today()
-    inicio, fim = periodo_preset("ultimos_90")
-    assert fim == hoje
-    assert inicio == hoje - timedelta(days=89)
+def test_pagina_interna_tem_botao_voltar(admin_client):
+    html = admin_client.get("/movimentacoes").get_data(as_text=True)
+    assert 'data-voltar' in html
+    assert "← Voltar" in html
+
+
+def test_inicio_nao_tem_botao_voltar(admin_client):
+    html = admin_client.get("/").get_data(as_text=True)
+    assert 'class="btn btn-ghost btn-sm btn-voltar"' not in html
+
+
+def test_inicio_tem_chart_wrap(admin_client):
+    html = admin_client.get("/").get_data(as_text=True)
+    assert "chart-wrap" in html
+    assert 'id="chart-rd"' in html

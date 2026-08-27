@@ -154,6 +154,16 @@
       </header>
 
       <main class="content">
+        {% if request.endpoint and request.endpoint != 'dashboard.index' %}
+          <nav class="page-nav-back" aria-label="Navegação">
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm btn-voltar"
+              data-voltar
+              data-voltar-fallback="{{ url_for('dashboard.index') }}"
+            >← Voltar</button>
+          </nav>
+        {% endif %}
         {% include 'components/flash.html' %}
         {% block content %}{% endblock %}
       </main>
@@ -165,6 +175,7 @@
   {% include 'components/modal_lancamento.html' %}
 
   <div class="sidebar-backdrop" data-toggle-sidebar></div>
+  <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
   {% block extra_js %}{% endblock %}
 </body>
