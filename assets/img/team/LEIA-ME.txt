@@ -1,4 +1,14 @@
-Coloque aqui as fotos do Eduardo:
-eduardo-hero.jpg
-eduardo-sobre.jpg
-eduardo-atendimento.jpg
+PASTA DAS FOTOS DO EDUARDO
+==========================
+
+Coloque aqui o arquivo:
+
+  eduardo-hero.jpg
+
+Depois avise no chat: foto ok
+
+Eu uso a mesma foto nestes lugares do site:
+- primeira tela (hero)
+- sobre
+- destaque / atendimento
+- quem somos
