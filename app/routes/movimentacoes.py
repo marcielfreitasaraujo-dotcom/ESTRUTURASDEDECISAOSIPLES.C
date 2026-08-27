@@ -91,7 +91,7 @@ def _aplicar_formulario(mov: Movimentacao, form) -> None:
 @movimentacoes_bp.route("/movimentacoes")
 @login_required
 def index():
-    chave = request.args.get("periodo", "este_mes")
+    chave = request.args.get("periodo", "ultimos_90")
     inicio, fim = periodo_preset(chave, request.args.get("inicio"), request.args.get("fim"))
     q = Movimentacao.query.filter(
         Movimentacao.usuario_id == id_casa(),
@@ -145,19 +145,19 @@ def index():
 @movimentacoes_bp.route("/receitas")
 @login_required
 def receitas():
-    return redirect(url_for("movimentacoes.index", tipo="receita", periodo=request.args.get("periodo", "este_mes")))
+    return redirect(url_for("movimentacoes.index", tipo="receita", periodo=request.args.get("periodo", "ultimos_90")))
 
 
 @movimentacoes_bp.route("/despesas")
 @login_required
 def despesas():
-    return redirect(url_for("movimentacoes.index", tipo="despesa", periodo=request.args.get("periodo", "este_mes")))
+    return redirect(url_for("movimentacoes.index", tipo="despesa", periodo=request.args.get("periodo", "ultimos_90")))
 
 
 @movimentacoes_bp.route("/investimentos")
 @login_required
 def investimentos():
-    return redirect(url_for("movimentacoes.index", tipo="investimento", periodo=request.args.get("periodo", "este_mes")))
+    return redirect(url_for("movimentacoes.index", tipo="investimento", periodo=request.args.get("periodo", "ultimos_90")))
 
 
 @movimentacoes_bp.route("/movimentacoes/nova", methods=["POST"])
