@@ -34,6 +34,12 @@ def resumo_periodo(usuario_id: int, inicio: date, fim: date) -> dict:
     investimentos = _soma(base, "investimento")
     despesas = _soma(base, "despesa")
     saldo_periodo = receitas - despesas - investimentos
+    if inicio.month == fim.month and inicio.year == fim.year:
+        mes_nome = f"{MESES_PT[inicio.month]} de {inicio.year}"
+    else:
+        mes_nome = (
+            f"{inicio.strftime('%d/%m/%Y')} — {fim.strftime('%d/%m/%Y')}"
+        )
     return {
         "receitas": receitas,
         "despesas": despesas,
@@ -42,7 +48,7 @@ def resumo_periodo(usuario_id: int, inicio: date, fim: date) -> dict:
         "saldo_contas": saldo_usuario(usuario_id),
         "inicio": inicio,
         "fim": fim,
-        "mes_nome": f"{MESES_PT[inicio.month]} de {inicio.year}",
+        "mes_nome": mes_nome,
     }
 
 

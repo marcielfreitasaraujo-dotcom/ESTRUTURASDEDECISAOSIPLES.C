@@ -15,7 +15,9 @@
     {% for chave, label in [
       ('hoje','Hoje'),('ontem','Ontem'),('esta_semana','Esta semana'),
       ('semana_passada','Semana passada'),('este_mes','Este mês'),
-      ('mes_passado','Mês passado'),('ultimos_30','Últimos 30 dias'),('personalizado','Personalizado')
+      ('mes_passado','Mês passado'),('ultimos_30','Últimos 30 dias'),
+      ('ultimos_90','Últimos 90 dias'),('ultimos_365','Últimos 12 meses'),
+      ('este_ano','Este ano'),('personalizado','Personalizado')
     ] %}
       <option value="{{ chave }}" {{ 'selected' if periodo == chave }}>{{ label }}</option>
     {% endfor %}

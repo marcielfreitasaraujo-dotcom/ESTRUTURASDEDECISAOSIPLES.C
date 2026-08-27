@@ -8,25 +8,32 @@
     <p class="muted">{{ resumo.mes_nome }}</p>
   </div>
   <form class="period-pills" method="get">
-    {% for chave, label in [('hoje','Hoje'),('esta_semana','Esta semana'),('este_mes','Este mês'),('ultimos_30','30 dias')] %}
+    {% for chave, label in [
+      ('hoje','Hoje'),
+      ('esta_semana','Esta semana'),
+      ('este_mes','Este mês'),
+      ('ultimos_30','30 dias'),
+      ('ultimos_90','90 dias'),
+      ('ultimos_365','12 meses')
+    ] %}
       <button class="pill {{ 'ativo' if periodo == chave }}" name="periodo" value="{{ chave }}">{{ label }}</button>
     {% endfor %}
   </form>
 </section>
 
 <section class="kpi-grid">
-  <article class="kpi receita">
+  <a class="kpi receita" href="{{ url_for('movimentacoes.receitas', periodo=periodo) }}" title="Ver somente receitas">
     <span>💰 Receitas</span>
     <strong>{{ resumo.receitas | moeda }}</strong>
-  </article>
-  <article class="kpi despesa">
+  </a>
+  <a class="kpi despesa" href="{{ url_for('movimentacoes.despesas', periodo=periodo) }}" title="Ver somente despesas">
     <span>💸 Despesas</span>
     <strong>{{ resumo.despesas | moeda }}</strong>
-  </article>
-  <article class="kpi investimento">
+  </a>
+  <a class="kpi investimento" href="{{ url_for('movimentacoes.investimentos', periodo=periodo) }}" title="Ver somente investimentos">
     <span>📈 Investimentos</span>
     <strong>{{ resumo.investimentos | moeda }}</strong>
-  </article>
+  </a>
   <article class="kpi saldo {{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">
     <span>💵 Saldo do período</span>
     <strong>{{ resumo.saldo_periodo | moeda }}</strong>

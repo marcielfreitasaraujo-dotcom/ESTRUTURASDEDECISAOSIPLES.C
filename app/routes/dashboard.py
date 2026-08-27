@@ -11,7 +11,7 @@ dashboard_bp = Blueprint("dashboard", __name__)
 
 
 def _periodo():
-    chave = request.args.get("periodo", "este_mes")
+    chave = request.args.get("periodo", "ultimos_90")
     return chave, *periodo_preset(
         chave,
         request.args.get("inicio"),
