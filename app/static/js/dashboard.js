@@ -72,7 +72,9 @@
           ],
         },
         options: {
-          ...opcoesBase,
+          responsive: true,
+          maintainAspectRatio: true,
+          animation: false,
           cutout: "62%",
           plugins: {
             legend: {
