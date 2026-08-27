@@ -74,6 +74,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: true,
+          aspectRatio: 1,
           animation: false,
           cutout: "62%",
           plugins: {

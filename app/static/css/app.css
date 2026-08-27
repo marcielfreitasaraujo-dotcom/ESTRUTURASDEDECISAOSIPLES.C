@@ -487,23 +487,24 @@ a.kpi-link .kpi-acao {
 .chart-wrap--cat {
   height: auto;
   min-height: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.25rem 0;
+  padding: 0.25rem 0 0.5rem;
+}
+.chart-cat-box {
+  position: relative;
+  width: min(240px, 100%);
+  height: 280px;
+  margin: 0 auto;
 }
 .chart-wrap--evo { height: 200px; }
-.chart-wrap canvas {
+.chart-wrap--rd canvas,
+.chart-wrap--evo canvas {
   display: block;
   width: 100% !important;
   max-width: 100%;
   height: 100% !important;
 }
-.chart-wrap--cat canvas {
-  width: auto !important;
-  max-width: min(240px, 100%);
-  height: auto !important;
-  max-height: 240px;
+.chart-cat-box canvas {
+  display: block;
 }
 .grid-2 { grid-template-columns: 1fr 1fr; }
 .account-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
