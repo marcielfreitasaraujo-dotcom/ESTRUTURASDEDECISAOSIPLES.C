@@ -1,8 +1,9 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 
 from app.extensions import db
 from app.models import Configuracao, Usuario
+from app.models.usuario import agora
 from app.utils.formatters import parse_moeda
 
 CHAVE_BLOQUEIO = "assinatura_bloqueio_ativo"
@@ -13,13 +14,16 @@ CHAVE_INSTRUCOES = "assinatura_instrucoes_pagamento"
 CHAVE_PIX_CHAVE = "assinatura_pix_chave"
 CHAVE_PIX_NOME = "assinatura_pix_nome"
 CHAVE_PIX_CIDADE = "assinatura_pix_cidade"
+CHAVE_TESTE_ATIVO = "assinatura_teste_ativo"
+CHAVE_TESTE_HORAS = "assinatura_teste_horas"
 
 VALOR_PADRAO = "29.90"
 PLANO_PADRAO = "Mensal"
 DIAS_PADRAO = 30
+TESTE_HORAS_PADRAO = 24
 INSTRUCOES_PADRAO = (
-    "Pague via PIX (QR Code ou copia e cola) nesta tela e toque em "
-    "“Já paguei” para liberar o acesso na hora."
+    "Escolha o teste grátis de 24 horas ou pague via PIX nesta tela. "
+    "Após o pagamento, toque em “Já paguei” para liberar o acesso na hora."
 )
 PIX_NOME_PADRAO = "FINUP"
 PIX_CIDADE_PADRAO = "SAO PAULO"
@@ -61,6 +65,8 @@ def obter_plano_assinatura() -> dict:
     cfg_pix = _cfg(CHAVE_PIX_CHAVE)
     cfg_pix_nome = _cfg(CHAVE_PIX_NOME)
     cfg_pix_cidade = _cfg(CHAVE_PIX_CIDADE)
+    cfg_teste_ativo = _cfg(CHAVE_TESTE_ATIVO)
+    cfg_teste_horas = _cfg(CHAVE_TESTE_HORAS)
     valor_txt = ((cfg_valor.valor if cfg_valor else None) or VALOR_PADRAO).strip()
     plano = ((cfg_plano.valor if cfg_plano else None) or PLANO_PADRAO).strip()
     dias_txt = ((cfg_dias.valor if cfg_dias else None) or str(DIAS_PADRAO)).strip()
@@ -68,6 +74,12 @@ def obter_plano_assinatura() -> dict:
     pix_chave = ((cfg_pix.valor if cfg_pix else None) or "").strip()
     pix_nome = ((cfg_pix_nome.valor if cfg_pix_nome else None) or PIX_NOME_PADRAO).strip()
     pix_cidade = ((cfg_pix_cidade.valor if cfg_pix_cidade else None) or PIX_CIDADE_PADRAO).strip()
+    teste_ativo = ((cfg_teste_ativo.valor if cfg_teste_ativo else None) or "1").strip() == "1"
+    teste_horas_txt = ((cfg_teste_horas.valor if cfg_teste_horas else None) or str(TESTE_HORAS_PADRAO)).strip()
+    try:
+        teste_horas = max(1, min(168, int(teste_horas_txt)))
+    except (TypeError, ValueError):
+        teste_horas = TESTE_HORAS_PADRAO
     try:
         dias = max(1, int(dias_txt))
     except (TypeError, ValueError):
@@ -84,6 +96,8 @@ def obter_plano_assinatura() -> dict:
         "pix_nome": (pix_nome[:60] or PIX_NOME_PADRAO),
         "pix_cidade": (pix_cidade[:40] or PIX_CIDADE_PADRAO),
         "pix_configurado": bool(pix_chave),
+        "teste_ativo": teste_ativo,
+        "teste_horas": teste_horas,
     }
 
 
@@ -96,6 +110,8 @@ def salvar_plano_assinatura(
     pix_chave: str | None = None,
     pix_nome: str | None = None,
     pix_cidade: str | None = None,
+    teste_ativo: bool | None = None,
+    teste_horas: int | None = None,
 ) -> dict:
     plano = (nome or "").strip()[:80] or PLANO_PADRAO
     valor_dec = parse_moeda(valor)
@@ -116,6 +132,14 @@ def salvar_plano_assinatura(
         _definir_cfg(CHAVE_PIX_NOME, ((pix_nome or "").strip()[:60] or PIX_NOME_PADRAO))
     if pix_cidade is not None:
         _definir_cfg(CHAVE_PIX_CIDADE, ((pix_cidade or "").strip()[:40] or PIX_CIDADE_PADRAO))
+    if teste_ativo is not None:
+        _definir_cfg(CHAVE_TESTE_ATIVO, "1" if teste_ativo else "0")
+    if teste_horas is not None:
+        try:
+            horas = max(1, min(168, int(teste_horas)))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Informe as horas do teste grátis (entre 1 e 168).") from exc
+        _definir_cfg(CHAVE_TESTE_HORAS, str(horas))
     return obter_plano_assinatura()
 
 
@@ -151,6 +175,22 @@ def montar_cobranca_pix(usuario: Usuario | None = None) -> dict | None:
 def sincronizar_vencimentos(hoje: date | None = None) -> int:
     """Desativa assinaturas com vencimento passado. Retorna quantas foram bloqueadas."""
     hoje = hoje or date.today()
+    agora_local = agora()
+    bloqueados = 0
+
+    expirados_dt = (
+        Usuario.query.filter(
+            Usuario.perfil != "admin",
+            Usuario.eh_familia.is_(False),
+            Usuario.assinatura_ativa.is_(True),
+            Usuario.assinatura_expira_em.isnot(None),
+            Usuario.assinatura_expira_em < agora_local,
+        ).all()
+    )
+    for membro in expirados_dt:
+        membro.assinatura_ativa = False
+        bloqueados += 1
+
     vencidos = (
         Usuario.query.filter(
             Usuario.perfil != "admin",
@@ -161,10 +201,14 @@ def sincronizar_vencimentos(hoje: date | None = None) -> int:
         ).all()
     )
     for membro in vencidos:
+        if membro.assinatura_expira_em and membro.assinatura_expira_em >= agora_local:
+            continue
         membro.assinatura_ativa = False
-    if vencidos:
+        bloqueados += 1
+
+    if bloqueados:
         db.session.flush()
-    return len(vencidos)
+    return bloqueados
 
 
 def liberar_assinatura(
@@ -177,6 +221,36 @@ def liberar_assinatura(
     ciclo = dias if dias is not None else plano["dias"]
     membro.assinatura_ativa = True
     membro.assinatura_vence_em = vence_em or (date.today() + timedelta(days=max(1, int(ciclo))))
+    membro.assinatura_expira_em = None
+
+
+def liberar_teste_gratis(membro: Usuario, *, horas: int | None = None) -> None:
+    plano = obter_plano_assinatura()
+    if not plano.get("teste_ativo"):
+        raise ValueError("O teste grátis está desativado no momento.")
+    if membro.teste_gratis_usado:
+        raise ValueError("Você já usou o teste grátis desta conta.")
+    if membro.eh_admin or membro.eh_familia:
+        raise ValueError("Sua conta não precisa de teste grátis.")
+
+    horas_ciclo = horas if horas is not None else plano["teste_horas"]
+    horas_ciclo = max(1, min(168, int(horas_ciclo)))
+    expira = agora() + timedelta(hours=horas_ciclo)
+    membro.teste_gratis_usado = True
+    membro.assinatura_ativa = True
+    membro.assinatura_expira_em = expira
+    membro.assinatura_vence_em = expira.date()
+
+
+def pode_iniciar_teste_gratis(membro: Usuario | None) -> bool:
+    if membro is None:
+        return False
+    if membro.eh_admin or membro.eh_familia:
+        return False
+    if membro.teste_gratis_usado:
+        return False
+    plano = obter_plano_assinatura()
+    return bool(plano.get("teste_ativo"))
 
 
 def bloquear_assinatura(membro: Usuario) -> None:
@@ -188,9 +262,13 @@ def status_assinatura_usuario(membro: Usuario) -> str:
         return "admin"
     if membro.eh_familia:
         return "familia"
-    if membro.assinatura_ativa and not membro.assinatura_vencida:
+    if membro.em_teste_gratis:
+        return "teste"
+    if membro.assinatura_ativa and usuario_tem_acesso(membro):
         return "ativa"
     if membro.assinatura_vence_em and membro.assinatura_vence_em < date.today():
+        return "vencida"
+    if membro.assinatura_expira_em and membro.assinatura_expira_em < agora():
         return "vencida"
     return "bloqueada"
 
@@ -214,6 +292,8 @@ def resumo_financeiro_assinatura(membros: list[Usuario] | None = None) -> dict:
             ativos += 1
             if m.assinatura_vence_em and hoje <= m.assinatura_vence_em <= limite:
                 vencendo_7 += 1
+        elif st == "teste":
+            ativos += 1
         elif st in {"bloqueada", "vencida"}:
             bloqueados += 1
     plano = obter_plano_assinatura()
@@ -240,6 +320,12 @@ def usuario_tem_acesso(usuario: Usuario | None) -> bool:
         return True
     if not bool(getattr(usuario, "assinatura_ativa", True)):
         return False
+    expira = getattr(usuario, "assinatura_expira_em", None)
+    if expira is not None:
+        if isinstance(expira, datetime) and expira <= agora():
+            return False
+        if expira > agora():
+            return True
     vence = getattr(usuario, "assinatura_vence_em", None)
     if vence and vence < date.today():
         return False
@@ -264,4 +350,5 @@ def endpoints_livres_assinatura() -> set[str]:
         "auth.redefinir_senha",
         "assinatura.bloqueado",
         "assinatura.confirmar_pagamento",
+        "assinatura.iniciar_teste_gratis",
     }

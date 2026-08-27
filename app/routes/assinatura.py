@@ -10,8 +10,10 @@ from app.utils.assinatura import (
     bloqueio_assinatura_ativo,
     definir_bloqueio_assinatura,
     liberar_assinatura,
+    liberar_teste_gratis,
     montar_cobranca_pix,
     obter_plano_assinatura,
+    pode_iniciar_teste_gratis,
     resumo_financeiro_assinatura,
     salvar_plano_assinatura,
     sincronizar_vencimentos,
@@ -38,7 +40,37 @@ def bloqueado():
         plano=plano,
         status=status_assinatura_usuario(current_user),
         pix=pix,
+        pode_teste=pode_iniciar_teste_gratis(current_user),
     )
+
+
+@assinatura_bp.route("/assinatura/iniciar-teste-gratis", methods=["POST"])
+@login_required
+def iniciar_teste_gratis():
+    """Libera acesso por período de teste (padrão 24h), uma vez por conta."""
+    if current_user.eh_admin or current_user.eh_familia:
+        return redirect(url_for("dashboard.index"))
+    if not bloqueio_assinatura_ativo():
+        return redirect(url_for("dashboard.index"))
+    if usuario_tem_acesso(current_user):
+        return redirect(url_for("dashboard.index"))
+    try:
+        liberar_teste_gratis(current_user)
+        db.session.commit()
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "erro")
+        return redirect(url_for("assinatura.bloqueado"))
+
+    plano = obter_plano_assinatura()
+    horas = plano["teste_horas"]
+    expira = current_user.assinatura_expira_em
+    expira_txt = expira.strftime("%d/%m/%Y às %H:%M") if expira else ""
+    flash(
+        f"Teste grátis ativado por {horas}h! Acesso liberado até {expira_txt}.",
+        "sucesso",
+    )
+    return redirect(url_for("dashboard.index"))
 
 
 @assinatura_bp.route("/assinatura/confirmar-pagamento", methods=["POST"])
@@ -97,6 +129,8 @@ def salvar_plano():
             pix_chave=request.form.get("pix_chave"),
             pix_nome=request.form.get("pix_nome"),
             pix_cidade=request.form.get("pix_cidade"),
+            teste_ativo=(request.form.get("teste_ativo") or "") in {"1", "true", "on", "sim"},
+            teste_horas=request.form.get("teste_horas") or 24,
         )
         db.session.commit()
         flash("Valores, PIX e instruções da assinatura atualizados.", "sucesso")

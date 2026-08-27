@@ -62,6 +62,14 @@
       Dias do ciclo
       <input type="number" name="plano_dias" value="{{ plano.dias }}" min="1" max="366" required>
     </label>
+    <label>
+      Teste grátis (horas)
+      <input type="number" name="teste_horas" value="{{ plano.teste_horas }}" min="1" max="168" required>
+    </label>
+    <label class="full" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
+      <input type="checkbox" name="teste_ativo" value="1" {% if plano.teste_ativo %}checked{% endif %}>
+      Oferecer teste grátis no cadastro (uma vez por conta)
+    </label>
     <label class="full">
       Chave PIX (e-mail, celular, CPF/CNPJ ou chave aleatória)
       <input type="text" name="pix_chave" value="{{ plano.pix_chave }}" maxlength="120" placeholder="sua-chave@email.com ou chave aleatória">
@@ -140,6 +148,8 @@
                 <span class="badge pago">Família · isento</span>
               {% elif st == 'ativa' %}
                 <span class="badge pago">Ativo · pago</span>
+              {% elif st == 'teste' %}
+                <span class="badge investimento">Teste grátis</span>
               {% elif st == 'vencida' %}
                 <span class="badge despesa">Vencido · bloqueado</span>
               {% else %}
@@ -153,6 +163,11 @@
                 <strong class="{{ 'despesa' if m.assinatura_vence_em < hoje else '' }}">
                   {{ m.assinatura_vence_em.strftime('%d/%m/%Y') }}
                 </strong>
+                {% if m.assinatura_expira_em and st == 'teste' %}
+                  <div class="muted" style="font-size:0.8rem">
+                    até {{ m.assinatura_expira_em.strftime('%d/%m/%Y %H:%M') }}
+                  </div>
+                {% endif %}
               {% else %}
                 <span class="muted">sem data</span>
               {% endif %}

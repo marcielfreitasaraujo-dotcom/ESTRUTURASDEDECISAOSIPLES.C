@@ -1,5 +1,7 @@
 from datetime import date, timedelta
 
+import pytest
+
 from app.extensions import db
 from app.models import Usuario
 from app.services.seed import criar_membro_familia
@@ -7,7 +9,9 @@ from app.utils.assinatura import (
     bloqueio_assinatura_ativo,
     definir_bloqueio_assinatura,
     liberar_assinatura,
+    liberar_teste_gratis,
     obter_plano_assinatura,
+    pode_iniciar_teste_gratis,
     resumo_financeiro_assinatura,
     salvar_plano_assinatura,
     sincronizar_vencimentos,
@@ -87,9 +91,9 @@ def test_sem_familia_sem_pagamento_e_bloqueado(admin_client, client, app):
     pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
     assert pagina.status_code == 200
     html = pagina.get_data(as_text=True)
-    assert "Assinatura necessária" in html
+    assert "Escolha como começar" in html
     assert client.get("/contas", follow_redirects=True).status_code == 200
-    assert "Assinatura necessária" in client.get("/contas", follow_redirects=True).get_data(as_text=True)
+    assert "Escolha como começar" in client.get("/contas", follow_redirects=True).get_data(as_text=True)
     assert client.get("/assinatura/bloqueado").status_code == 200
 
 
@@ -118,7 +122,7 @@ def test_pix_na_tela_bloqueado_e_ja_paguei_libera(admin_client, client, app):
     pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
     html = pagina.get_data(as_text=True)
     assert pagina.status_code == 200
-    assert "Pague agora via PIX" in html
+    assert "Pagar com PIX" in html
     assert "PIX copia e cola" in html
     assert "Já paguei" in html
     assert "data:image/png;base64," in html
@@ -126,7 +130,7 @@ def test_pix_na_tela_bloqueado_e_ja_paguei_libera(admin_client, client, app):
 
     resp = client.post("/assinatura/confirmar-pagamento", follow_redirects=True)
     assert resp.status_code == 200
-    assert "Assinatura necessária" not in resp.get_data(as_text=True)
+    assert "Escolha como começar" not in resp.get_data(as_text=True)
     assert client.get("/contas").status_code == 200
     with app.app_context():
         u = Usuario.query.filter_by(username="cliente_pix").first()
@@ -263,7 +267,7 @@ def test_vencimento_bloqueia_automaticamente(admin_client, client, app):
 
     _login(client, "venceu_user", "senha123")
     resp = client.get("/contas", follow_redirects=True)
-    assert "Assinatura necessária" in resp.get_data(as_text=True)
+    assert "Escolha como começar" in resp.get_data(as_text=True)
 
 
 def test_cadastro_publico_cria_conta_bloqueada(client, app):
@@ -283,7 +287,7 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
 
     assert client.get("/cadastro").status_code == 200
     login_html = client.get("/login").get_data(as_text=True)
-    assert "Criar conta e assinar" in login_html
+    assert "teste grátis" in login_html.lower()
 
     resp = client.post(
         "/cadastro",
@@ -314,12 +318,13 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
     bloqueado = client.get("/assinatura/bloqueado")
     assert bloqueado.status_code == 200
     texto = bloqueado.get_data(as_text=True)
-    assert "Assinatura necessária" in texto
+    assert "Escolha como começar" in texto
+    assert "Teste grátis" in texto
     assert "Pague via PIX teste" in texto
     assert (
         client.get("/contas", follow_redirects=True)
         .get_data(as_text=True)
-        .find("Assinatura necessária")
+        .find("Escolha como começar")
         >= 0
     )
 
@@ -384,3 +389,69 @@ def test_nao_remove_admin(admin_client, app):
     assert "administrador" in html or "própria conta" in html or "propria conta" in html
     with app.app_context():
         assert db.session.get(Usuario, admin_id) is not None
+
+
+def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
+    with app.app_context():
+        definir_bloqueio_assinatura(True)
+        salvar_plano_assinatura(
+            nome="Mensal",
+            valor="29.90",
+            dias=30,
+            instrucoes="Teste",
+            teste_ativo=True,
+            teste_horas=24,
+        )
+        criar_membro_familia(
+            "Trial User",
+            "trial_user",
+            "senha123",
+            eh_familia=False,
+            assinatura_ativa=False,
+        )
+        db.session.commit()
+
+    _login(client, "trial_user", "senha123")
+    pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
+    html = pagina.get_data(as_text=True)
+    assert "Iniciar teste grátis de 24h" in html
+
+    resp = client.post("/assinatura/iniciar-teste-gratis", follow_redirects=True)
+    assert resp.status_code == 200
+    assert "Teste grátis ativado" in resp.get_data(as_text=True)
+    assert client.get("/contas").status_code == 200
+
+    with app.app_context():
+        u = Usuario.query.filter_by(username="trial_user").first()
+        assert u.teste_gratis_usado is True
+        assert u.assinatura_ativa is True
+        assert u.assinatura_expira_em is not None
+        assert usuario_tem_acesso(u) is True
+        assert pode_iniciar_teste_gratis(u) is False
+
+        with pytest.raises(ValueError, match="já usou"):
+            liberar_teste_gratis(u)
+
+
+def test_teste_gratis_expirado_bloqueia(admin_client, client, app):
+    from datetime import datetime, timedelta
+
+    from app.models.usuario import agora
+
+    with app.app_context():
+        definir_bloqueio_assinatura(True)
+        membro = criar_membro_familia(
+            "Exp Trial",
+            "exp_trial",
+            "senha123",
+            eh_familia=False,
+            assinatura_ativa=False,
+        )
+        liberar_teste_gratis(membro, horas=24)
+        membro.assinatura_expira_em = agora() - timedelta(hours=1)
+        db.session.commit()
+
+    _login(client, "exp_trial", "senha123")
+    resp = client.get("/contas", follow_redirects=True)
+    assert "Escolha como começar" in resp.get_data(as_text=True)
+    assert "já usou o teste grátis" in resp.get_data(as_text=True).lower()

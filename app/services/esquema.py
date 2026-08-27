@@ -27,6 +27,8 @@ COLUNAS_USUARIOS = {
     "eh_familia": "ALTER TABLE usuarios ADD COLUMN eh_familia BOOLEAN DEFAULT FALSE",
     "assinatura_ativa": "ALTER TABLE usuarios ADD COLUMN assinatura_ativa BOOLEAN DEFAULT TRUE",
     "assinatura_vence_em": "ALTER TABLE usuarios ADD COLUMN assinatura_vence_em DATE",
+    "assinatura_expira_em": "ALTER TABLE usuarios ADD COLUMN assinatura_expira_em TIMESTAMP",
+    "teste_gratis_usado": "ALTER TABLE usuarios ADD COLUMN teste_gratis_usado BOOLEAN DEFAULT FALSE",
     "email_verificado": "ALTER TABLE usuarios ADD COLUMN email_verificado BOOLEAN DEFAULT TRUE",
     "email_codigo_hash": "ALTER TABLE usuarios ADD COLUMN email_codigo_hash VARCHAR(256)",
     "email_codigo_expira": "ALTER TABLE usuarios ADD COLUMN email_codigo_expira TIMESTAMP",
