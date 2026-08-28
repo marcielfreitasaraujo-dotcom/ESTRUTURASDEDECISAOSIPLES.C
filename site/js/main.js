@@ -9,9 +9,13 @@
     : "http://127.0.0.1:5000"
   ).replace(/\/$/, "");
   const urlSistema = baseSistema + "/login";
+  const urlCadastro = baseSistema + "/cadastro";
 
   document.querySelectorAll("[data-sistema]").forEach((link) => {
     link.setAttribute("href", urlSistema);
+  });
+  document.querySelectorAll("[data-cadastro]").forEach((link) => {
+    link.setAttribute("href", urlCadastro);
   });
 
   if (ano) {

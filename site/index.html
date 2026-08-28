@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FinUP — Seu dinheiro. Seus planos. Seu futuro.</title>
-  <meta name="description" content="Controle financeiro pessoal e familiar. Lance um gasto em poucos segundos, acompanhe o saldo, vencimentos, cartões e orçamento da casa.">
+  <title>FinUP — Teste grátis 24h e assinatura mensal</title>
+  <meta name="description" content="FinUP: controle financeiro pessoal e familiar. Teste grátis de 24 horas, depois plano mensal de R$ 29,90 com PIX e liberação na hora.">
   <meta name="theme-color" content="#020b16">
-  <meta property="og:title" content="FinUP — Controle financeiro pessoal e familiar">
-  <meta property="og:description" content="Registre receitas e despesas em segundos. Saldo, vencimentos, cartões e relatórios no mesmo lugar.">
+  <meta property="og:title" content="FinUP — Teste grátis 24h · R$ 29,90/mês">
+  <meta property="og:description" content="Crie a conta, teste 24 horas e assine no PIX. Saldo, vencimentos, cartões e orçamento no mesmo lugar.">
   <meta property="og:type" content="website">
   <meta property="og:image" content="img/logo-full.png">
   <link rel="icon" type="image/png" href="img/favicon-32.png">
@@ -30,12 +30,13 @@
         <span>FinUP</span>
       </a>
       <nav class="site-nav" id="menu" aria-label="Seções do site">
+        <a href="#assinatura">Assinatura</a>
         <a href="#recursos">Recursos</a>
         <a href="#como-funciona">Como funciona</a>
         <a href="#familia">Família</a>
-        <a href="#seguranca">Segurança</a>
-        <a class="btn btn-ghost" href="#contato">Contato</a>
-        <a class="btn btn-primary" data-sistema href="http://127.0.0.1:5000/login">Entrar no sistema</a>
+        <a href="#contato">Contato</a>
+        <a class="btn btn-ghost" data-sistema href="http://127.0.0.1:5000/login">Entrar</a>
+        <a class="btn btn-primary" data-cadastro href="http://127.0.0.1:5000/cadastro">Começar teste grátis</a>
       </nav>
       <button class="menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
         <span></span><span></span><span></span>
@@ -46,21 +47,21 @@
   <main id="conteudo">
     <section class="hero site-wrap">
       <div class="hero-copy">
-        <p class="eyebrow">Controle financeiro pessoal e familiar</p>
+        <p class="eyebrow">Teste grátis 24h · depois R$ 29,90 / 30 dias</p>
         <h1>Seu dinheiro. <em>Seus planos.</em> Seu futuro.</h1>
-        <p class="lead">Registre um gasto em poucos segundos e veja, com clareza, para onde vai o dinheiro da casa — saldo, vencimentos, cartões e orçamento no mesmo lugar.</p>
+        <p class="lead">Crie a conta, experimente o FinUP completo por 24 horas e, se quiser continuar, pague o plano mensal no PIX — o acesso libera na hora.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" data-sistema href="http://127.0.0.1:5000/login">Entrar no sistema financeiro</a>
-          <a class="btn btn-outline" href="#recursos">Ver o que já funciona</a>
+          <a class="btn btn-primary" data-cadastro href="http://127.0.0.1:5000/cadastro">Começar teste grátis</a>
+          <a class="btn btn-outline" href="#assinatura">Ver a assinatura</a>
         </div>
-        <p class="hero-note">Controle · Planeje · Evolua</p>
+        <p class="hero-note">PIX · QR Code · Copia e cola</p>
       </div>
 
       <aside class="preview" aria-label="Prévia do painel FinUP">
         <div class="preview-frame">
           <div class="preview-bar">
             <span></span><span></span><span></span>
-            <strong>Dashboard</strong>
+            <strong>Início</strong>
           </div>
           <div class="preview-kpis">
             <article>
@@ -96,17 +97,56 @@
 
     <section class="stats site-wrap" aria-label="O que o FinUP entrega">
       <article>
-        <strong>Segundos</strong>
-        <span>para lançar uma receita ou despesa</span>
+        <strong>24 horas</strong>
+        <span>de teste grátis, uma vez por conta</span>
       </article>
       <article>
-        <strong>Família</strong>
-        <span>cada pessoa com o próprio login e saldo</span>
+        <strong>R$ 29,90</strong>
+        <span>plano mensal, a cada 30 dias</span>
       </article>
       <article>
-        <strong>PDF e Excel</strong>
-        <span>relatórios prontos para imprimir ou guardar</span>
+        <strong>PIX</strong>
+        <span>QR Code, copia e cola e libera na hora</span>
       </article>
+    </section>
+
+    <section class="section site-wrap" id="assinatura">
+      <header class="section-head">
+        <p class="eyebrow">Assinatura</p>
+        <h2>Escolha como começar. É o mesmo fluxo do sistema.</h2>
+        <p>Depois do cadastro e da confirmação do e-mail, o FinUP pede o teste grátis ou o pagamento. Sem cartão de crédito: só PIX.</p>
+      </header>
+      <div class="planos">
+        <article class="plano plano-destaque">
+          <p class="plano-tag">Para conhecer</p>
+          <h3>Teste grátis</h3>
+          <p class="plano-preco">24<span> horas</span></p>
+          <p class="plano-ciclo">R$ 0 agora · uma vez por conta</p>
+          <ul class="checks">
+            <li>Acesso completo ao sistema</li>
+            <li>Início, lançamentos, cartões e relatórios</li>
+            <li>Expira sozinho no fim das 24h</li>
+          </ul>
+          <a class="btn btn-primary" data-cadastro href="http://127.0.0.1:5000/cadastro">Criar conta e testar</a>
+        </article>
+        <article class="plano">
+          <p class="plano-tag">Plano mensal</p>
+          <h3>Assinatura</h3>
+          <p class="plano-preco">R$ 29,90<span> / 30 dias</span></p>
+          <p class="plano-ciclo">Pagamento no PIX · libera na hora</p>
+          <ul class="checks">
+            <li>QR Code e PIX copia e cola</li>
+            <li>Toque em “Já paguei” e entra na hora</li>
+            <li>Família marcada pelo admin não paga</li>
+          </ul>
+          <a class="btn btn-outline" data-cadastro href="http://127.0.0.1:5000/cadastro">Assinar com PIX</a>
+        </article>
+      </div>
+      <ol class="pix-passos" aria-label="Como pagar no PIX">
+        <li><span>1</span> Escaneie o QR ou cole o código no app do banco</li>
+        <li><span>2</span> Confirme o pagamento de R$ 29,90</li>
+        <li><span>3</span> Toque em Já paguei para liberar o acesso</li>
+      </ol>
     </section>
 
     <section class="section site-wrap" id="recursos">
@@ -123,8 +163,8 @@
         </article>
         <article class="card">
           <span class="card-ico" aria-hidden="true">📊</span>
-          <h3>Dashboard real</h3>
-          <p>Totais, gráficos e evolução do saldo com os números que você realmente lançou — sem planilha paralela.</p>
+          <h3>Início de verdade</h3>
+          <p>Totais, gráficos e KPIs clicáveis. O período padrão cobre 90 dias, com os números que você lançou.</p>
         </article>
         <article class="card">
           <span class="card-ico" aria-hidden="true">📅</span>
@@ -139,7 +179,7 @@
         <article class="card">
           <span class="card-ico" aria-hidden="true">💳</span>
           <h3>Cartões</h3>
-          <p>Compras parceladas e fatura. A compra no crédito só baixa o saldo da conta quando a fatura é paga.</p>
+          <p>Parcelas, fatura e pagamento parcial. A compra no crédito só baixa o saldo quando a fatura é paga.</p>
         </article>
         <article class="card">
           <span class="card-ico" aria-hidden="true">🎯</span>
@@ -147,9 +187,9 @@
           <p>Teto por categoria no mês, somando lançamentos e parcelas do cartão para não estourar no silêncio.</p>
         </article>
         <article class="card">
-          <span class="card-ico" aria-hidden="true">🏦</span>
-          <h3>Várias contas</h3>
-          <p>Carteira, Nubank, caixa da casa — o saldo de cada uma atualiza sozinho a cada lançamento.</p>
+          <span class="card-ico" aria-hidden="true">📱</span>
+          <h3>App no celular</h3>
+          <p>PWA instalável: abre como aplicativo, com o mesmo login, sem loja de app.</p>
         </article>
         <article class="card">
           <span class="card-ico" aria-hidden="true">📎</span>
@@ -162,23 +202,28 @@
     <section class="section site-wrap" id="como-funciona">
       <header class="section-head">
         <p class="eyebrow">Como funciona</p>
-        <h2>Três passos. Sem curso, sem planilha.</h2>
+        <h2>Quatro passos. Sem curso, sem planilha.</h2>
       </header>
-      <ol class="steps">
+      <ol class="steps steps-4">
         <li>
           <span>1</span>
-          <h3>Entre com seu usuário</h3>
-          <p>Cada pessoa da casa tem login próprio. Ao fechar a aba, o FinUP pede a senha de novo.</p>
+          <h3>Crie a conta</h3>
+          <p>Nome, e-mail e senha. O e-mail vira seu usuário e precisa ser confirmado.</p>
         </li>
         <li>
           <span>2</span>
-          <h3>Lance o que aconteceu</h3>
-          <p>Mercado, Pix, fatura, investimento. Demora segundos e já entra no saldo certo.</p>
+          <h3>Teste 24 horas</h3>
+          <p>Uma vez por conta, use o FinUP completo sem pagar. O acesso acaba sozinho no horário.</p>
         </li>
         <li>
           <span>3</span>
-          <h3>Acompanhe o mês</h3>
-          <p>Dashboard, vencimentos, orçamento e relatório quando precisar mostrar os números.</p>
+          <h3>Pague no PIX</h3>
+          <p>QR Code ou copia e cola. Confirme “Já paguei” e o plano mensal de R$ 29,90 libera na hora.</p>
+        </li>
+        <li>
+          <span>4</span>
+          <h3>Acompanhe a casa</h3>
+          <p>Início, vencimentos, cartões, orçamento e relatório em PDF ou Excel.</p>
         </li>
       </ol>
     </section>
@@ -187,48 +232,49 @@
       <div class="familia-copy">
         <p class="eyebrow">Para a casa inteira</p>
         <h2>Um sistema, vários logins, cada um no seu canto</h2>
-        <p>O administrador cria os membros da família. Quem é usuário comum vê só os próprios lançamentos, contas e cartões. Quem precisa ver a casa toda usa o perfil com essa permissão.</p>
+        <p>O administrador cria os membros da família. Quem é família fica isento da assinatura. Quem é cliente paga o plano e vê só a própria conta.</p>
         <ul class="checks">
+          <li>Família não paga assinatura</li>
           <li>Isolamento por pessoa</li>
-          <li>Contas padrão na hora de criar o membro</li>
           <li>Tema claro ou escuro por usuário</li>
         </ul>
       </div>
       <div class="familia-panel" aria-hidden="true">
-        <div class="chip"><b>M</b> Marciel · admin</div>
-        <div class="chip"><b>A</b> Ana · os próprios dados</div>
-        <div class="chip"><b>J</b> João · os próprios dados</div>
+        <div class="chip"><b>M</b> Marciel · admin · sempre liberado</div>
+        <div class="chip"><b>A</b> Ana · família · isenta</div>
+        <div class="chip"><b>C</b> Cliente · plano mensal no PIX</div>
       </div>
     </section>
 
     <section class="section site-wrap" id="seguranca">
       <header class="section-head">
         <p class="eyebrow">Segurança</p>
-        <h2>Feito para usar em casa, com cuidado de sistema sério</h2>
+        <h2>Feito para vender e usar, com cuidado de sistema sério</h2>
       </header>
       <div class="cards cards-3">
         <article class="card">
-          <h3>Senha em hash</h3>
-          <p>A senha não fica guardada em texto. O login usa sessão do navegador, sem “lembrar para sempre”.</p>
+          <h3>E-mail confirmado</h3>
+          <p>O cadastro só segue depois da verificação. Dá para recuperar a senha pelo mesmo e-mail.</p>
         </article>
         <article class="card">
           <h3>Fecha a aba, pede senha</h3>
           <p>Se outra pessoa sentar no computador, não entra na sua conta só porque o Chrome ficou aberto ontem.</p>
         </article>
         <article class="card">
-          <h3>Pronto para a nuvem</h3>
-          <p>No dia a dia roda local. Em produção aponta para a nuvem — o mesmo jeito de usar, vários PCs.</p>
+          <h3>Assinatura no controle</h3>
+          <p>Sem pagamento, o acesso trava. Família e admin entram. Quem venceu volta para o PIX.</p>
         </article>
       </div>
     </section>
 
     <section class="cta site-wrap" id="contato">
       <div class="cta-box">
-        <p class="eyebrow">Contato</p>
-        <h2>Fale com a Araujo.IA</h2>
-        <p>Dúvida, ideia ou para conhecer o FinUP de perto: chama no WhatsApp ou no Instagram.</p>
+        <p class="eyebrow">Começar agora</p>
+        <h2>Teste 24 horas. Depois R$ 29,90 no PIX.</h2>
+        <p>Crie a conta no sistema ou chame a Araujo.IA no WhatsApp e no Instagram se tiver dúvida.</p>
         <div class="cta-sistema">
-          <a class="btn btn-primary" data-sistema href="http://127.0.0.1:5000/login">Entrar no sistema financeiro</a>
+          <a class="btn btn-primary" data-cadastro href="http://127.0.0.1:5000/cadastro">Criar conta e testar</a>
+          <a class="btn btn-outline" data-sistema href="http://127.0.0.1:5000/login">Já tenho conta</a>
         </div>
         <div class="contato-acoes">
           <a
