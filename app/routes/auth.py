@@ -169,7 +169,7 @@ def verificar_email(token):
 @login_required
 def aguardando_verificacao():
     from app.services.auth_email import validar_codigo_verificacao
-    from app.services.email import email_configurado
+    from app.services.email import email_configurado, aviso_limitacao_email
 
     if not usuario_precisa_verificar_email(current_user):
         return redirect(url_for("dashboard.index"))
@@ -203,6 +203,7 @@ def aguardando_verificacao():
         erro=erro,
         email=current_user.username,
         email_ok=email_configurado(),
+        aviso_email=aviso_limitacao_email(current_user.username),
     )
 
 

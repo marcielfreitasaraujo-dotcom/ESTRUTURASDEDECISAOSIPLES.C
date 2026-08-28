@@ -158,3 +158,32 @@ def test_cadastro_rejeita_usuario_sem_email(client):
     )
     assert resp.status_code == 200
     assert "e-mail válido" in resp.get_data(as_text=True).lower()
+
+
+def test_aguardando_verificacao_avisa_resend_sandbox(client, app):
+    from app.services.seed import criar_membro_familia
+
+    limpar_outbox()
+    with app.app_context():
+        u = criar_membro_familia(
+            "Teste Resend",
+            "outro@exemplo.com",
+            "senha123",
+            email_verificado=False,
+            exigir_email=True,
+        )
+        db.session.commit()
+
+    app.config["MAIL_DEFAULT_SENDER"] = "FinUP <onboarding@resend.dev>"
+    app.config["RESEND_CONTA_EMAIL"] = "dono@gmail.com"
+
+    client.get("/logout", follow_redirects=True)
+    client.post(
+        "/login",
+        data={"username": "outro@exemplo.com", "senha": "senha123"},
+        follow_redirects=True,
+    )
+    client.get("/sessao/iniciar", follow_redirects=True)
+    html = client.get("/aguardando-verificacao").get_data(as_text=True)
+    assert "modo teste" in html.lower()
+    assert "dono@gmail.com" in html
