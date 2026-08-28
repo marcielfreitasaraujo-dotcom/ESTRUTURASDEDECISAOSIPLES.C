@@ -406,6 +406,13 @@ tr.quitada { opacity: 0.72; }
 .content { padding: 1.25rem 1.5rem 6rem; }
 .page-head { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; }
 .page-head h1 { margin: 0.15rem 0; font-size: 1.8rem; }
+.page-nav-back {
+  margin: -0.15rem 0 0.75rem;
+}
+.btn-voltar {
+  padding-left: 0.35rem;
+  font-weight: 600;
+}
 .kicker { margin: 0; color: var(--muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .muted { color: var(--muted); }
 .back { color: var(--muted); }
@@ -465,6 +472,40 @@ a.kpi-link .kpi-acao {
   display: grid; gap: 1rem;
 }
 .grid-charts, .grid-2-dash, .grid-2 { grid-template-columns: 1.3fr 1fr; }
+.grid-charts > .card,
+.grid-2-dash > .card,
+.grid-2 > .card {
+  min-width: 0;
+  overflow: hidden;
+}
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+.chart-wrap--rd { height: 220px; }
+.chart-wrap--cat {
+  height: auto;
+  min-height: 0;
+  padding: 0.25rem 0 0.5rem;
+}
+.chart-cat-box {
+  position: relative;
+  width: min(240px, 100%);
+  height: 280px;
+  margin: 0 auto;
+}
+.chart-wrap--evo { height: 200px; }
+.chart-wrap--rd canvas,
+.chart-wrap--evo canvas {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  height: 100% !important;
+}
+.chart-cat-box canvas {
+  display: block;
+}
 .grid-2 { grid-template-columns: 1fr 1fr; }
 .account-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 

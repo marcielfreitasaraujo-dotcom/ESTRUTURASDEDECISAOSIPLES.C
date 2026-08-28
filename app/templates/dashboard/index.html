@@ -61,13 +61,19 @@
     <header class="card-head">
       <h2>Receitas × Despesas</h2>
     </header>
-    <canvas id="chart-rd" height="140"></canvas>
+    <div class="chart-wrap chart-wrap--rd">
+      <canvas id="chart-rd" role="img" aria-label="Gráfico de receitas e despesas"></canvas>
+    </div>
   </article>
   <article class="card">
     <header class="card-head">
       <h2>Gastos por categoria</h2>
     </header>
-    <canvas id="chart-cat" height="220"></canvas>
+    <div class="chart-wrap chart-wrap--cat">
+      <div class="chart-cat-box">
+        <canvas id="chart-cat" role="img" aria-label="Gráfico de gastos por categoria"></canvas>
+      </div>
+    </div>
   </article>
 </section>
 
@@ -76,7 +82,9 @@
     <header class="card-head">
       <h2>Evolução do saldo</h2>
     </header>
-    <canvas id="chart-evo" height="120"></canvas>
+    <div class="chart-wrap chart-wrap--evo">
+      <canvas id="chart-evo" role="img" aria-label="Gráfico de evolução do saldo"></canvas>
+    </div>
   </article>
   <article class="card">
     <header class="card-head">

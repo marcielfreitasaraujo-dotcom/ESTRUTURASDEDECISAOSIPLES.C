@@ -14,6 +14,7 @@
       btn.title = recolhida ? "Expandir menu" : "Recolher menu";
       btn.setAttribute("aria-pressed", recolhida ? "true" : "false");
     });
+    window.finupAgendarRedimensionarGraficos?.();
   }
 
   try {
@@ -165,4 +166,26 @@
       btn.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
     });
   });
+
+  $$("[data-voltar]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const ref = document.referrer || "";
+      const mesmaOrigem = ref.startsWith(location.origin);
+      if (mesmaOrigem && window.history.length > 1) {
+        history.back();
+        return;
+      }
+      location.href = btn.dataset.voltarFallback || "/";
+    });
+  });
+
+  const mainWrap = $(".main-wrap");
+  if (mainWrap && window.ResizeObserver && window.finupAgendarRedimensionarGraficos) {
+    let tamanhoTimer = null;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(tamanhoTimer);
+      tamanhoTimer = setTimeout(() => window.finupAgendarRedimensionarGraficos(), 80);
+    });
+    observer.observe(mainWrap);
+  }
 })();
