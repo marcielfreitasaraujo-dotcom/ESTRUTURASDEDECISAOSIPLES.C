@@ -144,6 +144,15 @@
       {% if pagamento_cfg.disponivel %}
         <article class="assinatura-card">
           <h2>Pagar assinatura</h2>
+          {% if pagamento_cfg.modo_teste %}
+            <div class="flash flash-erro" style="margin-top:0.75rem">
+              <strong>PIX de teste ativo.</strong> O QR Code atual é do sandbox do Mercado Pago e
+              <strong>não pode ser pago</strong> pelo app do banco. Para receber PIX real, troque no Railway
+              as chaves <code>TEST-...</code> por credenciais de produção (<code>APP_USR-...</code>).
+              Enquanto isso, use a aba <strong>Cartão parcelado</strong> com cartão de teste
+              (<code>5031 4332 1540 6351</code>, nome <code>APRO</code>).
+            </div>
+          {% endif %}
           <p class="muted">
             O acesso é liberado <strong>automaticamente</strong> após a confirmação do pagamento de
             <strong>{{ plano.valor | moeda }}</strong> via <strong>Mercado Pago</strong>.

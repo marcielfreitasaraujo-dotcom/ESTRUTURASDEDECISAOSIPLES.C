@@ -358,9 +358,15 @@ def config_pagamento_frontend() -> dict:
     plano = obter_plano_assinatura()
     max_parcelas = int(current_app.config.get("MERCADOPAGO_MAX_PARCELAS") or 12)
     public_key = (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip()
+    modo_teste_mp = False
+    if not _usar_mock():
+        from app.services import mercadopago as mp
+
+        modo_teste_mp = mp.modo_teste()
     return {
         "disponivel": pagamento_automatico_disponivel(),
         "mock": _usar_mock(),
+        "modo_teste": modo_teste_mp,
         "public_key": public_key,
         "valor": str(plano["valor"]),
         "max_parcelas": max(1, min(12, max_parcelas)),

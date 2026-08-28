@@ -39,6 +39,10 @@
       Enviamos um <strong>código de 6 dígitos</strong> e um link para
       <strong>{{ email }}</strong>. Digite o código abaixo ou abra o link do e-mail.
     </p>
+    <p class="hint" style="margin-top:0.5rem">
+      Não achou? Confira a pasta <strong>Spam</strong> ou <strong>Promoções</strong> e marque como
+      <strong>“Não é spam”</strong> para os próximos chegarem na caixa de entrada.
+    </p>
     {% if aviso_email %}
       <div class="flash flash-erro">{{ aviso_email | safe }}</div>
     {% elif not email_ok %}

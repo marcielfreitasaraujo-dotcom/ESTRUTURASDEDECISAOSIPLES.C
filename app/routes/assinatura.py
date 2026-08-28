@@ -1,4 +1,5 @@
 from datetime import date
+import logging
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -32,6 +33,7 @@ from app.utils.assinatura import (
 from app.utils.decorators import admin_obrigatorio
 
 assinatura_bp = Blueprint("assinatura", __name__)
+logger = logging.getLogger("finup.assinatura")
 
 
 @assinatura_bp.route("/assinatura/bloqueado")
@@ -306,6 +308,7 @@ def remover_usuario(usuario_id):
         flash(str(exc), "erro")
     except Exception:
         db.session.rollback()
+        logger.exception("Falha ao remover usuário id=%s", usuario_id)
         flash("Não foi possível remover o usuário. Tente novamente.", "erro")
     return redirect(url_for("assinatura.index"))
 
