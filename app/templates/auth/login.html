@@ -30,7 +30,7 @@
       >
     </div>
     <h1>Olá! Entre para ver seu saldo.</h1>
-    <p class="muted">Já tem conta? Entre com e-mail e senha. Ainda não? Crie a conta — teste grátis de {{ plano.teste_horas }}h ou plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
+    <p class="muted">Já tem conta? Use seu e-mail e senha abaixo.</p>
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
@@ -65,9 +65,21 @@
       </p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
-    <p class="hint" style="margin-top:1rem">
-      Novo por aqui?
-      <a href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
+
+    <div class="auth-divisor" aria-hidden="true">ou</div>
+
+    <section class="auth-signup-box" aria-labelledby="titulo-criar-conta">
+      <h2 id="titulo-criar-conta">Novo no FinUP?</h2>
+      <p>
+        Crie sua conta em poucos segundos.<br>
+        <strong>Teste grátis de {{ plano.teste_horas }}h</strong> ou assine o plano
+        <strong>{{ plano.nome }}</strong> por <strong>{{ plano.valor | moeda }}</strong>.
+      </p>
+      <a class="btn-assinar" href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
+    </section>
+
+    <p class="hint" style="margin-top:0.85rem;text-align:center">
+      Sem compromisso no teste grátis · cancele quando quiser
     </p>
     {% if config.DEBUG %}
     <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
