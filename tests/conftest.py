@@ -11,6 +11,7 @@ class TestConfig(Config):
     SECRET_KEY = "teste"
     MAIL_SUPPRESS_SEND = True
     MAIL_SERVER = ""
+    PAGAMENTO_MOCK = True
 
 
 @pytest.fixture()

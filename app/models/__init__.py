@@ -5,6 +5,7 @@ from app.models.movimentacao import Movimentacao, TIPOS_MOVIMENTACAO, FORMAS_PAG
 from app.models.comprovante import Comprovante
 from app.models.contas_pagar import ContaPagar, Recorrencia, TIPOS_TITULO, STATUS_TITULO, PERIODICIDADES
 from app.models.cartao import Cartao, Parcela
+from app.models.cobranca_assinatura import CobrancaAssinatura
 from app.models.sistema import Orcamento, Configuracao, Auditoria, Notificacao
 
 __all__ = [
@@ -25,6 +26,7 @@ __all__ = [
     "PERIODICIDADES",
     "Cartao",
     "Parcela",
+    "CobrancaAssinatura",
     "Orcamento",
     "Configuracao",
     "Auditoria",

@@ -22,8 +22,8 @@ PLANO_PADRAO = "Mensal"
 DIAS_PADRAO = 30
 TESTE_HORAS_PADRAO = 24
 INSTRUCOES_PADRAO = (
-    "Escolha o teste grátis de 24 horas ou pague via PIX nesta tela. "
-    "Após o pagamento, toque em “Já paguei” para liberar o acesso na hora."
+    "Escolha o teste grátis de 24 horas ou pague via PIX ou cartão nesta tela. "
+    "O acesso é liberado automaticamente após a confirmação do pagamento."
 )
 PIX_NOME_PADRAO = "FINUP"
 PIX_CIDADE_PADRAO = "SAO PAULO"
@@ -349,6 +349,11 @@ def endpoints_livres_assinatura() -> set[str]:
         "auth.esqueci_senha",
         "auth.redefinir_senha",
         "assinatura.bloqueado",
-        "assinatura.confirmar_pagamento",
         "assinatura.iniciar_teste_gratis",
+        "assinatura.status_cobranca",
+        "assinatura.pagar_cartao",
+        "assinatura.config_pagamento",
+        "assinatura.webhook_mercadopago",
+        "assinatura.retorno_pagamento",
+        "assinatura.simular_pagamento_teste",
     }

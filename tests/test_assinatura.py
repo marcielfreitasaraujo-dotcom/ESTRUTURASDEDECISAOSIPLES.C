@@ -97,7 +97,7 @@ def test_sem_familia_sem_pagamento_e_bloqueado(admin_client, client, app):
     assert client.get("/assinatura/bloqueado").status_code == 200
 
 
-def test_pix_na_tela_bloqueado_e_ja_paguei_libera(admin_client, client, app):
+def test_pix_na_tela_bloqueado_e_confirmacao_automatica_libera(admin_client, client, app):
     with app.app_context():
         definir_bloqueio_assinatura(True)
         salvar_plano_assinatura(
@@ -122,15 +122,27 @@ def test_pix_na_tela_bloqueado_e_ja_paguei_libera(admin_client, client, app):
     pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
     html = pagina.get_data(as_text=True)
     assert pagina.status_code == 200
-    assert "Pagar com PIX" in html
+    assert "Pagar assinatura" in html
     assert "PIX copia e cola" in html
-    assert "Já paguei" in html
+    assert "Já paguei" not in html
     assert "data:image/png;base64," in html
     assert "000201" in html
 
-    resp = client.post("/assinatura/confirmar-pagamento", follow_redirects=True)
+    from app.models import CobrancaAssinatura
+
+    with app.app_context():
+        u = Usuario.query.filter_by(username="cliente_pix").first()
+        cobranca = (
+            CobrancaAssinatura.query.filter_by(usuario_id=u.id)
+            .order_by(CobrancaAssinatura.id.desc())
+            .first()
+        )
+        assert cobranca is not None
+        cobranca_id = cobranca.id
+
+    resp = client.post(f"/assinatura/test/simular-pagamento/{cobranca_id}")
     assert resp.status_code == 200
-    assert "Escolha como começar" not in resp.get_data(as_text=True)
+    assert resp.get_json()["ok"] is True
     assert client.get("/contas").status_code == 200
     with app.app_context():
         u = Usuario.query.filter_by(username="cliente_pix").first()
@@ -433,6 +445,37 @@ def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
 
         with pytest.raises(ValueError, match="já usou"):
             liberar_teste_gratis(u)
+
+
+def test_cartao_mock_libera_acesso(admin_client, client, app):
+    with app.app_context():
+        definir_bloqueio_assinatura(True)
+        salvar_plano_assinatura(
+            nome="Mensal",
+            valor="29.90",
+            dias=30,
+            instrucoes="Pague",
+            pix_chave="pix@finup.app",
+        )
+        criar_membro_familia(
+            "Cliente Card",
+            "cliente_card",
+            "senha123",
+            eh_familia=False,
+            assinatura_ativa=False,
+        )
+        db.session.commit()
+
+    _login(client, "cliente_card", "senha123")
+    resp = client.post(
+        "/assinatura/pagar-cartao",
+        json={"token": "mock", "payment_method_id": "visa", "installments": 3},
+    )
+    assert resp.status_code == 200
+    assert resp.get_json()["status"] == "pago"
+    with app.app_context():
+        u = Usuario.query.filter_by(username="cliente_card").first()
+        assert u.assinatura_ativa is True
 
 
 def test_teste_gratis_expirado_bloqueia(admin_client, client, app):
