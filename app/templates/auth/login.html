@@ -75,7 +75,7 @@
         <strong>Teste grátis de {{ plano.teste_horas }}h</strong> ou assine o plano
         <strong>{{ plano.nome }}</strong> por <strong>{{ plano.valor | moeda }}</strong>.
       </p>
-      <a class="btn-assinar" href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
+      <a class="btn btn-primary btn-block" href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
     </section>
 
     <p class="hint" style="margin-top:0.85rem;text-align:center">

@@ -1003,24 +1003,11 @@ html[data-theme="escuro"] .flash-info { background: #0c4a6e; color: #bae6fd; }
   color: #475569;
   line-height: 1.45;
 }
-.btn-assinar {
+.auth-signup-box .btn {
   margin-top: 0.9rem;
-  width: 100%;
-  padding: 0.85rem 1rem;
-  border-radius: 12px;
-  border: 0;
-  background: linear-gradient(135deg, #0f766e 0%, #0d9488 55%, #14b8a6 100%);
-  color: #fff;
-  font-weight: 800;
-  font-size: 1rem;
-  text-decoration: none;
-  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.28);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.btn-assinar:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(15, 118, 110, 0.34);
-  color: #fff;
+a.btn {
+  text-decoration: none;
 }
 .hint { color: var(--muted); font-size: 0.85rem; }
 code { background: var(--surface-2); padding: 0.1rem 0.35rem; border-radius: 6px; }
