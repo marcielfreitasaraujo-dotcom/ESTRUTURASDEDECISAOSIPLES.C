@@ -24,9 +24,32 @@
     })();
   </script>
   <style>
-    .pix-box { margin-top: 1.1rem; text-align: center; }
+    .assinatura-opcoes {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .assinatura-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .assinatura-card h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.05rem;
+    }
+    .assinatura-card p {
+      margin: 0;
+    }
+    .assinatura-card--destaque {
+      border-color: rgba(20, 184, 166, 0.45);
+      background: linear-gradient(180deg, rgba(20, 184, 166, 0.08), transparent);
+    }
+    .pix-box { margin-top: 0.85rem; text-align: center; }
     .pix-box img {
-      width: min(220px, 70vw);
+      width: min(200px, 65vw);
       height: auto;
       border-radius: 12px;
       background: #fff;
@@ -45,11 +68,26 @@
     }
     .pix-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem; }
     .pix-hint { margin-top: 0.85rem; font-size: 0.9rem; }
+    .assinatura-divisor {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 0.25rem 0;
+    }
+    .assinatura-divisor::before,
+    .assinatura-divisor::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
   </style>
 </head>
 <body class="auth-body">
   <div class="auth-bg" aria-hidden="true"></div>
-  <main class="auth-card">
+  <main class="auth-card" style="max-width: 520px">
     <div class="brand brand-lg brand-lockup">
       <img
         class="brand-logo brand-logo-full"
@@ -59,56 +97,89 @@
         height="220"
       >
     </div>
-    <h1>Assinatura necessária</h1>
+    <h1>Escolha como começar</h1>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for cat, msg in messages %}
         <div class="flash flash-{{ cat }}">{{ msg }}</div>
       {% endfor %}
     {% endwith %}
     <p class="muted">
-      Olá, <strong>{{ current_user.nome }}</strong>. Sua conta existe, mas o acesso ao FinUP
-      depende da assinatura paga.
+      Olá, <strong>{{ current_user.nome }}</strong>. Sua conta está pronta — agora escolha o
+      <strong>teste grátis</strong> ou faça o <strong>pagamento</strong> para liberar o FinUP.
     </p>
     <p>
       Plano <strong>{{ plano.nome }}</strong>:
       <strong>{{ plano.valor | moeda }}</strong>
       a cada {{ plano.dias }} dias.
     </p>
-    {% if current_user.assinatura_vence_em %}
+    {% if current_user.assinatura_vence_em and status in ['vencida', 'bloqueada'] %}
       <p class="muted">
         Último vencimento:
         <strong>{{ current_user.assinatura_vence_em.strftime('%d/%m/%Y') }}</strong>
-        {% if status == 'vencida' %}(vencido){% endif %}
+        {% if status == 'vencida' %}(expirado){% endif %}
       </p>
     {% endif %}
 
-    {% if pix %}
-      <div class="pix-box">
-        <p><strong>Pague agora via PIX</strong></p>
-        <img src="{{ pix.qr_data_uri }}" alt="QR Code PIX da assinatura FinUP" width="220" height="220">
-        <label class="muted" for="pix-copia" style="display:block;margin-top:0.75rem;text-align:left">
-          PIX copia e cola
-        </label>
-        <textarea id="pix-copia" class="pix-copia" readonly rows="4">{{ pix.payload }}</textarea>
-        <div class="pix-actions">
-          <button class="btn btn-ghost" type="button" id="btn-copiar-pix">Copiar PIX</button>
-        </div>
-        <p class="muted pix-hint">
-          1. Escaneie o QR ou cole o código no app do banco<br>
-          2. Confirme o pagamento de <strong>{{ plano.valor | moeda }}</strong><br>
-          3. Toque em <strong>Já paguei</strong> para liberar o acesso na hora
+    <div class="assinatura-opcoes">
+      {% if pode_teste %}
+        <article class="assinatura-card assinatura-card--destaque">
+          <h2>Teste grátis · {{ plano.teste_horas }}h</h2>
+          <p class="muted">
+            Experimente o FinUP completo por {{ plano.teste_horas }} horas, sem pagar agora.
+            Disponível uma vez por conta.
+          </p>
+          <form action="{{ url_for('assinatura.iniciar_teste_gratis') }}" method="post" style="margin-top:0.9rem">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-primary" type="submit" style="width:100%">
+              Iniciar teste grátis de {{ plano.teste_horas }}h
+            </button>
+          </form>
+        </article>
+
+        {% if pix or plano.instrucoes %}
+          <div class="assinatura-divisor">ou pague agora</div>
+        {% endif %}
+      {% elif current_user.teste_gratis_usado %}
+        <p class="muted" style="margin:0">
+          Você já usou o teste grátis. Para continuar, faça o pagamento do plano abaixo.
         </p>
-        <form action="{{ url_for('assinatura.confirmar_pagamento') }}" method="post" style="margin-top:1rem">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button class="btn btn-primary" type="submit" style="width:100%">Já paguei — liberar acesso</button>
-        </form>
-      </div>
-    {% else %}
-      <p class="muted" style="white-space:pre-wrap">{{ plano.instrucoes }}</p>
-      <p class="muted" style="margin-top:0.75rem">
-        O administrador ainda não cadastrou a chave PIX. Avise-o para liberar o pagamento automático nesta tela.
-      </p>
-    {% endif %}
+      {% endif %}
+
+      <article class="assinatura-card">
+        <h2>Pagar com PIX</h2>
+        <p class="muted">
+          Acesso liberado automaticamente após confirmar o pagamento de
+          <strong>{{ plano.valor | moeda }}</strong>.
+        </p>
+
+        {% if pix %}
+          <div class="pix-box">
+            <img src="{{ pix.qr_data_uri }}" alt="QR Code PIX da assinatura FinUP" width="200" height="200">
+            <label class="muted" for="pix-copia" style="display:block;margin-top:0.75rem;text-align:left">
+              PIX copia e cola
+            </label>
+            <textarea id="pix-copia" class="pix-copia" readonly rows="4">{{ pix.payload }}</textarea>
+            <div class="pix-actions">
+              <button class="btn btn-ghost" type="button" id="btn-copiar-pix">Copiar PIX</button>
+            </div>
+            <p class="muted pix-hint">
+              1. Escaneie o QR ou cole o código no app do banco<br>
+              2. Confirme o pagamento de <strong>{{ plano.valor | moeda }}</strong><br>
+              3. Toque em <strong>Já paguei</strong> para liberar o acesso na hora
+            </p>
+            <form action="{{ url_for('assinatura.confirmar_pagamento') }}" method="post" style="margin-top:1rem">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-primary" type="submit" style="width:100%">Já paguei — liberar acesso</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="muted" style="white-space:pre-wrap;margin-top:0.75rem">{{ plano.instrucoes }}</p>
+          <p class="muted" style="margin-top:0.75rem">
+            O administrador ainda não cadastrou a chave PIX. Avise-o para liberar o pagamento automático nesta tela.
+          </p>
+        {% endif %}
+      </article>
+    </div>
 
     {% if plano.instrucoes and pix %}
       <p class="muted" style="white-space:pre-wrap;margin-top:1rem">{{ plano.instrucoes }}</p>

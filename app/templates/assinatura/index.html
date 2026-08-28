@@ -62,6 +62,14 @@
       Dias do ciclo
       <input type="number" name="plano_dias" value="{{ plano.dias }}" min="1" max="366" required>
     </label>
+    <label>
+      Teste grátis (horas)
+      <input type="number" name="teste_horas" value="{{ plano.teste_horas }}" min="1" max="168" required>
+    </label>
+    <label class="full" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
+      <input type="checkbox" name="teste_ativo" value="1" {% if plano.teste_ativo %}checked{% endif %}>
+      Oferecer teste grátis no cadastro (uma vez por conta)
+    </label>
     <label class="full">
       Chave PIX (e-mail, celular, CPF/CNPJ ou chave aleatória)
       <input type="text" name="pix_chave" value="{{ plano.pix_chave }}" maxlength="120" placeholder="sua-chave@email.com ou chave aleatória">
@@ -140,6 +148,8 @@
                 <span class="badge pago">Família · isento</span>
               {% elif st == 'ativa' %}
                 <span class="badge pago">Ativo · pago</span>
+              {% elif st == 'teste' %}
+                <span class="badge investimento">Teste grátis</span>
               {% elif st == 'vencida' %}
                 <span class="badge despesa">Vencido · bloqueado</span>
               {% else %}
@@ -153,6 +163,11 @@
                 <strong class="{{ 'despesa' if m.assinatura_vence_em < hoje else '' }}">
                   {{ m.assinatura_vence_em.strftime('%d/%m/%Y') }}
                 </strong>
+                {% if m.assinatura_expira_em and st == 'teste' %}
+                  <div class="muted" style="font-size:0.8rem">
+                    até {{ m.assinatura_expira_em.strftime('%d/%m/%Y %H:%M') }}
+                  </div>
+                {% endif %}
               {% else %}
                 <span class="muted">sem data</span>
               {% endif %}
@@ -198,8 +213,7 @@
                   data-nome="{{ m.nome }}"
                 >
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                  <input type="hidden" name="confirmacao" value="">
-                  <button class="btn btn-ghost btn-sm" type="submit" style="color:var(--despesa)">Remover usuário</button>
+                  <button class="btn btn-ghost btn-sm" type="button" data-abrir-remover style="color:var(--despesa)">Remover usuário</button>
                 </form>
                 {% if m.eh_email and not m.email_verificado %}
                   <form action="{{ url_for('assinatura.confirmar_email', usuario_id=m.id) }}" method="post" class="inline" style="margin-top:0.35rem;display:block">
@@ -219,29 +233,75 @@
     </table>
   </div>
 </article>
+
+<dialog class="modal-dialog" id="modal-remover-usuario">
+  <form method="post" class="stack modal-dialog-card" id="form-remover-usuario">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <header class="card-head">
+      <h2>Confirmar remoção</h2>
+    </header>
+    <p class="muted" id="modal-remover-texto"></p>
+    <label>
+      Sua senha de login
+      <input
+        type="password"
+        name="senha_confirmacao"
+        id="campo-senha-remover"
+        autocomplete="current-password"
+        required
+      >
+    </label>
+    <div class="btn-row" style="margin-top:0.5rem">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-remover">Cancelar</button>
+      <button type="submit" class="btn btn-primary" style="background:var(--despesa);border-color:var(--despesa)">
+        Remover permanentemente
+      </button>
+    </div>
+  </form>
+</dialog>
+
 <script>
-  document.querySelectorAll("form.form-remover-usuario").forEach((form) => {
-    form.addEventListener("submit", (event) => {
-      const username = form.dataset.username || "";
-      const nome = form.dataset.nome || "";
-      const ok = window.confirm(
-        "Remover permanentemente “" + nome + "” (@" + username + ")?\n\n" +
-        "Isso apaga a conta e os dados financeiros desse usuário. Não tem volta."
-      );
-      if (!ok) {
-        event.preventDefault();
-        return;
-      }
-      const digitado = window.prompt(
-        "Para confirmar, digite o usuário exatamente:\n" + username
-      );
-      if (!digitado || digitado.trim().toLowerCase() !== username.toLowerCase()) {
-        event.preventDefault();
-        window.alert("Remoção cancelada. O usuário digitado não confere.");
-        return;
-      }
-      form.querySelector("input[name=confirmacao]").value = digitado.trim();
+  (function () {
+    const modal = document.getElementById("modal-remover-usuario");
+    const formRemover = document.getElementById("form-remover-usuario");
+    const texto = document.getElementById("modal-remover-texto");
+    const campoSenha = document.getElementById("campo-senha-remover");
+    const btnCancelar = document.getElementById("btn-cancelar-remover");
+
+    function fecharModal() {
+      if (!modal) return;
+      if (typeof modal.close === "function") modal.close();
+      else modal.removeAttribute("open");
+      if (campoSenha) campoSenha.value = "";
+    }
+
+    document.querySelectorAll("form.form-remover-usuario").forEach((form) => {
+      form.querySelector("[data-abrir-remover]")?.addEventListener("click", () => {
+        const username = form.dataset.username || "";
+        const nome = form.dataset.nome || "";
+        if (!modal || !formRemover || !texto) return;
+        formRemover.action = form.action;
+        const csrf = form.querySelector('input[name="csrf_token"]');
+        const csrfDestino = formRemover.querySelector('input[name="csrf_token"]');
+        if (csrf && csrfDestino) csrfDestino.value = csrf.value;
+        texto.textContent =
+          "Remover permanentemente “" + nome + "” (" + username + ")? " +
+          "Isso apaga a conta e os dados financeiros desse usuário. Não tem volta.";
+        if (campoSenha) campoSenha.value = "";
+        if (typeof modal.showModal === "function") modal.showModal();
+        else modal.setAttribute("open", "open");
+        campoSenha?.focus();
+      });
     });
-  });
+
+    btnCancelar?.addEventListener("click", fecharModal);
+    modal?.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      fecharModal();
+    });
+    modal?.addEventListener("click", (event) => {
+      if (event.target === modal) fecharModal();
+    });
+  })();
 </script>
 {% endblock %}
