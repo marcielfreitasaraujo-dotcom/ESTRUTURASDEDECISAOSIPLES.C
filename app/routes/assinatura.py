@@ -223,12 +223,9 @@ def remover_usuario(usuario_id):
         flash("Não é permitido remover administrador por aqui.", "erro")
         return redirect(url_for("assinatura.index"))
 
-    confirmacao = (request.form.get("confirmacao") or "").strip().lower()
-    if confirmacao != (membro.username or "").strip().lower():
-        flash(
-            f"Remoção cancelada. Digite exatamente o usuário “{membro.username}” para confirmar.",
-            "erro",
-        )
+    confirmacao = (request.form.get("senha_confirmacao") or "").strip()
+    if not confirmacao or not current_user.verificar_senha(confirmacao):
+        flash("Senha incorreta. Remoção cancelada.", "erro")
         return redirect(url_for("assinatura.index"))
 
     try:
