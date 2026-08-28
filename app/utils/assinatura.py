@@ -10,14 +10,19 @@ CHAVE_VALOR = "assinatura_valor"
 CHAVE_PLANO = "assinatura_plano_nome"
 CHAVE_DIAS = "assinatura_dias_ciclo"
 CHAVE_INSTRUCOES = "assinatura_instrucoes_pagamento"
+CHAVE_PIX_CHAVE = "assinatura_pix_chave"
+CHAVE_PIX_NOME = "assinatura_pix_nome"
+CHAVE_PIX_CIDADE = "assinatura_pix_cidade"
 
 VALOR_PADRAO = "29.90"
 PLANO_PADRAO = "Mensal"
 DIAS_PADRAO = 30
 INSTRUCOES_PADRAO = (
-    "Após criar a conta, pague a assinatura e avise o administrador "
-    "para liberar o acesso. PIX e valores ficam na tela de Assinatura."
+    "Pague via PIX (QR Code ou copia e cola) nesta tela e toque em "
+    "“Já paguei” para liberar o acesso na hora."
 )
+PIX_NOME_PADRAO = "FINUP"
+PIX_CIDADE_PADRAO = "SAO PAULO"
 
 
 def _cfg(chave: str) -> Configuracao | None:
@@ -53,10 +58,16 @@ def obter_plano_assinatura() -> dict:
     cfg_plano = _cfg(CHAVE_PLANO)
     cfg_dias = _cfg(CHAVE_DIAS)
     cfg_inst = _cfg(CHAVE_INSTRUCOES)
+    cfg_pix = _cfg(CHAVE_PIX_CHAVE)
+    cfg_pix_nome = _cfg(CHAVE_PIX_NOME)
+    cfg_pix_cidade = _cfg(CHAVE_PIX_CIDADE)
     valor_txt = ((cfg_valor.valor if cfg_valor else None) or VALOR_PADRAO).strip()
     plano = ((cfg_plano.valor if cfg_plano else None) or PLANO_PADRAO).strip()
     dias_txt = ((cfg_dias.valor if cfg_dias else None) or str(DIAS_PADRAO)).strip()
     instrucoes = ((cfg_inst.valor if cfg_inst else None) or INSTRUCOES_PADRAO).strip()
+    pix_chave = ((cfg_pix.valor if cfg_pix else None) or "").strip()
+    pix_nome = ((cfg_pix_nome.valor if cfg_pix_nome else None) or PIX_NOME_PADRAO).strip()
+    pix_cidade = ((cfg_pix_cidade.valor if cfg_pix_cidade else None) or PIX_CIDADE_PADRAO).strip()
     try:
         dias = max(1, int(dias_txt))
     except (TypeError, ValueError):
@@ -69,6 +80,10 @@ def obter_plano_assinatura() -> dict:
         "valor": valor,
         "dias": dias,
         "instrucoes": instrucoes[:2000] or INSTRUCOES_PADRAO,
+        "pix_chave": pix_chave[:120],
+        "pix_nome": (pix_nome[:60] or PIX_NOME_PADRAO),
+        "pix_cidade": (pix_cidade[:40] or PIX_CIDADE_PADRAO),
+        "pix_configurado": bool(pix_chave),
     }
 
 
@@ -78,6 +93,9 @@ def salvar_plano_assinatura(
     valor,
     dias: int,
     instrucoes: str,
+    pix_chave: str | None = None,
+    pix_nome: str | None = None,
+    pix_cidade: str | None = None,
 ) -> dict:
     plano = (nome or "").strip()[:80] or PLANO_PADRAO
     valor_dec = parse_moeda(valor)
@@ -92,8 +110,43 @@ def salvar_plano_assinatura(
     _definir_cfg(CHAVE_VALOR, f"{valor_dec:.2f}")
     _definir_cfg(CHAVE_DIAS, str(ciclo))
     _definir_cfg(CHAVE_INSTRUCOES, texto)
+    if pix_chave is not None:
+        _definir_cfg(CHAVE_PIX_CHAVE, (pix_chave or "").strip()[:120])
+    if pix_nome is not None:
+        _definir_cfg(CHAVE_PIX_NOME, ((pix_nome or "").strip()[:60] or PIX_NOME_PADRAO))
+    if pix_cidade is not None:
+        _definir_cfg(CHAVE_PIX_CIDADE, ((pix_cidade or "").strip()[:40] or PIX_CIDADE_PADRAO))
     return obter_plano_assinatura()
 
+
+def montar_cobranca_pix(usuario: Usuario | None = None) -> dict | None:
+    """Gera copia-e-cola + QR do plano atual. None se a chave PIX não estiver configurada."""
+    from app.services.pix import (
+        gerar_payload_pix,
+        montar_txid,
+        payload_para_qr_data_uri,
+    )
+
+    plano = obter_plano_assinatura()
+    if not plano.get("pix_chave"):
+        return None
+    uid = getattr(usuario, "id", None) if usuario is not None else None
+    txid = montar_txid(uid)
+    payload = gerar_payload_pix(
+        chave=plano["pix_chave"],
+        nome_recebedor=plano["pix_nome"],
+        cidade=plano["pix_cidade"],
+        valor=plano["valor"],
+        txid=txid,
+        descricao=f"FinUP {plano['nome']}",
+    )
+    return {
+        "payload": payload,
+        "txid": txid,
+        "qr_data_uri": payload_para_qr_data_uri(payload),
+        "valor": plano["valor"],
+        "chave": plano["pix_chave"],
+    }
 
 def sincronizar_vencimentos(hoje: date | None = None) -> int:
     """Desativa assinaturas com vencimento passado. Retorna quantas foram bloqueadas."""
@@ -210,4 +263,5 @@ def endpoints_livres_assinatura() -> set[str]:
         "auth.esqueci_senha",
         "auth.redefinir_senha",
         "assinatura.bloqueado",
+        "assinatura.confirmar_pagamento",
     }

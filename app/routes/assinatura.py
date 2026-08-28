@@ -10,6 +10,7 @@ from app.utils.assinatura import (
     bloqueio_assinatura_ativo,
     definir_bloqueio_assinatura,
     liberar_assinatura,
+    montar_cobranca_pix,
     obter_plano_assinatura,
     resumo_financeiro_assinatura,
     salvar_plano_assinatura,
@@ -27,11 +28,41 @@ def bloqueado():
     if usuario_tem_acesso(current_user) or not bloqueio_assinatura_ativo():
         return redirect(url_for("dashboard.index"))
     plano = obter_plano_assinatura()
+    pix = None
+    try:
+        pix = montar_cobranca_pix(current_user)
+    except Exception:
+        pix = None
     return render_template(
         "assinatura/bloqueado.html",
         plano=plano,
         status=status_assinatura_usuario(current_user),
+        pix=pix,
     )
+
+
+@assinatura_bp.route("/assinatura/confirmar-pagamento", methods=["POST"])
+@login_required
+def confirmar_pagamento():
+    """Usuário informa que pagou o PIX: libera o ciclo na hora."""
+    if current_user.eh_admin or current_user.eh_familia:
+        return redirect(url_for("dashboard.index"))
+    if not bloqueio_assinatura_ativo():
+        return redirect(url_for("dashboard.index"))
+    if usuario_tem_acesso(current_user):
+        return redirect(url_for("dashboard.index"))
+    plano = obter_plano_assinatura()
+    if not plano.get("pix_configurado"):
+        flash("PIX ainda não configurado. Peça ao administrador para cadastrar a chave.", "erro")
+        return redirect(url_for("assinatura.bloqueado"))
+    liberar_assinatura(current_user)
+    db.session.commit()
+    flash(
+        f"Pagamento confirmado! Acesso liberado até "
+        f"{current_user.assinatura_vence_em.strftime('%d/%m/%Y')}.",
+        "sucesso",
+    )
+    return redirect(url_for("dashboard.index"))
 
 
 @assinatura_bp.route("/assinatura")
@@ -63,9 +94,12 @@ def salvar_plano():
             valor=request.form.get("plano_valor"),
             dias=request.form.get("plano_dias") or 30,
             instrucoes=request.form.get("plano_instrucoes") or "",
+            pix_chave=request.form.get("pix_chave"),
+            pix_nome=request.form.get("pix_nome"),
+            pix_cidade=request.form.get("pix_cidade"),
         )
         db.session.commit()
-        flash("Valores e instruções da assinatura atualizados.", "sucesso")
+        flash("Valores, PIX e instruções da assinatura atualizados.", "sucesso")
     except ValueError as exc:
         db.session.rollback()
         flash(str(exc), "erro")

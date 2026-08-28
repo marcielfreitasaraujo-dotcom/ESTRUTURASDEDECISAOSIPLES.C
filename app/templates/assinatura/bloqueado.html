@@ -23,6 +23,29 @@
       }
     })();
   </script>
+  <style>
+    .pix-box { margin-top: 1.1rem; text-align: center; }
+    .pix-box img {
+      width: min(220px, 70vw);
+      height: auto;
+      border-radius: 12px;
+      background: #fff;
+      padding: 0.6rem;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+    }
+    .pix-copia {
+      width: 100%;
+      margin-top: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      word-break: break-all;
+      resize: vertical;
+      min-height: 4.5rem;
+    }
+    .pix-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem; }
+    .pix-hint { margin-top: 0.85rem; font-size: 0.9rem; }
+  </style>
 </head>
 <body class="auth-body">
   <div class="auth-bg" aria-hidden="true"></div>
@@ -37,6 +60,11 @@
       >
     </div>
     <h1>Assinatura necessária</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
     <p class="muted">
       Olá, <strong>{{ current_user.nome }}</strong>. Sua conta existe, mas o acesso ao FinUP
       depende da assinatura paga.
@@ -53,10 +81,66 @@
         {% if status == 'vencida' %}(vencido){% endif %}
       </p>
     {% endif %}
-    <p class="muted" style="white-space:pre-wrap">{{ plano.instrucoes }}</p>
+
+    {% if pix %}
+      <div class="pix-box">
+        <p><strong>Pague agora via PIX</strong></p>
+        <img src="{{ pix.qr_data_uri }}" alt="QR Code PIX da assinatura FinUP" width="220" height="220">
+        <label class="muted" for="pix-copia" style="display:block;margin-top:0.75rem;text-align:left">
+          PIX copia e cola
+        </label>
+        <textarea id="pix-copia" class="pix-copia" readonly rows="4">{{ pix.payload }}</textarea>
+        <div class="pix-actions">
+          <button class="btn btn-ghost" type="button" id="btn-copiar-pix">Copiar PIX</button>
+        </div>
+        <p class="muted pix-hint">
+          1. Escaneie o QR ou cole o código no app do banco<br>
+          2. Confirme o pagamento de <strong>{{ plano.valor | moeda }}</strong><br>
+          3. Toque em <strong>Já paguei</strong> para liberar o acesso na hora
+        </p>
+        <form action="{{ url_for('assinatura.confirmar_pagamento') }}" method="post" style="margin-top:1rem">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-primary" type="submit" style="width:100%">Já paguei — liberar acesso</button>
+        </form>
+      </div>
+    {% else %}
+      <p class="muted" style="white-space:pre-wrap">{{ plano.instrucoes }}</p>
+      <p class="muted" style="margin-top:0.75rem">
+        O administrador ainda não cadastrou a chave PIX. Avise-o para liberar o pagamento automático nesta tela.
+      </p>
+    {% endif %}
+
+    {% if plano.instrucoes and pix %}
+      <p class="muted" style="white-space:pre-wrap;margin-top:1rem">{{ plano.instrucoes }}</p>
+    {% endif %}
+
     <p style="margin-top:1.25rem">
-      <a class="btn btn-primary" href="{{ url_for('auth.logout') }}">Sair</a>
+      <a class="btn btn-ghost" href="{{ url_for('auth.logout') }}">Sair</a>
     </p>
   </main>
+  <script>
+    (function () {
+      var btn = document.getElementById("btn-copiar-pix");
+      var area = document.getElementById("pix-copia");
+      if (!btn || !area) return;
+      btn.addEventListener("click", function () {
+        var texto = area.value || "";
+        function ok() {
+          var antigo = btn.textContent;
+          btn.textContent = "Copiado!";
+          setTimeout(function () { btn.textContent = antigo; }, 1600);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(texto).then(ok).catch(function () {
+            area.select();
+            try { document.execCommand("copy"); ok(); } catch (_e) {}
+          });
+        } else {
+          area.select();
+          try { document.execCommand("copy"); ok(); } catch (_e) {}
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

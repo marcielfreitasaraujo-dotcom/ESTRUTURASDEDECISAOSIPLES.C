@@ -10,7 +10,11 @@ from app.services.auth_email import (
 )
 from app.services.email import limpar_outbox  # noqa: F401 — reexport útil em testes
 from app.services.seed import criar_membro_familia
-from app.utils.assinatura import obter_plano_assinatura
+from app.utils.assinatura import (
+    bloqueio_assinatura_ativo,
+    obter_plano_assinatura,
+    usuario_tem_acesso,
+)
 from app.utils.tokens import ler_token_reset, ler_token_verificacao
 import logging
 
@@ -25,14 +29,26 @@ def _destino_seguro(valor: str | None, padrao: str) -> str:
     return destino
 
 
+def _destino_pos_login(usuario: Usuario, next_param: str | None = None) -> str:
+    """Para onde ir após login: verificação de e-mail, pagamento PIX ou app."""
+    if usuario_precisa_verificar_email(usuario):
+        return url_for("auth.aguardando_verificacao")
+    if bloqueio_assinatura_ativo() and not usuario_tem_acesso(usuario):
+        return url_for("assinatura.bloqueado")
+    destino = next_param or url_for("dashboard.index")
+    if not destino.startswith("/"):
+        return url_for("dashboard.index")
+    return destino
+
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
         if usuario_precisa_verificar_email(current_user):
             return redirect(url_for("auth.aguardando_verificacao"))
-        destino = _destino_seguro(
+        destino = _destino_pos_login(
+            current_user,
             request.args.get("next"),
-            url_for("dashboard.index"),
         )
         return redirect(url_for("auth.sessao_verificar", next=destino))
 
@@ -52,11 +68,12 @@ def login():
             login_user(usuario, remember=False)
             session.permanent = False
             logger.info("Login ok usuario=%s", username)
-            if usuario_precisa_verificar_email(usuario):
-                return redirect(url_for("auth.sessao_iniciar", next=url_for("auth.aguardando_verificacao")))
-            destino = request.args.get("next") or url_for("dashboard.index")
-            if not destino.startswith("/"):
-                destino = url_for("dashboard.index")
+            destino = _destino_pos_login(usuario, request.args.get("next"))
+            if destino == url_for("assinatura.bloqueado"):
+                flash(
+                    "Conta encontrada! Falta pagar a assinatura — use o PIX abaixo para liberar o acesso.",
+                    "info",
+                )
             return redirect(url_for("auth.sessao_iniciar", next=destino))
     plano = obter_plano_assinatura()
     return render_template("auth/login.html", erro=erro, plano=plano)
@@ -164,7 +181,13 @@ def aguardando_verificacao():
             if validar_codigo_verificacao(current_user, codigo):
                 db.session.commit()
                 flash("E-mail confirmado! Agora você já pode usar o FinUP.", "sucesso")
-                return redirect(url_for("dashboard.index"))
+                destino = _destino_pos_login(current_user)
+                if destino == url_for("assinatura.bloqueado"):
+                    flash(
+                        "Para entrar no FinUP, pague a assinatura via PIX na próxima tela.",
+                        "info",
+                    )
+                return redirect(url_for("auth.sessao_iniciar", next=destino))
             erro = "Código inválido ou expirado. Confira o e-mail ou peça um novo código."
         else:
             try:
@@ -188,20 +211,31 @@ def esqueci_senha():
     if current_user.is_authenticated:
         return redirect(url_for("dashboard.index"))
     msg = None
+    erro = None
     if request.method == "POST":
         email = (request.form.get("username") or "").strip().lower()
-        # Resposta genérica para não revelar se o e-mail existe
-        msg = (
-            "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
-            "Confira sua caixa de entrada."
-        )
         usuario = Usuario.query.filter(Usuario.username.ilike(email)).first()
         if usuario and usuario.ativo and usuario.eh_email:
             try:
-                enviar_reset_senha(usuario)
-            except Exception:
+                enviado = enviar_reset_senha(usuario)
+                if enviado:
+                    msg = (
+                        "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
+                        "Confira sua caixa de entrada (e o spam)."
+                    )
+            except Exception as exc:
                 logger.exception("Falha ao enviar reset de senha para %s", email)
-    return render_template("auth/esqueci_senha.html", msg=msg)
+                erro = (
+                    f"Não foi possível enviar o e-mail: {exc} "
+                    "Peça ao administrador para redefinir sua senha em Configurações."
+                )
+        else:
+            # Resposta genérica — não revela se o e-mail existe
+            msg = (
+                "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
+                "Confira sua caixa de entrada."
+            )
+    return render_template("auth/esqueci_senha.html", msg=msg, erro=erro)
 
 
 @auth_bp.route("/redefinir-senha/<token>", methods=["GET", "POST"])
