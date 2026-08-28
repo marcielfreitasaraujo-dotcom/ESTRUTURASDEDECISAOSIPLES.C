@@ -77,6 +77,7 @@ def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente:
         "text": texto,
         "html": html,
     }
+    # Cloudflare/Resend bloqueia o User-Agent padrão do urllib (erro 1010).
     req = urllib.request.Request(
         "https://api.resend.com/emails",
         data=json.dumps(payload).encode("utf-8"),
@@ -84,6 +85,8 @@ def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente:
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            "User-Agent": "FinUP/1.0 (https://resend.com)",
+            "Accept": "application/json",
         },
     )
     try:
@@ -94,6 +97,17 @@ def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente:
     except urllib.error.HTTPError as exc:
         detalhe = exc.read().decode("utf-8", "replace")
         logger.error("Resend HTTP %s: %s", exc.code, detalhe)
+        detalhe_l = detalhe.lower()
+        if exc.code == 403 and (
+            "verify a domain" in detalhe_l
+            or "only send testing emails to your own email" in detalhe_l
+        ):
+            raise RuntimeError(
+                "O Resend (plano gratuito) só envia para o e-mail da conta Resend. "
+                "Para mandar código a outros endereços, verifique um domínio em "
+                "https://resend.com/domains e use um remetente desse domínio "
+                "(ex.: FinUP <noreply@seudominio.com>)."
+            ) from exc
         raise RuntimeError(f"Falha Resend ({exc.code}): {detalhe}") from exc
 
 
