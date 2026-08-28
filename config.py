@@ -103,7 +103,8 @@ class Config:
     # E-mail da conta Resend (modo teste só entrega para este endereço)
     RESEND_CONTA_EMAIL = os.environ.get("RESEND_CONTA_EMAIL", "").strip()
 
-    # Pagamentos (Mercado Pago: PIX automático + cartão parcelado)
+    # Pagamentos — PIX via OpenPix (depósito no Nubank) + cartão via Mercado Pago
+    OPENPIX_APP_ID = os.environ.get("OPENPIX_APP_ID", "").strip()
     MERCADOPAGO_ACCESS_TOKEN = os.environ.get("MERCADOPAGO_ACCESS_TOKEN", "").strip()
     MERCADOPAGO_PUBLIC_KEY = os.environ.get("MERCADOPAGO_PUBLIC_KEY", "").strip()
     MERCADOPAGO_WEBHOOK_SECRET = os.environ.get("MERCADOPAGO_WEBHOOK_SECRET", "").strip()

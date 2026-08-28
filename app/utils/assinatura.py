@@ -353,6 +353,7 @@ def endpoints_livres_assinatura() -> set[str]:
         "assinatura.status_cobranca",
         "assinatura.pagar_cartao",
         "assinatura.config_pagamento",
+        "assinatura.webhook_openpix",
         "assinatura.webhook_mercadopago",
         "assinatura.retorno_pagamento",
         "assinatura.simular_pagamento_teste",

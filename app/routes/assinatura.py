@@ -13,6 +13,7 @@ from app.services.pagamento_assinatura import (
     pagamento_automatico_disponivel,
     processar_pagamento_cartao,
     processar_webhook_mercadopago,
+    processar_webhook_openpix,
     simular_pagamento_mock,
 )
 from app.utils.assinatura import (
@@ -94,6 +95,20 @@ def pagar_cartao():
     except Exception:
         db.session.rollback()
         return jsonify({"erro": "Não foi possível processar o cartão."}), 500
+
+
+@csrf.exempt
+@assinatura_bp.route("/webhooks/openpix", methods=["POST"])
+def webhook_openpix():
+    payload = request.get_json(silent=True) or {}
+    try:
+        alterou = processar_webhook_openpix(payload)
+        if alterou:
+            db.session.commit()
+        return jsonify({"ok": True})
+    except Exception:
+        db.session.rollback()
+        return jsonify({"ok": False}), 500
 
 
 @csrf.exempt
