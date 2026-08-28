@@ -100,6 +100,8 @@ class Config:
     MAIL_SUPPRESS_SEND = _bool_env("MAIL_SUPPRESS_SEND", False)
     # Preferido no Railway: API HTTPS (SMTP costuma ser bloqueado no serviço web)
     RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "").strip()
+    # E-mail da conta Resend (modo teste só entrega para este endereço)
+    RESEND_CONTA_EMAIL = os.environ.get("RESEND_CONTA_EMAIL", "").strip()
 
     @staticmethod
     def init_app(app) -> None:

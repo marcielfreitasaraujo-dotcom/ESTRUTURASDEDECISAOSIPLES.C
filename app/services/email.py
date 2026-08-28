@@ -21,6 +21,42 @@ def limpar_outbox() -> None:
     OUTBOX.clear()
 
 
+def resend_modo_sandbox() -> bool:
+    """True quando o remetente é o domínio de teste do Resend (sem domínio próprio verificado)."""
+    if not has_app_context():
+        return False
+    remetente = (
+        current_app.config.get("MAIL_DEFAULT_SENDER")
+        or current_app.config.get("MAIL_USERNAME")
+        or ""
+    ).lower()
+    return "resend.dev" in remetente
+
+
+def aviso_limitacao_email(destinatario: str | None = None) -> str | None:
+    """Mensagem para o usuário quando o Resend não entrega para qualquer endereço."""
+    if not has_app_context() or not resend_modo_sandbox():
+        return None
+    conta = (current_app.config.get("RESEND_CONTA_EMAIL") or "").strip()
+    destino = (destinatario or "").strip().lower()
+    if conta and destino and destino == conta.lower():
+        return None
+    if conta:
+        return (
+            f"O Resend ainda está em modo teste. O código só chega em "
+            f"<strong>{conta}</strong> até você verificar um domínio em "
+            f'<a href="https://resend.com/domains" target="_blank" rel="noopener">resend.com/domains</a> '
+            f"e configurar o remetente no Railway."
+        )
+    return (
+        "O Resend ainda está em modo teste (remetente @resend.dev). "
+        "Nesse modo o código <strong>só chega no e-mail da conta Resend</strong>, "
+        "não em outros endereços como o seu. Verifique um domínio em "
+        '<a href="https://resend.com/domains" target="_blank" rel="noopener">resend.com/domains</a> '
+        "ou peça ao admin para confirmar seu e-mail em <strong>Financeiro</strong>."
+    )
+
+
 def email_configurado() -> bool:
     if not has_app_context():
         return False
