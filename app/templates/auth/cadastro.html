@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="claro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <title>Criar conta · FinUP</title>
+  <link rel="manifest" href="{{ url_for('web_manifest') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/pwa-register.js') }}" defer></script>
+</head>
+<body class="auth-body">
+  <div class="auth-bg" aria-hidden="true"></div>
+  <main class="auth-card">
+    <div class="brand brand-lg brand-lockup">
+      <img
+        class="brand-logo brand-logo-full"
+        src="{{ url_for('static', filename='img/logo-full.png') }}"
+        alt="FinUP"
+        width="280"
+        height="280"
+      >
+    </div>
+    <h1>Criar sua conta</h1>
+    <p class="muted">
+      Informe nome, e-mail e senha. Depois confirme o e-mail e escolha o
+      <strong>teste grátis de {{ plano.teste_horas }}h</strong> ou pague o plano
+      <strong>{{ plano.nome }}</strong> · <strong>{{ plano.valor | moeda }}</strong>
+      / {{ plano.dias }} dias.
+    </p>
+    {% if erro %}
+      <div class="flash flash-erro">{{ erro }}</div>
+    {% endif %}
+    <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>
+        Nome
+        <input type="text" name="nome" autocomplete="name" required autofocus maxlength="120">
+      </label>
+      <label>
+        E-mail (será seu usuário)
+        <input type="email" name="username" autocomplete="email" required maxlength="190" placeholder="nome@email.com">
+      </label>
+      <label>
+        Senha
+        <span class="senha-field">
+          <input type="password" name="senha" id="campo-senha-cadastro" autocomplete="new-password" required minlength="6">
+          <button
+            type="button"
+            class="senha-toggle"
+            data-toggle-senha
+            data-alvo="campo-senha-cadastro"
+            aria-label="Mostrar senha"
+            aria-pressed="false"
+          >Mostrar</button>
+        </span>
+      </label>
+      <label>
+        Confirmar senha
+        <input type="password" name="senha2" autocomplete="new-password" required minlength="6">
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Criar conta</button>
+    </form>
+    <p class="hint" style="margin-top:1rem">
+      Já tem cadastro?
+      <a href="{{ url_for('auth.login') }}">Entrar</a>
+    </p>
+  </main>
+  <script>
+    document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const campo = document.getElementById(btn.dataset.alvo);
+        if (!campo) return;
+        const mostrar = campo.type === "password";
+        campo.type = mostrar ? "text" : "password";
+        btn.textContent = mostrar ? "Ocultar" : "Mostrar";
+        btn.setAttribute("aria-pressed", mostrar ? "true" : "false");
+        btn.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+      });
+    });
+  </script>
+</body>
+</html>

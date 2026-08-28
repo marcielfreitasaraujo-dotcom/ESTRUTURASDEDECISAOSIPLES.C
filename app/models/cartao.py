@@ -31,6 +31,7 @@ class Parcela(db.Model):
     descricao = db.Column(db.String(180), nullable=False)
     valor_total = db.Column(db.Numeric(14, 2), nullable=False, default=Decimal("0.00"))
     valor_parcela = db.Column(db.Numeric(14, 2), nullable=False, default=Decimal("0.00"))
+    valor_pago = db.Column(db.Numeric(14, 2), nullable=False, default=Decimal("0.00"))
     numero = db.Column(db.Integer, nullable=False, default=1)
     total_parcelas = db.Column(db.Integer, nullable=False, default=1)
     competencia = db.Column(db.Date, nullable=False, index=True)
@@ -47,3 +48,18 @@ class Parcela(db.Model):
         if self.total_parcelas <= 1:
             return self.descricao
         return f"{self.descricao} ({self.numero}/{self.total_parcelas})"
+
+    @property
+    def pago_acumulado(self) -> Decimal:
+        return Decimal(str(self.valor_pago or 0)).quantize(Decimal("0.01"))
+
+    @property
+    def residual(self) -> Decimal:
+        if self.pago:
+            return Decimal("0.00")
+        restante = Decimal(str(self.valor_parcela)) - self.pago_acumulado
+        return restante if restante > 0 else Decimal("0.00")
+
+    @property
+    def pagamento_parcial(self) -> bool:
+        return (not self.pago) and self.pago_acumulado > 0

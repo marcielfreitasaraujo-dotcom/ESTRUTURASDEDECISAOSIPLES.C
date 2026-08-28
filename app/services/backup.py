@@ -7,7 +7,7 @@ from flask import current_app
 
 from config import BASE_DIR
 
-logger = logging.getLogger("fincasa.backup")
+logger = logging.getLogger("finup.backup")
 
 
 def _uri_sem_senha(uri: str) -> str:

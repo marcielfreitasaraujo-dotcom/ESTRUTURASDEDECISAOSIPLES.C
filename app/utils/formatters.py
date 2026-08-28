@@ -120,6 +120,38 @@ def periodo_preset(chave: str, inicio_custom=None, fim_custom=None):
         return date(fim.year, fim.month, 1), fim
     if chave == "ultimos_30":
         return hoje - timedelta(days=29), hoje
+    if chave == "ultimos_90":
+        return hoje - timedelta(days=89), hoje
+    if chave == "ultimos_365":
+        return hoje - timedelta(days=364), hoje
+    if chave == "este_ano":
+        return date(hoje.year, 1, 1), date(hoje.year, 12, 31)
+    if chave == "ano_passado":
+        ano = hoje.year - 1
+        return date(ano, 1, 1), date(ano, 12, 31)
     if chave == "personalizado":
-        return parse_data(inicio_custom, date(hoje.year, hoje.month, 1)), parse_data(fim_custom, hoje)
+        inicio = parse_data(inicio_custom, date(hoje.year, hoje.month, 1))
+        fim = parse_data(fim_custom, hoje)
+        if inicio > fim:
+            inicio, fim = fim, inicio
+        return inicio, fim
     return date(hoje.year, hoje.month, 1), hoje
+
+
+def periodo_do_mes(ano_mes: str | None):
+    """Converte 'YYYY-MM' no primeiro e último dia do mês. Retorna None se inválido."""
+    if not ano_mes or len(ano_mes) < 7:
+        return None
+    try:
+        ano = int(ano_mes[:4])
+        mes = int(ano_mes[5:7])
+        if mes < 1 or mes > 12 or ano < 2000 or ano > 2100:
+            return None
+        inicio = date(ano, mes, 1)
+        if mes == 12:
+            fim = date(ano, 12, 31)
+        else:
+            fim = date(ano, mes + 1, 1) - timedelta(days=1)
+        return inicio, fim
+    except ValueError:
+        return None

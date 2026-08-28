@@ -23,9 +23,12 @@ def test_login_invalido(client):
 
 def test_login_mostra_logo(client):
     html = client.get("/login").get_data(as_text=True)
-    assert "img/logo.png" in html
-    assert "brand-logo-capa" in html
+    assert "img/logo-full.png" in html
+    assert "brand-logo-full" in html
     assert "auth-bg" in html
+    assert "FinUP" in html
+    assert "data-toggle-senha" in html
+    assert "Mostrar" in html
 
 
 def test_login_e_dashboard(admin_client):
@@ -227,3 +230,11 @@ def test_demo_idempotente(app):
         assert inserir_dados_demo(admin) is False
         qtd = Movimentacao.query.filter_by(usuario_id=admin.id, ativo=True).count()
         assert qtd >= 20
+
+
+def test_sidebar_tem_rolagem_e_recolher(admin_client):
+    html = admin_client.get("/").get_data(as_text=True)
+    assert 'id="sidebar"' in html
+    assert "data-collapse-sidebar" in html
+    assert "nav-label" in html
+    assert "side-nav" in html

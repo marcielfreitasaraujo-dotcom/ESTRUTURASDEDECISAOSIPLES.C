@@ -23,9 +23,24 @@
     <header class="card-head"><h2>Senha</h2></header>
     <form action="{{ url_for('configuracoes.senha') }}" method="post" class="stack">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>Senha atual <input type="password" name="senha_atual" required></label>
-      <label>Nova senha <input type="password" name="senha_nova" minlength="6" required></label>
-      <label>Confirmar <input type="password" name="senha_confirma" minlength="6" required></label>
+      <label>Senha atual
+        <span class="senha-field">
+          <input type="password" name="senha_atual" id="senha-atual" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-atual" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
+      <label>Nova senha
+        <span class="senha-field">
+          <input type="password" name="senha_nova" id="senha-nova" minlength="6" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-nova" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
+      <label>Confirmar
+        <span class="senha-field">
+          <input type="password" name="senha_confirma" id="senha-confirma" minlength="6" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-confirma" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
       <button class="btn btn-primary" type="submit">Alterar senha</button>
     </form>
   </article>
@@ -89,7 +104,7 @@
                 <td data-label="Nome">
                   <strong>{{ m.nome }}</strong>
                   {% if not m.ativo %}<span class="badge">inativo</span>{% endif %}
-                  {% if m.ver_familia %}<small>casa compartilhada</small>{% endif %}
+                  {% if m.ver_familia %}<small>legado: compartilhava casa</small>{% else %}<small>dados individuais</small>{% endif %}
                 </td>
                 <td data-label="Usuário"><code>{{ m.username }}</code></td>
                 <td data-label="Perfil">{{ m.perfil }}</td>
@@ -116,17 +131,27 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>Nome <input type="text" name="nome" placeholder="Ex: Ana" required></label>
       <label>Usuário para login <input type="text" name="username" placeholder="ex: ana" autocomplete="off" required></label>
-      <label>Senha inicial <input type="password" name="senha" minlength="6" autocomplete="new-password" required></label>
+      <label>Senha inicial
+        <span class="senha-field">
+          <input type="password" name="senha" id="senha-familia" minlength="6" autocomplete="new-password" required>
+          <button type="button" class="senha-toggle" data-toggle-senha data-alvo="senha-familia" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+        </span>
+      </label>
       <label>Perfil
         <select name="perfil">
           <option value="usuario">Membro da família</option>
           <option value="admin">Administrador</option>
         </select>
       </label>
-      <label class="check">
-        <input type="checkbox" name="ver_familia" value="1" checked>
-        Pode ver e lançar nas contas da casa
+      <label class="check-line">
+        <input type="checkbox" name="eh_familia" value="1" checked>
+        É da família (não precisa pagar assinatura)
       </label>
+      <label class="check-line">
+        <input type="checkbox" name="assinatura_ativa" value="1">
+        Já pagou assinatura (só importa se NÃO for família)
+      </label>
+      <p class="muted">Cada pessoa terá contas e lançamentos só dela. Ninguém vê ou altera o financeiro do outro.</p>
       <button class="btn btn-primary" type="submit">Criar membro</button>
     </form>
   </article>

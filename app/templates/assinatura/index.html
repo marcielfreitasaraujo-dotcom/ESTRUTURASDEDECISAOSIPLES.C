@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% block title %}Assinatura · Financeiro{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="kicker">Admin · Financeiro</p>
+    <h1>Assinatura</h1>
+    <p class="muted">Acompanhe quem está ativo, quem está bloqueado por falta de pagamento e defina o valor do plano.</p>
+  </div>
+</section>
+
+<section class="kpi-grid kpi-3" aria-label="Resumo financeiro da assinatura">
+  <article class="kpi receita">
+    <span>Assinaturas ativas</span>
+    <strong>{{ resumo.ativos }}</strong>
+    <small>clientes com acesso pago</small>
+  </article>
+  <article class="kpi despesa">
+    <span>Bloqueados</span>
+    <strong>{{ resumo.bloqueados }}</strong>
+    <small>falta de pagamento / vencidos</small>
+  </article>
+  <article class="kpi saldo positivo">
+    <span>Receita prevista (ciclo)</span>
+    <strong>{{ resumo.receita_prevista | moeda }}</strong>
+    <small>{{ resumo.ativos }} × {{ plano.valor | moeda }} · {{ plano.nome }}</small>
+  </article>
+</section>
+
+<section class="kpi-grid kpi-3" style="margin-top:0.75rem" aria-label="Outros indicadores">
+  <article class="kpi">
+    <span>Família (isento)</span>
+    <strong>{{ resumo.familia }}</strong>
+    <small>não pagam assinatura</small>
+  </article>
+  <article class="kpi investimento">
+    <span>Vencem em 7 dias</span>
+    <strong>{{ resumo.vencendo_7 }}</strong>
+    <small>renovação próxima</small>
+  </article>
+  <article class="kpi">
+    <span>Contas ativas no sistema</span>
+    <strong>{{ resumo.total_ativos_conta }}</strong>
+    <small>incluindo admin e família</small>
+  </article>
+</section>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Valores da assinatura</h2></header>
+  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. PIX e cartão parcelado são processados pelo Mercado Pago com confirmação automática.</p>
+  <form action="{{ url_for('assinatura.salvar_plano') }}" method="post" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>
+      Nome do plano
+      <input type="text" name="plano_nome" value="{{ plano.nome }}" maxlength="80" required>
+    </label>
+    <label>
+      Valor (R$)
+      <input type="text" name="plano_valor" value="{{ '%.2f'|format(plano.valor) }}" required>
+    </label>
+    <label>
+      Dias do ciclo
+      <input type="number" name="plano_dias" value="{{ plano.dias }}" min="1" max="366" required>
+    </label>
+    <label>
+      Teste grátis (horas)
+      <input type="number" name="teste_horas" value="{{ plano.teste_horas }}" min="1" max="168" required>
+    </label>
+    <label class="full" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
+      <input type="checkbox" name="teste_ativo" value="1" {% if plano.teste_ativo %}checked{% endif %}>
+      Oferecer teste grátis no cadastro (uma vez por conta)
+    </label>
+    <label class="full">
+      Chave PIX (referência local / modo teste)
+      <input type="text" name="pix_chave" value="{{ plano.pix_chave }}" maxlength="120" placeholder="sua-chave@email.com ou chave aleatória">
+    </label>
+    <label>
+      Nome no PIX (recebedor)
+      <input type="text" name="pix_nome" value="{{ plano.pix_nome }}" maxlength="60" placeholder="Seu nome ou FinUP">
+    </label>
+    <label>
+      Cidade no PIX
+      <input type="text" name="pix_cidade" value="{{ plano.pix_cidade }}" maxlength="40" placeholder="SAO PAULO">
+    </label>
+    <label class="full">
+      Instruções extras (WhatsApp, observações…)
+      <textarea name="plano_instrucoes" rows="3" maxlength="2000">{{ plano.instrucoes }}</textarea>
+    </label>
+    <div class="btn-row full">
+      <button class="btn btn-primary" type="submit">Salvar valores e PIX</button>
+    </div>
+  </form>
+  {% if plano.pix_configurado %}
+    <p class="muted" style="margin-top:0.75rem">Em produção, configure <code>MERCADOPAGO_ACCESS_TOKEN</code> e <code>MERCADOPAGO_PUBLIC_KEY</code> no Railway. Os pagamentos caem na sua conta Mercado Pago.</p>
+  {% else %}
+    <p class="muted" style="margin-top:0.75rem">Configure o Mercado Pago no Railway para PIX automático e cartão parcelado.</p>
+  {% endif %}
+</article>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Bloqueio de acesso</h2></header>
+  <p class="muted">
+    Com o bloqueio <strong>ligado</strong>: entra quem for admin, família ou tiver assinatura paga e em dia.
+    Desligue só em emergência.
+  </p>
+  <form action="{{ url_for('assinatura.alternar_bloqueio') }}" method="post" class="btn-row">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {% if bloqueio_ativo %}
+      <input type="hidden" name="ativo" value="0">
+      <span class="badge pago">Bloqueio ligado</span>
+      <button class="btn btn-ghost" type="submit">Desligar bloqueio (emergência)</button>
+    {% else %}
+      <input type="hidden" name="ativo" value="1">
+      <span class="badge pendente">Bloqueio desligado</span>
+      <button class="btn btn-primary" type="submit">Ligar bloqueio</button>
+    {% endif %}
+  </form>
+</article>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Usuários e vencimentos</h2></header>
+  <p class="muted">Marque como pago para liberar até a data de vencimento. Quem vencer fica bloqueado automaticamente.</p>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Usuário</th>
+          <th>Status</th>
+          <th>Vence em</th>
+          <th class="num">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in membros %}
+          {% set st = status_de(m) %}
+          <tr class="{{ 'quitada' if not m.ativo }}">
+            <td data-label="Nome">
+              <strong>{{ m.nome }}</strong>
+              {% if not m.ativo %}<span class="badge">inativo</span>{% endif %}
+              <div class="muted" style="font-size:0.85rem">{{ m.perfil }}</div>
+            </td>
+            <td data-label="Usuário"><code>{{ m.username }}</code></td>
+            <td data-label="Status">
+              {% if st == 'admin' %}
+                <span class="badge pago">Admin · sempre liberado</span>
+              {% elif st == 'familia' %}
+                <span class="badge pago">Família · isento</span>
+              {% elif st == 'ativa' %}
+                <span class="badge pago">Ativo · pago</span>
+              {% elif st == 'teste' %}
+                <span class="badge investimento">Teste grátis</span>
+              {% elif st == 'vencida' %}
+                <span class="badge despesa">Vencido · bloqueado</span>
+              {% else %}
+                <span class="badge despesa">Bloqueado · sem pagamento</span>
+              {% endif %}
+            </td>
+            <td data-label="Vence em">
+              {% if st == 'familia' or st == 'admin' %}
+                <span class="muted">—</span>
+              {% elif m.assinatura_vence_em %}
+                <strong class="{{ 'despesa' if m.assinatura_vence_em < hoje else '' }}">
+                  {{ m.assinatura_vence_em.strftime('%d/%m/%Y') }}
+                </strong>
+                {% if m.assinatura_expira_em and st == 'teste' %}
+                  <div class="muted" style="font-size:0.8rem">
+                    até {{ m.assinatura_expira_em.strftime('%d/%m/%Y %H:%M') }}
+                  </div>
+                {% endif %}
+              {% else %}
+                <span class="muted">sem data</span>
+              {% endif %}
+            </td>
+            <td data-label="Ações" class="num">
+              {% if not m.eh_admin %}
+                <form action="{{ url_for('assinatura.alternar_familia', usuario_id=m.id) }}" method="post" class="inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ghost btn-sm" type="submit">
+                    {{ 'Remover da família' if m.eh_familia else 'Marcar família' }}
+                  </button>
+                </form>
+                {% if not m.eh_familia %}
+                  {% if st == 'ativa' %}
+                    <form action="{{ url_for('assinatura.alternar_pagamento', usuario_id=m.id) }}" method="post" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="acao" value="bloquear">
+                      <button class="btn btn-ghost btn-sm" type="submit">Bloquear (falta pagamento)</button>
+                    </form>
+                    <form action="{{ url_for('assinatura.alternar_pagamento', usuario_id=m.id) }}" method="post" class="inline" style="margin-top:0.35rem">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="acao" value="liberar">
+                      <label class="muted" style="font-size:0.8rem;display:block;text-align:left">Renovar até</label>
+                      <input type="date" name="vence_em" value="{{ m.assinatura_vence_em.isoformat() if m.assinatura_vence_em else '' }}">
+                      <button class="btn btn-primary btn-sm" type="submit">Salvar vencimento</button>
+                    </form>
+                  {% else %}
+                    <form action="{{ url_for('assinatura.alternar_pagamento', usuario_id=m.id) }}" method="post" class="inline">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <input type="hidden" name="acao" value="liberar">
+                      <label class="muted" style="font-size:0.8rem;display:block;text-align:left">Vence em (opcional)</label>
+                      <input type="date" name="vence_em">
+                      <button class="btn btn-primary btn-sm" type="submit">Marcar pago / liberar</button>
+                    </form>
+                  {% endif %}
+                {% endif %}
+                <form
+                  action="{{ url_for('assinatura.remover_usuario', usuario_id=m.id) }}"
+                  method="post"
+                  class="inline form-remover-usuario"
+                  style="margin-top:0.5rem;display:block;text-align:left"
+                  data-username="{{ m.username }}"
+                  data-nome="{{ m.nome }}"
+                >
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-ghost btn-sm" type="button" data-abrir-remover style="color:var(--despesa)">Remover usuário</button>
+                </form>
+                {% if m.eh_email and not m.email_verificado %}
+                  <form action="{{ url_for('assinatura.confirmar_email', usuario_id=m.id) }}" method="post" class="inline" style="margin-top:0.35rem;display:block">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-ghost btn-sm" type="submit">Confirmar e-mail manualmente</button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <span class="muted">—</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="empty">Nenhum usuário cadastrado.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
+
+<dialog class="modal-dialog" id="modal-remover-usuario">
+  <form method="post" class="stack modal-dialog-card" id="form-remover-usuario">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <header class="card-head">
+      <h2>Confirmar remoção</h2>
+    </header>
+    <p class="muted" id="modal-remover-texto"></p>
+    <label>
+      Sua senha de login
+      <input
+        type="password"
+        name="senha_confirmacao"
+        id="campo-senha-remover"
+        autocomplete="current-password"
+        required
+      >
+    </label>
+    <div class="btn-row" style="margin-top:0.5rem">
+      <button type="button" class="btn btn-ghost" id="btn-cancelar-remover">Cancelar</button>
+      <button type="submit" class="btn btn-primary" style="background:var(--despesa);border-color:var(--despesa)">
+        Remover permanentemente
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  (function () {
+    const modal = document.getElementById("modal-remover-usuario");
+    const formRemover = document.getElementById("form-remover-usuario");
+    const texto = document.getElementById("modal-remover-texto");
+    const campoSenha = document.getElementById("campo-senha-remover");
+    const btnCancelar = document.getElementById("btn-cancelar-remover");
+
+    function fecharModal() {
+      if (!modal) return;
+      if (typeof modal.close === "function") modal.close();
+      else modal.removeAttribute("open");
+      if (campoSenha) campoSenha.value = "";
+    }
+
+    document.querySelectorAll("form.form-remover-usuario").forEach((form) => {
+      form.querySelector("[data-abrir-remover]")?.addEventListener("click", () => {
+        const username = form.dataset.username || "";
+        const nome = form.dataset.nome || "";
+        if (!modal || !formRemover || !texto) return;
+        formRemover.action = form.action;
+        const csrf = form.querySelector('input[name="csrf_token"]');
+        const csrfDestino = formRemover.querySelector('input[name="csrf_token"]');
+        if (csrf && csrfDestino) csrfDestino.value = csrf.value;
+        texto.textContent =
+          "Remover permanentemente “" + nome + "” (" + username + ")? " +
+          "Isso apaga a conta e os dados financeiros desse usuário. Não tem volta.";
+        if (campoSenha) campoSenha.value = "";
+        if (typeof modal.showModal === "function") modal.showModal();
+        else modal.setAttribute("open", "open");
+        campoSenha?.focus();
+      });
+    });
+
+    btnCancelar?.addEventListener("click", fecharModal);
+    modal?.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      fecharModal();
+    });
+    modal?.addEventListener("click", (event) => {
+      if (event.target === modal) fecharModal();
+    });
+  })();
+</script>
+{% endblock %}

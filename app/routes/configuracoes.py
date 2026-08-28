@@ -98,7 +98,9 @@ def familia_nova():
             username=request.form.get("username") or "",
             senha=request.form.get("senha") or "",
             perfil=request.form.get("perfil") or "usuario",
-            ver_familia=request.form.get("ver_familia") == "1",
+            ver_familia=False,
+            eh_familia=(request.form.get("eh_familia") or "") in {"1", "true", "on", "sim"},
+            assinatura_ativa=(request.form.get("assinatura_ativa") or "") in {"1", "true", "on", "sim"},
         )
         db.session.commit()
         flash(f"Conta de {membro.nome} criada. Já pode entrar com o usuário {membro.username}.", "sucesso")

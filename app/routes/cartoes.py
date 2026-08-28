@@ -4,10 +4,12 @@ from flask import Blueprint, abort, flash, redirect, render_template, request, u
 from flask_login import current_user, login_required
 
 from app.extensions import db
-from app.models import Cartao, Categoria, Conta
+from app.models import Cartao, Categoria, Conta, Parcela
 from app.services.auditoria import registrar
 from app.services.cartoes import (
     criar_compra,
+    editar_parcela,
+    excluir_parcela,
     fechamento_fatura,
     limite_usado,
     pagar_fatura,
@@ -16,7 +18,7 @@ from app.services.cartoes import (
     total_fatura,
     vencimento_fatura,
 )
-from app.utils.formatters import parse_data, parse_moeda, somar_meses
+from app.utils.formatters import formatar_moeda, parse_data, parse_moeda, somar_meses
 from app.utils.casa import id_casa
 from app.utils.permissoes import exigir_dono
 
@@ -199,17 +201,80 @@ def pagar(cartao_id):
         flash("Selecione uma conta válida para pagar a fatura.", "erro")
         return redirect(url_for("cartoes.detalhe", cartao_id=cartao.id, competencia=competencia.strftime("%Y-%m")))
     try:
-        pagar_fatura(
+        valor_informado = request.form.get("valor")
+        valor_pagamento = None
+        if valor_informado is not None and str(valor_informado).strip() != "":
+            valor_pagamento = parse_moeda(valor_informado)
+        mov = pagar_fatura(
             cartao,
             competencia,
             conta,
             parse_data(request.form.get("data_pagamento"), date.today()),
             current_user.id,
+            valor=valor_pagamento,
         )
-        registrar("pagar", "fatura_cartao", cartao.id, competencia.isoformat())
+        registrar("pagar", "fatura_cartao", cartao.id, f"{competencia.isoformat()}:{mov.valor}")
+        aberto_restante = total_fatura(parcelas_competencia(cartao, competencia), somente_abertas=True)
         db.session.commit()
-        flash("Fatura paga. O saldo da conta foi atualizado.", "sucesso")
+        if aberto_restante > 0:
+            flash(
+                f"Pagamento parcial de {formatar_moeda(mov.valor)} registrado. "
+                f"Ainda restam {formatar_moeda(aberto_restante)} em aberto.",
+                "sucesso",
+            )
+        else:
+            flash("Fatura paga. O saldo da conta foi atualizado.", "sucesso")
     except ValueError as exc:
         db.session.rollback()
         flash(str(exc), "erro")
     return redirect(url_for("cartoes.detalhe", cartao_id=cartao.id, competencia=competencia.strftime("%Y-%m")))
+
+
+def _obter_parcela(cartao_id: int, parcela_id: int) -> tuple[Cartao, Parcela]:
+    cartao = _obter(cartao_id)
+    parcela = db.get_or_404(Parcela, parcela_id)
+    if parcela.cartao_id != cartao.id:
+        abort(404)
+    return cartao, parcela
+
+
+@cartoes_bp.route("/cartoes/<int:cartao_id>/parcelas/<int:parcela_id>/editar", methods=["POST"])
+@login_required
+def editar_parcela_rota(cartao_id, parcela_id):
+    cartao, parcela = _obter_parcela(cartao_id, parcela_id)
+    competencia = parcela.competencia.strftime("%Y-%m")
+    try:
+        categoria_id = request.form.get("categoria_id") or None
+        editar_parcela(
+            parcela,
+            request.form.get("descricao") or "",
+            parse_moeda(request.form.get("valor")),
+            int(categoria_id) if categoria_id else None,
+        )
+        registrar("editar", "parcela_cartao", parcela.id, parcela.descricao)
+        db.session.commit()
+        flash("Lançamento do cartão atualizado.", "sucesso")
+    except (ValueError, TypeError) as exc:
+        db.session.rollback()
+        flash(str(exc) if str(exc) else "Não foi possível editar o lançamento.", "erro")
+    return redirect(url_for("cartoes.detalhe", cartao_id=cartao.id, competencia=competencia))
+
+
+@cartoes_bp.route("/cartoes/<int:cartao_id>/parcelas/<int:parcela_id>/excluir", methods=["POST"])
+@login_required
+def excluir_parcela_rota(cartao_id, parcela_id):
+    cartao, parcela = _obter_parcela(cartao_id, parcela_id)
+    competencia = parcela.competencia.strftime("%Y-%m")
+    inteira = (request.form.get("compra_inteira") or "") in {"1", "true", "on", "sim"}
+    try:
+        qtd = excluir_parcela(parcela, excluir_compra_inteira=inteira)
+        registrar("excluir", "parcela_cartao", parcela_id, parcela.descricao)
+        db.session.commit()
+        if qtd > 1:
+            flash(f"{qtd} parcelas da compra foram removidas.", "sucesso")
+        else:
+            flash("Lançamento removido da fatura.", "sucesso")
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "erro")
+    return redirect(url_for("cartoes.detalhe", cartao_id=cartao.id, competencia=competencia))

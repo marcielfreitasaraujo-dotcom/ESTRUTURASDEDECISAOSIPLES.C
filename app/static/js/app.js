@@ -4,8 +4,49 @@
 
   const sidebar = $("#sidebar");
   const backdrop = $(".sidebar-backdrop");
+  const CHAVE_SIDEBAR = "finup_sidebar_recolhida";
+
+  function aplicarSidebarRecolhida(recolhida) {
+    document.documentElement.classList.toggle("sidebar-recolhida", recolhida);
+    $$("[data-collapse-sidebar]").forEach((btn) => {
+      btn.textContent = recolhida ? "»" : "«";
+      btn.setAttribute("aria-label", recolhida ? "Expandir menu" : "Recolher menu");
+      btn.title = recolhida ? "Expandir menu" : "Recolher menu";
+      btn.setAttribute("aria-pressed", recolhida ? "true" : "false");
+    });
+    window.finupAgendarRedimensionarGraficos?.();
+  }
+
+  try {
+    aplicarSidebarRecolhida(localStorage.getItem(CHAVE_SIDEBAR) === "1");
+  } catch (_erro) {
+    aplicarSidebarRecolhida(false);
+  }
+
+  $$("[data-collapse-sidebar]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const recolhida = !document.documentElement.classList.contains("sidebar-recolhida");
+      aplicarSidebarRecolhida(recolhida);
+      try {
+        localStorage.setItem(CHAVE_SIDEBAR, recolhida ? "1" : "0");
+      } catch (_erro) {
+        /* ignore */
+      }
+    });
+  });
+
   $$("[data-toggle-sidebar]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (window.matchMedia("(min-width: 861px)").matches) {
+        const recolhida = !document.documentElement.classList.contains("sidebar-recolhida");
+        aplicarSidebarRecolhida(recolhida);
+        try {
+          localStorage.setItem(CHAVE_SIDEBAR, recolhida ? "1" : "0");
+        } catch (_erro) {
+          /* ignore */
+        }
+        return;
+      }
       sidebar?.classList.toggle("aberto");
       backdrop?.classList.toggle("visivel");
     });
@@ -113,4 +154,38 @@
       notifyPanel.hidden = true;
     }
   });
+
+  document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const campo = document.getElementById(btn.dataset.alvo);
+      if (!campo) return;
+      const mostrar = campo.type === "password";
+      campo.type = mostrar ? "text" : "password";
+      btn.textContent = mostrar ? "Ocultar" : "Mostrar";
+      btn.setAttribute("aria-pressed", mostrar ? "true" : "false");
+      btn.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+    });
+  });
+
+  $$("[data-voltar]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const ref = document.referrer || "";
+      const mesmaOrigem = ref.startsWith(location.origin);
+      if (mesmaOrigem && window.history.length > 1) {
+        history.back();
+        return;
+      }
+      location.href = btn.dataset.voltarFallback || "/";
+    });
+  });
+
+  const mainWrap = $(".main-wrap");
+  if (mainWrap && window.ResizeObserver && window.finupAgendarRedimensionarGraficos) {
+    let tamanhoTimer = null;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(tamanhoTimer);
+      tamanhoTimer = setTimeout(() => window.finupAgendarRedimensionarGraficos(), 80);
+    });
+    observer.observe(mainWrap);
+  }
 })();

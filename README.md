@@ -1,4 +1,4 @@
-# FinCasa — Controle Financeiro Pessoal e Familiar
+# FinUP — Controle Financeiro Pessoal e Familiar
 
 Sistema web para registrar receitas, despesas e comprovantes em poucos segundos, com saldo calculado automaticamente.
 
@@ -63,7 +63,7 @@ Exemplo de produção (não rode isso no seu PC se quiser manter o SQLite):
 FLASK_ENV=production
 DEBUG=false
 SECRET_KEY=...          # gerada por você, nunca no Git
-DATABASE_URL=postgresql://usuario:senha@host:5432/fincasa
+DATABASE_URL=postgresql://usuario:senha@host:5432/finup
 SERVER_URL=https://meusistema.com.br
 ADMIN_SENHA=...
 ```
@@ -118,17 +118,37 @@ source venv/bin/activate
 pytest -q
 ```
 
-## Execução em produção
+## Execução em produção (Railway)
 
-O código já sobe com Gunicorn + PostgreSQL. O atalho mais simples é o [Render](https://render.com) (plano gratuito):
+O FinUP é um app Flask completo (páginas + API). A hospedagem recomendada é o [Railway](https://railway.app) com PostgreSQL.
 
-1. Crie a conta no Render com o mesmo e-mail do GitHub.
-2. **New → Blueprint** e aponte para este repositório (`render.yaml` já está na raiz).
-3. Em `ADMIN_SENHA`, coloque a senha do `admin` (não use `admin123`).
-4. Depois do deploy, a URL fica `https://fincasa.onrender.com` (ou a que o Render mostrar).
-5. Entre com `admin` + a senha que você definiu. Em **Configurações → Família**, crie os logins das outras pessoas.
+> **Por que não Vercel?** O Vercel é ótimo para frontend (Next.js/React). Este projeto renderiza HTML no Flask, então o app inteiro sobe no Railway. Depois, o domínio `finup.com.br` aponta para o Railway.
 
-No plano gratuito o site “dorme” depois de um tempo parado: o primeiro acesso do dia pode levar cerca de um minuto. O Postgres gratuito do Render expira em 30 dias — depois disso, suba o plano ou aponte `DATABASE_URL` para um Neon/Supabase.
+### Passo a passo
+
+1. Crie conta em [railway.app](https://railway.app) com o GitHub.
+2. **New Project → Deploy from GitHub** e escolha este repositório (branch `main`).
+3. No projeto, **Add Plugin → PostgreSQL**.
+4. No serviço web, confirme o start command (já está em `railway.json` / `Procfile`):
+   `gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --timeout 60`
+5. Variáveis de ambiente no serviço web:
+
+| Variável | Valor |
+|---|---|
+| `FLASK_ENV` | `production` |
+| `SECRET_KEY` | gere uma chave longa e aleatória |
+| `ADMIN_USUARIO` | `admin` |
+| `ADMIN_NOME` | `Marciel` |
+| `ADMIN_SENHA` | senha forte (não use `admin123`) |
+| `SESSION_COOKIE_SECURE` | `true` |
+| `PREFERRED_URL_SCHEME` | `https` |
+| `DATABASE_URL` | referência do Postgres do Railway (ou deixe o Railway injetar ao linkar) |
+
+6. **Settings → Networking → Generate Domain** (URL `*.up.railway.app`).
+7. Domínio próprio (`finup.com.br`): em Networking → Custom Domain, aponte o DNS conforme o Railway indicar.
+8. Health check: `GET /api/saude`.
+
+Entre com `admin` + a senha definida. Em **Configurações → Família**, crie os logins das outras pessoas.
 
 No servidor (VPS), as variáveis são as mesmas:
 
@@ -137,12 +157,12 @@ export FLASK_ENV=production
 export SECRET_KEY=...
 export DATABASE_URL=postgresql://...
 export ADMIN_SENHA=...
-gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
+gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2
 ```
 
 ## O que já funciona no produto
 
-- Login com senha em hash (Werkzeug) e sessão
+- Login com senha em hash (Werkzeug) e sessão (ao fechar a aba, pede senha de novo)
 - Dashboard com totais reais e gráficos
 - Lançamento rápido, contas, categorias, comprovantes
 - Histórico, filtros, tema claro/escuro
@@ -157,9 +177,12 @@ gunicorn app:app --bind 0.0.0.0:$PORT --workers 2
 ## Arquitetura (hoje e amanhã)
 
 ```
-Navegador  --HTTPS-->  Flask (FinCasa)  -->  SQLite (local)
-                                        \->  PostgreSQL (produção, quando apontar DATABASE_URL)
-                                        \->  arquivos de comprovantes
+Navegador  --HTTPS-->  finup.com.br (DNS)
+                   -->  Railway (Flask FinUP + Gunicorn)
+                   -->  PostgreSQL (Railway)
+                   -->  arquivos de comprovantes
 ```
 
 Vários PCs usam o **mesmo login no mesmo servidor**. Não crie um `.db` diferente em cada computador se a meta for sincronizar.
+
+Localmente o app continua com SQLite. Em produção, aponte `DATABASE_URL` para o Postgres do Railway.

@@ -2,7 +2,7 @@ import logging
 import os
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, session
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -11,7 +11,7 @@ from app.extensions import csrf, db, login_manager
 from app.models import Usuario
 from app.utils.formatters import formatar_data, formatar_moeda, nome_mes, parse_moeda
 
-logger = logging.getLogger("fincasa")
+logger = logging.getLogger("finup")
 
 
 def _configurar_log(app: Flask) -> None:
@@ -25,8 +25,11 @@ def _configurar_log(app: Flask) -> None:
     uri = str(app.config.get("SQLALCHEMY_DATABASE_URI") or "")
     tipo_banco = "sqlite" if uri.startswith("sqlite") else "postgres" if "postgres" in uri else "outro"
     logger.info(
-        "FinCasa iniciado ambiente=%s debug=%s banco=%s",
-        os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development",
+        "FinUP iniciado ambiente=%s debug=%s banco=%s",
+        os.environ.get("FLASK_ENV")
+        or os.environ.get("FINUP_ENV")
+        or os.environ.get("FINCASA_ENV")
+        or "development",
         app.debug,
         tipo_banco,
     )
@@ -81,6 +84,7 @@ def create_app(config_class=None) -> Flask:
     from app.routes.relatorios import relatorios_bp
     from app.routes.cartoes import cartoes_bp
     from app.routes.orcamentos import orcamentos_bp
+    from app.routes.assinatura import assinatura_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -95,9 +99,20 @@ def create_app(config_class=None) -> Flask:
     app.register_blueprint(relatorios_bp)
     app.register_blueprint(cartoes_bp)
     app.register_blueprint(orcamentos_bp)
+    app.register_blueprint(assinatura_bp)
 
     @app.after_request
     def registrar_requisicao(response):
+        session.permanent = False
+        nome_lembrar = app.config.get("REMEMBER_COOKIE_NAME", "remember_token")
+        if request.cookies.get(nome_lembrar):
+            response.delete_cookie(
+                nome_lembrar,
+                path=app.config.get("REMEMBER_COOKIE_PATH", "/"),
+                secure=bool(app.config.get("REMEMBER_COOKIE_SECURE")),
+                httponly=True,
+                samesite=app.config.get("SESSION_COOKIE_SAMESITE", "Lax"),
+            )
         if app.testing or request.endpoint in (None, "static"):
             return response
         logger.info("%s %s -> %s", request.method, request.path, response.status_code)
@@ -108,22 +123,101 @@ def create_app(config_class=None) -> Flask:
         return jsonify(
             {
                 "ok": True,
-                "app": "fincasa",
-                "ambiente": os.environ.get("FLASK_ENV") or os.environ.get("FINCASA_ENV") or "development",
+                "app": "finup",
+                "ambiente": os.environ.get("FLASK_ENV")
+                or os.environ.get("FINUP_ENV")
+                or os.environ.get("FINCASA_ENV")
+                or "development",
             }
         )
+
+    @app.get("/manifest.webmanifest")
+    def web_manifest():
+        from flask import send_from_directory
+
+        resp = send_from_directory(
+            app.static_folder,
+            "manifest.webmanifest",
+            mimetype="application/manifest+json",
+        )
+        resp.headers["Cache-Control"] = "no-cache"
+        return resp
+
+    @app.get("/sw.js")
+    def service_worker():
+        from flask import send_from_directory
+
+        resp = send_from_directory(
+            Path(app.static_folder) / "js",
+            "sw.js",
+            mimetype="application/javascript",
+        )
+        resp.headers["Cache-Control"] = "no-cache"
+        resp.headers["Service-Worker-Allowed"] = "/"
+        return resp
 
     @app.before_request
     def gerar_recorrentes_do_usuario():
         if not current_user.is_authenticated:
             return
-        if request.endpoint in (None, "static", "auth.login", "auth.logout", "saude"):
+        if request.endpoint in (
+            None,
+            "static",
+            "auth.login",
+            "auth.logout",
+            "auth.cadastro",
+            "auth.verificar_email",
+            "auth.aguardando_verificacao",
+            "auth.esqueci_senha",
+            "auth.redefinir_senha",
+            "auth.sessao_iniciar",
+            "auth.sessao_verificar",
+            "auth.sessao_fechar",
+            "saude",
+            "web_manifest",
+            "service_worker",
+        ):
             return
         from app.services.recorrencias import gerar_titulos_recorrentes
         from app.utils.casa import id_casa
 
         if gerar_titulos_recorrentes(id_casa()):
             db.session.commit()
+
+    @app.before_request
+    def exigir_email_verificado():
+        from flask import redirect, url_for
+
+        from app.services.auth_email import usuario_precisa_verificar_email
+        from app.utils.assinatura import endpoints_livres_assinatura
+
+        if not current_user.is_authenticated:
+            return
+        if request.endpoint in endpoints_livres_assinatura():
+            return
+        if not usuario_precisa_verificar_email(current_user):
+            return
+        return redirect(url_for("auth.aguardando_verificacao"))
+
+    @app.before_request
+    def exigir_assinatura_ou_familia():
+        from flask import redirect, url_for
+
+        from app.utils.assinatura import (
+            bloqueio_assinatura_ativo,
+            endpoints_livres_assinatura,
+            usuario_tem_acesso,
+        )
+
+        if not current_user.is_authenticated:
+            return
+        if request.endpoint in endpoints_livres_assinatura():
+            return
+        if not bloqueio_assinatura_ativo():
+            return
+        if usuario_tem_acesso(current_user):
+            return
+        return redirect(url_for("assinatura.bloqueado"))
 
     @app.context_processor
     def inject_globals():

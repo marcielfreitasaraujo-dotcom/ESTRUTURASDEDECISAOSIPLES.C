@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="{{ current_user.tema if current_user.is_authenticated else 'claro' }}" data-autenticado="1">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>Assinatura · FinUP</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script>
+    (function () {
+      var CHAVE = "finup_sessao_navegador";
+      var NOME = "finup_ativo";
+      try {
+        if (sessionStorage.getItem(CHAVE) !== "1" || window.name !== NOME) {
+          window.location.replace("/logout");
+        }
+      } catch (_erro) {
+        window.location.replace("/logout");
+      }
+    })();
+  </script>
+  <style>
+    .assinatura-opcoes { display: grid; gap: 1rem; margin-top: 1.25rem; }
+    .assinatura-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .assinatura-card h2 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .assinatura-card p { margin: 0; }
+    .assinatura-card--destaque {
+      border-color: rgba(20, 184, 166, 0.45);
+      background: linear-gradient(180deg, rgba(20, 184, 166, 0.08), transparent);
+    }
+    .pix-box { margin-top: 0.85rem; text-align: center; }
+    .pix-box img {
+      width: min(200px, 65vw);
+      height: auto;
+      border-radius: 12px;
+      background: #fff;
+      padding: 0.6rem;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+    }
+    .pix-copia {
+      width: 100%;
+      margin-top: 0.75rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      word-break: break-all;
+      resize: vertical;
+      min-height: 4.5rem;
+    }
+    .pix-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 0.75rem; }
+    .pix-hint { margin-top: 0.85rem; font-size: 0.9rem; }
+    .assinatura-divisor {
+      display: flex; align-items: center; gap: 0.75rem;
+      color: var(--muted); font-size: 0.85rem; margin: 0.25rem 0;
+    }
+    .assinatura-divisor::before, .assinatura-divisor::after {
+      content: ""; flex: 1; height: 1px; background: var(--border);
+    }
+    .pagamento-tabs { display: flex; gap: 0.5rem; margin-top: 0.85rem; }
+    .pagamento-tab {
+      flex: 1; border: 1px solid var(--border); background: transparent;
+      border-radius: 999px; padding: 0.45rem 0.75rem; cursor: pointer; font: inherit;
+    }
+    .pagamento-tab.ativo {
+      border-color: rgba(20, 184, 166, 0.55);
+      background: rgba(20, 184, 166, 0.12);
+      font-weight: 600;
+    }
+    .pagamento-painel { display: none; margin-top: 0.85rem; }
+    .pagamento-painel.ativo { display: block; }
+    .pagamento-aguardando {
+      margin-top: 0.85rem; padding: 0.75rem 1rem; border-radius: var(--radius);
+      background: rgba(20, 184, 166, 0.1); border: 1px solid rgba(20, 184, 166, 0.25);
+      font-size: 0.92rem; display: none;
+    }
+    .pagamento-aguardando.visivel { display: block; }
+    #cardPaymentBrick_container { min-height: 280px; }
+    .pagamento-erro { color: #b91c1c; font-size: 0.9rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body class="auth-body">
+  <div class="auth-bg" aria-hidden="true"></div>
+  <main class="auth-card" style="max-width: 520px">
+    <div class="brand brand-lg brand-lockup">
+      <img class="brand-logo brand-logo-full" src="{{ url_for('static', filename='img/logo-full.png') }}" alt="FinUP" width="220" height="220">
+    </div>
+    <h1>Escolha como começar</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    <p class="muted">
+      Olá, <strong>{{ current_user.nome }}</strong>. Sua conta está pronta — agora escolha o
+      <strong>teste grátis</strong> ou faça o <strong>pagamento</strong> para liberar o FinUP.
+    </p>
+    <p>
+      Plano <strong>{{ plano.nome }}</strong>:
+      <strong>{{ plano.valor | moeda }}</strong>
+      a cada {{ plano.dias }} dias.
+    </p>
+    {% if current_user.assinatura_vence_em and status in ['vencida', 'bloqueada'] %}
+      <p class="muted">
+        Último vencimento:
+        <strong>{{ current_user.assinatura_vence_em.strftime('%d/%m/%Y') }}</strong>
+        {% if status == 'vencida' %}(expirado){% endif %}
+      </p>
+    {% endif %}
+
+    <div class="assinatura-opcoes">
+      {% if pode_teste %}
+        <article class="assinatura-card assinatura-card--destaque">
+          <h2>Teste grátis · {{ plano.teste_horas }}h</h2>
+          <p class="muted">
+            Experimente o FinUP completo por {{ plano.teste_horas }} horas, sem pagar agora.
+            Disponível uma vez por conta.
+          </p>
+          <form action="{{ url_for('assinatura.iniciar_teste_gratis') }}" method="post" style="margin-top:0.9rem">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-primary" type="submit" style="width:100%">
+              Iniciar teste grátis de {{ plano.teste_horas }}h
+            </button>
+          </form>
+        </article>
+        {% if pagamento_cfg.disponivel or plano.instrucoes %}
+          <div class="assinatura-divisor">ou pague agora</div>
+        {% endif %}
+      {% elif current_user.teste_gratis_usado %}
+        <p class="muted" style="margin:0">
+          Você já usou o teste grátis. Para continuar, faça o pagamento do plano abaixo.
+        </p>
+      {% endif %}
+
+      {% if pagamento_cfg.disponivel %}
+        <article class="assinatura-card">
+          <h2>Pagar assinatura</h2>
+          <p class="muted">
+            O acesso é liberado <strong>automaticamente</strong> após a confirmação do pagamento de
+            <strong>{{ plano.valor | moeda }}</strong> via <strong>Mercado Pago</strong>.
+          </p>
+
+          <div class="pagamento-tabs" role="tablist">
+            <button type="button" class="pagamento-tab ativo" data-alvo="painel-pix" role="tab">PIX</button>
+            {% if pagamento_cfg.cartao_habilitado %}
+              <button type="button" class="pagamento-tab" data-alvo="painel-cartao" role="tab">Cartão parcelado</button>
+            {% endif %}
+          </div>
+
+          <div id="painel-pix" class="pagamento-painel ativo" role="tabpanel">
+            {% if pix %}
+              <div class="pix-box">
+                <img src="{{ pix.qr_data_uri }}" alt="QR Code PIX da assinatura FinUP" width="200" height="200">
+                <label class="muted" for="pix-copia" style="display:block;margin-top:0.75rem;text-align:left">
+                  PIX copia e cola
+                </label>
+                <textarea id="pix-copia" class="pix-copia" readonly rows="4">{{ pix.pix_payload }}</textarea>
+                <div class="pix-actions">
+                  <button class="btn btn-ghost" type="button" id="btn-copiar-pix">Copiar PIX</button>
+                </div>
+                <p class="muted pix-hint">
+                  1. Escaneie o QR ou cole o código no app do banco<br>
+                  2. Confirme o pagamento de <strong>{{ plano.valor | moeda }}</strong><br>
+                  3. Aguarde — liberamos o acesso assim que o PIX for confirmado
+                </p>
+                <div id="pix-aguardando" class="pagamento-aguardando" aria-live="polite">
+                  Aguardando confirmação do PIX…
+                </div>
+              </div>
+            {% else %}
+              <p class="muted" style="margin-top:0.75rem">Não foi possível gerar o PIX agora. Tente recarregar a página.</p>
+            {% endif %}
+          </div>
+
+          {% if pagamento_cfg.cartao_habilitado %}
+            <div id="painel-cartao" class="pagamento-painel" role="tabpanel">
+              <p class="muted">Pague no cartão de crédito em até {{ pagamento_cfg.max_parcelas }}x sem sair desta tela.</p>
+              <div id="cardPaymentBrick_container"></div>
+              <p id="cartao-erro" class="pagamento-erro" hidden></p>
+            </div>
+          {% endif %}
+        </article>
+      {% else %}
+        <article class="assinatura-card">
+          <h2>Pagamento</h2>
+          <p class="muted" style="white-space:pre-wrap;margin-top:0.75rem">{{ plano.instrucoes }}</p>
+          <p class="muted" style="margin-top:0.75rem">
+            Pagamento automático ainda não configurado. Configure as credenciais do Mercado Pago no Railway.
+          </p>
+        </article>
+      {% endif %}
+    </div>
+
+    {% if plano.instrucoes and pagamento_cfg.disponivel %}
+      <p class="muted" style="white-space:pre-wrap;margin-top:1rem">{{ plano.instrucoes }}</p>
+    {% endif %}
+
+    <p style="margin-top:1.25rem">
+      <a class="btn btn-ghost" href="{{ url_for('auth.logout') }}">Sair</a>
+    </p>
+  </main>
+
+  <script>
+    (function () {
+      var btn = document.getElementById("btn-copiar-pix");
+      var area = document.getElementById("pix-copia");
+      if (btn && area) {
+        btn.addEventListener("click", function () {
+          var texto = area.value || "";
+          function ok() {
+            var antigo = btn.textContent;
+            btn.textContent = "Copiado!";
+            setTimeout(function () { btn.textContent = antigo; }, 1600);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(texto).then(ok).catch(function () {
+              area.select();
+              try { document.execCommand("copy"); ok(); } catch (_e) {}
+            });
+          } else {
+            area.select();
+            try { document.execCommand("copy"); ok(); } catch (_e) {}
+          }
+        });
+      }
+
+      document.querySelectorAll(".pagamento-tab").forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          document.querySelectorAll(".pagamento-tab").forEach(function (t) { t.classList.remove("ativo"); });
+          document.querySelectorAll(".pagamento-painel").forEach(function (p) { p.classList.remove("ativo"); });
+          tab.classList.add("ativo");
+          var alvo = document.getElementById(tab.getAttribute("data-alvo"));
+          if (alvo) alvo.classList.add("ativo");
+        });
+      });
+
+      var csrf = document.querySelector('meta[name="csrf-token"]').getAttribute("content");
+      {% if pix %}
+      var cobrancaId = {{ pix.id }};
+      var aguardando = document.getElementById("pix-aguardando");
+      if (aguardando) aguardando.classList.add("visivel");
+
+      function checarPix() {
+        fetch("/assinatura/api/status-cobranca?cobranca_id=" + cobrancaId, {
+          headers: { "Accept": "application/json" }
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (dados) {
+            if (dados.status === "pago") {
+              aguardando.textContent = dados.mensagem || "Pagamento confirmado! Redirecionando…";
+              window.location.href = dados.redirect || "/";
+              return;
+            }
+            if (dados.status === "erro" || dados.status === "expirado") {
+              aguardando.textContent = "PIX expirado ou cancelado. Recarregue a página para gerar outro.";
+              return;
+            }
+            setTimeout(checarPix, 4000);
+          })
+          .catch(function () { setTimeout(checarPix, 6000); });
+      }
+      setTimeout(checarPix, 4000);
+      {% endif %}
+
+      {% if pagamento_cfg.cartao_habilitado and pagamento_cfg.public_key %}
+      var publicKey = {{ pagamento_cfg.public_key | tojson }};
+      var valorCartao = {{ pagamento_cfg.valor | tojson }};
+      var maxParcelas = {{ pagamento_cfg.max_parcelas }};
+      var payerEmail = {{ (current_user.username if '@' in current_user.username else '') | tojson }};
+      var brickIniciado = false;
+
+      function iniciarBrick() {
+        if (brickIniciado || !window.MercadoPago) return;
+        brickIniciado = true;
+        var mp = new MercadoPago(publicKey, { locale: "pt-BR" });
+        var bricks = mp.bricks();
+        bricks.create("cardPayment", "cardPaymentBrick_container", {
+          initialization: {
+            amount: parseFloat(valorCartao),
+            payer: { email: payerEmail || undefined }
+          },
+          customization: {
+            paymentMethods: { maxInstallments: maxParcelas }
+          },
+          callbacks: {
+            onReady: function () {},
+            onSubmit: function (formData) {
+              return new Promise(function (resolve, reject) {
+                var erroEl = document.getElementById("cartao-erro");
+                if (erroEl) { erroEl.hidden = true; erroEl.textContent = ""; }
+                fetch("/assinatura/pagar-cartao", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrf
+                  },
+                  body: JSON.stringify(formData.formData || formData)
+                })
+                  .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+                  .then(function (res) {
+                    if (!res.ok) {
+                      if (erroEl) {
+                        erroEl.hidden = false;
+                        erroEl.textContent = res.body.erro || "Pagamento recusado.";
+                      }
+                      reject();
+                      return;
+                    }
+                    if (res.body.redirect) {
+                      window.location.href = res.body.redirect;
+                    } else {
+                      window.location.reload();
+                    }
+                    resolve();
+                  })
+                  .catch(function () {
+                    if (erroEl) {
+                      erroEl.hidden = false;
+                      erroEl.textContent = "Erro de rede. Tente novamente.";
+                    }
+                    reject();
+                  });
+              });
+            },
+            onError: function () {}
+          }
+        });
+      }
+
+      document.querySelector('[data-alvo="painel-cartao"]')?.addEventListener("click", function () {
+        if (!document.getElementById("mp-sdk")) {
+          var s = document.createElement("script");
+          s.id = "mp-sdk";
+          s.src = "https://sdk.mercadopago.com/js/v2";
+          s.onload = iniciarBrick;
+          document.body.appendChild(s);
+        } else {
+          iniciarBrick();
+        }
+      });
+      {% elif pagamento_cfg.cartao_habilitado and pagamento_cfg.mock %}
+      document.querySelector('[data-alvo="painel-cartao"]')?.addEventListener("click", function () {
+        var box = document.getElementById("cardPaymentBrick_container");
+        if (!box || box.dataset.mock) return;
+        box.dataset.mock = "1";
+        box.innerHTML = '<p class="muted">Modo de teste: cartão simulado.</p>' +
+          '<button type="button" class="btn btn-primary" id="btn-mock-cartao" style="width:100%;margin-top:0.75rem">Simular pagamento no cartão</button>';
+        document.getElementById("btn-mock-cartao").addEventListener("click", function () {
+          fetch("/assinatura/pagar-cartao", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRFToken": csrf },
+            body: JSON.stringify({ token: "mock", payment_method_id: "visa", installments: 1 })
+          }).then(function (r) { return r.json(); }).then(function (d) {
+            if (d.redirect) window.location.href = d.redirect;
+            else window.location.reload();
+          });
+        });
+      });
+      {% endif %}
+    })();
+  </script>
+</body>
+</html>

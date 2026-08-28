@@ -3,49 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Entrar · FinCasa</title>
+  <meta name="theme-color" content="#0f766e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="FinUP">
+  <title>Entrar · FinUP</title>
+  <link rel="manifest" href="{{ url_for('web_manifest') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/pwa-register.js') }}" defer></script>
 </head>
 <body class="auth-body">
   <div class="auth-bg" aria-hidden="true"></div>
   <main class="auth-card">
-    <div class="brand brand-lg">
-      <img class="brand-logo brand-logo-capa" src="{{ url_for('static', filename='img/logo.png') }}" alt="FinCasa" width="96" height="96">
-      <div>
-        <strong>FinCasa</strong>
-        <small>Controle financeiro pessoal e familiar</small>
-      </div>
+    <div class="brand brand-lg brand-lockup">
+      <img
+        class="brand-logo brand-logo-full"
+        src="{{ url_for('static', filename='img/logo-full.png') }}"
+        alt="FinUP — Seu dinheiro. Seus planos. Seu futuro."
+        width="280"
+        height="280"
+      >
     </div>
     <h1>Olá! Entre para ver seu saldo.</h1>
-    <p class="muted">Registre um gasto em poucos segundos e acompanhe para onde vai o dinheiro.</p>
+    <p class="muted">Já tem conta? Entre com e-mail e senha. Ainda não? Crie a conta — teste grátis de {{ plano.teste_horas }}h ou plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>
-        Usuário
-        <input type="text" name="username" autocomplete="username" required autofocus>
+        E-mail ou usuário
+        <input type="text" name="username" autocomplete="username" required autofocus placeholder="nome@email.com">
       </label>
       <label>
         Senha
-        <input type="password" name="senha" autocomplete="current-password" required>
+        <span class="senha-field">
+          <input type="password" name="senha" id="campo-senha" autocomplete="current-password" required>
+          <button
+            type="button"
+            class="senha-toggle"
+            data-toggle-senha
+            data-alvo="campo-senha"
+            aria-label="Mostrar senha"
+            aria-pressed="false"
+          >Mostrar</button>
+        </span>
       </label>
-      <label class="check">
-        <input type="checkbox" name="lembrar" value="1"> Lembrar de mim
-      </label>
+      <p class="hint" style="margin:0 0 0.75rem">
+        <a href="{{ url_for('auth.esqueci_senha') }}">Esqueci a senha</a>
+        · Por segurança, ao fechar a aba (ou sair) será preciso entrar de novo com a senha.
+      </p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
+    <p class="hint" style="margin-top:1rem">
+      Novo por aqui?
+      <a href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
+    </p>
     {% if config.DEBUG %}
     <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
-    {% else %}
-    <p class="hint">Acesse com o usuário e a senha da sua casa.</p>
     {% endif %}
   </main>
+  <script>
+    document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const campo = document.getElementById(btn.dataset.alvo);
+        if (!campo) return;
+        const mostrar = campo.type === "password";
+        campo.type = mostrar ? "text" : "password";
+        btn.textContent = mostrar ? "Ocultar" : "Mostrar";
+        btn.setAttribute("aria-pressed", mostrar ? "true" : "false");
+        btn.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+      });
+    });
+  </script>
 </body>
 </html>

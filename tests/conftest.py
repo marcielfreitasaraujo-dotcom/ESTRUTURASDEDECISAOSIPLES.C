@@ -9,6 +9,9 @@ class TestConfig(Config):
     TESTING = True
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "teste"
+    MAIL_SUPPRESS_SEND = True
+    MAIL_SERVER = ""
+    PAGAMENTO_MOCK = True
 
 
 @pytest.fixture()
@@ -34,7 +37,11 @@ def admin_client(client):
     resp = client.post(
         "/login",
         data={"username": "admin", "senha": "admin123"},
-        follow_redirects=True,
+        follow_redirects=False,
     )
+    assert resp.status_code == 302
+    assert "/sessao/iniciar" in (resp.headers.get("Location") or "")
+    client.get(resp.headers["Location"])
+    resp = client.get("/", follow_redirects=True)
     assert resp.status_code == 200
     return client
