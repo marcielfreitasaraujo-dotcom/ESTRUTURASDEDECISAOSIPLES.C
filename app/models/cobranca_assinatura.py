@@ -14,7 +14,6 @@ METODO_PIX = "pix"
 METODO_CARTAO = "cartao"
 
 PROVEDOR_MERCADOPAGO = "mercadopago"
-PROVEDOR_OPENPIX = "openpix"
 PROVEDOR_MOCK = "mock"
 
 

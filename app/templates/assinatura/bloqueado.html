@@ -146,10 +146,7 @@
           <h2>Pagar assinatura</h2>
           <p class="muted">
             O acesso é liberado <strong>automaticamente</strong> após a confirmação do pagamento de
-            <strong>{{ plano.valor | moeda }}</strong>.
-            {% if pagamento_cfg.banco_destino %}
-              PIX cai na sua conta <strong>{{ pagamento_cfg.banco_destino }}</strong>.
-            {% endif %}
+            <strong>{{ plano.valor | moeda }}</strong> via <strong>Mercado Pago</strong>.
           </p>
 
           <div class="pagamento-tabs" role="tablist">
@@ -197,7 +194,7 @@
           <h2>Pagamento</h2>
           <p class="muted" style="white-space:pre-wrap;margin-top:0.75rem">{{ plano.instrucoes }}</p>
           <p class="muted" style="margin-top:0.75rem">
-            Pagamento automático ainda não configurado. Cadastre a chave PIX do Nubank e configure o OpenPix no Railway.
+            Pagamento automático ainda não configurado. Configure as credenciais do Mercado Pago no Railway.
           </p>
         </article>
       {% endif %}

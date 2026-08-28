@@ -1,4 +1,4 @@
-"""Cobranças de assinatura: PIX automático (OpenPix → Nubank) e cartão parcelado."""
+"""Cobranças de assinatura: PIX automático e cartão parcelado via Mercado Pago."""
 
 from __future__ import annotations
 
@@ -16,7 +16,6 @@ from app.models.cobranca_assinatura import (
     METODO_PIX,
     PROVEDOR_MERCADOPAGO,
     PROVEDOR_MOCK,
-    PROVEDOR_OPENPIX,
     STATUS_CANCELADO,
     STATUS_ERRO,
     STATUS_EXPIRADO,
@@ -35,20 +34,12 @@ class PagamentoAssinaturaErro(ValueError):
 
 
 def _usar_mock() -> bool:
-    from app.services import openpix as opx
+    from app.services import mercadopago as mp
 
-    return opx.usar_mock()
-
-
-def pix_automatico_disponivel() -> bool:
-    from app.services import openpix as opx
-
-    if _usar_mock():
-        return True
-    return opx.pagamento_habilitado()
+    return mp.usar_mock()
 
 
-def cartao_automatico_disponivel() -> bool:
+def pagamento_automatico_disponivel() -> bool:
     from app.services import mercadopago as mp
 
     if _usar_mock():
@@ -56,12 +47,8 @@ def cartao_automatico_disponivel() -> bool:
     return mp.pagamento_habilitado()
 
 
-def pagamento_automatico_disponivel() -> bool:
-    return pix_automatico_disponivel() or cartao_automatico_disponivel()
-
-
 def _referencia(cobranca: CobrancaAssinatura) -> str:
-    return f"finup-{cobranca.usuario_id}-{cobranca.id}"
+    return f"finup:{cobranca.usuario_id}:{cobranca.id}"
 
 
 def _descricao_plano() -> str:
@@ -93,10 +80,7 @@ def _cobranca_pendente(usuario: Usuario, metodo: str) -> CobrancaAssinatura | No
 def _serializar_cobranca(cobranca: CobrancaAssinatura) -> dict:
     qr_data_uri = None
     if cobranca.pix_qr_base64:
-        if cobranca.pix_qr_base64.startswith("http"):
-            qr_data_uri = cobranca.pix_qr_base64
-        else:
-            qr_data_uri = f"data:image/png;base64,{cobranca.pix_qr_base64}"
+        qr_data_uri = f"data:image/png;base64,{cobranca.pix_qr_base64}"
     elif cobranca.pix_payload:
         from app.services.pix import payload_para_qr_data_uri
 
@@ -115,7 +99,7 @@ def _serializar_cobranca(cobranca: CobrancaAssinatura) -> dict:
 
 
 def obter_cobranca_pix(usuario: Usuario) -> dict | None:
-    if not pix_automatico_disponivel():
+    if not pagamento_automatico_disponivel():
         return None
     cobranca = _cobranca_pendente(usuario, METODO_PIX)
     if cobranca is None:
@@ -128,13 +112,13 @@ def obter_cobranca_pix(usuario: Usuario) -> dict | None:
 
 
 def _criar_cobranca_pix(usuario: Usuario) -> CobrancaAssinatura:
-    from app.services import openpix as opx
+    from app.services import mercadopago as mp
 
     plano = obter_plano_assinatura()
     valor = plano["valor"]
     cobranca = CobrancaAssinatura(
         usuario_id=usuario.id,
-        provedor=PROVEDOR_MOCK if _usar_mock() else PROVEDOR_OPENPIX,
+        provedor=PROVEDOR_MOCK if _usar_mock() else PROVEDOR_MERCADOPAGO,
         metodo=METODO_PIX,
         valor=valor,
         expira_em=_expira_em(),
@@ -149,7 +133,7 @@ def _criar_cobranca_pix(usuario: Usuario) -> CobrancaAssinatura:
         from app.services.pix import gerar_payload_pix, montar_txid
 
         if not plano.get("pix_chave"):
-            raise PagamentoAssinaturaErro("Cadastre a chave PIX do Nubank no painel Financeiro.")
+            raise PagamentoAssinaturaErro("Chave PIX não configurada para modo de teste.")
         payload = gerar_payload_pix(
             chave=plano["pix_chave"],
             nome_recebedor=plano["pix_nome"],
@@ -158,23 +142,22 @@ def _criar_cobranca_pix(usuario: Usuario) -> CobrancaAssinatura:
             txid=montar_txid(usuario.id),
             descricao=descricao,
         )
-        cobranca.referencia_externa = referencia
+        cobranca.referencia_externa = f"mock-pix-{cobranca.id}"
         cobranca.pix_payload = payload
         cobranca.pix_qr_base64 = None
     else:
-        email = usuario.username if usuario.eh_email else None
-        dados = opx.criar_cobranca_pix(
-            correlation_id=referencia,
+        dados = mp.criar_pagamento_pix(
+            usuario=usuario,
             valor=valor,
-            comentario=descricao,
-            email_cliente=email,
+            descricao=descricao,
+            referencia=referencia,
+            idempotency_key=f"pix-{cobranca.id}-{uuid.uuid4().hex[:8]}",
         )
-        charge = dados.get("charge") or dados
-        br_code, qr_url, charge_id = opx.extrair_pix(dados)
-        cobranca.referencia_externa = charge_id or referencia
-        cobranca.pix_payload = br_code
-        cobranca.pix_qr_base64 = qr_url
-        cobranca.dados_json = json.dumps({"status_openpix": charge.get("status")})[:4000]
+        cobranca.referencia_externa = str(dados.get("id") or "")
+        payload, qr_b64 = mp.extrair_pix(dados)
+        cobranca.pix_payload = payload
+        cobranca.pix_qr_base64 = qr_b64
+        cobranca.dados_json = json.dumps({"status_mp": dados.get("status")})[:4000]
 
     if not cobranca.pix_payload:
         cobranca.marcar_erro()
@@ -187,8 +170,8 @@ def _criar_cobranca_pix(usuario: Usuario) -> CobrancaAssinatura:
 def processar_pagamento_cartao(usuario: Usuario, dados: dict) -> dict:
     from app.services import mercadopago as mp
 
-    if not cartao_automatico_disponivel():
-        raise PagamentoAssinaturaErro("Pagamento no cartão indisponível no momento.")
+    if not pagamento_automatico_disponivel():
+        raise PagamentoAssinaturaErro("Pagamento automático indisponível.")
 
     token = (dados.get("token") or "").strip()
     if not token:
@@ -212,7 +195,7 @@ def processar_pagamento_cartao(usuario: Usuario, dados: dict) -> dict:
     db.session.add(cobranca)
     db.session.flush()
 
-    referencia = f"finup:{cobranca.usuario_id}:{cobranca.id}"
+    referencia = _referencia(cobranca)
     descricao = _descricao_plano()
 
     if _usar_mock():
@@ -265,46 +248,10 @@ def sincronizar_cobranca(cobranca: CobrancaAssinatura) -> str:
     if cobranca.provedor == PROVEDOR_MOCK:
         return cobranca.status
 
-    if cobranca.metodo == METODO_PIX and cobranca.provedor == PROVEDOR_OPENPIX:
-        return _sincronizar_openpix(cobranca)
-
-    if cobranca.metodo == METODO_CARTAO and cobranca.provedor == PROVEDOR_MERCADOPAGO:
-        return _sincronizar_mercadopago(cobranca)
-
-    return cobranca.status
-
-
-def _sincronizar_openpix(cobranca: CobrancaAssinatura) -> str:
-    from app.services import openpix as opx
-
-    ref = cobranca.referencia_externa or _referencia(cobranca)
-    try:
-        dados = opx.consultar_cobranca(ref)
-    except Exception as exc:
-        logger.warning("Falha ao consultar OpenPix %s: %s", ref, exc)
+    if cobranca.provedor != PROVEDOR_MERCADOPAGO or not cobranca.referencia_externa:
         return cobranca.status
 
-    charge = dados.get("charge") or dados
-    status_opx = charge.get("status")
-    cobranca.dados_json = json.dumps({"status_openpix": status_opx})[:4000]
-
-    if opx.status_aprovado(status_opx):
-        cobranca.marcar_paga()
-        _liberar_por_cobranca(cobranca)
-    elif opx.status_expirado(status_opx):
-        cobranca.marcar_expirada()
-    elif not opx.status_pendente(status_opx):
-        cobranca.marcar_cancelada()
-
-    db.session.flush()
-    return cobranca.status
-
-
-def _sincronizar_mercadopago(cobranca: CobrancaAssinatura) -> str:
     from app.services import mercadopago as mp
-
-    if not cobranca.referencia_externa:
-        return cobranca.status
 
     try:
         dados = mp.consultar_pagamento(cobranca.referencia_externa)
@@ -359,29 +306,6 @@ def _liberar_por_cobranca(cobranca: CobrancaAssinatura) -> None:
     liberar_assinatura(membro)
 
 
-def processar_webhook_openpix(payload: dict) -> bool:
-    from app.services import openpix as opx
-
-    correlation_id = opx.processar_evento_webhook(payload)
-    if not correlation_id:
-        return False
-
-    cobranca = CobrancaAssinatura.query.filter_by(referencia_externa=correlation_id).first()
-    if cobranca is None:
-        partes = (correlation_id or "").split("-")
-        if len(partes) >= 3 and partes[0] == "finup":
-            try:
-                cobranca = db.session.get(CobrancaAssinatura, int(partes[2]))
-            except (TypeError, ValueError):
-                cobranca = None
-    if cobranca is None:
-        return False
-
-    antes = cobranca.status
-    sincronizar_cobranca(cobranca)
-    return cobranca.status != antes or cobranca.paga
-
-
 def processar_webhook_mercadopago(payload: dict) -> bool:
     from app.services import mercadopago as mp
 
@@ -431,17 +355,15 @@ def simular_pagamento_mock(cobranca_id: int, usuario_id: int) -> bool:
 
 
 def config_pagamento_frontend() -> dict:
-    from app.services import mercadopago as mp
-
     plano = obter_plano_assinatura()
     max_parcelas = int(current_app.config.get("MERCADOPAGO_MAX_PARCELAS") or 12)
+    public_key = (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip()
     return {
         "disponivel": pagamento_automatico_disponivel(),
-        "pix_disponivel": pix_automatico_disponivel(),
         "mock": _usar_mock(),
-        "public_key": (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip(),
+        "public_key": public_key,
         "valor": str(plano["valor"]),
         "max_parcelas": max(1, min(12, max_parcelas)),
-        "cartao_habilitado": cartao_automatico_disponivel(),
-        "banco_destino": "Nubank",
+        "cartao_habilitado": bool(public_key) or _usar_mock(),
+        "provedor": "Mercado Pago",
     }

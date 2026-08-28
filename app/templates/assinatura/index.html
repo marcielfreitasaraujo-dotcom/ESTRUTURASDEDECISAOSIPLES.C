@@ -47,7 +47,7 @@
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Valores da assinatura</h2></header>
-  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. O PIX é confirmado automaticamente via OpenPix e depositado na sua conta Nubank. Cartão parcelado (opcional) usa Mercado Pago.</p>
+  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. PIX e cartão parcelado são processados pelo Mercado Pago com confirmação automática.</p>
   <form action="{{ url_for('assinatura.salvar_plano') }}" method="post" class="form-grid">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>
@@ -71,7 +71,7 @@
       Oferecer teste grátis no cadastro (uma vez por conta)
     </label>
     <label class="full">
-      Chave PIX do Nubank (e-mail, celular, CPF/CNPJ ou chave aleatória)
+      Chave PIX (referência local / modo teste)
       <input type="text" name="pix_chave" value="{{ plano.pix_chave }}" maxlength="120" placeholder="sua-chave@email.com ou chave aleatória">
     </label>
     <label>
@@ -91,9 +91,9 @@
     </div>
   </form>
   {% if plano.pix_configurado %}
-    <p class="muted" style="margin-top:0.75rem">Chave PIX do Nubank cadastrada. Em produção, configure <code>OPENPIX_APP_ID</code> no Railway (conta OpenPix com depósito no Nubank PJ) para confirmação automática do PIX.</p>
+    <p class="muted" style="margin-top:0.75rem">Em produção, configure <code>MERCADOPAGO_ACCESS_TOKEN</code> e <code>MERCADOPAGO_PUBLIC_KEY</code> no Railway. Os pagamentos caem na sua conta Mercado Pago.</p>
   {% else %}
-    <p class="muted" style="margin-top:0.75rem">Cadastre a chave PIX do Nubank. Para confirmação automática, vincule a conta no OpenPix e configure <code>OPENPIX_APP_ID</code> no Railway.</p>
+    <p class="muted" style="margin-top:0.75rem">Configure o Mercado Pago no Railway para PIX automático e cartão parcelado.</p>
   {% endif %}
 </article>
 
