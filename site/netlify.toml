@@ -1,6 +1,30 @@
 [build]
   publish = "."
 
+# Domínio: https://www.araujooficial.com.br
+# DNS no Registro.br (sem mexer no GitHub Pages da Realiza):
+#   www  CNAME  finup-araujo-ia.netlify.app
+#   @    A      75.2.60.5
+# Depois, no Netlify: Domain management → Add domain alias → www.araujooficial.com.br
+
+[[redirects]]
+  from = "https://araujooficial.com.br/*"
+  to = "https://www.araujooficial.com.br/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://araujooficial.com.br/*"
+  to = "https://www.araujooficial.com.br/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.araujooficial.com.br/*"
+  to = "https://www.araujooficial.com.br/:splat"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/*"
   [headers.values]
