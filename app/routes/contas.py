@@ -1,3 +1,6 @@
+from datetime import date
+from decimal import Decimal
+
 from sqlalchemy import or_
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -30,13 +33,15 @@ def index():
         .all()
     )
     itens = []
+    total = Decimal("0")
     for conta in contas:
         atual = saldo_conta(conta)
+        total += atual
         diferenca = None
         if conta.eh_carteira and conta.saldo_informado is not None:
             diferenca = conta.saldo_informado - atual
         itens.append({"conta": conta, "saldo": atual, "diferenca": diferenca})
-    return render_template("contas/index.html", itens=itens, tipos=TIPOS_CONTA)
+    return render_template("contas/index.html", itens=itens, tipos=TIPOS_CONTA, total_saldos=total)
 
 
 @contas_bp.route("/contas/nova", methods=["POST"])
