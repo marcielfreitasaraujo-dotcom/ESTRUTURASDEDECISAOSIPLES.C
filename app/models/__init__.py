@@ -6,6 +6,7 @@ from app.models.comprovante import Comprovante
 from app.models.contas_pagar import ContaPagar, Recorrencia, TIPOS_TITULO, STATUS_TITULO, PERIODICIDADES
 from app.models.cartao import Cartao, Parcela
 from app.models.cobranca_assinatura import CobrancaAssinatura
+from app.models.hotmart_pedido import HotmartPedido
 from app.models.sistema import Orcamento, Configuracao, Auditoria, Notificacao
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "Cartao",
     "Parcela",
     "CobrancaAssinatura",
+    "HotmartPedido",
     "Orcamento",
     "Configuracao",
     "Auditoria",

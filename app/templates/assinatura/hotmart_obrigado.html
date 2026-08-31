@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="claro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamento recebido · FinUP</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="auth-body">
+  <div class="auth-bg" aria-hidden="true"></div>
+  <main class="auth-card">
+    <div class="brand brand-lg brand-lockup">
+      <img class="brand-logo brand-logo-full" src="{{ url_for('static', filename='img/logo-full.png') }}" alt="FinUP" width="220" height="220">
+    </div>
+    <h1>Pagamento na Hotmart confirmado</h1>
+    <p class="muted">
+      Use o <strong>mesmo e-mail da compra</strong> no FinUP. O acesso da assinatura
+      libera sozinho quando a Hotmart avisa o sistema.
+    </p>
+    <p>
+      <a class="btn btn-primary" href="{{ url_for('auth.cadastro') }}">Criar conta no FinUP</a>
+    </p>
+    <p>
+      <a class="btn btn-ghost" href="{{ url_for('auth.login') }}">Já tenho conta — entrar</a>
+    </p>
+  </main>
+</body>
+</html>

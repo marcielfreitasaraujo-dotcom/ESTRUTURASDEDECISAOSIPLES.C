@@ -109,6 +109,10 @@ class Config:
     MERCADOPAGO_WEBHOOK_SECRET = os.environ.get("MERCADOPAGO_WEBHOOK_SECRET", "").strip()
     MERCADOPAGO_MAX_PARCELAS = int(os.environ.get("MERCADOPAGO_MAX_PARCELAS", "12") or 12)
     PAGAMENTO_MOCK = _bool_env("PAGAMENTO_MOCK", False)
+    # Hotmart (assinatura no marketplace). Webhook: POST /webhooks/hotmart
+    HOTMART_HOTTOK = os.environ.get("HOTMART_HOTTOK", "").strip()
+    HOTMART_CHECKOUT_URL = os.environ.get("HOTMART_CHECKOUT_URL", "").strip()
+    HOTMART_PRODUCT_ID = os.environ.get("HOTMART_PRODUCT_ID", "").strip()
 
     @staticmethod
     def init_app(app) -> None:

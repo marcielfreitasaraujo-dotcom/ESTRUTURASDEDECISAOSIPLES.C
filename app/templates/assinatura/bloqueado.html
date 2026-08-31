@@ -193,8 +193,25 @@
         <article class="assinatura-card">
           <h2>Pagamento</h2>
           <p class="muted" style="white-space:pre-wrap;margin-top:0.75rem">{{ plano.instrucoes }}</p>
+          {% if not pagamento_cfg.hotmart_habilitado %}
           <p class="muted" style="margin-top:0.75rem">
             Pagamento automático ainda não configurado. Configure as credenciais do Mercado Pago no Railway.
+          </p>
+          {% endif %}
+        </article>
+      {% endif %}
+
+      {% if pagamento_cfg.hotmart_habilitado %}
+        <article class="assinatura-card">
+          <h2>Assinar na Hotmart</h2>
+          <p class="muted">
+            Cartão ou PIX pelo checkout da Hotmart. Depois de pagar, volte e entre com o
+            <strong>mesmo e-mail da compra</strong> — o FinUP libera o acesso sozinho.
+          </p>
+          <p style="margin-top:0.9rem">
+            <a class="btn btn-primary" href="{{ pagamento_cfg.hotmart_checkout_url }}" target="_blank" rel="noopener noreferrer">
+              Pagar {{ plano.valor | moeda }} na Hotmart
+            </a>
           </p>
         </article>
       {% endif %}

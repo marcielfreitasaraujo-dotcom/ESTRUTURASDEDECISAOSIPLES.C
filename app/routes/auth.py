@@ -109,6 +109,13 @@ def cadastro():
                 )
                 db.session.commit()
                 try:
+                    from app.services.hotmart import aplicar_pedidos_pendentes
+
+                    aplicar_pedidos_pendentes(membro)
+                    db.session.commit()
+                except Exception:
+                    db.session.rollback()
+                try:
                     enviado = enviar_verificacao(membro)
                     db.session.commit()
                 except Exception as exc:
@@ -158,6 +165,12 @@ def verificar_email(token):
         flash("Conta não encontrada.", "erro")
         return redirect(url_for("auth.login"))
     usuario.email_verificado = True
+    try:
+        from app.services.hotmart import aplicar_pedidos_pendentes
+
+        aplicar_pedidos_pendentes(usuario)
+    except Exception:
+        pass
     db.session.commit()
     flash("E-mail confirmado! Agora você pode entrar normalmente.", "sucesso")
     if current_user.is_authenticated and current_user.id == usuario.id:
@@ -179,6 +192,12 @@ def aguardando_verificacao():
         if acao == "codigo":
             codigo = request.form.get("codigo") or ""
             if validar_codigo_verificacao(current_user, codigo):
+                try:
+                    from app.services.hotmart import aplicar_pedidos_pendentes
+
+                    aplicar_pedidos_pendentes(current_user)
+                except Exception:
+                    pass
                 db.session.commit()
                 flash("E-mail confirmado! Agora você já pode usar o FinUP.", "sucesso")
                 destino = _destino_pos_login(current_user)

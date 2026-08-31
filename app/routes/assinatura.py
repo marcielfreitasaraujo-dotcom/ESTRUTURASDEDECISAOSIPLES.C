@@ -37,6 +37,14 @@ assinatura_bp = Blueprint("assinatura", __name__)
 @assinatura_bp.route("/assinatura/bloqueado")
 @login_required
 def bloqueado():
+    from app.services.hotmart import aplicar_pedidos_pendentes
+
+    try:
+        if aplicar_pedidos_pendentes(current_user):
+            db.session.commit()
+            flash("Pagamento da Hotmart confirmado. Acesso liberado.", "sucesso")
+    except Exception:
+        db.session.rollback()
     if usuario_tem_acesso(current_user) or not bloqueio_assinatura_ativo():
         return redirect(url_for("dashboard.index"))
     plano = obter_plano_assinatura()
@@ -122,6 +130,34 @@ def webhook_mercadopago():
     except Exception:
         db.session.rollback()
         return jsonify({"ok": False}), 500
+
+
+@csrf.exempt
+@assinatura_bp.route("/webhooks/hotmart", methods=["POST", "GET"])
+def webhook_hotmart():
+    from app.services import hotmart as ht
+
+    if request.method == "GET":
+        return jsonify({"ok": True, "provedor": "hotmart"})
+
+    if not ht.hottok_configurado():
+        return jsonify({"erro": "HOTMART_HOTTOK não configurado"}), 503
+    if not ht.validar_hottok(request.headers.get("X-HOTMART-HOTTOK")):
+        return jsonify({"erro": "hottok inválido"}), 401
+
+    payload = request.get_json(silent=True) or {}
+    try:
+        resultado = ht.processar_webhook_hotmart(payload)
+        db.session.commit()
+        return jsonify({"ok": True, **resultado})
+    except Exception:
+        db.session.rollback()
+        return jsonify({"ok": False}), 500
+
+
+@assinatura_bp.route("/assinatura/hotmart-obrigado")
+def hotmart_obrigado():
+    return render_template("assinatura/hotmart_obrigado.html")
 
 
 @assinatura_bp.route("/assinatura/retorno-pagamento")

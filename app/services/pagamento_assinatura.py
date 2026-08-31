@@ -366,4 +366,6 @@ def config_pagamento_frontend() -> dict:
         "max_parcelas": max(1, min(12, max_parcelas)),
         "cartao_habilitado": bool(public_key) or _usar_mock(),
         "provedor": "Mercado Pago",
+        "hotmart_checkout_url": (current_app.config.get("HOTMART_CHECKOUT_URL") or "").strip(),
+        "hotmart_habilitado": bool((current_app.config.get("HOTMART_CHECKOUT_URL") or "").strip()),
     }

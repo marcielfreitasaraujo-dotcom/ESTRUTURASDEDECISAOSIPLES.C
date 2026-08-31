@@ -354,6 +354,8 @@ def endpoints_livres_assinatura() -> set[str]:
         "assinatura.pagar_cartao",
         "assinatura.config_pagamento",
         "assinatura.webhook_mercadopago",
+        "assinatura.webhook_hotmart",
+        "assinatura.hotmart_obrigado",
         "assinatura.retorno_pagamento",
         "assinatura.simular_pagamento_teste",
     }
