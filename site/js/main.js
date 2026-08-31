@@ -6,7 +6,7 @@
   const metaSistema = document.querySelector('meta[name="finup-sistema"]');
   const baseSistema = (metaSistema && metaSistema.getAttribute("content")
     ? metaSistema.getAttribute("content")
-    : "http://127.0.0.1:5000"
+    : "https://finup.araujooficial.com.br"
   ).replace(/\/$/, "");
   const urlSistema = baseSistema + "/login";
   const urlCadastro = baseSistema + "/cadastro";
