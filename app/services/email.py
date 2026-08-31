@@ -105,14 +105,34 @@ class _SMTP_SSL_IPv4(smtplib.SMTP_SSL):
         return context.wrap_socket(raw, server_hostname=host)
 
 
+def _reply_to() -> str | None:
+    conta = (current_app.config.get("RESEND_CONTA_EMAIL") or "").strip()
+    if conta and "@" in conta:
+        return conta
+    remetente = (current_app.config.get("MAIL_DEFAULT_SENDER") or "").strip()
+    if "<" in remetente and ">" in remetente:
+        email = remetente.split("<", 1)[1].split(">", 1)[0].strip()
+        if "@" in email:
+            return email
+    if "@" in remetente:
+        return remetente
+    return None
+
+
 def _enviar_resend(*, para: str, assunto: str, texto: str, html: str, remetente: str, api_key: str) -> bool:
-    payload = {
+    payload: dict = {
         "from": remetente,
         "to": [para],
         "subject": assunto,
         "text": texto,
         "html": html,
+        "headers": {
+            "X-Entity-Ref-ID": "finup-verificacao",
+        },
     }
+    reply_to = _reply_to()
+    if reply_to:
+        payload["reply_to"] = reply_to
     # Cloudflare/Resend bloqueia o User-Agent padrão do urllib (erro 1010).
     req = urllib.request.Request(
         "https://api.resend.com/emails",

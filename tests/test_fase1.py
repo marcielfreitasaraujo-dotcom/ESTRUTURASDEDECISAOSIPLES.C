@@ -103,6 +103,61 @@ def test_receita_aumenta_saldo(admin_client, app):
         assert saldo_conta(conta) == antes + Decimal("100.00")
 
 
+def test_transferencia_para_outra_pessoa(admin_client, app):
+    with app.app_context():
+        origem = Conta.query.filter_by(nome="Nubank").first()
+        s_origem = saldo_conta(origem)
+        origem_id = origem.id
+
+    admin_client.post(
+        "/movimentacoes/nova",
+        data={
+            "tipo": "transferencia",
+            "transferencia_modo": "outra_pessoa",
+            "valor": "30,00",
+            "descricao": "Pix para amigo",
+            "conta_id": str(origem_id),
+            "destinatario": "Maria Silva",
+            "data": date.today().isoformat(),
+            "forma_pagamento": "pix",
+        },
+        follow_redirects=True,
+    )
+    with app.app_context():
+        origem = db.session.get(Conta, origem_id)
+        assert saldo_conta(origem) == s_origem - Decimal("30.00")
+        mov = Movimentacao.query.filter_by(descricao="Pix para amigo").first()
+        assert mov is not None
+        assert mov.destinatario == "Maria Silva"
+        assert mov.conta_destino_id is None
+        assert mov.transferencia_resumo == "Nubank → Maria Silva"
+
+
+def test_conta_detalhe_mostra_transferencia_recebida(admin_client, app):
+    with app.app_context():
+        origem = Conta.query.filter_by(nome="Nubank").first()
+        destino = Conta.query.filter_by(nome="Carteira").first()
+        ids = (origem.id, destino.id)
+
+    admin_client.post(
+        "/movimentacoes/nova",
+        data={
+            "tipo": "transferencia",
+            "transferencia_modo": "minhas_contas",
+            "valor": "25,00",
+            "descricao": "Para carteira",
+            "conta_id": str(ids[0]),
+            "conta_destino_id": str(ids[1]),
+            "data": date.today().isoformat(),
+            "forma_pagamento": "dinheiro",
+        },
+        follow_redirects=True,
+    )
+    html = admin_client.get(f"/contas/{ids[1]}").get_data(as_text=True)
+    assert "Para carteira" in html
+    assert "Nubank" in html
+
+
 def test_transferencia_nao_e_receita_nem_despesa(admin_client, app):
     with app.app_context():
         origem = Conta.query.filter_by(nome="Nubank").first()
@@ -115,6 +170,7 @@ def test_transferencia_nao_e_receita_nem_despesa(admin_client, app):
         "/movimentacoes/nova",
         data={
             "tipo": "transferencia",
+            "transferencia_modo": "minhas_contas",
             "valor": "50,00",
             "descricao": "Saque",
             "conta_id": str(ids[0]),

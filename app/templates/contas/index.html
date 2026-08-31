@@ -5,6 +5,9 @@
   <div>
     <p class="kicker">Onde está o dinheiro</p>
     <h1>Contas e carteiras</h1>
+    {% if itens %}
+      <p class="muted">Total disponível: <strong>{{ total_saldos | moeda }}</strong> (mesmo valor do Início → Saldo nas contas)</p>
+    {% endif %}
   </div>
 </section>
 

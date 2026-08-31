@@ -369,6 +369,37 @@ def test_remover_usuario_exige_confirmacao(admin_client, app):
         assert db.session.get(Usuario, uid) is not None
 
 
+def test_remover_usuario_com_cobranca_pix(admin_client, app):
+    from app.models import CobrancaAssinatura
+    from app.models.cobranca_assinatura import METODO_PIX, PROVEDOR_MERCADOPAGO, STATUS_PENDENTE
+
+    with app.app_context():
+        membro = criar_membro_familia("Com Pix", "com_pix", "senha123", eh_familia=False)
+        db.session.add(
+            CobrancaAssinatura(
+                usuario_id=membro.id,
+                provedor=PROVEDOR_MERCADOPAGO,
+                metodo=METODO_PIX,
+                valor="9.90",
+                status=STATUS_PENDENTE,
+                referencia_externa="999001",
+            )
+        )
+        db.session.commit()
+        uid = membro.id
+
+    resp = admin_client.post(
+        f"/assinatura/{uid}/remover",
+        data={"senha_confirmacao": "admin123"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "removido permanentemente" in resp.get_data(as_text=True)
+    with app.app_context():
+        assert db.session.get(Usuario, uid) is None
+        assert CobrancaAssinatura.query.filter_by(usuario_id=uid).count() == 0
+
+
 def test_remover_usuario_com_confirmacao(admin_client, app):
     with app.app_context():
         membro = criar_membro_familia("Apaga Ja", "apaga_ja", "senha123", eh_familia=True)

@@ -12,6 +12,7 @@ from app.models import (
     Auditoria,
     Cartao,
     Categoria,
+    CobrancaAssinatura,
     Comprovante,
     Conta,
     ContaPagar,
@@ -75,6 +76,7 @@ def remover_usuario_completo(membro: Usuario) -> str:
     Comprovante.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     ContaPagar.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     Recorrencia.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
+    CobrancaAssinatura.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     Movimentacao.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     Cartao.query.filter_by(usuario_id=uid).delete(synchronize_session=False)
     Orcamento.query.filter_by(usuario_id=uid).delete(synchronize_session=False)

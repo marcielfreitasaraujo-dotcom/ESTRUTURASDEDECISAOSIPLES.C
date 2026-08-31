@@ -1,3 +1,8 @@
+from datetime import date
+from decimal import Decimal
+
+from sqlalchemy import or_
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
@@ -28,13 +33,15 @@ def index():
         .all()
     )
     itens = []
+    total = Decimal("0")
     for conta in contas:
         atual = saldo_conta(conta)
+        total += atual
         diferenca = None
         if conta.eh_carteira and conta.saldo_informado is not None:
             diferenca = conta.saldo_informado - atual
         itens.append({"conta": conta, "saldo": atual, "diferenca": diferenca})
-    return render_template("contas/index.html", itens=itens, tipos=TIPOS_CONTA)
+    return render_template("contas/index.html", itens=itens, tipos=TIPOS_CONTA, total_saldos=total)
 
 
 @contas_bp.route("/contas/nova", methods=["POST"])
@@ -69,11 +76,27 @@ def detalhe(conta_id):
         diferenca = conta.saldo_informado - atual
 
     movs = (
-        Movimentacao.query.filter_by(conta_id=conta.id, ativo=True)
+        Movimentacao.query.filter(
+            Movimentacao.ativo.is_(True),
+            or_(
+                Movimentacao.conta_id == conta.id,
+                Movimentacao.conta_destino_id == conta.id,
+            ),
+        )
         .order_by(Movimentacao.data.desc(), Movimentacao.id.desc())
         .limit(30)
         .all()
     )
+    lancamentos = []
+    for mov in movs:
+        if mov.tipo == "transferencia" and mov.conta_destino_id == conta.id:
+            direcao = "entrada"
+        elif mov.tipo == "transferencia" and mov.conta_id == conta.id:
+            direcao = "saida"
+        else:
+            direcao = mov.tipo
+        lancamentos.append({"mov": mov, "direcao": direcao})
+
     return render_template(
         "contas/detalhe.html",
         conta=conta,
@@ -81,6 +104,7 @@ def detalhe(conta_id):
         diferenca=diferenca,
         tipos=TIPOS_CONTA,
         movimentacoes=movs,
+        lancamentos=lancamentos,
     )
 
 

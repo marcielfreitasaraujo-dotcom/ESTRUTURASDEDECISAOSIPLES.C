@@ -3,6 +3,10 @@ from sqlalchemy import inspect, text
 from app.extensions import db
 
 
+COLUNAS_MOVIMENTACOES = {
+    "destinatario": "ALTER TABLE movimentacoes ADD COLUMN destinatario VARCHAR(120)",
+}
+
 COLUNAS_CONTAS_PAGAR = {
     "tipo": "ALTER TABLE contas_pagar ADD COLUMN tipo VARCHAR(20) DEFAULT 'pagar'",
     "pessoa": "ALTER TABLE contas_pagar ADD COLUMN pessoa VARCHAR(120)",
@@ -108,6 +112,7 @@ def _migrar_assinatura_segura() -> None:
 def garantir_esquema() -> None:
     """Acrescenta colunas novas em bancos SQLite já criados na Fase 1."""
     _adicionar_colunas("contas_pagar", COLUNAS_CONTAS_PAGAR)
+    _adicionar_colunas("movimentacoes", COLUNAS_MOVIMENTACOES)
     _adicionar_colunas("recorrencias", COLUNAS_RECORRENCIAS)
     _adicionar_colunas("parcelas", COLUNAS_PARCELAS)
     _adicionar_colunas("usuarios", COLUNAS_USUARIOS)

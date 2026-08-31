@@ -26,6 +26,13 @@ def pagamento_habilitado() -> bool:
     return bool((current_app.config.get("MERCADOPAGO_ACCESS_TOKEN") or "").strip())
 
 
+def modo_teste() -> bool:
+    """True quando as credenciais são de sandbox (TEST-). PIX real não funciona nesse modo."""
+    token = (current_app.config.get("MERCADOPAGO_ACCESS_TOKEN") or "").strip()
+    public = (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip()
+    return token.startswith("TEST-") or public.startswith("TEST-")
+
+
 def usar_mock() -> bool:
     if current_app.config.get("TESTING"):
         return True
