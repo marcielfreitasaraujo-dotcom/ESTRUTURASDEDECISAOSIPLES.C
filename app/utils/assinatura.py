@@ -16,14 +16,16 @@ CHAVE_PIX_NOME = "assinatura_pix_nome"
 CHAVE_PIX_CIDADE = "assinatura_pix_cidade"
 CHAVE_TESTE_ATIVO = "assinatura_teste_ativo"
 CHAVE_TESTE_HORAS = "assinatura_teste_horas"
+CHAVE_TESTE_DIAS = "assinatura_teste_dias"
 
 VALOR_PADRAO = "29.90"
 PLANO_PADRAO = "Mensal"
 DIAS_PADRAO = 30
-TESTE_HORAS_PADRAO = 24
+TESTE_DIAS_PADRAO = 30
+TESTE_DIAS_MAX = 365
 INSTRUCOES_PADRAO = (
-    "Escolha o teste grátis de 24 horas ou pague via PIX ou cartão nesta tela. "
-    "O acesso é liberado automaticamente após a confirmação do pagamento."
+    "Escolha o teste grátis de 1 mês ou pague via PIX ou cartão nesta tela. "
+    "O acesso pago só libera quando o Mercado Pago confirmar o pagamento na conta."
 )
 PIX_NOME_PADRAO = "FINUP"
 PIX_CIDADE_PADRAO = "SAO PAULO"
@@ -43,6 +45,14 @@ def _definir_cfg(chave: str, valor: str) -> None:
     else:
         db.session.add(Configuracao(chave=chave, valor=valor))
     db.session.flush()
+
+
+def rotulo_teste_gratis(dias: int) -> str:
+    if dias == 30:
+        return "1 mês"
+    if dias == 1:
+        return "1 dia"
+    return f"{dias} dias"
 
 
 def bloqueio_assinatura_ativo() -> bool:
@@ -66,6 +76,7 @@ def obter_plano_assinatura() -> dict:
     cfg_pix_nome = _cfg(CHAVE_PIX_NOME)
     cfg_pix_cidade = _cfg(CHAVE_PIX_CIDADE)
     cfg_teste_ativo = _cfg(CHAVE_TESTE_ATIVO)
+    cfg_teste_dias = _cfg(CHAVE_TESTE_DIAS)
     cfg_teste_horas = _cfg(CHAVE_TESTE_HORAS)
     valor_txt = ((cfg_valor.valor if cfg_valor else None) or VALOR_PADRAO).strip()
     plano = ((cfg_plano.valor if cfg_plano else None) or PLANO_PADRAO).strip()
@@ -75,11 +86,22 @@ def obter_plano_assinatura() -> dict:
     pix_nome = ((cfg_pix_nome.valor if cfg_pix_nome else None) or PIX_NOME_PADRAO).strip()
     pix_cidade = ((cfg_pix_cidade.valor if cfg_pix_cidade else None) or PIX_CIDADE_PADRAO).strip()
     teste_ativo = ((cfg_teste_ativo.valor if cfg_teste_ativo else None) or "1").strip() == "1"
-    teste_horas_txt = ((cfg_teste_horas.valor if cfg_teste_horas else None) or str(TESTE_HORAS_PADRAO)).strip()
-    try:
-        teste_horas = max(1, min(168, int(teste_horas_txt)))
-    except (TypeError, ValueError):
-        teste_horas = TESTE_HORAS_PADRAO
+    teste_dias = TESTE_DIAS_PADRAO
+    if cfg_teste_dias and (cfg_teste_dias.valor or "").strip():
+        try:
+            teste_dias = max(1, min(TESTE_DIAS_MAX, int((cfg_teste_dias.valor or "").strip())))
+        except (TypeError, ValueError):
+            teste_dias = TESTE_DIAS_PADRAO
+    elif cfg_teste_horas and (cfg_teste_horas.valor or "").strip():
+        try:
+            horas_antigas = int((cfg_teste_horas.valor or "").strip())
+        except (TypeError, ValueError):
+            horas_antigas = 24
+        # 24h era o padrão antigo; o produto agora é 1 mês grátis.
+        if horas_antigas <= 24:
+            teste_dias = TESTE_DIAS_PADRAO
+        else:
+            teste_dias = max(1, min(TESTE_DIAS_MAX, (horas_antigas + 23) // 24))
     try:
         dias = max(1, int(dias_txt))
     except (TypeError, ValueError):
@@ -97,7 +119,8 @@ def obter_plano_assinatura() -> dict:
         "pix_cidade": (pix_cidade[:40] or PIX_CIDADE_PADRAO),
         "pix_configurado": bool(pix_chave),
         "teste_ativo": teste_ativo,
-        "teste_horas": teste_horas,
+        "teste_dias": teste_dias,
+        "teste_rotulo": rotulo_teste_gratis(teste_dias),
     }
 
 
@@ -111,6 +134,7 @@ def salvar_plano_assinatura(
     pix_nome: str | None = None,
     pix_cidade: str | None = None,
     teste_ativo: bool | None = None,
+    teste_dias: int | None = None,
     teste_horas: int | None = None,
 ) -> dict:
     plano = (nome or "").strip()[:80] or PLANO_PADRAO
@@ -134,12 +158,19 @@ def salvar_plano_assinatura(
         _definir_cfg(CHAVE_PIX_CIDADE, ((pix_cidade or "").strip()[:40] or PIX_CIDADE_PADRAO))
     if teste_ativo is not None:
         _definir_cfg(CHAVE_TESTE_ATIVO, "1" if teste_ativo else "0")
-    if teste_horas is not None:
+    dias_teste = teste_dias
+    if dias_teste is None and teste_horas is not None:
         try:
-            horas = max(1, min(168, int(teste_horas)))
+            horas_in = int(teste_horas)
         except (TypeError, ValueError) as exc:
-            raise ValueError("Informe as horas do teste grátis (entre 1 e 168).") from exc
-        _definir_cfg(CHAVE_TESTE_HORAS, str(horas))
+            raise ValueError("Informe os dias do teste grátis (entre 1 e 365).") from exc
+        dias_teste = TESTE_DIAS_PADRAO if horas_in <= 24 else max(1, (horas_in + 23) // 24)
+    if dias_teste is not None:
+        try:
+            dias_ok = max(1, min(TESTE_DIAS_MAX, int(dias_teste)))
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Informe os dias do teste grátis (entre 1 e 365).") from exc
+        _definir_cfg(CHAVE_TESTE_DIAS, str(dias_ok))
     return obter_plano_assinatura()
 
 
@@ -224,7 +255,7 @@ def liberar_assinatura(
     membro.assinatura_expira_em = None
 
 
-def liberar_teste_gratis(membro: Usuario, *, horas: int | None = None) -> None:
+def liberar_teste_gratis(membro: Usuario, *, dias: int | None = None, horas: int | None = None) -> None:
     plano = obter_plano_assinatura()
     if not plano.get("teste_ativo"):
         raise ValueError("O teste grátis está desativado no momento.")
@@ -233,9 +264,12 @@ def liberar_teste_gratis(membro: Usuario, *, horas: int | None = None) -> None:
     if membro.eh_admin or membro.eh_familia:
         raise ValueError("Sua conta não precisa de teste grátis.")
 
-    horas_ciclo = horas if horas is not None else plano["teste_horas"]
-    horas_ciclo = max(1, min(168, int(horas_ciclo)))
-    expira = agora() + timedelta(hours=horas_ciclo)
+    if horas is not None:
+        expira = agora() + timedelta(hours=max(1, int(horas)))
+    else:
+        dias_ciclo = dias if dias is not None else plano["teste_dias"]
+        dias_ciclo = max(1, min(TESTE_DIAS_MAX, int(dias_ciclo)))
+        expira = agora() + timedelta(days=dias_ciclo)
     membro.teste_gratis_usado = True
     membro.assinatura_ativa = True
     membro.assinatura_expira_em = expira

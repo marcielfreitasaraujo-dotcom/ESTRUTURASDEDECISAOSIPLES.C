@@ -30,7 +30,7 @@
       >
     </div>
     <h1>Olá! Entre para ver seu saldo.</h1>
-    <p class="muted">Já tem conta? Entre com e-mail e senha. Ainda não? Crie a conta — teste grátis de {{ plano.teste_horas }}h ou plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
+    <p class="muted">Já tem conta? Entre com e-mail e senha. Ainda não? Crie a conta — teste grátis de {{ plano.teste_rotulo }} ou plano {{ plano.nome }} ({{ plano.valor | moeda }}).</p>
     {% if erro %}
       <div class="flash flash-erro">{{ erro }}</div>
     {% endif %}

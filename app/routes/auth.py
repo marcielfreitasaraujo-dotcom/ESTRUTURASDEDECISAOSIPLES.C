@@ -203,7 +203,7 @@ def aguardando_verificacao():
                 destino = _destino_pos_login(current_user)
                 if destino == url_for("assinatura.bloqueado"):
                     flash(
-                        "Para entrar no FinUP, pague a assinatura via PIX na próxima tela.",
+                        "Para continuar depois do teste, pague pelo Mercado Pago. O acesso só libera quando o pagamento cair na conta.",
                         "info",
                     )
                 return redirect(url_for("auth.sessao_iniciar", next=destino))

@@ -176,7 +176,7 @@ def retorno_pagamento():
 @assinatura_bp.route("/assinatura/iniciar-teste-gratis", methods=["POST"])
 @login_required
 def iniciar_teste_gratis():
-    """Libera acesso por período de teste (padrão 24h), uma vez por conta."""
+    """Libera acesso de teste (padrão 1 mês), uma vez por conta."""
     if current_user.eh_admin or current_user.eh_familia:
         return redirect(url_for("dashboard.index"))
     if not bloqueio_assinatura_ativo():
@@ -192,11 +192,11 @@ def iniciar_teste_gratis():
         return redirect(url_for("assinatura.bloqueado"))
 
     plano = obter_plano_assinatura()
-    horas = plano["teste_horas"]
+    rotulo = plano["teste_rotulo"]
     expira = current_user.assinatura_expira_em
     expira_txt = expira.strftime("%d/%m/%Y às %H:%M") if expira else ""
     flash(
-        f"Teste grátis ativado por {horas}h! Acesso liberado até {expira_txt}.",
+        f"Teste grátis de {rotulo} ativado! Acesso liberado até {expira_txt}.",
         "sucesso",
     )
     return redirect(url_for("dashboard.index"))
@@ -235,7 +235,7 @@ def salvar_plano():
             pix_nome=request.form.get("pix_nome"),
             pix_cidade=request.form.get("pix_cidade"),
             teste_ativo=(request.form.get("teste_ativo") or "") in {"1", "true", "on", "sim"},
-            teste_horas=request.form.get("teste_horas") or 24,
+            teste_dias=request.form.get("teste_dias") or request.form.get("teste_horas") or 30,
         )
         db.session.commit()
         flash("Valores, PIX e instruções da assinatura atualizados.", "sucesso")

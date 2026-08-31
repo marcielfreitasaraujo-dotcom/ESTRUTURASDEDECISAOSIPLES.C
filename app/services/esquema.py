@@ -105,6 +105,42 @@ def _migrar_assinatura_segura() -> None:
                     )
 
 
+def _migrar_teste_gratis_mensal() -> None:
+    """Passa o teste grátis de 24h para 30 dias (1 mês), uma vez."""
+    inspetor = inspect(db.engine)
+    if "configuracoes" not in inspetor.get_table_names():
+        return
+    with db.engine.begin() as conn:
+        ja = conn.execute(
+            text("SELECT 1 FROM configuracoes WHERE chave = 'assinatura_teste_dias_v1'")
+        ).fetchone()
+        if ja is not None:
+            return
+        existe_dias = conn.execute(
+            text("SELECT 1 FROM configuracoes WHERE chave = 'assinatura_teste_dias'")
+        ).fetchone()
+        if existe_dias is None:
+            conn.execute(
+                text(
+                    "INSERT INTO configuracoes (chave, valor, atualizado_em) "
+                    "VALUES ('assinatura_teste_dias', '30', CURRENT_TIMESTAMP)"
+                )
+            )
+        else:
+            conn.execute(
+                text(
+                    "UPDATE configuracoes SET valor = '30', atualizado_em = CURRENT_TIMESTAMP "
+                    "WHERE chave = 'assinatura_teste_dias'"
+                )
+            )
+        conn.execute(
+            text(
+                "INSERT INTO configuracoes (chave, valor, atualizado_em) "
+                "VALUES ('assinatura_teste_dias_v1', '1', CURRENT_TIMESTAMP)"
+            )
+        )
+
+
 def garantir_esquema() -> None:
     """Acrescenta colunas novas em bancos SQLite já criados na Fase 1."""
     _adicionar_colunas("contas_pagar", COLUNAS_CONTAS_PAGAR)
@@ -123,3 +159,4 @@ def garantir_esquema() -> None:
                 text("UPDATE recorrencias SET tipo = 'pagar' WHERE tipo IS NULL OR tipo = ''")
             )
     _migrar_assinatura_segura()
+    _migrar_teste_gratis_mensal()

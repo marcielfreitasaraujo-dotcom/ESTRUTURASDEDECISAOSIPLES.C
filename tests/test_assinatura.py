@@ -4,6 +4,7 @@ import pytest
 
 from app.extensions import db
 from app.models import Usuario
+from app.models.usuario import agora
 from app.services.seed import criar_membro_familia
 from app.utils.assinatura import (
     bloqueio_assinatura_ativo,
@@ -405,7 +406,7 @@ def test_nao_remove_admin(admin_client, app):
         assert db.session.get(Usuario, admin_id) is not None
 
 
-def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
+def test_teste_gratis_libera_acesso_por_1_mes(admin_client, client, app):
     with app.app_context():
         definir_bloqueio_assinatura(True)
         salvar_plano_assinatura(
@@ -414,7 +415,7 @@ def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
             dias=30,
             instrucoes="Teste",
             teste_ativo=True,
-            teste_horas=24,
+            teste_dias=30,
         )
         criar_membro_familia(
             "Trial User",
@@ -428,11 +429,12 @@ def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
     _login(client, "trial_user", "senha123")
     pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
     html = pagina.get_data(as_text=True)
-    assert "Iniciar teste grátis de 24h" in html
+    assert "Iniciar teste grátis de 1 mês" in html
 
     resp = client.post("/assinatura/iniciar-teste-gratis", follow_redirects=True)
     assert resp.status_code == 200
-    assert "Teste grátis ativado" in resp.get_data(as_text=True)
+    texto = resp.get_data(as_text=True)
+    assert "Teste grátis de 1 mês ativado" in texto
     assert client.get("/contas").status_code == 200
 
     with app.app_context():
@@ -442,6 +444,8 @@ def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
         assert u.assinatura_expira_em is not None
         assert usuario_tem_acesso(u) is True
         assert pode_iniciar_teste_gratis(u) is False
+        delta = u.assinatura_expira_em - agora()
+        assert 29 <= delta.days <= 31
 
         with pytest.raises(ValueError, match="já usou"):
             liberar_teste_gratis(u)

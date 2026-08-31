@@ -120,15 +120,15 @@
     <div class="assinatura-opcoes">
       {% if pode_teste %}
         <article class="assinatura-card assinatura-card--destaque">
-          <h2>Teste grátis · {{ plano.teste_horas }}h</h2>
+          <h2>Teste grátis · {{ plano.teste_rotulo }}</h2>
           <p class="muted">
-            Experimente o FinUP completo por {{ plano.teste_horas }} horas, sem pagar agora.
+            Experimente o FinUP completo por {{ plano.teste_rotulo }}, sem pagar agora.
             Disponível uma vez por conta.
           </p>
           <form action="{{ url_for('assinatura.iniciar_teste_gratis') }}" method="post" style="margin-top:0.9rem">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button class="btn btn-primary" type="submit" style="width:100%">
-              Iniciar teste grátis de {{ plano.teste_horas }}h
+              Iniciar teste grátis de {{ plano.teste_rotulo }}
             </button>
           </form>
         </article>
@@ -145,8 +145,8 @@
         <article class="assinatura-card">
           <h2>Pagar assinatura</h2>
           <p class="muted">
-            O acesso é liberado <strong>automaticamente</strong> após a confirmação do pagamento de
-            <strong>{{ plano.valor | moeda }}</strong> via <strong>Mercado Pago</strong>.
+            O acesso pago só libera <strong>depois que o Mercado Pago confirmar</strong> o pagamento de
+            <strong>{{ plano.valor | moeda }}</strong> na sua conta.
           </p>
 
           <div class="pagamento-tabs" role="tablist">
@@ -170,7 +170,7 @@
                 <p class="muted pix-hint">
                   1. Escaneie o QR ou cole o código no app do banco<br>
                   2. Confirme o pagamento de <strong>{{ plano.valor | moeda }}</strong><br>
-                  3. Aguarde — liberamos o acesso assim que o PIX for confirmado
+                  3. Aguarde — o acesso só libera quando o Mercado Pago confirmar o pagamento
                 </p>
                 <div id="pix-aguardando" class="pagamento-aguardando" aria-live="polite">
                   Aguardando confirmação do PIX…
@@ -198,21 +198,6 @@
             Pagamento automático ainda não configurado. Configure as credenciais do Mercado Pago no Railway.
           </p>
           {% endif %}
-        </article>
-      {% endif %}
-
-      {% if pagamento_cfg.hotmart_habilitado %}
-        <article class="assinatura-card">
-          <h2>Assinar na Hotmart</h2>
-          <p class="muted">
-            Cartão ou PIX pelo checkout da Hotmart. Depois de pagar, volte e entre com o
-            <strong>mesmo e-mail da compra</strong> — o FinUP libera o acesso sozinho.
-          </p>
-          <p style="margin-top:0.9rem">
-            <a class="btn btn-primary" href="{{ pagamento_cfg.hotmart_checkout_url }}" target="_blank" rel="noopener noreferrer">
-              Pagar {{ plano.valor | moeda }} na Hotmart
-            </a>
-          </p>
         </article>
       {% endif %}
     </div>

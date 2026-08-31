@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from app.extensions import db
 from app.models import Usuario
-from app.models.hotmart_pedido import STATUS_APLICADO, STATUS_PENDENTE, HotmartPedido
+from app.models.hotmart_pedido import STATUS_PENDENTE, HotmartPedido
 from app.services.seed import criar_membro_familia
 from app.utils.assinatura import definir_bloqueio_assinatura, usuario_tem_acesso
 
@@ -49,7 +49,7 @@ def test_webhook_hottok_invalido(client, app):
     assert resp.status_code == 401
 
 
-def test_compra_aprovada_libera_usuario_existente(client, app):
+def test_compra_aprovada_nao_libera_sem_mercado_pago(client, app):
     app.config["HOTMART_HOTTOK"] = HOTTOK
     with app.app_context():
         definir_bloqueio_assinatura(True)
@@ -67,27 +67,21 @@ def test_compra_aprovada_libera_usuario_existente(client, app):
     assert resp.status_code == 200
     body = resp.get_json()
     assert body["ok"] is True
-    assert body["acao"] == "liberou"
+    assert body["acao"] == "registrado"
 
     with app.app_context():
         usuario = db.session.get(Usuario, uid)
-        assert usuario_tem_acesso(usuario) is True
+        assert usuario_tem_acesso(usuario) is False
         pedido = HotmartPedido.query.filter_by(transacao="HP-1").one()
-        assert pedido.status == STATUS_APLICADO
-        assert pedido.usuario_id == uid
+        assert pedido.status == STATUS_PENDENTE
 
 
-def test_compra_sem_conta_fica_pendente_e_libera_no_cadastro(client, app):
+def test_compra_sem_conta_nao_libera_no_cadastro(client, app):
     app.config["HOTMART_HOTTOK"] = HOTTOK
     email = "novo.hotmart@email.com"
     resp = _post(client, _payload(email=email, tx="HP-pendente"))
     assert resp.status_code == 200
-    assert resp.get_json()["acao"] == "pendente"
-
-    with app.app_context():
-        pedido = HotmartPedido.query.filter_by(transacao="HP-pendente").one()
-        assert pedido.status == STATUS_PENDENTE
-        assert pedido.usuario_id is None
+    assert resp.get_json()["acao"] == "registrado"
 
     resp = client.post(
         "/cadastro",
@@ -103,13 +97,12 @@ def test_compra_sem_conta_fica_pendente_e_libera_no_cadastro(client, app):
 
     with app.app_context():
         usuario = Usuario.query.filter_by(username=email).one()
-        assert usuario_tem_acesso(usuario) is True
+        assert usuario.assinatura_ativa is False
         pedido = HotmartPedido.query.filter_by(transacao="HP-pendente").one()
-        assert pedido.status == STATUS_APLICADO
-        assert pedido.usuario_id == usuario.id
+        assert pedido.status == STATUS_PENDENTE
 
 
-def test_reembolso_bloqueia(client, app):
+def test_reembolso_hotmart_nao_mexe_na_assinatura(client, app):
     app.config["HOTMART_HOTTOK"] = HOTTOK
     email = "reembolso.hotmart@email.com"
     with app.app_context():
@@ -126,7 +119,7 @@ def test_reembolso_bloqueia(client, app):
     assert _post(client, _payload(email=email, tx="HP-ref")).status_code == 200
     resp = _post(client, _payload(email=email, tx="HP-ref", evento="PURCHASE_REFUNDED"))
     assert resp.status_code == 200
-    assert resp.get_json()["acao"] == "bloqueou"
+    assert resp.get_json()["acao"] == "registrado_cancelamento"
     with app.app_context():
         usuario = Usuario.query.filter_by(username=email).one()
         assert usuario.assinatura_ativa is False

@@ -47,7 +47,7 @@
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Valores da assinatura</h2></header>
-  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. PIX e cartão parcelado são processados pelo Mercado Pago com confirmação automática.</p>
+  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. PIX e cartão são processados pelo Mercado Pago. O acesso pago só libera quando o pagamento for aprovado na conta.</p>
   <form action="{{ url_for('assinatura.salvar_plano') }}" method="post" class="form-grid">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>
@@ -63,8 +63,9 @@
       <input type="number" name="plano_dias" value="{{ plano.dias }}" min="1" max="366" required>
     </label>
     <label>
-      Teste grátis (horas)
-      <input type="number" name="teste_horas" value="{{ plano.teste_horas }}" min="1" max="168" required>
+      Teste grátis (dias)
+      <input type="number" name="teste_dias" value="{{ plano.teste_dias }}" min="1" max="365" required>
+      <small class="muted">Padrão: 30 dias (1 mês), uma vez por conta.</small>
     </label>
     <label class="full" style="display:flex;align-items:center;gap:0.5rem;margin-top:0.25rem">
       <input type="checkbox" name="teste_ativo" value="1" {% if plano.teste_ativo %}checked{% endif %}>
