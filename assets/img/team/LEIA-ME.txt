@@ -1,13 +1,11 @@
 PASTA DAS FOTOS DO EDUARDO
 ==========================
 
-Coloque aqui o arquivo:
+Arquivo em uso:
 
   eduardo-hero.jpg
 
-Depois avise no chat: foto ok
-
-Eu uso a mesma foto nestes lugares do site:
+Usado nestes lugares do site:
 - primeira tela (hero)
 - sobre
 - destaque / atendimento
