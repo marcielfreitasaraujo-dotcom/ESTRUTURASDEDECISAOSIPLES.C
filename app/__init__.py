@@ -128,6 +128,7 @@ def create_app(config_class=None) -> Flask:
                 or os.environ.get("FINUP_ENV")
                 or os.environ.get("FINCASA_ENV")
                 or "development",
+                "hotmart": True,
             }
         )
 
