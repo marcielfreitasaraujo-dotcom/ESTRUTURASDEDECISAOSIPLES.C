@@ -20,6 +20,8 @@
   <link rel="stylesheet" href="css/style.css">
   <!-- Sistema FinUP em produção (Railway): https://finup.araujooficial.com.br -->
   <meta name="finup-sistema" content="https://finup.araujooficial.com.br">
+  <!-- Cole o link de pagamento da Hotmart (pay.hotmart.com/...) quando o produto estiver publicado. -->
+  <meta name="hotmart-checkout" content="">
 </head>
 <body class="site">
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
@@ -116,7 +118,7 @@
       <header class="section-head">
         <p class="eyebrow">Assinatura</p>
         <h2>Escolha como começar. É o mesmo fluxo do sistema.</h2>
-        <p>Depois do cadastro e da confirmação do e-mail, o FinUP pede o teste grátis ou o pagamento. PIX ou cartão parcelado, via Mercado Pago — o acesso libera sozinho quando o pagamento confirma.</p>
+        <p>Depois do cadastro e da confirmação do e-mail, o FinUP pede o teste grátis ou o pagamento. PIX ou cartão pelo Mercado Pago, ou checkout da Hotmart — o acesso libera sozinho quando o pagamento confirma.</p>
       </header>
       <div class="planos">
         <article class="plano plano-destaque">
@@ -139,9 +141,11 @@
           <ul class="checks">
             <li>QR Code e PIX copia e cola</li>
             <li>Cartão parcelado pelo Mercado Pago</li>
+            <li>Também na Hotmart, com o mesmo e-mail da conta</li>
             <li>Acesso libera sozinho após o pagamento</li>
           </ul>
-          <a class="btn btn-outline" data-cadastro href="https://finup.araujooficial.com.br/cadastro">Assinar com PIX</a>
+          <a class="btn btn-outline" data-cadastro href="https://finup.araujooficial.com.br/cadastro">Assinar no FinUP</a>
+          <a class="btn btn-primary" data-hotmart hidden href="#assinatura">Assinar na Hotmart</a>
         </article>
       </div>
       <ol class="pix-passos" aria-label="Como pagar no PIX">
@@ -220,7 +224,7 @@
         <li>
           <span>3</span>
           <h3>Pague no PIX</h3>
-          <p>PIX de R$ 9,90 ou cartão parcelado. O FinUP libera o acesso sozinho quando o pagamento confirma.</p>
+          <p>PIX de R$ 9,90, cartão ou Hotmart. O FinUP libera o acesso sozinho quando o pagamento confirma.</p>
         </li>
         <li>
           <span>4</span>

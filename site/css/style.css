@@ -377,6 +377,7 @@ button { font-family: inherit; }
 .plano-ciclo { margin: 0 0 1rem; color: var(--muted); }
 .plano .checks { margin: 0 0 1.25rem; flex: 1; }
 .plano .btn { width: 100%; }
+.plano .btn + .btn { margin-top: 0.65rem; }
 .pix-passos {
   list-style: none;
   margin: 1.4rem 0 0;

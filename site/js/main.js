@@ -17,6 +17,18 @@
   document.querySelectorAll("[data-cadastro]").forEach((link) => {
     link.setAttribute("href", urlCadastro);
   });
+  const metaHotmart = document.querySelector('meta[name="hotmart-checkout"]');
+  const urlHotmart = (metaHotmart && metaHotmart.getAttribute("content") || "").trim();
+  document.querySelectorAll("[data-hotmart]").forEach((link) => {
+    if (urlHotmart) {
+      link.setAttribute("href", urlHotmart);
+      link.hidden = false;
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+    } else {
+      link.hidden = true;
+    }
+  });
 
   if (ano) {
     ano.textContent = String(new Date().getFullYear());
