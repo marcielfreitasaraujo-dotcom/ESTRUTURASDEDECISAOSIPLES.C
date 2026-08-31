@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="EXTRA PAPELARIA">
+  <rect width="64" height="64" rx="16" fill="#1F5C4A"/>
+  <rect x="14" y="12" width="36" height="40" rx="4" fill="#F4EFE4"/>
+  <rect x="14" y="12" width="36" height="8" rx="4" fill="#D94B3A"/>
+  <rect x="14" y="16" width="36" height="4" fill="#D94B3A"/>
+  <line x1="22" y1="28" x2="42" y2="28" stroke="#1F5C4A" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="22" y1="36" x2="38" y2="36" stroke="#1F5C4A" stroke-width="2.2" stroke-linecap="round" opacity=".55"/>
+  <line x1="22" y1="44" x2="34" y2="44" stroke="#1F5C4A" stroke-width="2.2" stroke-linecap="round" opacity=".35"/>
+</svg>
