@@ -99,16 +99,22 @@ def enviar_verificacao(usuario: Usuario) -> bool:
         "Se você não criou esta conta, ignore este e-mail.\n"
     )
     html = (
+        f"<div style=\"font-family:system-ui,-apple-system,sans-serif;max-width:520px;color:#0f172a\">"
         f"<p>Olá, <strong>{nome}</strong>!</p>"
-        f"<p>Seu código de verificação do FinUP:</p>"
-        f'<p style="font-size:28px;letter-spacing:6px;font-weight:800">{codigo}</p>'
-        f"<p>Válido por {CODIGO_VALIDADE_MIN} minutos.</p>"
-        f"<p>Ou confirme pelo link: <a href=\"{link}\">Verificar meu e-mail</a></p>"
-        f"<p>Se não foi você, ignore este e-mail.</p>"
+        f"<p>Use o código abaixo para confirmar seu e-mail no FinUP:</p>"
+        f'<p style="font-size:32px;letter-spacing:8px;font-weight:800;margin:1.25rem 0">{codigo}</p>'
+        f"<p style=\"color:#475569\">Válido por {CODIGO_VALIDADE_MIN} minutos.</p>"
+        f"<p><a href=\"{link}\" style=\"display:inline-block;background:#0f766e;color:#fff;"
+        f"padding:0.65rem 1.1rem;border-radius:8px;text-decoration:none;font-weight:600\">"
+        f"Confirmar meu e-mail</a></p>"
+        f"<p style=\"color:#64748b;font-size:14px\">Se o botão não abrir, copie e cole no navegador:<br>"
+        f"<span style=\"word-break:break-all\">{link}</span></p>"
+        f"<p style=\"color:#64748b;font-size:14px\">Se você não criou esta conta, ignore este e-mail.</p>"
+        f"</div>"
     )
     ok = enviar_email(
         para=usuario.username,
-        assunto=f"Código {codigo} · Confirme seu e-mail · FinUP",
+        assunto=f"Confirme seu e-mail no FinUP — código {codigo}",
         texto=texto,
         html=html,
     )

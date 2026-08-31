@@ -49,12 +49,26 @@
     <strong>{{ resumo.investimentos | moeda }}</strong>
     <small class="kpi-acao">Ver só investimentos</small>
   </a>
-  <article class="kpi saldo {{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">
-    <span>💵 Saldo do período</span>
-    <strong>{{ resumo.saldo_periodo | moeda }}</strong>
-    <small>Nas contas: {{ resumo.saldo_contas | moeda }}</small>
-  </article>
+  <a
+    class="kpi saldo kpi-link {{ 'negativo' if resumo.saldo_contas < 0 else 'positivo' }}"
+    href="{{ url_for('contas.index') }}"
+    title="Ver todas as contas"
+  >
+    <span>💵 Saldo nas contas</span>
+    <strong>{{ resumo.saldo_contas | moeda }}</strong>
+    <small class="kpi-acao">Ver contas · total em caixa, banco e carteiras</small>
+  </a>
 </section>
+
+<p class="dashboard-resultado-periodo muted">
+  No período filtrado: receitas <strong class="positivo">{{ resumo.receitas | moeda }}</strong>
+  − despesas <strong class="despesa">{{ resumo.despesas | moeda }}</strong>
+  {% if resumo.investimentos > 0 %}
+    − investimentos <strong>{{ resumo.investimentos | moeda }}</strong>
+  {% endif %}
+  = <strong class="{{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">resultado {{ resumo.saldo_periodo | moeda }}</strong>.
+  Esse valor é o <em>resultado do período</em>, não o dinheiro total nas contas.
+</p>
 
 <section class="grid-charts">
   <article class="card">

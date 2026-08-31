@@ -34,14 +34,14 @@
         </select>
       </label>
 
-      <div class="grid-2">
+      <div class="grid-2" id="wrap-data-forma">
         <label>
           Data
           <input type="date" name="data" value="{{ hoje.isoformat() }}">
         </label>
-        <label>
+        <label id="wrap-forma-pagamento">
           Forma de pagamento
-          <select name="forma_pagamento">
+          <select name="forma_pagamento" id="campo-forma-pagamento">
             {% for valor, label in formas_pagamento %}
               <option value="{{ valor }}">{{ label }}</option>
             {% endfor %}
@@ -49,9 +49,18 @@
         </label>
       </div>
 
-      <label>
-        Conta
-        <select name="conta_id" required>
+      <div id="wrap-transferencia-modo" hidden>
+        <p class="muted" style="margin:0 0 0.5rem;font-size:0.88rem">Tipo de transferência</p>
+        <div class="quick-types quick-types-sub" role="group" aria-label="Tipo de transferência">
+          <button type="button" class="chip-tipo transferencia ativo" data-transferencia-modo="minhas_contas">Entre minhas contas</button>
+          <button type="button" class="chip-tipo transferencia" data-transferencia-modo="outra_pessoa">Para outra pessoa</button>
+        </div>
+        <input type="hidden" name="transferencia_modo" id="campo-transferencia-modo" value="minhas_contas">
+      </div>
+
+      <label id="wrap-conta-origem">
+        <span id="label-conta-origem">Conta</span>
+        <select name="conta_id" id="campo-conta-origem" required>
           {% for conta in contas_menu %}
             <option value="{{ conta.id }}">{{ conta.nome }}</option>
           {% endfor %}
@@ -66,6 +75,11 @@
             <option value="{{ conta.id }}">{{ conta.nome }}</option>
           {% endfor %}
         </select>
+      </label>
+
+      <label id="wrap-destinatario" hidden>
+        Nome da pessoa
+        <input type="text" name="destinatario" id="campo-destinatario" maxlength="120" placeholder="Ex: Maria, João, empresa XYZ">
       </label>
 
       <label>

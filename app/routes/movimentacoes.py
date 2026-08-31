@@ -54,14 +54,22 @@ def _aplicar_formulario(mov: Movimentacao, form) -> None:
         raise ValueError("Selecione uma conta válida.")
 
     conta_destino_id = None
+    destinatario = None
     if tipo == "transferencia":
-        dest_id = int(form.get("conta_destino_id") or 0)
-        destino = Conta.query.filter_by(id=dest_id, usuario_id=id_casa(), ativo=True).first()
-        if not destino:
-            raise ValueError("Selecione a conta de destino.")
-        if destino.id == conta.id:
-            raise ValueError("Origem e destino devem ser diferentes.")
-        conta_destino_id = destino.id
+        modo = (form.get("transferencia_modo") or "minhas_contas").strip()
+        if modo == "outra_pessoa":
+            destinatario = (form.get("destinatario") or "").strip()
+            if not destinatario:
+                raise ValueError("Informe para quem é a transferência.")
+            destinatario = destinatario[:120]
+        else:
+            dest_id = int(form.get("conta_destino_id") or 0)
+            destino = Conta.query.filter_by(id=dest_id, usuario_id=id_casa(), ativo=True).first()
+            if not destino:
+                raise ValueError("Selecione a conta de destino.")
+            if destino.id == conta.id:
+                raise ValueError("Origem e destino devem ser diferentes.")
+            conta_destino_id = destino.id
 
     categoria_id = form.get("categoria_id") or None
     categoria = None
@@ -73,12 +81,16 @@ def _aplicar_formulario(mov: Movimentacao, form) -> None:
 
     descricao = (form.get("descricao") or "").strip()
     if not descricao:
-        descricao = categoria.nome if categoria else tipo.capitalize()
+        if tipo == "transferencia" and destinatario:
+            descricao = f"Transferência para {destinatario}"
+        else:
+            descricao = categoria.nome if categoria else tipo.capitalize()
 
     mov.tipo = tipo
     mov.valor = valor
     mov.conta_id = conta.id
     mov.conta_destino_id = conta_destino_id
+    mov.destinatario = destinatario if tipo == "transferencia" else None
     mov.categoria_id = categoria.id if categoria else None
     mov.descricao = descricao[:180]
     mov.data = parse_data(form.get("data"), date.today())

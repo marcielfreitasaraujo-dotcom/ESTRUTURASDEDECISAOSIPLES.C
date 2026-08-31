@@ -55,7 +55,67 @@
   const modal = $("#modal-lancamento");
   const tipoInput = $("#campo-tipo");
   const wrapDestino = $("#wrap-destino");
+  const wrapDestinatario = $("#wrap-destinatario");
   const wrapCategoria = $("#wrap-categoria");
+  const wrapTransferenciaModo = $("#wrap-transferencia-modo");
+  const wrapFormaPagamento = $("#wrap-forma-pagamento");
+  const labelContaOrigem = $("#label-conta-origem");
+  const campoDestino = $("#campo-destino");
+  const campoDestinatario = $("#campo-destinatario");
+  const campoTransferenciaModo = $("#campo-transferencia-modo");
+  const campoContaOrigem = $("#campo-conta-origem");
+
+  function filtrarContasDestino() {
+    if (!campoDestino || !campoContaOrigem) return;
+    const origemId = campoContaOrigem.value;
+    $$("#campo-destino option").forEach((opt) => {
+      if (!opt.value) return;
+      opt.hidden = opt.value === origemId;
+      if (opt.hidden && opt.selected) opt.selected = false;
+    });
+  }
+
+  function definirModoTransferencia(modo) {
+    if (campoTransferenciaModo) campoTransferenciaModo.value = modo;
+    $$("[data-transferencia-modo]").forEach((el) => {
+      el.classList.toggle("ativo", el.dataset.transferenciaModo === modo);
+    });
+    const interna = modo === "minhas_contas";
+    if (wrapDestino) wrapDestino.hidden = !interna;
+    if (wrapDestinatario) wrapDestinatario.hidden = interna;
+    if (campoDestino) campoDestino.required = interna;
+    if (campoDestinatario) campoDestinatario.required = !interna;
+    if (interna) filtrarContasDestino();
+  }
+
+  function definirTipo(tipo) {
+    if (tipoInput) tipoInput.value = tipo;
+    $$(".chip-tipo[data-set-tipo]").forEach((el) => {
+      el.classList.toggle("ativo", el.dataset.setTipo === tipo);
+    });
+    const ehTransferencia = tipo === "transferencia";
+    if (wrapDestino) wrapDestino.hidden = !ehTransferencia;
+    if (wrapTransferenciaModo) wrapTransferenciaModo.hidden = !ehTransferencia;
+    if (wrapCategoria) wrapCategoria.hidden = ehTransferencia;
+    if (wrapFormaPagamento) wrapFormaPagamento.hidden = ehTransferencia;
+    if (labelContaOrigem) {
+      labelContaOrigem.textContent = ehTransferencia ? "Conta origem (debitar)" : "Conta";
+    }
+    if (ehTransferencia) {
+      definirModoTransferencia(campoTransferenciaModo?.value || "minhas_contas");
+    } else {
+      if (wrapDestinatario) wrapDestinatario.hidden = true;
+      if (campoDestino) campoDestino.required = false;
+      if (campoDestinatario) campoDestinatario.required = false;
+    }
+    $$("#campo-categoria option").forEach((opt) => {
+      if (!opt.value) return;
+      const t = opt.dataset.tipo;
+      if (tipo === "receita") opt.hidden = t !== "receita";
+      else if (tipo === "despesa") opt.hidden = t === "receita";
+      else opt.hidden = false;
+    });
+  }
 
   function abrirLancamento(tipo = "despesa") {
     if (!modal) return;
@@ -69,22 +129,6 @@
     if (modal) modal.hidden = true;
   }
 
-  function definirTipo(tipo) {
-    if (tipoInput) tipoInput.value = tipo;
-    $$(".chip-tipo").forEach((el) => {
-      el.classList.toggle("ativo", el.dataset.setTipo === tipo);
-    });
-    if (wrapDestino) wrapDestino.hidden = tipo !== "transferencia";
-    if (wrapCategoria) wrapCategoria.hidden = tipo === "transferencia";
-    $$("#campo-categoria option").forEach((opt) => {
-      if (!opt.value) return;
-      const t = opt.dataset.tipo;
-      if (tipo === "receita") opt.hidden = t !== "receita";
-      else if (tipo === "despesa") opt.hidden = t === "receita";
-      else opt.hidden = false;
-    });
-  }
-
   $$("[data-open-lancamento]").forEach((btn) => {
     btn.addEventListener("click", () => abrirLancamento(btn.dataset.tipo || "despesa"));
   });
@@ -92,6 +136,10 @@
   $$("[data-set-tipo]").forEach((btn) => {
     btn.addEventListener("click", () => definirTipo(btn.dataset.setTipo));
   });
+  $$("[data-transferencia-modo]").forEach((btn) => {
+    btn.addEventListener("click", () => definirModoTransferencia(btn.dataset.transferenciaModo));
+  });
+  campoContaOrigem?.addEventListener("change", filtrarContasDestino);
   modal?.addEventListener("click", (ev) => {
     if (ev.target === modal) fecharLancamento();
   });

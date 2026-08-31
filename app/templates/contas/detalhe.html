@@ -62,15 +62,23 @@
 <article class="card" style="margin-top:1.5rem">
   <header class="card-head"><h2>Últimos lançamentos desta conta</h2></header>
   <ul class="mov-list">
-    {% for mov in movimentacoes %}
+    {% for item in lancamentos %}
+      {% set mov = item.mov %}
       <li>
         <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
-          <span class="dot {{ mov.tipo }}"></span>
+          <span class="dot {{ item.direcao }}"></span>
           <div>
             <strong>{{ mov.descricao }}</strong>
-            <small>{{ mov.data | data_br }}</small>
+            <small>
+              {{ mov.data | data_br }}
+              {% if mov.tipo == 'transferencia' %}
+                · {{ mov.transferencia_resumo }}
+              {% endif %}
+            </small>
           </div>
-          <em class="valor {{ mov.tipo }}">{{ mov.valor | moeda }}</em>
+          <em class="valor {{ item.direcao }}">
+            {% if item.direcao == 'entrada' %}+{% elif item.direcao == 'saida' %}-{% endif %}{{ mov.valor | moeda }}
+          </em>
         </a>
       </li>
     {% else %}

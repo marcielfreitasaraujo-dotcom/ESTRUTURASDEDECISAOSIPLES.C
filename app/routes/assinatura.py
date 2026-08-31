@@ -1,4 +1,5 @@
 from datetime import date
+import logging
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
@@ -32,6 +33,7 @@ from app.utils.assinatura import (
 from app.utils.decorators import admin_obrigatorio
 
 assinatura_bp = Blueprint("assinatura", __name__)
+logger = logging.getLogger("finup.assinatura")
 
 
 @assinatura_bp.route("/assinatura/bloqueado")
@@ -156,11 +158,11 @@ def iniciar_teste_gratis():
         return redirect(url_for("assinatura.bloqueado"))
 
     plano = obter_plano_assinatura()
-    horas = plano["teste_horas"]
+    rotulo = plano["teste_rotulo"]
     expira = current_user.assinatura_expira_em
     expira_txt = expira.strftime("%d/%m/%Y às %H:%M") if expira else ""
     flash(
-        f"Teste grátis ativado por {horas}h! Acesso liberado até {expira_txt}.",
+        f"Teste grátis de {rotulo} ativado! Acesso liberado até {expira_txt}.",
         "sucesso",
     )
     return redirect(url_for("dashboard.index"))
@@ -190,6 +192,12 @@ def index():
 @admin_obrigatorio
 def salvar_plano():
     try:
+        teste_dias_raw = request.form.get("teste_dias")
+        teste_horas_raw = request.form.get("teste_horas")
+        if teste_dias_raw not in (None, ""):
+            teste_horas = max(1, int(teste_dias_raw)) * 24
+        else:
+            teste_horas = teste_horas_raw or 720
         salvar_plano_assinatura(
             nome=request.form.get("plano_nome") or "",
             valor=request.form.get("plano_valor"),
@@ -199,7 +207,7 @@ def salvar_plano():
             pix_nome=request.form.get("pix_nome"),
             pix_cidade=request.form.get("pix_cidade"),
             teste_ativo=(request.form.get("teste_ativo") or "") in {"1", "true", "on", "sim"},
-            teste_horas=request.form.get("teste_horas") or 24,
+            teste_horas=teste_horas,
         )
         db.session.commit()
         flash("Valores, PIX e instruções da assinatura atualizados.", "sucesso")
@@ -306,6 +314,7 @@ def remover_usuario(usuario_id):
         flash(str(exc), "erro")
     except Exception:
         db.session.rollback()
+        logger.exception("Falha ao remover usuário id=%s", usuario_id)
         flash("Não foi possível remover o usuário. Tente novamente.", "erro")
     return redirect(url_for("assinatura.index"))
 
