@@ -3,8 +3,9 @@
 
 # Domínio: https://www.araujooficial.com.br
 # DNS no Registro.br (sem mexer no GitHub Pages da Realiza):
-#   www  CNAME  finup-araujo-ia.netlify.app
-#   @    A      75.2.60.5
+#   www     CNAME  finup-araujo-ia.netlify.app
+#   (vazio) A      75.2.60.5
+#     → no Registro.br o nome fica em branco (não usa @)
 # Depois, no Netlify: Domain management → Add domain alias → www.araujooficial.com.br
 
 [[redirects]]
