@@ -47,7 +47,7 @@
 
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Valores da assinatura</h2></header>
-  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou. PIX e cartão são processados pelo Mercado Pago. O acesso pago só libera quando o pagamento for aprovado na conta.</p>
+  <p class="muted">Esses valores aparecem no cadastro e na tela de quem ainda não pagou.</p>
   <form action="{{ url_for('assinatura.salvar_plano') }}" method="post" class="form-grid">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <label>
@@ -92,10 +92,37 @@
     </div>
   </form>
   {% if plano.pix_configurado %}
-    <p class="muted" style="margin-top:0.75rem">Em produção, configure <code>MERCADOPAGO_ACCESS_TOKEN</code> e <code>MERCADOPAGO_PUBLIC_KEY</code> no Railway. Os pagamentos caem na sua conta Mercado Pago.</p>
+    <p class="muted" style="margin-top:0.75rem">Em produção, PIX e cartão também podem usar o Mercado Pago no Railway. A venda pública pode ir pela Hotmart.</p>
   {% else %}
-    <p class="muted" style="margin-top:0.75rem">Configure o Mercado Pago no Railway para PIX automático e cartão parcelado.</p>
+    <p class="muted" style="margin-top:0.75rem">Configure a Hotmart abaixo (ou o Mercado Pago no Railway) para receber o plano mensal.</p>
   {% endif %}
+</article>
+
+<article class="card" style="margin-top:1rem">
+  <header class="card-head"><h2>Hotmart</h2></header>
+  <p class="muted">
+    Publique o produto FinUP na Hotmart (R$ 9,90 / 30 dias). Cole o link de pagamento e o hottok.
+    Webhook: <code>{{ hotmart.webhook_url }}</code>
+    · Página de obrigado: <code>{{ hotmart.obrigado_url }}</code>
+  </p>
+  <form action="{{ url_for('assinatura.salvar_hotmart') }}" method="post" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="full">
+      Link de pagamento (pay.hotmart.com)
+      <input type="url" name="hotmart_checkout" value="{{ hotmart.checkout_url }}" maxlength="300" placeholder="https://pay.hotmart.com/XXXXXXX">
+    </label>
+    <label>
+      Hottok
+      <input type="text" name="hotmart_hottok" value="" maxlength="200" autocomplete="off" placeholder="{% if hotmart.hottok_configurado %}já configurado — cole outro para trocar{% else %}cole o hottok da Hotmart{% endif %}">
+    </label>
+    <label>
+      ID do produto (opcional)
+      <input type="text" name="hotmart_produto" value="{{ hotmart.produto_id }}" maxlength="40" placeholder="só aceita este produto">
+    </label>
+    <div class="btn-row full">
+      <button class="btn btn-primary" type="submit">Salvar Hotmart</button>
+    </div>
+  </form>
 </article>
 
 <article class="card" style="margin-top:1rem">

@@ -355,9 +355,12 @@ def simular_pagamento_mock(cobranca_id: int, usuario_id: int) -> bool:
 
 
 def config_pagamento_frontend() -> dict:
+    from app.services.hotmart import checkout_url as hotmart_checkout_url
+
     plano = obter_plano_assinatura()
     max_parcelas = int(current_app.config.get("MERCADOPAGO_MAX_PARCELAS") or 12)
     public_key = (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip()
+    checkout = hotmart_checkout_url()
     return {
         "disponivel": pagamento_automatico_disponivel(),
         "mock": _usar_mock(),
@@ -366,6 +369,6 @@ def config_pagamento_frontend() -> dict:
         "max_parcelas": max(1, min(12, max_parcelas)),
         "cartao_habilitado": bool(public_key) or _usar_mock(),
         "provedor": "Mercado Pago",
-        "hotmart_checkout_url": (current_app.config.get("HOTMART_CHECKOUT_URL") or "").strip(),
-        "hotmart_habilitado": bool((current_app.config.get("HOTMART_CHECKOUT_URL") or "").strip()),
+        "hotmart_checkout_url": checkout,
+        "hotmart_habilitado": bool(checkout),
     }

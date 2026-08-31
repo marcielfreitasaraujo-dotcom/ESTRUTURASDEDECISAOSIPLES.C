@@ -18,17 +18,30 @@
     link.setAttribute("href", urlCadastro);
   });
   const metaHotmart = document.querySelector('meta[name="hotmart-checkout"]');
-  const urlHotmart = (metaHotmart && metaHotmart.getAttribute("content") || "").trim();
-  document.querySelectorAll("[data-hotmart]").forEach((link) => {
-    if (urlHotmart) {
-      link.setAttribute("href", urlHotmart);
-      link.hidden = false;
-      link.setAttribute("target", "_blank");
-      link.setAttribute("rel", "noopener noreferrer");
-    } else {
-      link.hidden = true;
-    }
-  });
+  const urlHotmartMeta = (metaHotmart && metaHotmart.getAttribute("content") || "").trim();
+
+  const aplicarHotmart = (url) => {
+    const checkout = (url || "").trim();
+    document.querySelectorAll("[data-hotmart]").forEach((link) => {
+      if (checkout) {
+        link.setAttribute("href", checkout);
+        link.hidden = false;
+        link.setAttribute("target", "_blank");
+        link.setAttribute("rel", "noopener noreferrer");
+      } else {
+        link.hidden = true;
+      }
+    });
+  };
+  aplicarHotmart(urlHotmartMeta);
+  if (!urlHotmartMeta) {
+    fetch(baseSistema + "/api/checkout-hotmart")
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .then((dados) => {
+        if (dados && dados.url) aplicarHotmart(dados.url);
+      })
+      .catch(() => {});
+  }
 
   if (ano) {
     ano.textContent = String(new Date().getFullYear());

@@ -200,6 +200,21 @@
           {% endif %}
         </article>
       {% endif %}
+
+      {% if pagamento_cfg.hotmart_habilitado %}
+        <article class="assinatura-card assinatura-card--destaque">
+          <h2>Assinar na Hotmart</h2>
+          <p class="muted">
+            Pague <strong>{{ plano.valor | moeda }}</strong> no checkout da Hotmart.
+            Use o <strong>mesmo e-mail da conta</strong> — o FinUP libera o acesso sozinho.
+          </p>
+          <p style="margin-top:0.9rem">
+            <a class="btn btn-primary" href="{{ pagamento_cfg.hotmart_checkout_url }}" target="_blank" rel="noopener noreferrer">
+              Pagar {{ plano.valor | moeda }} na Hotmart
+            </a>
+          </p>
+        </article>
+      {% endif %}
     </div>
 
     {% if plano.instrucoes and pagamento_cfg.disponivel %}

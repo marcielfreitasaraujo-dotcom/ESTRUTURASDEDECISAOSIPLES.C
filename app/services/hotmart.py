@@ -1,4 +1,4 @@
-"""Webhook Hotmart: registra a compra. O acesso do FinUP só libera via Mercado Pago."""
+"""Integração Hotmart: webhook libera (ou bloqueia) a assinatura pelo e-mail da compra."""
 
 from __future__ import annotations
 
@@ -8,6 +8,7 @@ import logging
 from datetime import date, datetime, timedelta, timezone
 
 from flask import current_app
+from sqlalchemy import func
 
 from app.extensions import db
 from app.models.hotmart_pedido import (
@@ -15,7 +16,7 @@ from app.models.hotmart_pedido import (
     HotmartPedido,
 )
 from app.models.usuario import Usuario
-from app.utils.assinatura import obter_plano_assinatura
+from app.utils.assinatura import bloquear_assinatura, liberar_assinatura, obter_plano_assinatura
 
 logger = logging.getLogger("finup.hotmart")
 
@@ -27,13 +28,30 @@ EVENTOS_BLOQUEAR = {
     "SUBSCRIPTION_CANCELLATION",
 }
 
+CHAVE_CHECKOUT = "hotmart_checkout_url"
+CHAVE_HOTTOK = "hotmart_hottok"
+CHAVE_PRODUTO = "hotmart_product_id"
+
+
+def _cfg_valor(chave: str) -> str:
+    from app.utils.assinatura import _cfg
+
+    cfg = _cfg(chave)
+    if cfg is None or cfg.valor is None:
+        return ""
+    return str(cfg.valor).strip()
+
 
 def hottok_configurado() -> str:
-    return (current_app.config.get("HOTMART_HOTTOK") or "").strip()
+    return (current_app.config.get("HOTMART_HOTTOK") or "").strip() or _cfg_valor(CHAVE_HOTTOK)
 
 
 def checkout_url() -> str:
-    return (current_app.config.get("HOTMART_CHECKOUT_URL") or "").strip()
+    return (current_app.config.get("HOTMART_CHECKOUT_URL") or "").strip() or _cfg_valor(CHAVE_CHECKOUT)
+
+
+def produto_id_configurado() -> str:
+    return str(current_app.config.get("HOTMART_PRODUCT_ID") or "").strip() or _cfg_valor(CHAVE_PRODUTO)
 
 
 def hotmart_habilitado() -> bool:
@@ -72,7 +90,7 @@ def _produto_id(payload: dict) -> str:
 
 
 def _produto_permitido(payload: dict) -> bool:
-    esperado = str(current_app.config.get("HOTMART_PRODUCT_ID") or "").strip()
+    esperado = produto_id_configurado()
     if not esperado:
         return True
     return _produto_id(payload) == esperado
@@ -114,9 +132,35 @@ def _vence_em_do_payload(payload: dict) -> date:
     return date.today() + timedelta(days=max(1, int(plano["dias"])))
 
 
+def _buscar_usuario(email: str) -> Usuario | None:
+    if not email:
+        return None
+    return Usuario.query.filter(func.lower(Usuario.username) == email).first()
+
+
 def aplicar_pedidos_pendentes(usuario: Usuario) -> int:
-    """Hotmart não libera acesso. Só o Mercado Pago (pagamento aprovado) libera a conta."""
-    return 0
+    """Libera assinatura se existir compra Hotmart pendente para o e-mail da conta."""
+    if usuario is None or usuario.eh_admin or usuario.eh_familia:
+        return 0
+    email = (usuario.username or "").strip().lower()
+    if not email:
+        return 0
+    pedidos = (
+        HotmartPedido.query.filter(
+            func.lower(HotmartPedido.email) == email,
+            HotmartPedido.status == STATUS_PENDENTE,
+        )
+        .order_by(HotmartPedido.id.asc())
+        .all()
+    )
+    aplicados = 0
+    for pedido in pedidos:
+        liberar_assinatura(usuario, vence_em=pedido.vence_em)
+        pedido.marcar_aplicado(usuario.id, vence_em=pedido.vence_em)
+        aplicados += 1
+    if aplicados:
+        logger.info("Hotmart: %s pedido(s) aplicados usuario=%s", aplicados, email)
+    return aplicados
 
 
 def _upsert_pedido(payload: dict, *, email: str, transacao: str, evento: str) -> HotmartPedido:
@@ -157,20 +201,44 @@ def processar_webhook_hotmart(payload: dict) -> dict:
         return {"ok": False, "motivo": "email_ausente"}
 
     pedido = _upsert_pedido(payload, email=email, transacao=transacao, evento=evento)
+    usuario = _buscar_usuario(email)
 
     if evento in EVENTOS_LIBERAR:
         pedido.vence_em = _vence_em_do_payload(payload)
+        if usuario is not None and not usuario.eh_admin and not usuario.eh_familia:
+            liberar_assinatura(usuario, vence_em=pedido.vence_em)
+            pedido.marcar_aplicado(usuario.id, vence_em=pedido.vence_em)
+            logger.info("Hotmart: assinatura liberada email=%s tx=%s", email, transacao)
+            return {"ok": True, "acao": "liberou", "email": email}
         pedido.status = STATUS_PENDENTE
-        logger.info(
-            "Hotmart: compra registrada sem liberar acesso email=%s tx=%s (só Mercado Pago libera)",
-            email,
-            transacao,
-        )
-        return {"ok": True, "acao": "registrado", "email": email}
+        logger.info("Hotmart: compra pendente de cadastro email=%s tx=%s", email, transacao)
+        return {"ok": True, "acao": "pendente", "email": email}
 
     if evento in EVENTOS_BLOQUEAR:
         pedido.marcar_cancelado()
-        logger.info("Hotmart: cancelamento registrado email=%s tx=%s evento=%s", email, transacao, evento)
-        return {"ok": True, "acao": "registrado_cancelamento", "email": email}
+        if usuario is not None and not usuario.eh_admin and not usuario.eh_familia:
+            bloquear_assinatura(usuario)
+            logger.info("Hotmart: assinatura bloqueada email=%s tx=%s evento=%s", email, transacao, evento)
+            return {"ok": True, "acao": "bloqueou", "email": email}
+        return {"ok": True, "acao": "cancelou_pedido", "email": email}
 
     return {"ok": True, "acao": "ignorado", "evento": evento}
+
+
+def salvar_config_hotmart(*, checkout: str, hottok: str, produto_id: str) -> dict:
+    from app.utils.assinatura import _definir_cfg
+
+    url = (checkout or "").strip()[:300]
+    if url and not url.lower().startswith("https://"):
+        raise ValueError("O link da Hotmart precisa começar com https://")
+    tok = (hottok or "").strip()[:200]
+    pid = (produto_id or "").strip()[:40]
+    _definir_cfg(CHAVE_CHECKOUT, url)
+    if tok:
+        _definir_cfg(CHAVE_HOTTOK, tok)
+    _definir_cfg(CHAVE_PRODUTO, pid)
+    return {
+        "checkout_url": checkout_url(),
+        "hottok_configurado": bool(hottok_configurado()),
+        "produto_id": produto_id_configurado(),
+    }

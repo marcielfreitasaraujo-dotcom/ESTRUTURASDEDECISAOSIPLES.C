@@ -24,8 +24,7 @@ DIAS_PADRAO = 30
 TESTE_DIAS_PADRAO = 30
 TESTE_DIAS_MAX = 365
 INSTRUCOES_PADRAO = (
-    "Escolha o teste grátis de 1 mês ou pague via PIX ou cartão nesta tela. "
-    "O acesso pago só libera quando o Mercado Pago confirmar o pagamento na conta."
+    "Escolha o teste grátis de 1 mês ou pague a assinatura (PIX, cartão ou Hotmart)."
 )
 PIX_NOME_PADRAO = "FINUP"
 PIX_CIDADE_PADRAO = "SAO PAULO"
@@ -370,6 +369,7 @@ def endpoints_livres_assinatura() -> set[str]:
     return {
         "static",
         "saude",
+        "checkout_hotmart",
         "web_manifest",
         "service_worker",
         "auth.login",

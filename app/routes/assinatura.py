@@ -206,6 +206,8 @@ def iniciar_teste_gratis():
 @login_required
 @admin_obrigatorio
 def index():
+    from app.services.hotmart import checkout_url, hottok_configurado, produto_id_configurado
+
     sincronizar_vencimentos()
     db.session.commit()
     membros = Usuario.query.order_by(Usuario.perfil.desc(), Usuario.nome).all()
@@ -218,7 +220,34 @@ def index():
         plano=resumo["plano"],
         status_de=status_assinatura_usuario,
         hoje=date.today(),
+        hotmart={
+            "checkout_url": checkout_url(),
+            "hottok_configurado": bool(hottok_configurado()),
+            "produto_id": produto_id_configurado(),
+            "webhook_url": url_for("assinatura.webhook_hotmart", _external=True),
+            "obrigado_url": url_for("assinatura.hotmart_obrigado", _external=True),
+        },
     )
+
+
+@assinatura_bp.route("/assinatura/hotmart", methods=["POST"])
+@login_required
+@admin_obrigatorio
+def salvar_hotmart():
+    from app.services.hotmart import salvar_config_hotmart
+
+    try:
+        salvar_config_hotmart(
+            checkout=request.form.get("hotmart_checkout") or "",
+            hottok=request.form.get("hotmart_hottok") or "",
+            produto_id=request.form.get("hotmart_produto") or "",
+        )
+        db.session.commit()
+        flash("Hotmart atualizada. Use o mesmo e-mail da compra no FinUP.", "sucesso")
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "erro")
+    return redirect(url_for("assinatura.index"))
 
 
 @assinatura_bp.route("/assinatura/plano", methods=["POST"])

@@ -131,6 +131,25 @@ def create_app(config_class=None) -> Flask:
             }
         )
 
+    @app.get("/api/checkout-hotmart")
+    def checkout_hotmart():
+        from app.services.hotmart import checkout_url
+
+        url = checkout_url()
+        resp = jsonify({"ok": True, "url": url or None, "habilitado": bool(url)})
+        origem = (request.headers.get("Origin") or "").rstrip("/")
+        permitidas = {
+            "https://www.araujooficial.com.br",
+            "https://araujooficial.com.br",
+            "http://127.0.0.1:5000",
+            "http://localhost:5000",
+        }
+        if origem in permitidas:
+            resp.headers["Access-Control-Allow-Origin"] = origem
+            resp.headers["Vary"] = "Origin"
+        resp.headers["Cache-Control"] = "no-store"
+        return resp
+
     @app.get("/manifest.webmanifest")
     def web_manifest():
         from flask import send_from_directory
