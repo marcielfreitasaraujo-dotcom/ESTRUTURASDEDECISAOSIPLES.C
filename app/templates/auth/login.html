@@ -72,14 +72,15 @@
       <h2 id="titulo-criar-conta">Novo no FinUP?</h2>
       <p>
         Crie sua conta em poucos segundos.<br>
-        <strong>Teste grátis de {{ plano.teste_horas }}h</strong> ou assine o plano
-        <strong>{{ plano.nome }}</strong> por <strong>{{ plano.valor | moeda }}</strong>.
+        <strong>1 mês grátis</strong> ou assine o plano
+        <strong>{{ plano.nome }}</strong> por <strong>{{ plano.valor | moeda }}</strong>
+        (PIX ou cartão parcelado).
       </p>
       <a class="btn btn-primary btn-block" href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
     </section>
 
     <p class="hint" style="margin-top:0.85rem;text-align:center">
-      Sem compromisso no teste grátis · cancele quando quiser
+      1 mês grátis · depois {{ plano.valor | moeda }}/mês · cancele quando quiser
     </p>
     {% if config.DEBUG %}
     <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>

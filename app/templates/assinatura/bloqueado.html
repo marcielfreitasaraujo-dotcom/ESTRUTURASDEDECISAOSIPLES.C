@@ -120,15 +120,16 @@
     <div class="assinatura-opcoes">
       {% if pode_teste %}
         <article class="assinatura-card assinatura-card--destaque">
-          <h2>Teste grátis · {{ plano.teste_horas }}h</h2>
+          <h2>{{ plano.teste_rotulo | capitalize }} grátis</h2>
           <p class="muted">
-            Experimente o FinUP completo por {{ plano.teste_horas }} horas, sem pagar agora.
-            Disponível uma vez por conta.
+            Experimente o FinUP completo por <strong>{{ plano.teste_rotulo }}</strong>, sem pagar agora.
+            Disponível uma vez por conta. Depois, o plano {{ plano.nome }} custa
+            <strong>{{ plano.valor | moeda }}</strong> (PIX ou cartão parcelado).
           </p>
           <form action="{{ url_for('assinatura.iniciar_teste_gratis') }}" method="post" style="margin-top:0.9rem">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button class="btn btn-primary" type="submit" style="width:100%">
-              Iniciar teste grátis de {{ plano.teste_horas }}h
+              Começar {{ plano.teste_rotulo }} grátis
             </button>
           </form>
         </article>

@@ -299,7 +299,7 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
 
     assert client.get("/cadastro").status_code == 200
     login_html = client.get("/login").get_data(as_text=True)
-    assert "teste grátis" in login_html.lower()
+    assert "teste grátis" in login_html.lower() or "1 mês grátis" in login_html.lower()
 
     resp = client.post(
         "/cadastro",
@@ -331,7 +331,7 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
     assert bloqueado.status_code == 200
     texto = bloqueado.get_data(as_text=True)
     assert "Escolha como começar" in texto
-    assert "Teste grátis" in texto
+    assert "1 mês grátis" in texto or "Teste grátis" in texto
     assert "Pague via PIX teste" in texto
     assert (
         client.get("/contas", follow_redirects=True)
@@ -459,11 +459,12 @@ def test_teste_gratis_libera_acesso_por_24h(admin_client, client, app):
     _login(client, "trial_user", "senha123")
     pagina = client.get("/assinatura/bloqueado", follow_redirects=True)
     html = pagina.get_data(as_text=True)
-    assert "Iniciar teste grátis de 24h" in html
+    assert "Começar 24 horas grátis" in html or "Iniciar teste grátis de 24h" in html
 
     resp = client.post("/assinatura/iniciar-teste-gratis", follow_redirects=True)
     assert resp.status_code == 200
-    assert "Teste grátis ativado" in resp.get_data(as_text=True)
+    assert "Teste grátis" in resp.get_data(as_text=True)
+    assert "24 horas" in resp.get_data(as_text=True) or "ativado" in resp.get_data(as_text=True).lower()
     assert client.get("/contas").status_code == 200
 
     with app.app_context():

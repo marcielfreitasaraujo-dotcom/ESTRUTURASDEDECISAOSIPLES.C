@@ -17,16 +17,38 @@ CHAVE_PIX_CIDADE = "assinatura_pix_cidade"
 CHAVE_TESTE_ATIVO = "assinatura_teste_ativo"
 CHAVE_TESTE_HORAS = "assinatura_teste_horas"
 
-VALOR_PADRAO = "29.90"
+VALOR_PADRAO = "9.90"
 PLANO_PADRAO = "Mensal"
 DIAS_PADRAO = 30
-TESTE_HORAS_PADRAO = 24
+TESTE_HORAS_PADRAO = 720  # 30 dias = 1 mês grátis
+TESTE_HORAS_MAX = 744  # até 31 dias
 INSTRUCOES_PADRAO = (
-    "Escolha o teste grátis de 24 horas ou pague via PIX ou cartão nesta tela. "
+    "Comece com 1 mês grátis. Depois, assine por R$ 9,90 via PIX ou cartão parcelado. "
     "O acesso é liberado automaticamente após a confirmação do pagamento."
 )
 PIX_NOME_PADRAO = "FINUP"
 PIX_CIDADE_PADRAO = "SAO PAULO"
+
+
+def _clamp_teste_horas(horas: int) -> int:
+    return max(1, min(TESTE_HORAS_MAX, int(horas)))
+
+
+def formatar_periodo_teste(horas: int) -> str:
+    """Rótulo amigável: 1 mês, 7 dias, 24 horas, etc."""
+    horas = _clamp_teste_horas(horas)
+    if horas >= 720:
+        return "1 mês"
+    if horas == 24:
+        return "24 horas"
+    if horas % 24 == 0:
+        dias = horas // 24
+        if dias == 1:
+            return "1 dia"
+        return f"{dias} dias"
+    if horas == 1:
+        return "1 hora"
+    return f"{horas} horas"
 
 
 def _cfg(chave: str) -> Configuracao | None:
@@ -77,7 +99,7 @@ def obter_plano_assinatura() -> dict:
     teste_ativo = ((cfg_teste_ativo.valor if cfg_teste_ativo else None) or "1").strip() == "1"
     teste_horas_txt = ((cfg_teste_horas.valor if cfg_teste_horas else None) or str(TESTE_HORAS_PADRAO)).strip()
     try:
-        teste_horas = max(1, min(168, int(teste_horas_txt)))
+        teste_horas = _clamp_teste_horas(int(teste_horas_txt))
     except (TypeError, ValueError):
         teste_horas = TESTE_HORAS_PADRAO
     try:
@@ -98,6 +120,8 @@ def obter_plano_assinatura() -> dict:
         "pix_configurado": bool(pix_chave),
         "teste_ativo": teste_ativo,
         "teste_horas": teste_horas,
+        "teste_dias": max(1, (teste_horas + 23) // 24),
+        "teste_rotulo": formatar_periodo_teste(teste_horas),
     }
 
 
@@ -136,9 +160,11 @@ def salvar_plano_assinatura(
         _definir_cfg(CHAVE_TESTE_ATIVO, "1" if teste_ativo else "0")
     if teste_horas is not None:
         try:
-            horas = max(1, min(168, int(teste_horas)))
+            horas = _clamp_teste_horas(int(teste_horas))
         except (TypeError, ValueError) as exc:
-            raise ValueError("Informe as horas do teste grátis (entre 1 e 168).") from exc
+            raise ValueError(
+                f"Informe as horas do teste grátis (entre 1 e {TESTE_HORAS_MAX})."
+            ) from exc
         _definir_cfg(CHAVE_TESTE_HORAS, str(horas))
     return obter_plano_assinatura()
 
@@ -234,7 +260,7 @@ def liberar_teste_gratis(membro: Usuario, *, horas: int | None = None) -> None:
         raise ValueError("Sua conta não precisa de teste grátis.")
 
     horas_ciclo = horas if horas is not None else plano["teste_horas"]
-    horas_ciclo = max(1, min(168, int(horas_ciclo)))
+    horas_ciclo = _clamp_teste_horas(horas_ciclo)
     expira = agora() + timedelta(hours=horas_ciclo)
     membro.teste_gratis_usado = True
     membro.assinatura_ativa = True
