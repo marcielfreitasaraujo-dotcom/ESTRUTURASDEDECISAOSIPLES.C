@@ -1,3 +1,5 @@
+from sqlalchemy import or_
+
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
@@ -69,11 +71,27 @@ def detalhe(conta_id):
         diferenca = conta.saldo_informado - atual
 
     movs = (
-        Movimentacao.query.filter_by(conta_id=conta.id, ativo=True)
+        Movimentacao.query.filter(
+            Movimentacao.ativo.is_(True),
+            or_(
+                Movimentacao.conta_id == conta.id,
+                Movimentacao.conta_destino_id == conta.id,
+            ),
+        )
         .order_by(Movimentacao.data.desc(), Movimentacao.id.desc())
         .limit(30)
         .all()
     )
+    lancamentos = []
+    for mov in movs:
+        if mov.tipo == "transferencia" and mov.conta_destino_id == conta.id:
+            direcao = "entrada"
+        elif mov.tipo == "transferencia" and mov.conta_id == conta.id:
+            direcao = "saida"
+        else:
+            direcao = mov.tipo
+        lancamentos.append({"mov": mov, "direcao": direcao})
+
     return render_template(
         "contas/detalhe.html",
         conta=conta,
@@ -81,6 +99,7 @@ def detalhe(conta_id):
         diferenca=diferenca,
         tipos=TIPOS_CONTA,
         movimentacoes=movs,
+        lancamentos=lancamentos,
     )
 
 

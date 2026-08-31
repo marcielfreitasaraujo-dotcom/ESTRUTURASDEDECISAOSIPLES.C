@@ -913,7 +913,11 @@ html[data-theme="escuro"] .flash-info { background: #0c4a6e; color: #bae6fd; }
 }
 .modal-head { display: flex; justify-content: space-between; align-items: center; }
 .modal-head h2 { margin: 0; }
-.quick-types { display: flex; gap: 0.4rem; margin: 0.9rem 0 1rem; }
+.quick-types { display: flex; gap: 0.4rem; margin: 0.9rem 0 1rem; flex-wrap: wrap; }
+.quick-types-sub { margin: 0 0 0.85rem; }
+.quick-types-sub .chip-tipo { flex: 1; min-width: 0; font-size: 0.82rem; padding: 0.45rem 0.55rem; }
+.dot.entrada, .valor.entrada { color: var(--receita); }
+.dot.saida, .valor.saida { color: var(--despesa); }
 .chip-tipo {
   flex: 1; border: 1px solid var(--border); background: var(--surface-2);
   border-radius: 12px; padding: 0.55rem 0.3rem; cursor: pointer; color: var(--text);

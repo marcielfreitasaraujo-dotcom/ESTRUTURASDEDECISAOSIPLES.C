@@ -5,7 +5,7 @@
   <div>
     <a class="back" href="{{ url_for('movimentacoes.index') }}">← Movimentações</a>
     <h1>{{ mov.descricao }}</h1>
-    <p class="muted">{{ mov.data | data_br }} · {{ mov.tipo_label }}</p>
+    <p class="muted">{{ mov.data | data_br }} · {{ mov.tipo_label }}{% if mov.tipo == 'transferencia' %} · {{ mov.transferencia_resumo }}{% endif %}</p>
   </div>
   <strong class="hero-valor {{ mov.tipo }}">{{ mov.valor | moeda }}</strong>
 </section>
@@ -32,21 +32,21 @@
         Descrição
         <input type="text" name="descricao" value="{{ mov.descricao }}" maxlength="180">
       </label>
-      <label>
+      <label id="edit-wrap-categoria">
         Categoria
-        <select name="categoria_id">
+        <select name="categoria_id" id="edit-categoria">
           <option value="">Selecionar</option>
           {% for cat in categorias %}
             <option value="{{ cat.id }}" {{ 'selected' if mov.categoria_id == cat.id }}>{{ cat.nome }}</option>
           {% endfor %}
         </select>
       </label>
-      <div class="grid-2">
+      <div class="grid-2" id="edit-wrap-data-forma">
         <label>
           Data
           <input type="date" name="data" value="{{ mov.data.isoformat() }}">
         </label>
-        <label>
+        <label id="edit-wrap-forma">
           Forma
           <select name="forma_pagamento">
             {% for valor, label in formas %}
@@ -55,24 +55,39 @@
           </select>
         </label>
       </div>
+
+      <div id="edit-wrap-transferencia-modo" {% if mov.tipo != 'transferencia' %}hidden{% endif %}>
+        <p class="muted" style="margin:0 0 0.5rem;font-size:0.88rem">Tipo de transferência</p>
+        <div class="quick-types quick-types-sub">
+          <button type="button" class="chip-tipo transferencia {{ 'ativo' if mov.transferencia_interna or not mov.transferencia_externa else '' }}" data-edit-modo="minhas_contas">Entre minhas contas</button>
+          <button type="button" class="chip-tipo transferencia {{ 'ativo' if mov.transferencia_externa else '' }}" data-edit-modo="outra_pessoa">Para outra pessoa</button>
+        </div>
+        <input type="hidden" name="transferencia_modo" id="edit-transferencia-modo" value="{{ 'outra_pessoa' if mov.transferencia_externa else 'minhas_contas' }}">
+      </div>
+
       <label>
-        Conta
-        <select name="conta_id">
+        <span id="edit-label-conta">{% if mov.tipo == 'transferencia' %}Conta origem (debitar){% else %}Conta{% endif %}</span>
+        <select name="conta_id" id="edit-conta-origem">
           {% for conta in contas %}
             <option value="{{ conta.id }}" {{ 'selected' if mov.conta_id == conta.id }}>{{ conta.nome }}</option>
           {% endfor %}
         </select>
       </label>
-      {% if mov.tipo == 'transferencia' %}
-      <label>
-        Destino
-        <select name="conta_destino_id">
+
+      <label id="edit-wrap-destino" {% if mov.tipo != 'transferencia' or mov.transferencia_externa %}hidden{% endif %}>
+        Conta destino
+        <select name="conta_destino_id" id="edit-conta-destino">
+          <option value="">Selecionar</option>
           {% for conta in contas %}
             <option value="{{ conta.id }}" {{ 'selected' if mov.conta_destino_id == conta.id }}>{{ conta.nome }}</option>
           {% endfor %}
         </select>
       </label>
-      {% endif %}
+
+      <label id="edit-wrap-destinatario" {% if not mov.transferencia_externa %}hidden{% endif %}>
+        Nome da pessoa
+        <input type="text" name="destinatario" id="edit-destinatario" maxlength="120" value="{{ mov.destinatario or '' }}" placeholder="Ex: Maria, João">
+      </label>
       <label>
         Observação
         <textarea name="observacao" rows="2">{{ mov.observacao or '' }}</textarea>
@@ -120,4 +135,62 @@
     </article>
   </div>
 </div>
+<script>
+  (function () {
+    const tipo = document.querySelector('select[name="tipo"]');
+    const wrapModo = document.getElementById("edit-wrap-transferencia-modo");
+    const wrapDestino = document.getElementById("edit-wrap-destino");
+    const wrapDestinatario = document.getElementById("edit-wrap-destinatario");
+    const wrapCategoria = document.getElementById("edit-wrap-categoria");
+    const wrapForma = document.getElementById("edit-wrap-forma");
+    const labelConta = document.getElementById("edit-label-conta");
+    const campoModo = document.getElementById("edit-transferencia-modo");
+    const campoOrigem = document.getElementById("edit-conta-origem");
+    const campoDestino = document.getElementById("edit-conta-destino");
+    const campoDestinatario = document.getElementById("edit-destinatario");
+
+    function filtrarDestino() {
+      if (!campoDestino || !campoOrigem) return;
+      const origemId = campoOrigem.value;
+      campoDestino.querySelectorAll("option").forEach((opt) => {
+        if (!opt.value) return;
+        opt.hidden = opt.value === origemId;
+      });
+    }
+
+    function definirModo(modo) {
+      if (campoModo) campoModo.value = modo;
+      document.querySelectorAll("[data-edit-modo]").forEach((btn) => {
+        btn.classList.toggle("ativo", btn.dataset.editModo === modo);
+      });
+      const interna = modo === "minhas_contas";
+      if (wrapDestino) wrapDestino.hidden = !interna;
+      if (wrapDestinatario) wrapDestinatario.hidden = interna;
+      if (campoDestino) campoDestino.required = interna;
+      if (campoDestinatario) campoDestinatario.required = !interna;
+      if (interna) filtrarDestino();
+    }
+
+    function atualizarTipo() {
+      const ehTransferencia = tipo && tipo.value === "transferencia";
+      if (wrapModo) wrapModo.hidden = !ehTransferencia;
+      if (wrapCategoria) wrapCategoria.hidden = ehTransferencia;
+      if (wrapForma) wrapForma.hidden = ehTransferencia;
+      if (labelConta) labelConta.textContent = ehTransferencia ? "Conta origem (debitar)" : "Conta";
+      if (ehTransferencia) {
+        definirModo(campoModo?.value || "minhas_contas");
+      } else {
+        if (wrapDestino) wrapDestino.hidden = true;
+        if (wrapDestinatario) wrapDestinatario.hidden = true;
+      }
+    }
+
+    tipo?.addEventListener("change", atualizarTipo);
+    document.querySelectorAll("[data-edit-modo]").forEach((btn) => {
+      btn.addEventListener("click", () => definirModo(btn.dataset.editModo));
+    });
+    campoOrigem?.addEventListener("change", filtrarDestino);
+    atualizarTipo();
+  })();
+</script>
 {% endblock %}

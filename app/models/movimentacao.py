@@ -28,6 +28,7 @@ class Movimentacao(db.Model):
     usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id"), nullable=False, index=True)
     conta_id = db.Column(db.Integer, db.ForeignKey("contas.id"), nullable=False, index=True)
     conta_destino_id = db.Column(db.Integer, db.ForeignKey("contas.id"), nullable=True)
+    destinatario = db.Column(db.String(120), nullable=True)
     categoria_id = db.Column(db.Integer, db.ForeignKey("categorias.id"), nullable=True, index=True)
     tipo = db.Column(db.String(20), nullable=False, index=True)
     descricao = db.Column(db.String(180), nullable=False)
@@ -61,6 +62,25 @@ class Movimentacao(db.Model):
     @property
     def forma_label(self) -> str:
         return dict(FORMAS_PAGAMENTO).get(self.forma_pagamento, self.forma_pagamento)
+
+    @property
+    def transferencia_interna(self) -> bool:
+        return self.tipo == "transferencia" and bool(self.conta_destino_id)
+
+    @property
+    def transferencia_externa(self) -> bool:
+        return self.tipo == "transferencia" and not self.conta_destino_id and bool(self.destinatario)
+
+    @property
+    def transferencia_resumo(self) -> str:
+        if self.tipo != "transferencia":
+            return self.conta.nome if self.conta else "—"
+        origem = self.conta.nome if self.conta else "?"
+        if self.conta_destino and self.conta_destino_id:
+            return f"{origem} → {self.conta_destino.nome}"
+        if self.destinatario:
+            return f"{origem} → {self.destinatario}"
+        return origem
 
     @property
     def tem_comprovante(self) -> bool:

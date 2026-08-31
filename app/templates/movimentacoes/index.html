@@ -81,7 +81,13 @@
           </td>
           <td data-label="Categoria">{{ mov.categoria.nome if mov.categoria else '—' }}</td>
           <td data-label="Tipo"><span class="badge {{ mov.tipo }}">{{ mov.tipo_label }}</span></td>
-          <td data-label="Conta">{{ mov.conta.nome if mov.conta else '—' }}</td>
+          <td data-label="Conta">
+            {% if mov.tipo == 'transferencia' %}
+              {{ mov.transferencia_resumo }}
+            {% else %}
+              {{ mov.conta.nome if mov.conta else '—' }}
+            {% endif %}
+          </td>
           <td data-label="Forma">{{ mov.forma_label }}</td>
           <td data-label="Valor" class="num valor {{ mov.tipo }}">{{ mov.valor | moeda }}</td>
           <td data-label="Comprovante">{% if mov.tem_comprovante %}📎 Sim{% else %}—{% endif %}</td>
