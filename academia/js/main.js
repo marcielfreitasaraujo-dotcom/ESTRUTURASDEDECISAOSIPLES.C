@@ -97,6 +97,7 @@
       if (!src) return;
       lightboxImg.src = src;
       lightboxImg.alt = botao.getAttribute("data-alt") || "";
+      lightboxImg.hidden = false;
       if (lightboxLegenda) lightboxLegenda.textContent = botao.getAttribute("data-alt") || "";
       lightbox.hidden = false;
     });
