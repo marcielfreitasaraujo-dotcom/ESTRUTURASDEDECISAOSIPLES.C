@@ -15,7 +15,8 @@ def test_arquivos_do_site_existem():
         "img/logo.png",
         "img/hero.jpg",
         "img/hero.webp",
-        "img/favicon.png",
+        "img/sobre.jpg",
+        "img/galeria-1.jpg",
     )
     for nome in obrigatorios:
         assert (SITE / nome).is_file(), f"faltou {nome}"
@@ -50,9 +51,15 @@ def test_estilo_e_script_referenciados():
     assert 'href="css/style.css"' in html
     assert 'src="js/main.js"' in html
     assert 'src="js/site-data.js"' in html
-    assert "--verde: #2ee56a" in css
-    assert "--bg: #050806" in css
+    assert "--action-lime: #c2e637" in css
+    assert "--action-black: #080a08" in css
+    assert "--action-lime-bright: #d4f13d" in css
+    assert "#2ee56a" not in css
     assert "#e11d2e" not in css
+    assert "#00c853" not in css.lower()
+    assert "#22c55e" not in css.lower()
+    assert ".btn-cta" in css
+    assert "img/sobre.jpg" in html
     assert ".selo-hoje[hidden]" in css
     assert "id=\"experiencia\"" in html
     assert 'id="instagram"' in html
