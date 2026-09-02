@@ -1,0 +1,25 @@
+window.ACTION_FITNESS = {
+  nome: "Action Fitness",
+  cidade: "Estreito — MA",
+  endereco: "Avenida Chico Brito, 1006 — Centro",
+  cep: "65975-000",
+  referencia: "Próxima à Praça da Bíblia",
+  telefone: "(99) 99234-8793",
+  telefoneE164: "5599992348793",
+  instagram: "actionfitness_academia",
+  avaliacao: "4,9",
+  avaliacoes: "47",
+  whatsappTexto: "Olá! Conheci a Action Fitness pelo site e gostaria de saber mais sobre os planos.",
+  horarios: {
+    1: [{ abre: "05:30", fecha: "22:30" }],
+    2: [{ abre: "05:30", fecha: "22:30" }],
+    3: [{ abre: "05:30", fecha: "22:30" }],
+    4: [{ abre: "05:30", fecha: "22:30" }],
+    5: [{ abre: "05:30", fecha: "22:30" }],
+    6: [
+      { abre: "06:00", fecha: "10:00" },
+      { abre: "15:00", fecha: "19:00" },
+    ],
+    0: [{ abre: "15:00", fecha: "19:00" }],
+  },
+};
