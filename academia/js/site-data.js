@@ -18,7 +18,7 @@ window.ACTION_FITNESS = {
     { nome: "Anual", valor: "Consulte condições" },
   ],
   galeria: [
-    { src: "img/galeria-1.jpg", alt: "Equipamentos e iluminação da Action Fitness" },
+    { src: "img/galeria-1.jpg", alt: "Frente da Action Fitness em Estreito" },
     { src: "img/galeria-2.jpg", alt: "Área de musculação da Action Fitness" },
     { src: "img/galeria-3.jpg", alt: "Ambiente da academia em Estreito" },
     { src: "img/galeria-4.jpg", alt: "Equipe e estrutura da Action Fitness" },

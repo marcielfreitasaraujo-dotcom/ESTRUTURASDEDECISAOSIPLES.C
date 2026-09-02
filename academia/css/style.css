@@ -218,8 +218,8 @@ h2 { font-size: clamp(2rem, 5vw, 3.4rem); }
   justify-content: end;
   padding: clamp(1.4rem, 4vw, 3rem);
   background:
-    radial-gradient(ellipse 70% 45% at 85% 8%, rgba(var(--action-lime-rgb), 0.16), transparent 58%),
-    linear-gradient(180deg, rgba(8, 10, 8, 0.18) 0%, rgba(8, 10, 8, 0.52) 42%, rgba(8, 10, 8, 0.92) 100%);
+    radial-gradient(ellipse 70% 45% at 85% 8%, rgba(var(--action-lime-rgb), 0.10), transparent 58%),
+    linear-gradient(180deg, rgba(8, 10, 8, 0.08) 0%, rgba(8, 10, 8, 0.28) 38%, rgba(8, 10, 8, 0.88) 100%);
 }
 .hero h1 { font-size: clamp(3.2rem, 10vw, 7.2rem); max-width: 12ch; }
 .hero h1 em {
