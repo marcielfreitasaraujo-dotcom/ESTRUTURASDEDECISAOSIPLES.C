@@ -60,7 +60,8 @@ def test_estilo_e_script_referenciados():
     assert "#00c853" not in css.lower()
     assert "#22c55e" not in css.lower()
     assert ".btn-cta" in css
-    assert "Fachada da Action Fitness" in html
+    assert "Frente da Action Fitness" in html
+    assert "Área de treino da Action Fitness" in html
     assert "img/sobre.jpg" in html
     assert ".selo-hoje[hidden]" in css
     assert "id=\"experiencia\"" in html
