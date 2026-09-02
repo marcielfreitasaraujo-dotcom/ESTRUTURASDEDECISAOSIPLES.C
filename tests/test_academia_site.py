@@ -51,9 +51,10 @@ def test_estilo_e_script_referenciados():
     assert 'href="css/style.css"' in html
     assert 'src="js/main.js"' in html
     assert 'src="js/site-data.js"' in html
-    assert "--action-lime: #c2e637" in css
+    assert "--action-lime: #b8d232" in css
+    assert 'alt="Action Fitness"' in html
     assert "--action-black: #080a08" in css
-    assert "--action-lime-bright: #d4f13d" in css
+    assert "--action-lime-bright: #cfe45c" in css
     assert "#2ee56a" not in css
     assert "#e11d2e" not in css
     assert "#00c853" not in css.lower()
