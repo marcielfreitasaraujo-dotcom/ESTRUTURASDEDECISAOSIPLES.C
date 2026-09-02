@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="FitUP">
+  <rect width="64" height="64" rx="16" fill="#0a0a0c"/>
+  <path fill="#ff5a1f" d="M32 10 46 18v10.4L32 36.8 18 28.4V18z"/>
+  <circle cx="32" cy="23" r="6.2" fill="none" stroke="#fff" stroke-width="2.4"/>
+  <path fill="#fff" d="M32 38.2 42 44.2v8.2L32 58.4 22 52.4v-8.2z"/>
+</svg>
