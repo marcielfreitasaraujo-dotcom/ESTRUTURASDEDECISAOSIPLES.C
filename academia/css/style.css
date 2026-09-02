@@ -390,6 +390,7 @@ h2 { font-size: clamp(2rem, 5vw, 3.4rem); }
   color: var(--red);
   font-weight: 800;
 }
+.selo-hoje[hidden] { display: none; }
 
 .cta-box {
   background: linear-gradient(135deg, #e11d2e, #8a0d18);

@@ -51,6 +51,7 @@ def test_estilo_e_script_referenciados():
     assert 'src="js/main.js"' in html
     assert 'src="js/site-data.js"' in html
     assert "--red: #e11d2e" in css
+    assert ".selo-hoje[hidden]" in css
     assert "id=\"experiencia\"" in html
     assert 'id="instagram"' in html
     assert "hero.webp" in html
