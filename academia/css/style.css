@@ -1,6 +1,6 @@
 :root {
-  --action-lime: #b8d232;
-  --action-lime-bright: #cfe45c;
+  --action-lime: #bad640;
+  --action-lime-bright: #ccde66;
   --action-green-dark: #718c1f;
   --action-green-deeper: #556b18;
   --action-black: #080a08;
@@ -14,7 +14,7 @@
   --action-white-pure: #ffffff;
   --action-gray: #b8bbb5;
   --action-gray-2: #9b9f98;
-  --action-lime-rgb: 184, 210, 50;
+  --action-lime-rgb: 186, 214, 64;
   --action-glow: 0 10px 28px rgba(var(--action-lime-rgb), 0.22);
   --action-glow-soft: 0 0 24px rgba(var(--action-lime-rgb), 0.12);
 
@@ -107,16 +107,16 @@ h2 { font-size: clamp(2rem, 5vw, 3.4rem); }
 .header-cta { display: flex; align-items: center; }
 .brand { display: flex; align-items: center; gap: 0.75rem; }
 .brand img {
-  width: 64px;
-  height: 64px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
   background: var(--action-white-pure);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .site-footer .brand img {
-  width: 72px;
-  height: 72px;
+  width: 84px;
+  height: 84px;
 }
 .brand small {
   display: block;
