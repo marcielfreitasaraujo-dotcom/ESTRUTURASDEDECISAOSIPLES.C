@@ -50,7 +50,9 @@ def test_estilo_e_script_referenciados():
     assert 'href="css/style.css"' in html
     assert 'src="js/main.js"' in html
     assert 'src="js/site-data.js"' in html
-    assert "--red: #e11d2e" in css
+    assert "--verde: #2ee56a" in css
+    assert "--bg: #050806" in css
+    assert "#e11d2e" not in css
     assert ".selo-hoje[hidden]" in css
     assert "id=\"experiencia\"" in html
     assert 'id="instagram"' in html
