@@ -14,6 +14,7 @@ def test_arquivos_do_site_existem():
         ".htaccess",
         "img/logo.png",
         "img/hero.jpg",
+        "img/hero.webp",
         "img/favicon.png",
     )
     for nome in obrigatorios:
@@ -50,5 +51,11 @@ def test_estilo_e_script_referenciados():
     assert 'src="js/main.js"' in html
     assert 'src="js/site-data.js"' in html
     assert "--red: #e11d2e" in css
+    assert "id=\"experiencia\"" in html
+    assert 'id="instagram"' in html
+    assert "hero.webp" in html
+    assert "IntersectionObserver" in js
     assert "data-hoje" in js
+    assert "gallery_open" in js
+    assert "view_plans" in js
     assert "menu-toggle" in js
