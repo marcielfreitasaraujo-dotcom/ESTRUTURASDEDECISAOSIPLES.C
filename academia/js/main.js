@@ -124,8 +124,8 @@
       botao.innerHTML = `<span>${alt || "Foto"}</span>`;
       const img = new Image();
       img.alt = alt;
-      img.loading = "lazy";
       img.addEventListener("load", () => {
+        img.loading = "lazy";
         botao.classList.add("com-foto");
         botao.replaceChildren(img);
         botao.setAttribute("data-src", src);
