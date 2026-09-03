@@ -20,17 +20,17 @@ window.ACTION_FITNESS = {
   galeria: [
     { src: "img/galeria-1.jpg", alt: "Frente da Action Fitness em Estreito" },
     { src: "img/galeria-2.jpg", alt: "Área de musculação da Action Fitness" },
-    { src: "img/galeria-3.jpg", alt: "Ambiente da academia em Estreito" },
-    { src: "img/galeria-4.jpg", alt: "Equipe e estrutura da Action Fitness" },
-    { src: "img/galeria-5.jpg", alt: "Espaço de treino da Action Fitness" },
+    { src: "img/galeria-3.jpg", alt: "Salão de musculação da Action Fitness" },
+    { src: "img/galeria-4.jpg", alt: "Bancos e equipamentos da Action Fitness" },
+    { src: "img/galeria-5.jpg", alt: "Área de pesos da Action Fitness" },
   ],
   instagramFeed: [
     { src: "img/instagram-1.jpg", alt: "Horários da Action Fitness no Instagram" },
     { src: "img/instagram-2.jpg", alt: "Publicação da Action Fitness" },
-    { src: "img/instagram-3.jpg", alt: "Equipe da Action Fitness" },
-    { src: "img/instagram-4.jpg", alt: "Publicação da Action Fitness" },
+    { src: "img/instagram-3.jpg", alt: "Salão da Action Fitness" },
+    { src: "img/instagram-4.jpg", alt: "Área de treino da Action Fitness" },
     { src: "img/instagram-5.jpg", alt: "Novas máquinas na Action Fitness" },
-    { src: "img/instagram-6.jpg", alt: "Estrutura da Action Fitness" },
+    { src: "img/instagram-6.jpg", alt: "Equipamentos da Action Fitness" },
   ],
   horarios: {
     1: [{ abre: "05:30", fecha: "22:30" }],
