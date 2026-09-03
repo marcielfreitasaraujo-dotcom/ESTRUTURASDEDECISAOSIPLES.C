@@ -12,6 +12,7 @@ def test_arquivos_do_site_existem():
         "netlify.toml",
         "_headers",
         ".htaccess",
+        "img/logo.png",
         "img/hero.jpg",
         "img/hero.webp",
         "img/sobre.jpg",
@@ -52,7 +53,9 @@ def test_estilo_e_script_referenciados():
     assert 'href="css/style.css"' in html
     assert 'src="js/main.js"' in html
     assert 'src="js/site-data.js"' in html
-    assert "--action-lime: #bad640" in css
+    assert "--action-lime: #98f800" in css
+    assert 'alt="Performance Academia"' in html
+    assert "img/logo.png" in html
     assert "--action-black: #080a08" in css
     assert ".btn-cta" in css
     assert "img/sobre.jpg" in html
@@ -76,9 +79,8 @@ def test_secoes_performance_especificas():
     assert "Treine" in html
     assert "Supere" in html
     assert "Evolua" in html
-    assert "brand-text" in html
-    assert ".brand-text" in css
-    assert "PERFORMANCE" in html
+    assert "img/logo.png" in html
+    assert "Performance Academia" in html
     assert "hero-scroll" in html
     assert ".hero-scroll" in css
     assert "frase-impacto" in html
