@@ -13,6 +13,7 @@ def test_arquivos_do_site_existem():
         "_headers",
         ".htaccess",
         "img/logo.png",
+        "img/frente.jpg",
         "img/hero.jpg",
         "img/hero.webp",
         "img/sobre.jpg",
@@ -85,4 +86,5 @@ def test_secoes_performance_especificas():
     assert ".hero-scroll" in css
     assert "frase-impacto" in html
     assert ".frase-impacto" in css
-    assert "2013" in html
+    assert "Frente da Performance Academia" in html
+    assert "cta-box-foto" in html
