@@ -88,3 +88,6 @@ def test_secoes_performance_especificas():
     assert ".frase-impacto" in css
     assert "Frente da Performance Academia" in html
     assert "cta-box-foto" in html
+    assert 'href="https://wa.me/5599981568022?text=Ol%C3%A1%21%20Quero%20agendar%20um%20treino%20na%20Performance%20Academia."' in html
+    assert "btn-instagram" in html
+    assert ".btn-instagram" in css

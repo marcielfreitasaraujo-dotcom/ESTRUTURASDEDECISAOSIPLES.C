@@ -181,6 +181,17 @@ h2 em { font-style: italic; color: var(--action-lime); }
   color: var(--action-black);
 }
 .btn-dark:hover { background: var(--action-lime); color: var(--action-black); }
+.btn-instagram {
+  background: var(--action-white-pure);
+  color: var(--action-black);
+  border: 1.5px solid var(--action-white-pure);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+.btn-instagram:hover {
+  background: var(--action-lime);
+  border-color: var(--action-lime);
+  color: var(--action-black);
+}
 .btn-lg { min-height: 54px; padding-inline: 1.35rem; }
 
 .menu-toggle {
