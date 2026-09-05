@@ -79,7 +79,8 @@ def test_secoes_performance_especificas():
     assert "Chegue" in html
     assert "Treine" in html
     assert "Supere" in html
-    assert "Evolua" in html
+    assert "Entre, treine," in html
+    assert "evolua" in html.lower()
     assert "img/logo.png" in html
     assert "Performance Academia" in html
     assert "hero-scroll" in html
