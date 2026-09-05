@@ -92,3 +92,4 @@ def test_secoes_performance_especificas():
     assert 'href="https://wa.me/5599981568022?text=Ol%C3%A1%21%20Quero%20agendar%20um%20treino%20na%20Performance%20Academia."' in html
     assert "btn-instagram" in html
     assert ".btn-instagram" in css
+    assert html.count('class="btn btn-ghost" data-evento="click_whatsapp" href="https://wa.me/5599981568022?text=Ol%C3%A1%21%20Quero%20consultar%20o%20plano') == 4
