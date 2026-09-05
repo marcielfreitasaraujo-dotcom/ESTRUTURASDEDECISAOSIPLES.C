@@ -79,6 +79,8 @@ def test_secoes_performance_especificas():
     assert "Chegue" in html
     assert "Treine" in html
     assert "Supere" in html
+    assert "Seu treino," in html
+    assert "seu momento." in html
     assert "Entre, treine," in html
     assert "evolua" in html.lower()
     assert "img/logo.png" in html
