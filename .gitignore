@@ -32,3 +32,11 @@ backups/**
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Site institucional (não versionar build nem segredos)
+paulo-henrique-advocacia/.next/
+paulo-henrique-advocacia/out/
+paulo-henrique-advocacia/node_modules/
+paulo-henrique-advocacia/.env
+paulo-henrique-advocacia/.env.*
+paulo-henrique-advocacia/*.map

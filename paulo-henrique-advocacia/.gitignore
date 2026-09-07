@@ -16,6 +16,9 @@
 # next.js
 /.next/
 /out/
+/*.map
+/**/*.js.map
+/**/*.css.map
 
 # production
 /build

@@ -1,8 +1,8 @@
 # Paulo Henrique Advocacia Previdenciária
 
-Site institucional premium do escritório **Paulo Henrique Advocacia Previdenciária**, em Estreito - MA.
+Site institucional do escritório **Paulo Henrique Advocacia Previdenciária**, em Estreito - MA.
 
-Este projeto é **independente** do FinUP. Pode ser extraído para um repositório GitHub próprio sem alterar o restante do código.
+Código, textos, fotos e marca são **privados**. Não publique este diretório em repositório público nem compartilhe o fonte com terceiros. Veja `LICENSE`.
 
 ## Stack
 
@@ -34,16 +34,7 @@ npm start
 2. Na Netlify, defina o diretório base `paulo-henrique-advocacia` e o plugin oficial do Next.js.
 3. Aponte o domínio `paulohenriqueadvocacia.com.br` para o deploy.
 
-Para um repositório separado:
-
-```bash
-cd paulo-henrique-advocacia
-git init
-git add .
-git commit -m "Site institucional Paulo Henrique Advocacia"
-```
-
-Em seguida, crie o repositório no GitHub e faça o push.
+Se for criar um repositório só deste site, deixe-o **privado** no GitHub.
 
 ## Conteúdo editável
 
