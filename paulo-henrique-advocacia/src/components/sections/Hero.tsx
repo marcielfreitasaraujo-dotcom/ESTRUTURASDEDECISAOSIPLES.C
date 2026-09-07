@@ -14,9 +14,13 @@ export function Hero() {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const canHover = window.matchMedia(
+      "(hover: hover) and (pointer: fine)",
+    ).matches;
     if (reduced) return;
 
     const onMove = (event: MouseEvent) => {
+      if (!canHover) return;
       const rect = node.getBoundingClientRect();
       const x = (event.clientX - rect.left) / rect.width - 0.5;
       const y = (event.clientY - rect.top) / rect.height - 0.5;
@@ -55,13 +59,15 @@ export function Hero() {
             <ScrollWords
               text="Seu direito previdenciário merece uma defesa especializada."
               mouse
-              stagger={70}
+              immediate
+              stagger={80}
             />
           </h1>
           <p className="hero-lead mt-6 text-lg leading-relaxed text-ivory/80">
             <ScrollWords
               text="Orientação jurídica clara, atendimento humanizado e estratégia personalizada para proteger seus direitos perante o INSS."
-              stagger={28}
+              immediate
+              stagger={32}
             />
           </p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
@@ -20,6 +20,13 @@ const cormorant = Cormorant_Garamond({
   weight: ["500", "600", "700"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#07141f",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -75,9 +82,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="pt-BR"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="flex min-h-svh flex-col bg-ivory font-sans text-ink">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.classList.add('js')`,
+          }}
+        />
         <JsonLd />
         <MotionRoot />
         <a className="skip-link" href="#conteudo">

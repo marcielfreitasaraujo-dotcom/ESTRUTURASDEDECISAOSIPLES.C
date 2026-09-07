@@ -260,10 +260,14 @@ h4 {
 }
 
 .whatsapp-float {
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
   box-shadow: 0 12px 30px rgba(18, 140, 70, 0.28);
 }
 
 .back-top {
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: calc(5.75rem + env(safe-area-inset-bottom));
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
@@ -276,30 +280,30 @@ h4 {
 .scroll-word {
   display: inline-block;
   margin-right: 0.28em;
-  opacity: 0;
-  filter: blur(7px);
-  transform: translate3d(
-    calc(var(--mx) * (var(--i) - 2) * 8px),
-    calc(0.7em + var(--my) * 10px),
-    0
-  );
-  transition:
-    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.scroll-words.is-active .scroll-word {
+html.js .scroll-word {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translate3d(0, 0.7em, 0);
+  transition:
+    opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.js .scroll-words.is-active .scroll-word {
   opacity: 1;
   filter: none;
-  transform: translate3d(
-    calc(var(--mx) * (var(--i) - (var(--n) / 2)) * 5px),
-    calc((0.52 - var(--p, 1)) * 26px + var(--my) * 14px),
-    0
-  );
+  transform: translate3d(0, 0, 0);
 }
 
-.scroll-words.is-settled .scroll-word {
+html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word {
+  transform: translate3d(
+    calc(var(--mx, 0) * (var(--i) - (var(--n) / 2)) * 4.5px),
+    calc(var(--my, 0) * 12px),
+    0
+  );
   transition: transform 0.28s ease-out;
 }
 
@@ -309,8 +313,8 @@ h4 {
 
 .hero-title {
   transform: translate3d(
-    calc(var(--mx) * 14px),
-    calc(var(--my) * 10px + var(--sy) * -36px),
+    calc(var(--mx) * 12px),
+    calc(var(--my) * 8px + var(--sy) * -28px),
     0
   );
   transition: transform 0.32s ease-out;
@@ -318,8 +322,8 @@ h4 {
 
 .hero-lead {
   transform: translate3d(
-    calc(var(--mx) * 8px),
-    calc(var(--my) * 5px + var(--sy) * -20px),
+    calc(var(--mx) * 7px),
+    calc(var(--my) * 4px + var(--sy) * -16px),
     0
   );
   transition: transform 0.38s ease-out;
@@ -327,8 +331,8 @@ h4 {
 
 .hero-portrait {
   transform: translate3d(
-    calc(var(--mx) * -12px),
-    calc(var(--my) * 8px + var(--sy) * 18px),
+    calc(var(--mx) * -10px),
+    calc(var(--my) * 6px + var(--sy) * 14px),
     0
   );
   transition: transform 0.45s ease-out;
@@ -336,23 +340,25 @@ h4 {
 
 @media (hover: none) {
   .hero-title {
-    transform: translate3d(0, calc(var(--sy) * -22px), 0);
+    transform: translate3d(0, calc(var(--sy) * -18px), 0);
   }
 
   .hero-lead {
-    transform: translate3d(0, calc(var(--sy) * -14px), 0);
+    transform: translate3d(0, calc(var(--sy) * -10px), 0);
   }
 
   .hero-portrait {
-    transform: translate3d(0, calc(var(--sy) * 12px), 0);
+    transform: translate3d(0, calc(var(--sy) * 10px), 0);
   }
 
-  .scroll-word {
+  html.js .scroll-word {
     filter: none;
+    transform: translate3d(0, 0.45em, 0);
   }
 
-  .scroll-words.is-active .scroll-word {
-    transform: translate3d(0, calc((0.52 - var(--p, 1)) * 18px), 0);
+  html.js .scroll-words.is-active .scroll-word,
+  html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word {
+    transform: none;
   }
 }
 
@@ -366,6 +372,9 @@ h4 {
   .reveal.is-in,
   .scroll-word,
   .scroll-words.is-active .scroll-word,
+  html.js .scroll-word,
+  html.js .scroll-words.is-active .scroll-word,
+  html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word,
   .hero-title,
   .hero-lead,
   .hero-portrait {

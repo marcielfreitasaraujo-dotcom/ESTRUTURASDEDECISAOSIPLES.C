@@ -67,6 +67,7 @@ export function Contact({ hideHeading = false }: { hideHeading?: boolean }) {
               src={site.google.mapsEmbed}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
               className="h-full min-h-[360px] w-full grayscale-[35%] contrast-[1.05]"
             />
           </div>

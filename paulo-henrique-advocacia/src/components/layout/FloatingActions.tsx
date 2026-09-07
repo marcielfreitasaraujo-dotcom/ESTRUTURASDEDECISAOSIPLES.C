@@ -20,7 +20,7 @@ export function FloatingActions() {
         href={whatsappUrl()}
         target="_blank"
         rel="noopener noreferrer"
-        className="whatsapp-float group fixed right-6 bottom-6 z-40 inline-flex items-center gap-2 rounded-full bg-[#128C3A] px-3 py-3 text-white transition-transform duration-300 hover:scale-[1.03] sm:px-4"
+        className="whatsapp-float group fixed z-40 inline-flex items-center gap-2 rounded-full bg-[#128C3A] px-3 py-3 text-white transition-transform duration-300 hover:scale-[1.03] sm:px-4"
         aria-label="Fale com nossa equipe pelo WhatsApp"
         title="Fale com nossa equipe"
       >
@@ -36,7 +36,7 @@ export function FloatingActions() {
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        className={`back-top fixed right-6 bottom-24 z-40 inline-flex h-11 w-11 items-center justify-center border border-gold/40 bg-navy text-gold ${
+        className={`back-top fixed z-40 inline-flex h-11 w-11 items-center justify-center border border-gold/40 bg-navy text-gold ${
           showTop ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         aria-label="Voltar ao topo"

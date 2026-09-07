@@ -12,13 +12,15 @@ import { cn } from "@/lib/cn";
 export function ScrollWords({
   text,
   className,
-  stagger = 55,
+  stagger = 75,
   mouse = true,
+  immediate = false,
 }: {
   text: string;
   className?: string;
   stagger?: number;
   mouse?: boolean;
+  immediate?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [active, setActive] = useState(false);
@@ -38,47 +40,39 @@ export function ScrollWords({
       return;
     }
 
-    const updateProgress = () => {
-      const rect = node.getBoundingClientRect();
-      const vh = window.innerHeight || 1;
-      const start = vh * 0.9;
-      const end = vh * 0.22;
-      const progress = (start - rect.top) / Math.max(start - end, 1);
-      node.style.setProperty(
-        "--p",
-        Math.min(1, Math.max(0, progress)).toFixed(3),
-      );
+    const reveal = () => {
+      window.requestAnimationFrame(() => setActive(true));
     };
+
+    if (immediate) {
+      reveal();
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setActive(true);
+          reveal();
           observer.disconnect();
         }
       },
-      { threshold: 0.18, rootMargin: "0px 0px -6% 0px" },
+      { threshold: 0.35, rootMargin: "0px 0px -18% 0px" },
     );
 
     observer.observe(node);
-    updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    window.addEventListener("resize", updateProgress);
 
-    const fallback = window.setTimeout(() => setActive(true), 2200);
+    const fallback = window.setTimeout(reveal, 12000);
     return () => {
       observer.disconnect();
-      window.removeEventListener("scroll", updateProgress);
-      window.removeEventListener("resize", updateProgress);
       window.clearTimeout(fallback);
     };
-  }, []);
+  }, [immediate]);
 
   useEffect(() => {
     if (!active) return;
     const timeout = window.setTimeout(
       () => setSettled(true),
-      words.length * stagger + 520,
+      words.length * stagger + 480,
     );
     return () => window.clearTimeout(timeout);
   }, [active, stagger, words.length]);

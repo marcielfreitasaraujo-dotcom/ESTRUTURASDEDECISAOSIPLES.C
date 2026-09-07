@@ -8,7 +8,10 @@ export function MotionRoot() {
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (reduced) return;
+    const canHover = window.matchMedia(
+      "(hover: hover) and (pointer: fine)",
+    ).matches;
+    if (reduced || !canHover) return;
 
     let mx = 0;
     let my = 0;

@@ -15,7 +15,7 @@ export function PageHero({
       <div className="mx-auto max-w-4xl">
         <p className="eyebrow">{eyebrow}</p>
         <h1 className="mt-5 text-4xl text-ivory sm:text-5xl">
-          <ScrollWords text={title} />
+          <ScrollWords text={title} immediate />
         </h1>
         {subtitle ? (
           <p className="mt-5 max-w-2xl text-lg text-ivory/75">{subtitle}</p>
