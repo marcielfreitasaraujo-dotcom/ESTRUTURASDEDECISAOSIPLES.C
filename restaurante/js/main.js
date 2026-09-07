@@ -63,6 +63,9 @@
     });
     nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", fecharMenu));
     backdrop?.addEventListener("click", fecharMenu);
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 980 && nav.classList.contains("open")) fecharMenu();
+    });
   }
 
   const header = document.querySelector(".site-header");
