@@ -84,8 +84,8 @@ export function Header() {
             <img
               src="/images/logo.png"
               alt="Brasão PH — Paulo Henrique Advocacia"
-              width={62}
-              height={71}
+              width={52}
+              height={62}
               decoding="async"
             />
           </span>
