@@ -149,37 +149,53 @@ h4 {
 
 .site-header {
   overflow: visible;
+  isolation: isolate;
   transition:
     background-color 0.35s ease,
     box-shadow 0.35s ease,
-    backdrop-filter 0.35s ease,
     border-color 0.35s ease;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(7, 20, 31, 0.97);
+  transition: opacity 0.35s ease;
+}
+
+.site-header.is-solid::before {
+  opacity: 1;
+  backdrop-filter: blur(16px);
 }
 
 .header-crest {
   display: flex;
-  height: 3.25rem;
-  width: 3.25rem;
+  box-sizing: content-box;
+  height: 3.55rem;
+  width: 3.1rem;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   overflow: visible;
-  padding: 0.28rem;
+  padding: 0.12rem 0.2rem;
+  background: transparent;
 }
 
 .header-crest img {
   display: block;
   height: 100%;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
   object-position: center center;
-  overflow: visible;
   background: transparent;
 }
 
 .site-header.is-solid {
-  background: rgba(7, 20, 31, 0.97);
-  backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(196, 165, 106, 0.18);
   box-shadow: 0 10px 30px rgba(7, 20, 31, 0.18);
 }

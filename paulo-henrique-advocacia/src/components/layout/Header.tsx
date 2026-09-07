@@ -74,7 +74,7 @@ export function Header() {
         solid && "is-solid",
       )}
     >
-      <div className="mx-auto flex h-[var(--header-h)] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-[var(--header-h)] max-w-7xl items-center justify-between gap-4 overflow-visible px-4 sm:px-6 lg:px-8">
         <Link
           href="/#inicio"
           className="flex min-w-0 items-center gap-3"
@@ -82,10 +82,10 @@ export function Header() {
         >
           <span className="header-crest">
             <img
-              src="/images/logo.webp"
+              src="/images/logo.png"
               alt="Brasão PH — Paulo Henrique Advocacia"
-              width={56}
-              height={56}
+              width={62}
+              height={71}
               decoding="async"
             />
           </span>
