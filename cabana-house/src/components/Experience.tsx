@@ -30,7 +30,7 @@ export function Experience() {
         <Picture
           src="/images/experience.jpg"
           webp="/images/experience.webp"
-          alt="Mesa cheia, pratos servidos e clientes aproveitando a refeição"
+          alt="Mesa posta em luz baixa, com pratos sendo servidos durante o jantar"
           className="h-[120%] w-full object-cover"
         />
         <div className="absolute inset-0 bg-ink/75" />
