@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/ui/Reveal";
+import { ScrollWords } from "@/components/ui/ScrollWords";
 
 export function About() {
   return (
@@ -9,23 +10,21 @@ export function About() {
         <Reveal>
           <div className="gold-frame">
             <Image
-              src="/images/about-office.webp"
-              alt="Sala de atendimento ilustrativa — substituir pela fotografia oficial do escritório"
-              width={1200}
-              height={900}
-              className="relative z-10 h-auto w-full object-cover"
+              src="/images/paulo-henrique.webp"
+              alt="Paulo Henrique, advogado do escritório Paulo Henrique Advocacia Previdenciária"
+              width={900}
+              height={890}
+              quality={90}
+              sizes="(min-width: 1024px) 44vw, 100vw"
+              className="relative z-10 h-auto w-full object-cover object-[center_18%]"
             />
           </div>
-          <p className="mt-4 text-xs tracking-wide text-muted">
-            Imagem institucional ilustrativa — substituir pela fotografia
-            oficial do escritório.
-          </p>
         </Reveal>
 
         <Reveal delay={80}>
           <p className="eyebrow">O escritório</p>
-          <h2 className="mt-4 text-3xl sm:text-4xl lg:text-[2.6rem]">
-            Advocacia feita com estratégia, responsabilidade e humanidade.
+          <h2 className="mt-4 text-3xl text-navy sm:text-4xl lg:text-[2.6rem]">
+            <ScrollWords text="Advocacia feita com estratégia, responsabilidade e humanidade." />
           </h2>
           <div className="mt-6 space-y-4 text-[1.05rem] leading-relaxed text-muted">
             <p>

@@ -22,16 +22,13 @@ export default function EscritorioPage() {
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div>
           <Image
-            src="/images/about-office.webp"
-            alt="Sala de atendimento ilustrativa — substituir pela fotografia oficial do escritório"
-            width={1200}
-            height={900}
-            className="w-full"
+            src="/images/paulo-henrique.webp"
+            alt="Paulo Henrique, advogado previdenciário em Estreito - MA"
+            width={900}
+            height={890}
+            quality={90}
+            className="w-full object-cover object-[center_18%]"
           />
-          <p className="mt-3 text-xs text-muted">
-            Imagem institucional ilustrativa — substituir pela fotografia
-            oficial.
-          </p>
         </div>
         <div className="space-y-5 text-muted leading-relaxed">
           <p>

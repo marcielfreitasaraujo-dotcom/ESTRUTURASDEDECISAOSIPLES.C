@@ -12,7 +12,7 @@ export function JsonLd() {
         legalName: site.legalName,
         description: site.tagline,
         url: site.url,
-        image: `${site.url}/images/og.jpg`,
+        image: `${site.url}/images/paulo-henrique.jpg`,
         logo: `${site.url}/images/logo.png`,
         telephone: site.phoneE164,
         email: site.email,

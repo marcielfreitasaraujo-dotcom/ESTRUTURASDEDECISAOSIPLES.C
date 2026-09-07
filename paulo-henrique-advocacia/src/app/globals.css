@@ -18,6 +18,8 @@
 
 :root {
   --header-h: 4.75rem;
+  --mx: 0;
+  --my: 0;
 }
 
 html {
@@ -62,6 +64,17 @@ h4 {
   .mobile-drawer {
     display: none !important;
   }
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 80;
+  background: var(--color-gold);
+  color: var(--color-navy);
+  padding: 0.6rem 1rem;
+  font-weight: 600;
 }
 
 .skip-link:focus {
@@ -239,6 +252,93 @@ h4 {
     transform 0.3s ease;
 }
 
+.scroll-words {
+  display: inline;
+}
+
+.scroll-word {
+  display: inline-block;
+  margin-right: 0.28em;
+  opacity: 0;
+  filter: blur(7px);
+  transform: translate3d(
+    calc(var(--mx) * (var(--i) - 2) * 8px),
+    calc(0.7em + var(--my) * 10px),
+    0
+  );
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.scroll-words.is-active .scroll-word {
+  opacity: 1;
+  filter: none;
+  transform: translate3d(
+    calc(var(--mx) * (var(--i) - (var(--n) / 2)) * 5px),
+    calc((0.52 - var(--p, 1)) * 26px + var(--my) * 14px),
+    0
+  );
+}
+
+.scroll-words.is-settled .scroll-word {
+  transition: transform 0.28s ease-out;
+}
+
+.hero-track {
+  --sy: 0;
+}
+
+.hero-title {
+  transform: translate3d(
+    calc(var(--mx) * 14px),
+    calc(var(--my) * 10px + var(--sy) * -36px),
+    0
+  );
+  transition: transform 0.32s ease-out;
+}
+
+.hero-lead {
+  transform: translate3d(
+    calc(var(--mx) * 8px),
+    calc(var(--my) * 5px + var(--sy) * -20px),
+    0
+  );
+  transition: transform 0.38s ease-out;
+}
+
+.hero-portrait {
+  transform: translate3d(
+    calc(var(--mx) * -12px),
+    calc(var(--my) * 8px + var(--sy) * 18px),
+    0
+  );
+  transition: transform 0.45s ease-out;
+}
+
+@media (hover: none) {
+  .hero-title {
+    transform: translate3d(0, calc(var(--sy) * -22px), 0);
+  }
+
+  .hero-lead {
+    transform: translate3d(0, calc(var(--sy) * -14px), 0);
+  }
+
+  .hero-portrait {
+    transform: translate3d(0, calc(var(--sy) * 12px), 0);
+  }
+
+  .scroll-word {
+    filter: none;
+  }
+
+  .scroll-words.is-active .scroll-word {
+    transform: translate3d(0, calc((0.52 - var(--p, 1)) * 18px), 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -246,9 +346,15 @@ h4 {
 
   .reveal,
   .reveal.is-pending,
-  .reveal.is-in {
+  .reveal.is-in,
+  .scroll-word,
+  .scroll-words.is-active .scroll-word,
+  .hero-title,
+  .hero-lead,
+  .hero-portrait {
     opacity: 1;
     transform: none;
+    filter: none;
     transition: none;
   }
 

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { ScrollWords } from "@/components/ui/ScrollWords";
 
 export function SectionHeading({
   eyebrow,
@@ -40,7 +41,7 @@ export function SectionHeading({
           light ? "text-ivory" : "text-navy",
         )}
       >
-        {title}
+        <ScrollWords text={title} />
       </h2>
       {subtitle ? (
         <p

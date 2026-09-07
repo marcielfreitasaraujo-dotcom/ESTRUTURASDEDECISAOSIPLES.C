@@ -82,19 +82,20 @@ export function Header() {
           aria-label={`${site.shortName} — início`}
         >
           <Image
-            src="/images/logo.png"
-            alt=""
-            width={44}
-            height={44}
-            className="h-11 w-11 rounded-[2px]"
+            src="/images/logo.webp"
+            alt="Brasão PH — Paulo Henrique Advocacia"
+            width={48}
+            height={48}
+            className="h-12 w-12 shrink-0 border border-gold/25 object-cover"
             priority
           />
           <span className="min-w-0">
             <span className="block truncate font-serif text-[1.05rem] leading-none text-ivory">
               Paulo Henrique
             </span>
-            <span className="mt-1 block truncate text-[0.62rem] font-medium uppercase tracking-[0.18em] text-gold">
-              Advocacia Previdenciária
+            <span className="mt-1 block truncate text-[0.62rem] font-medium uppercase tracking-[0.16em] text-gold sm:tracking-[0.18em]">
+              <span className="sm:hidden">Advocacia</span>
+              <span className="hidden sm:inline">Advocacia Previdenciária</span>
             </span>
           </span>
         </Link>

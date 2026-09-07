@@ -7,22 +7,14 @@ export function Footer() {
     <footer className="bg-navy-deep text-ivory/80">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-12 lg:px-8">
         <div className="lg:col-span-5">
-          <Link href="/#inicio" className="inline-flex items-center gap-3">
+          <Link href="/#inicio" className="inline-flex max-w-xs items-center">
             <Image
-              src="/images/logo.png"
-              alt=""
-              width={48}
-              height={48}
-              className="h-12 w-12"
+              src="/images/logo-oficial.webp"
+              alt="Paulo Henrique de Araújo dos Santos — Advogado"
+              width={280}
+              height={230}
+              className="h-auto w-full max-w-[240px]"
             />
-            <span>
-              <span className="block font-serif text-xl text-ivory">
-                Paulo Henrique
-              </span>
-              <span className="block text-[0.65rem] uppercase tracking-[0.18em] text-gold">
-                Advocacia Previdenciária
-              </span>
-            </span>
           </Link>
           <p className="mt-6 max-w-md text-sm leading-relaxed">
             Advocacia especializada em Direito Previdenciário, com atendimento

@@ -1,4 +1,5 @@
 import { WhatsAppButton } from "@/components/ui/ButtonLink";
+import { ScrollWords } from "@/components/ui/ScrollWords";
 
 export function FinalCta() {
   return (
@@ -6,7 +7,7 @@ export function FinalCta() {
       <div className="mx-auto max-w-3xl">
         <p className="eyebrow mx-auto justify-center">Atendimento</p>
         <h2 className="mt-5 text-3xl text-ivory sm:text-5xl">
-          Precisa de orientação sobre seu benefício previdenciário?
+          <ScrollWords text="Precisa de orientação sobre seu benefício previdenciário?" />
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg text-ivory/78">
           Fale com nossa equipe e explique sua situação. Vamos orientar você

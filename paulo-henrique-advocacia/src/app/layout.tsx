@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
 import { Header } from "@/components/layout/Header";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { MotionRoot } from "@/components/ui/MotionRoot";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -78,6 +79,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-svh flex-col bg-ivory font-sans text-ink">
         <JsonLd />
+        <MotionRoot />
         <a className="skip-link" href="#conteudo">
           Ir para o conteúdo
         </a>
