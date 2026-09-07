@@ -60,14 +60,14 @@ export function Hero() {
               text="Seu direito previdenciário merece uma defesa especializada."
               mouse
               immediate
-              stagger={80}
+              stagger={150}
             />
           </h1>
           <p className="hero-lead mt-6 text-lg leading-relaxed text-ivory/80">
             <ScrollWords
               text="Orientação jurídica clara, atendimento humanizado e estratégia personalizada para proteger seus direitos perante o INSS."
               immediate
-              stagger={32}
+              stagger={85}
             />
           </p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -86,12 +86,12 @@ export function Hero() {
             <Image
               src="/images/paulo-henrique.webp"
               alt="Paulo Henrique, advogado previdenciário em Estreito - MA"
-              width={900}
-              height={890}
+              width={629}
+              height={627}
               priority
               quality={90}
               sizes="(min-width: 1024px) 42vw, 90vw"
-              className="relative z-10 h-auto w-full object-cover object-[center_18%] lg:min-h-[520px] lg:object-[center_12%]"
+              className="relative z-10 block h-auto w-full bg-navy-deep object-cover object-[center_18%] lg:min-h-[520px] lg:object-[center_12%]"
             />
           </div>
         </div>

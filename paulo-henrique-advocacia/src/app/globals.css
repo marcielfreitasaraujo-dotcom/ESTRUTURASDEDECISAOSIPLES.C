@@ -183,6 +183,10 @@ h4 {
   position: relative;
 }
 
+.hero-portrait .gold-frame {
+  background: var(--color-navy-deep);
+}
+
 .gold-frame::after {
   content: "";
   position: absolute;
@@ -194,7 +198,7 @@ h4 {
 
 @media (min-width: 1024px) {
   .gold-frame::after {
-    inset: 14px -14px -14px 14px;
+    inset: 16px;
   }
 }
 
@@ -284,12 +288,12 @@ h4 {
 
 html.js .scroll-word {
   opacity: 0;
-  filter: blur(8px);
-  transform: translate3d(0, 0.7em, 0);
+  filter: blur(5px);
+  transform: translate3d(0, 0.38em, 0);
   transition:
-    opacity 0.62s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.62s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.25s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 1.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html.js .scroll-words.is-active .scroll-word {
@@ -353,7 +357,7 @@ html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word {
 
   html.js .scroll-word {
     filter: none;
-    transform: translate3d(0, 0.45em, 0);
+    transform: translate3d(0, 0.28em, 0);
   }
 
   html.js .scroll-words.is-active .scroll-word,

@@ -24,10 +24,10 @@ export default function EscritorioPage() {
           <Image
             src="/images/paulo-henrique.webp"
             alt="Paulo Henrique, advogado previdenciário em Estreito - MA"
-            width={900}
-            height={890}
+            width={629}
+            height={627}
             quality={90}
-            className="w-full object-cover object-[center_18%]"
+            className="block w-full object-cover object-[center_18%]"
           />
         </div>
         <div className="space-y-5 text-muted leading-relaxed">

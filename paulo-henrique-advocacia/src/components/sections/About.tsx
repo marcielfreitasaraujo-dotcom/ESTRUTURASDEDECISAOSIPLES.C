@@ -12,11 +12,11 @@ export function About() {
             <Image
               src="/images/paulo-henrique.webp"
               alt="Paulo Henrique, advogado do escritório Paulo Henrique Advocacia Previdenciária"
-              width={900}
-              height={890}
+              width={629}
+              height={627}
               quality={90}
               sizes="(min-width: 1024px) 44vw, 100vw"
-              className="relative z-10 h-auto w-full object-cover object-[center_18%]"
+              className="relative z-10 block h-auto w-full object-cover object-[center_18%]"
             />
           </div>
         </Reveal>

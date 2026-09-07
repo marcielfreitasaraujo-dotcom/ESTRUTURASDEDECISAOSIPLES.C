@@ -12,7 +12,7 @@ import { cn } from "@/lib/cn";
 export function ScrollWords({
   text,
   className,
-  stagger = 75,
+  stagger = 160,
   mouse = true,
   immediate = false,
 }: {
@@ -45,8 +45,8 @@ export function ScrollWords({
     };
 
     if (immediate) {
-      reveal();
-      return;
+      const start = window.setTimeout(reveal, 420);
+      return () => window.clearTimeout(start);
     }
 
     const observer = new IntersectionObserver(
@@ -72,7 +72,7 @@ export function ScrollWords({
     if (!active) return;
     const timeout = window.setTimeout(
       () => setSettled(true),
-      words.length * stagger + 480,
+      words.length * stagger + 1400,
     );
     return () => window.clearTimeout(timeout);
   }, [active, stagger, words.length]);
