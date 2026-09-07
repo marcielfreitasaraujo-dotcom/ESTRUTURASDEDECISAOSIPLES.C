@@ -81,8 +81,8 @@ export function Hero() {
           </p>
         </div>
 
-        <div className="hero-portrait relative mx-auto w-full max-w-md lg:max-w-none">
-          <div className="gold-frame overflow-hidden">
+        <div className="hero-portrait relative mx-auto w-full max-w-md overflow-hidden bg-navy-deep lg:max-w-none">
+          <div className="gold-frame overflow-hidden bg-navy-deep">
             <Image
               src="/images/paulo-henrique.webp"
               alt="Paulo Henrique, advogado previdenciário em Estreito - MA"
@@ -91,7 +91,7 @@ export function Hero() {
               priority
               quality={90}
               sizes="(min-width: 1024px) 42vw, 90vw"
-              className="relative z-10 block h-auto w-full bg-navy-deep object-cover object-[center_18%] lg:min-h-[520px] lg:object-[center_12%]"
+              className="relative z-10 block h-auto w-full scale-[1.06] bg-navy-deep object-cover object-[center_18%] lg:min-h-[520px] lg:object-[center_12%]"
             />
           </div>
         </div>

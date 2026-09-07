@@ -333,15 +333,6 @@ html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word {
   transition: transform 0.38s ease-out;
 }
 
-.hero-portrait {
-  transform: translate3d(
-    calc(var(--mx) * -10px),
-    calc(var(--my) * 6px + var(--sy) * 14px),
-    0
-  );
-  transition: transform 0.45s ease-out;
-}
-
 @media (hover: none) {
   .hero-title {
     transform: translate3d(0, calc(var(--sy) * -18px), 0);
@@ -349,10 +340,6 @@ html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word {
 
   .hero-lead {
     transform: translate3d(0, calc(var(--sy) * -10px), 0);
-  }
-
-  .hero-portrait {
-    transform: translate3d(0, calc(var(--sy) * 10px), 0);
   }
 
   html.js .scroll-word {
@@ -380,8 +367,7 @@ html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word {
   html.js .scroll-words.is-active .scroll-word,
   html.js .scroll-words.is-active.has-mouse.is-settled .scroll-word,
   .hero-title,
-  .hero-lead,
-  .hero-portrait {
+  .hero-lead {
     opacity: 1;
     transform: none;
     filter: none;
