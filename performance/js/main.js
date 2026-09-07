@@ -36,11 +36,37 @@
     backdrop?.addEventListener("click", fechar);
   }
 
+  const painelHero = document.querySelector(".hero-panel");
+  const heroImg = painelHero?.querySelector("[data-parallax]");
+  let heroParallax = false;
+  const soltarHero = () => {
+    if (!painelHero || painelHero.classList.contains("hero-pronto")) return;
+    painelHero.classList.add("hero-pronto");
+    if (!reduzirMovimento) {
+      window.setTimeout(() => { heroParallax = true; }, 1200);
+    }
+  };
+  if (!painelHero || reduzirMovimento) {
+    soltarHero();
+  } else if (heroImg) {
+    const fallback = window.setTimeout(soltarHero, 1600);
+    const seguir = () => {
+      window.clearTimeout(fallback);
+      window.setTimeout(soltarHero, 160);
+    };
+    if (heroImg.complete && heroImg.naturalWidth) seguir();
+    else {
+      heroImg.addEventListener("load", seguir, { once: true });
+      heroImg.addEventListener("error", soltarHero, { once: true });
+    }
+  } else {
+    soltarHero();
+  }
+
   const onScroll = () => {
     header?.classList.toggle("scrolled", window.scrollY > 8);
-    if (!reduzirMovimento) {
-      const heroImg = document.querySelector("[data-parallax]");
-      if (heroImg) heroImg.style.transform = `translate3d(0, ${Math.min(window.scrollY * 0.18, 80)}px, 0) scale(1.06)`;
+    if (!reduzirMovimento && heroParallax && heroImg) {
+      heroImg.style.transform = `translate3d(0, ${Math.min(window.scrollY * 0.18, 80)}px, 0) scale(1.06)`;
     }
   };
   onScroll();

@@ -74,6 +74,7 @@ def test_estilo_e_script_referenciados():
 def test_secoes_performance_especificas():
     html = (SITE / "index.html").read_text(encoding="utf-8")
     css = (SITE / "css/style.css").read_text(encoding="utf-8")
+    js = (SITE / "js/main.js").read_text(encoding="utf-8")
     assert "jornada" in html
     assert ".jornada" in css
     assert "Chegue" in html
@@ -98,4 +99,9 @@ def test_secoes_performance_especificas():
     assert "overflow-x: clip" in css
     assert ".cta-actions" in css
     assert "clamp(2.15rem" in css
+    assert "hero-linha" in html
+    assert "hero-pronto" in css
+    assert "@keyframes heroLinha" in css
+    assert "hero-pronto" in js
+    assert "soltarHero" in js
     assert html.count('class="btn btn-ghost" data-evento="click_whatsapp" href="https://wa.me/5599981568022?text=Ol%C3%A1%21%20Quero%20consultar%20o%20plano') == 4
