@@ -7,8 +7,8 @@ import { site } from "@/lib/site";
 export function Contact({ hideHeading = false }: { hideHeading?: boolean }) {
   return (
     <section id="contato" className="bg-ivory px-4 py-24 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-2">
-        <Reveal>
+      <div className="mx-auto grid min-w-0 max-w-7xl gap-12 lg:grid-cols-2">
+        <Reveal className="min-w-0">
           {hideHeading ? null : (
           <SectionHeading
             eyebrow="Contato"
@@ -96,7 +96,7 @@ function Info({
         <span className="block text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-gold">
           {label}
         </span>
-        <span className="mt-1 block text-navy">{value}</span>
+        <span className="mt-1 block break-all text-navy">{value}</span>
       </span>
     </>
   );

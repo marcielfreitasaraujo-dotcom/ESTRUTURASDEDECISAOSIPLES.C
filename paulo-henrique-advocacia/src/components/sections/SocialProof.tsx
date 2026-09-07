@@ -12,7 +12,7 @@ export function SocialProof() {
         <div>
           <p className="flex items-center gap-2 font-serif text-2xl text-navy">
             <Star className="h-5 w-5 fill-gold text-gold" aria-hidden />
-            {site.google.ratingValue} estrelas no Google
+            {site.google.ratingDisplay} estrelas no Google
           </p>
           <p className="mt-1 text-sm text-muted">
             {site.google.reviewCount} avaliações · Atendimento reconhecido pelos

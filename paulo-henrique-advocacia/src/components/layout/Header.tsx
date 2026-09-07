@@ -71,7 +71,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "site-header fixed inset-x-0 top-0 z-50 border-b border-transparent",
+        "site-header fixed inset-x-0 top-0 z-[60] border-b border-transparent",
         solid && "is-solid",
       )}
     >
@@ -104,14 +104,14 @@ export function Header() {
           aria-label="Seções do site"
         >
           {navItems.map((item) => (
-            <Link
+            <a
               key={item.href}
-              href={item.href}
+              href={isHome ? `#${item.id}` : item.href}
               className="nav-link"
               aria-current={isHome && active === item.id ? "true" : undefined}
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </nav>
 
@@ -148,19 +148,19 @@ export function Header() {
 
       <div
         id={menuId}
-        hidden={!open}
-        className="border-t border-gold/20 bg-navy-deep xl:hidden"
+        className="mobile-drawer fixed inset-x-0 top-[var(--header-h)] z-[59] max-h-[calc(100svh-var(--header-h))] overflow-y-auto border-t border-gold/20 bg-navy-deep"
+        style={{ display: open ? "block" : "none" }}
       >
         <nav className="flex flex-col px-4 py-6" aria-label="Menu móvel">
           {navItems.map((item) => (
-            <Link
+            <a
               key={item.href}
-              href={item.href}
-              className="border-b border-white/8 py-3.5 text-sm tracking-wide text-ivory"
+              href={isHome ? `#${item.id}` : item.href}
+              className="border-b border-white/10 py-3.5 text-sm tracking-wide text-ivory"
               onClick={() => setOpen(false)}
             >
               {item.label}
-            </Link>
+            </a>
           ))}
           <a
             href={whatsappUrl()}

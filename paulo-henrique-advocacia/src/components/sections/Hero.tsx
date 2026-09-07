@@ -32,7 +32,7 @@ export function Hero() {
       <div className="relative mx-auto flex min-h-[100svh] max-w-7xl items-center px-4 pt-28 pb-20 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <p className="eyebrow">Advocacia Previdenciária</p>
-          <h1 className="mt-6 text-4xl text-ivory sm:text-5xl lg:text-[3.6rem]">
+          <h1 className="mt-6 font-serif text-4xl leading-tight text-ivory sm:text-5xl lg:text-[3.6rem]">
             Seu direito previdenciário merece uma defesa especializada.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ivory/80">

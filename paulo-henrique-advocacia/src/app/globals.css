@@ -31,6 +31,7 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 1.0625rem;
   line-height: 1.7;
+  overflow-x: hidden;
 }
 
 h1,
@@ -40,7 +41,6 @@ h4 {
   font-family: var(--font-serif), Georgia, "Times New Roman", serif;
   font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--color-navy);
   line-height: 1.15;
 }
 
@@ -54,16 +54,14 @@ h4 {
   outline-offset: 3px;
 }
 
-.skip-link {
-  position: absolute;
-  left: 1rem;
-  top: -4rem;
-  z-index: 80;
-  background: var(--color-gold);
-  color: var(--color-navy);
-  padding: 0.6rem 1rem;
-  font-weight: 600;
-  border-radius: 2px;
+.mobile-drawer {
+  display: none;
+}
+
+@media (min-width: 1280px) {
+  .mobile-drawer {
+    display: none !important;
+  }
 }
 
 .skip-link:focus {
@@ -119,16 +117,21 @@ h4 {
 }
 
 .reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal.is-pending {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(18px);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
   transition:
     opacity 0.7s ease,
     transform 0.7s ease;
-}
-
-.reveal-in {
-  opacity: 1;
-  transform: none;
 }
 
 .site-header {
@@ -140,7 +143,7 @@ h4 {
 }
 
 .site-header.is-solid {
-  background: rgba(11, 28, 44, 0.94);
+  background: rgba(7, 20, 31, 0.97);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(196, 165, 106, 0.18);
   box-shadow: 0 10px 30px rgba(7, 20, 31, 0.18);
@@ -153,10 +156,16 @@ h4 {
 .gold-frame::after {
   content: "";
   position: absolute;
-  inset: 14px -14px -14px 14px;
+  inset: 10px;
   border: 1px solid var(--color-gold);
   pointer-events: none;
   z-index: 2;
+}
+
+@media (min-width: 1024px) {
+  .gold-frame::after {
+    inset: 14px -14px -14px 14px;
+  }
 }
 
 .area-card {
@@ -235,7 +244,9 @@ h4 {
     scroll-behavior: auto;
   }
 
-  .reveal {
+  .reveal,
+  .reveal.is-pending,
+  .reveal.is-in {
     opacity: 1;
     transform: none;
     transition: none;

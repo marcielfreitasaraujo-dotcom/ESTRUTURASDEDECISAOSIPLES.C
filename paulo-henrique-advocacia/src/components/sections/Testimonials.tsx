@@ -39,7 +39,7 @@ export function Testimonials() {
           ))}
         </div>
         <p className="mt-2 text-sm text-ivory/70">
-          {site.google.ratingValue} · {site.google.reviewCount} avaliações no
+          {site.google.ratingDisplay} · {site.google.reviewCount} avaliações no
           Google
         </p>
 

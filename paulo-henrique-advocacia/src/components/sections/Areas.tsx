@@ -24,7 +24,7 @@ export function Areas() {
                 <span className="icon-float inline-flex h-11 w-11 items-center justify-center border border-gold/40 text-gold">
                   <AreaIcon name={area.icon} />
                 </span>
-                <h3 className="mt-5 text-2xl">{area.title}</h3>
+                <h3 className="mt-5 text-2xl text-navy">{area.title}</h3>
                 <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">
                   {area.short}
                 </p>

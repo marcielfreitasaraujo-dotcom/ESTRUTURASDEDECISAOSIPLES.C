@@ -40,6 +40,7 @@ export const site = {
   },
   google: {
     ratingValue: "5.0",
+    ratingDisplay: "5,0",
     reviewCount: 42,
     reviewsUrl:
       "https://www.google.com/maps/search/?api=1&query=Paulo+Henrique+Advocacia+Estreito+MA",
