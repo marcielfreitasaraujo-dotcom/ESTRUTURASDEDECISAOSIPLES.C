@@ -23,7 +23,7 @@ export default {
         site: '1180px',
       },
       boxShadow: {
-        gold: '0 10px 24px -12px rgba(217, 159, 0, 0.55)',
+        gold: '0 14px 28px -20px rgba(217, 159, 0, 0.65)',
       },
       keyframes: {
         rise: {

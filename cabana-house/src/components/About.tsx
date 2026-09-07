@@ -24,8 +24,12 @@ export function About() {
             </span>
           </h2>
           <p className="mt-6 max-w-md text-mist/75">
-            O Cabana House é uma churrascaria em Estreito – MA. Brasa, carne e um lugar para sentar
-            com calma — do almoço ao jantar, na Av. Chico Brito.
+            O Cabana House é uma churrascaria em Estreito – MA, na Av. Chico Brito. Carne na brasa,
+            mesa posta e um lugar para sentar com calma.
+          </p>
+          <p className="mt-4 max-w-md text-mist/60">
+            A casa foi feita para quem passa e resolve ficar: o cheiro da brasa chega antes do prato
+            e a conversa segue depois da última fatia.
           </p>
           <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {highlights.map((item) => (

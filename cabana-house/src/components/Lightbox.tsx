@@ -12,28 +12,54 @@ type LightboxProps = {
 
 export function Lightbox({ items, index, onClose, onPrev, onNext }: LightboxProps) {
   const item = items[index]
+  const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
 
+  // Os callbacks são recriados a cada render da galeria; guardá-los em ref evita
+  // remontar o efeito (e devolver o foco) a cada troca de imagem.
+  const handlers = useRef({ onClose, onPrev, onNext })
   useEffect(() => {
+    handlers.current = { onClose, onPrev, onNext }
+  })
+
+  useEffect(() => {
+    const trigger = document.activeElement as HTMLElement | null
     closeRef.current?.focus()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'ArrowLeft') onPrev()
-      if (e.key === 'ArrowRight') onNext()
-    }
-    window.addEventListener('keydown', onKey)
     document.body.style.overflow = 'hidden'
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handlers.current.onClose()
+      if (e.key === 'ArrowLeft') handlers.current.onPrev()
+      if (e.key === 'ArrowRight') handlers.current.onNext()
+      if (e.key !== 'Tab') return
+
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button')
+      if (!focusable?.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    window.addEventListener('keydown', onKey)
     return () => {
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
+      trigger?.focus?.({ preventScroll: true })
     }
-  }, [onClose, onPrev, onNext])
+  }, [])
 
   if (!item) return null
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/95 p-4 animate-fade"
+      ref={dialogRef}
+      className="fixed inset-0 z-[80] flex animate-fade items-center justify-center bg-ink/95 p-4 backdrop-blur-md"
       role="dialog"
       aria-modal="true"
       aria-label="Imagem ampliada"
@@ -42,7 +68,7 @@ export function Lightbox({ items, index, onClose, onPrev, onNext }: LightboxProp
       <button
         ref={closeRef}
         type="button"
-        className="absolute right-4 top-4 grid h-11 w-11 place-items-center text-2xl text-white"
+        className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-full border border-white/15 text-2xl text-white transition hover:border-gold hover:text-gold"
         aria-label="Fechar"
         onClick={onClose}
       >
@@ -50,7 +76,7 @@ export function Lightbox({ items, index, onClose, onPrev, onNext }: LightboxProp
       </button>
       <button
         type="button"
-        className="absolute left-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center text-3xl text-gold"
+        className="absolute left-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 text-3xl text-gold transition hover:border-gold hover:bg-gold hover:text-ink"
         aria-label="Imagem anterior"
         onClick={(e) => {
           e.stopPropagation()
@@ -77,16 +103,17 @@ export function Lightbox({ items, index, onClose, onPrev, onNext }: LightboxProp
           src={item.src}
           webp={item.srcWebp}
           alt={item.alt}
-          className="max-h-[80vh] w-full object-contain"
+          className="max-h-[74vh] w-full object-contain"
           priority
         />
-        <p className="mt-3 text-center text-xs uppercase tracking-[0.16em] text-mist/60">
+        <p className="mt-4 text-center text-sm text-mist/70">{item.alt}</p>
+        <p className="mt-1 text-center text-xs uppercase tracking-[0.16em] text-mist/45">
           {index + 1} / {items.length}
         </p>
       </div>
       <button
         type="button"
-        className="absolute right-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center text-3xl text-gold"
+        className="absolute right-3 top-1/2 grid h-12 w-12 -translate-y-1/2 place-items-center rounded-full border border-white/15 text-3xl text-gold transition hover:border-gold hover:bg-gold hover:text-ink"
         aria-label="Próxima imagem"
         onClick={(e) => {
           e.stopPropagation()

@@ -4,7 +4,7 @@ import { Reveal } from './Reveal'
 
 export function Brasa() {
   return (
-    <section className="relative isolate flex min-h-[78vh] items-center overflow-hidden py-28">
+    <section id="brasa" className="relative isolate flex min-h-[78vh] items-center overflow-hidden py-28">
       <div className="absolute inset-0 -z-10">
         <Picture
           src="/images/brasa.jpg"
@@ -12,8 +12,9 @@ export function Brasa() {
           alt="Carne grelhada na brasa"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-ink/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/40 to-ink/70" />
+        <div className="absolute inset-0 bg-ink/30" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/45 to-ink/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/40" />
       </div>
       <Reveal className="mx-auto w-full max-w-site px-4 md:px-6">
         <BrandLine className="mb-8 max-w-xs" />

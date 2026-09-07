@@ -27,7 +27,7 @@ export function MenuCard({ item }: MenuCardProps) {
           href={whatsappUrl(`Olá! Gostaria de saber mais sobre ${item.name} no Cabana House.`)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 inline-flex text-[0.7rem] font-bold uppercase tracking-[0.16em] text-gold opacity-100 transition duration-300 md:opacity-0 md:group-hover:opacity-100"
+          className="mt-3 inline-flex min-h-11 items-center text-[0.7rem] font-bold uppercase tracking-[0.16em] text-gold opacity-100 transition duration-300 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
         >
           Pedir no WhatsApp · {restaurant.name}
         </a>

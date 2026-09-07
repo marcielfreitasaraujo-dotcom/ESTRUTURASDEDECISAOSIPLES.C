@@ -25,12 +25,12 @@ export function Experience() {
   }, [])
 
   return (
-    <section ref={sectionRef} className="relative isolate min-h-[72vh] overflow-hidden">
+    <section id="experiencia" ref={sectionRef} className="relative isolate min-h-[72vh] overflow-hidden">
       <div className="absolute inset-0 -z-10" style={{ transform: `translate3d(0, ${offset}px, 0)` }}>
         <Picture
           src="/images/experience.jpg"
           webp="/images/experience.webp"
-          alt="Salão do restaurante"
+          alt="Mesa cheia, pratos servidos e clientes aproveitando a refeição"
           className="h-[120%] w-full object-cover"
         />
         <div className="absolute inset-0 bg-ink/75" />

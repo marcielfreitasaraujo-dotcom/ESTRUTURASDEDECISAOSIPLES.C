@@ -11,7 +11,7 @@ export function WhatsAppButton({ hidden = false }: WhatsAppButtonProps) {
       href={whatsappUrl()}
       target="_blank"
       rel="noopener noreferrer"
-      className={`fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#1f9e54] text-white shadow-lg transition duration-200 animate-pulseSoft md:bottom-6 md:right-6 ${
+      className={`fixed bottom-4 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#1f9e54] text-white shadow-lg transition duration-200 animate-pulseSoft md:bottom-6 md:right-6 ${
         hidden ? 'pointer-events-none scale-90 opacity-0' : 'opacity-100'
       }`}
       aria-label="Falar no WhatsApp com o Cabana House"

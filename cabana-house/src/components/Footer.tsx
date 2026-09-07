@@ -15,16 +15,19 @@ export function Footer() {
             <br />
             {restaurant.city}
           </p>
-          <a className="mt-3 inline-block text-gold transition hover:text-gold2" href={`tel:+${restaurant.phoneE164}`}>
+          <a
+            className="mt-2 inline-flex min-h-11 items-center text-gold transition hover:text-gold2"
+            href={`tel:+${restaurant.phoneE164}`}
+          >
             {restaurant.phoneDisplay}
           </a>
         </div>
         <div>
           <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-gold">Menu</p>
-          <ul className="mt-4 space-y-2 text-sm text-mist/80">
+          <ul className="mt-2 text-sm text-mist/80">
             {navLinks.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="transition hover:text-gold">
+                <a href={l.href} className="inline-flex min-h-11 items-center transition hover:text-gold">
                   {l.label}
                 </a>
               </li>
@@ -34,7 +37,7 @@ export function Footer() {
         <div>
           <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-gold">Contato</p>
           <p className="mt-4 text-sm text-mist/70">
-            Reservas e pedidos pelo WhatsApp.
+            Pedidos e informações pelo WhatsApp.
             <br />
             {restaurant.phoneDisplay}
           </p>
