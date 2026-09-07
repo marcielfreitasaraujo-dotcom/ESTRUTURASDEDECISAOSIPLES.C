@@ -33,8 +33,9 @@ def test_conteudo_principal_da_pagina():
     assert "Santos Dumont, 635" in html
     assert "https://wa.me/5599981568022" in html
     assert "academia_performancee" in html
-    assert "Wellhub" in html
-    assert "TotalPass" in html
+    assert "Gympass" in html
+    assert "Wellhub" not in html
+    assert "TotalPass" not in html
     assert "Musculação" in html
     assert "Dança" in html or "FitDance" in html
     assert "Cardio" in html
