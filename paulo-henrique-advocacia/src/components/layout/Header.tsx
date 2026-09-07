@@ -88,7 +88,7 @@ export function Header() {
               width={48}
               height={48}
               sizes="48px"
-              className="h-11 w-11 object-contain"
+              className="h-12 w-12 bg-transparent object-contain"
               priority
             />
           </span>

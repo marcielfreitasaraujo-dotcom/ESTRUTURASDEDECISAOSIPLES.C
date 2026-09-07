@@ -167,6 +167,7 @@ h4 {
 }
 
 .header-crest img {
+  background: transparent;
   object-fit: contain;
   object-position: center;
 }
