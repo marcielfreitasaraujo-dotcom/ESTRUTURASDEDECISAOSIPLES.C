@@ -24,15 +24,14 @@ export function Menu() {
             Confira as categorias e fale no WhatsApp para valores e disponibilidade do dia.
           </p>
         </Reveal>
-        <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Categorias do cardápio">
+        <div className="mt-8 flex flex-wrap gap-2" role="group" aria-label="Categorias do cardápio">
           {menuFilters.map((f) => {
             const active = filter === f.id
             return (
               <button
                 key={f.id}
                 type="button"
-                role="tab"
-                aria-selected={active}
+                aria-pressed={active}
                 onClick={() => setFilter(f.id)}
                 className={`min-h-11 rounded-full px-4 text-[0.72rem] font-bold uppercase tracking-[0.14em] transition duration-200 ${
                   active ? 'bg-gold text-ink' : 'border border-white/15 text-mist hover:border-gold'

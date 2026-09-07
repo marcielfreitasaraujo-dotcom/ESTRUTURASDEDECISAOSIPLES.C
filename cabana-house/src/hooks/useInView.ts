@@ -1,18 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 
+function prefersReducedMotion() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 export function useInView<T extends HTMLElement>(once = true) {
   const ref = useRef<T>(null)
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(prefersReducedMotion)
 
   useEffect(() => {
     const el = ref.current
-    if (!el) return
-
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduce) {
-      setVisible(true)
-      return
-    }
+    if (!el || visible) return
 
     const io = new IntersectionObserver(
       ([entry]) => {
@@ -25,7 +23,7 @@ export function useInView<T extends HTMLElement>(once = true) {
     )
     io.observe(el)
     return () => io.disconnect()
-  }, [once])
+  }, [once, visible])
 
   return { ref, visible }
 }

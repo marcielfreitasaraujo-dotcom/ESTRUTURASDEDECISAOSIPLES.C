@@ -25,13 +25,12 @@ export function Gallery() {
             Comida, brasa e casa
           </h2>
         </Reveal>
-        <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Categorias da galeria">
+        <div className="mt-8 flex flex-wrap gap-2" role="group" aria-label="Categorias da galeria">
           {galleryFilters.map((f) => (
             <button
               key={f.id}
               type="button"
-              role="tab"
-              aria-selected={filter === f.id}
+              aria-pressed={filter === f.id}
               onClick={() => setFilter(f.id)}
               className={`min-h-10 rounded-full px-4 text-[0.7rem] font-bold uppercase tracking-[0.14em] transition duration-200 ${
                 filter === f.id ? 'bg-gold text-ink' : 'border border-white/15 text-mist hover:border-gold'
