@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
@@ -82,14 +81,12 @@ export function Header() {
           aria-label={`${site.shortName} — início`}
         >
           <span className="header-crest">
-            <Image
+            <img
               src="/images/logo.webp"
               alt="Brasão PH — Paulo Henrique Advocacia"
-              width={48}
-              height={48}
-              sizes="48px"
-              className="h-12 w-12 bg-transparent object-contain"
-              priority
+              width={56}
+              height={56}
+              decoding="async"
             />
           </span>
           <span className="min-w-0">
