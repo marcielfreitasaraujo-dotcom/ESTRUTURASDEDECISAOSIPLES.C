@@ -50,11 +50,10 @@ export function Reviews() {
                 <p className="font-serif text-2xl italic leading-snug text-mist sm:text-3xl">
                   Nota dada por quem já sentou à mesa.
                 </p>
-                <p className="mt-4 max-w-lg text-sm leading-relaxed text-mist/65">
-                  Publicamos aqui apenas avaliações reais. Os depoimentos escritos entram nesta área
-                  assim que o restaurante autorizar a divulgação — até lá, a nota completa pode ser
-                  conferida direto no Google.
-                </p>
+                      <p className="mt-4 max-w-lg text-sm leading-relaxed text-mist/65">
+                        A nota vem do Google, de quem já veio comer aqui. Leia os comentários completos
+                        antes de vir — ou deixe o seu depois da próxima visita.
+                      </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <a
