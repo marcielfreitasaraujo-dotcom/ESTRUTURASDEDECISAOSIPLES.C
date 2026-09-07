@@ -81,14 +81,17 @@ export function Header() {
           className="flex min-w-0 items-center gap-3"
           aria-label={`${site.shortName} — início`}
         >
-          <Image
-            src="/images/logo.webp"
-            alt="Brasão PH — Paulo Henrique Advocacia"
-            width={48}
-            height={48}
-            className="h-12 w-12 shrink-0 border border-gold/25 object-cover"
-            priority
-          />
+          <span className="header-crest">
+            <Image
+              src="/images/logo.webp"
+              alt="Brasão PH — Paulo Henrique Advocacia"
+              width={48}
+              height={48}
+              sizes="48px"
+              className="h-11 w-11 object-contain"
+              priority
+            />
+          </span>
           <span className="min-w-0">
             <span className="block truncate font-serif text-[1.05rem] leading-none text-ivory">
               Paulo Henrique
