@@ -1,26 +1,25 @@
 import { Button } from './Button'
+import { Picture } from './Picture'
 
 export function Hero() {
   return (
     <section id="inicio" className="relative isolate min-h-[100svh] overflow-hidden">
       <div className="absolute inset-0 -z-10">
-        <picture>
-          <source type="image/webp" srcSet="/images/hero.webp" />
-          <img
-            src="/images/hero.jpg"
-            alt=""
-            className="h-full w-full object-cover animate-ken"
-            fetchPriority="high"
-          />
-        </picture>
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/55 via-ink/70 to-ink" />
+        <Picture
+          src="/images/hero.jpg"
+          webp="/images/hero.webp"
+          alt=""
+          priority
+          className="h-full w-full object-cover animate-ken"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/50 via-ink/72 to-ink" />
       </div>
 
       <div className="mx-auto flex min-h-[100svh] max-w-site flex-col justify-end px-4 pb-20 pt-32 md:px-6 md:pb-24">
-        <p className="animate-rise text-[0.72rem] font-bold tracking-[0.28em] text-gold">
+        <p className="animate-rise font-display text-sm font-semibold uppercase tracking-[0.42em] text-gold">
           Cabana House
         </p>
-        <h1 className="animate-rise mt-4 max-w-4xl font-display text-5xl font-semibold uppercase leading-[0.95] tracking-wide text-white delay-100 sm:text-7xl">
+        <h1 className="animate-rise mt-4 max-w-4xl font-display text-5xl font-semibold uppercase leading-[0.92] tracking-wide text-white delay-100 sm:text-7xl lg:text-[5.2rem]">
           Sabor que merece uma parada.
         </h1>
         <p className="animate-rise mt-5 max-w-xl text-lg text-mist/80 delay-150">

@@ -1,19 +1,17 @@
 import { whatsappUrl } from '../data/restaurant'
 import { Button } from './Button'
+import { Picture } from './Picture'
 
 export function CTA() {
   return (
-    <section id="contato" className="relative isolate overflow-hidden py-28">
+    <section id="contato" className="relative isolate overflow-hidden py-28 md:py-32">
       <div className="absolute inset-0 -z-10">
-        <picture>
-          <source type="image/webp" srcSet="/images/cta.webp" />
-          <img
-            src="/images/cta.jpg"
-            alt=""
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
-        </picture>
+        <Picture
+          src="/images/cta.jpg"
+          webp="/images/cta.webp"
+          alt=""
+          className="h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-ink/80" />
       </div>
       <div className="mx-auto max-w-3xl px-4 text-center md:px-6">

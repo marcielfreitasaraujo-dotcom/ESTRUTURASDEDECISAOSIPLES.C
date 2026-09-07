@@ -6,7 +6,7 @@ export function WhatsAppButton() {
       href={whatsappUrl()}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-5 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#1f9e54] text-white shadow-lg animate-pulseSoft md:bottom-6 md:right-6"
+      className="fixed bottom-20 right-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-[#1f9e54] text-white shadow-lg animate-pulseSoft md:bottom-6 md:right-6"
       aria-label="Falar no WhatsApp com o Cabana House"
     >
       <svg viewBox="0 0 24 24" className="h-7 w-7" aria-hidden="true">

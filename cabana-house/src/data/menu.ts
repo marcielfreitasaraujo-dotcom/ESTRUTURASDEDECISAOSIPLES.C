@@ -42,8 +42,8 @@ export const menuItems: MenuItem[] = [
     name: 'Grelhados da casa',
     description: 'Preparo na brasa. Nome e gramatura oficiais a definir.',
     price: 'Consulte',
-    image: '/images/brasa.jpg',
-    imageWebp: '/images/brasa.webp',
+    image: '/images/cta.jpg',
+    imageWebp: '/images/cta.webp',
   },
   {
     id: 'mock-espeto-1',
@@ -102,7 +102,7 @@ export const menuItems: MenuItem[] = [
     name: 'Para a mesa',
     description: 'Consulte gelados e outras opções no salão.',
     price: 'Consulte',
-    image: '/images/gal-1.jpg',
-    imageWebp: '/images/gal-1.webp',
+    image: '/images/about.jpg',
+    imageWebp: '/images/about.webp',
   },
 ]

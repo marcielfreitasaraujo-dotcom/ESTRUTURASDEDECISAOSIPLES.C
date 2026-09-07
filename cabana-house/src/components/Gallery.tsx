@@ -2,6 +2,10 @@ import { useMemo, useState } from 'react'
 import { galleryFilters, galleryItems } from '../data/gallery'
 import type { GalleryCategory } from '../data/gallery'
 import { Lightbox } from './Lightbox'
+import { Picture } from './Picture'
+import { Reveal } from './Reveal'
+
+const aspects = ['aspect-[4/5]', 'aspect-square', 'aspect-[16/10]'] as const
 
 export function Gallery() {
   const [filter, setFilter] = useState<'todos' | GalleryCategory>('todos')
@@ -13,44 +17,46 @@ export function Gallery() {
   )
 
   return (
-    <section id="galeria" className="bg-ink2 py-24">
+    <section id="galeria" className="bg-ink2 py-24 md:py-28">
       <div className="mx-auto max-w-site px-4 md:px-6">
-        <p className="text-[0.72rem] font-bold tracking-[0.28em] text-gold">Galeria</p>
-        <h2 className="mt-3 font-display text-4xl uppercase tracking-wide sm:text-5xl">
-          Comida, brasa e casa
-        </h2>
-        <div className="mt-8 flex flex-wrap gap-2">
+        <Reveal>
+          <p className="text-[0.72rem] font-bold uppercase tracking-[0.28em] text-gold">Galeria</p>
+          <h2 className="mt-3 font-display text-4xl uppercase tracking-wide sm:text-5xl">
+            Comida, brasa e casa
+          </h2>
+        </Reveal>
+        <div className="mt-8 flex flex-wrap gap-2" role="tablist" aria-label="Categorias da galeria">
           {galleryFilters.map((f) => (
             <button
               key={f.id}
               type="button"
+              role="tab"
+              aria-selected={filter === f.id}
               onClick={() => setFilter(f.id)}
-              className={`min-h-10 rounded-full px-4 text-[0.7rem] font-bold uppercase tracking-[0.14em] ${
-                filter === f.id ? 'bg-gold text-ink' : 'border border-white/15 text-mist'
+              className={`min-h-10 rounded-full px-4 text-[0.7rem] font-bold uppercase tracking-[0.14em] transition duration-200 ${
+                filter === f.id ? 'bg-gold text-ink' : 'border border-white/15 text-mist hover:border-gold'
               }`}
             >
               {f.label}
             </button>
           ))}
         </div>
-        <div className="mt-10 columns-1 gap-3 sm:columns-2 lg:columns-3">
+        <div key={filter} className="mt-10 columns-1 gap-3 animate-fade sm:columns-2 lg:columns-3">
           {items.map((item, i) => (
             <button
               key={item.id}
               type="button"
-              className="mb-3 block w-full overflow-hidden"
+              className="group relative mb-3 block w-full overflow-hidden break-inside-avoid"
               onClick={() => setOpen(i)}
               aria-label={`Abrir ${item.alt}`}
             >
-              <picture>
-                <source type="image/webp" srcSet={item.srcWebp} />
-                <img
-                  src={item.src}
-                  alt={item.alt}
-                  className="w-full object-cover transition duration-500 hover:scale-[1.03]"
-                  loading="lazy"
-                />
-              </picture>
+              <Picture
+                src={item.src}
+                webp={item.srcWebp}
+                alt={item.alt}
+                className={`w-full object-cover transition duration-500 group-hover:scale-[1.03] ${aspects[i % aspects.length]}`}
+              />
+              <span className="pointer-events-none absolute inset-0 bg-ink/0 transition group-hover:bg-ink/25" />
             </button>
           ))}
         </div>

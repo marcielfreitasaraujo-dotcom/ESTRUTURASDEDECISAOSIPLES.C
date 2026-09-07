@@ -1,14 +1,6 @@
 import { useEffect, useState } from 'react'
 import { restaurant, whatsappUrl } from '../data/restaurant'
-
-const links = [
-  { href: '#inicio', label: 'Início' },
-  { href: '#restaurante', label: 'O Restaurante' },
-  { href: '#cardapio', label: 'Cardápio' },
-  { href: '#galeria', label: 'Galeria' },
-  { href: '#localizacao', label: 'Localização' },
-  { href: '#contato', label: 'Contato' },
-]
+import { navLinks } from '../data/nav'
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -37,8 +29,8 @@ export function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition duration-300 ${
         scrolled || open
-          ? 'bg-ink/85 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.35)] border-b border-white/10'
-          : 'bg-transparent border-b border-transparent'
+          ? 'border-b border-white/10 bg-ink/85 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-md'
+          : 'border-b border-transparent bg-transparent'
       }`}
     >
       <div className="mx-auto flex max-w-site items-center justify-between gap-4 px-4 py-3 md:px-6">
@@ -47,11 +39,11 @@ export function Navbar() {
         </a>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Seções do site">
-          {links.map((l) => (
+          {navLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="text-[0.72rem] font-bold tracking-[0.16em] uppercase text-mist/80 transition hover:text-gold"
+              className="text-[0.72rem] font-bold uppercase tracking-[0.16em] text-mist/80 transition hover:text-gold"
             >
               {l.label}
             </a>
@@ -62,7 +54,7 @@ export function Navbar() {
           href={whatsappUrl()}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative z-20 hidden min-h-11 items-center rounded-full bg-gold px-5 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-gold2 sm:inline-flex"
+          className="relative z-20 hidden min-h-11 items-center rounded-full bg-gold px-5 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-gold2 lg:inline-flex"
         >
           WhatsApp
         </a>
@@ -75,24 +67,45 @@ export function Navbar() {
           aria-label={open ? 'Fechar menu' : 'Abrir menu'}
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="sr-only">Menu</span>
-          <span className={`block h-0.5 w-5 bg-gold transition ${open ? 'translate-y-1.5 rotate-45' : ''}`} />
-          <span className={`mt-1.5 block h-0.5 w-5 bg-gold transition ${open ? 'opacity-0' : ''}`} />
-          <span className={`mt-1.5 block h-0.5 w-5 bg-gold transition ${open ? '-translate-y-1.5 -rotate-45' : ''}`} />
+          <span className="relative block h-4 w-5" aria-hidden="true">
+            <span
+              className={`absolute left-0 top-0 block h-0.5 w-5 bg-gold transition duration-300 ${
+                open ? 'translate-y-[7px] rotate-45' : ''
+              }`}
+            />
+            <span
+              className={`absolute left-0 top-[7px] block h-0.5 w-5 bg-gold transition duration-300 ${
+                open ? 'opacity-0' : ''
+              }`}
+            />
+            <span
+              className={`absolute left-0 top-[14px] block h-0.5 w-5 bg-gold transition duration-300 ${
+                open ? '-translate-y-[7px] -rotate-45' : ''
+              }`}
+            />
+          </span>
         </button>
       </div>
 
       <div
         id="menu-mobile"
-        className={`lg:hidden ${open ? 'block' : 'hidden'} border-t border-white/10 bg-ink`}
+        className={`fixed inset-0 z-10 bg-ink/96 backdrop-blur-md transition duration-300 lg:hidden ${
+          open ? 'visible opacity-100' : 'pointer-events-none invisible opacity-0'
+        }`}
+        {...(!open ? { inert: true } : {})}
       >
-        <nav className="flex flex-col px-5 py-4" aria-label="Menu móvel">
-          {links.map((l) => (
+        <nav
+          className={`flex min-h-dvh flex-col justify-center gap-1 px-8 pb-16 pt-24 transition duration-500 ${
+            open ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0'
+          }`}
+          aria-label="Menu móvel"
+        >
+          {navLinks.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="border-b border-white/10 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-mist"
+              className="border-b border-white/10 py-4 font-display text-2xl uppercase tracking-[0.12em] text-mist"
             >
               {l.label}
             </a>
@@ -101,7 +114,7 @@ export function Navbar() {
             href={whatsappUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex min-h-12 items-center justify-center rounded-full bg-gold text-sm font-bold uppercase tracking-[0.16em] text-ink"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-gold text-sm font-bold uppercase tracking-[0.16em] text-ink"
           >
             WhatsApp · {restaurant.phoneDisplay}
           </a>

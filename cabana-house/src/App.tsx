@@ -13,8 +13,11 @@ import { WhatsAppButton } from './components/WhatsAppButton'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-ink text-mist pb-16">
-      <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-gold focus:px-4 focus:py-2 focus:text-ink">
+    <div className="min-h-screen bg-ink text-mist pb-24 md:pb-8">
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-gold focus:px-4 focus:py-2 focus:text-ink"
+      >
         Pular para o conteúdo
       </a>
       <Navbar />

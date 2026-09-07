@@ -1,14 +1,6 @@
 import { restaurant, whatsappUrl } from '../data/restaurant'
+import { navLinks } from '../data/nav'
 import { BrandLine } from './BrandLine'
-
-const links = [
-  { href: '#inicio', label: 'Início' },
-  { href: '#restaurante', label: 'O Restaurante' },
-  { href: '#cardapio', label: 'Cardápio' },
-  { href: '#galeria', label: 'Galeria' },
-  { href: '#localizacao', label: 'Localização' },
-  { href: '#contato', label: 'Contato' },
-]
 
 export function Footer() {
   return (
@@ -23,16 +15,16 @@ export function Footer() {
             <br />
             {restaurant.city}
           </p>
-          <a className="mt-3 inline-block text-gold" href={`tel:+${restaurant.phoneE164}`}>
+          <a className="mt-3 inline-block text-gold transition hover:text-gold2" href={`tel:+${restaurant.phoneE164}`}>
             {restaurant.phoneDisplay}
           </a>
         </div>
         <div>
           <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-gold">Menu</p>
           <ul className="mt-4 space-y-2 text-sm text-mist/80">
-            {links.map((l) => (
+            {navLinks.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="hover:text-gold">
+                <a href={l.href} className="transition hover:text-gold">
                   {l.label}
                 </a>
               </li>
@@ -45,14 +37,14 @@ export function Footer() {
             href={whatsappUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex min-h-11 items-center rounded-full bg-gold px-5 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-ink"
+            className="mt-4 inline-flex min-h-11 items-center rounded-full bg-gold px-5 text-[0.72rem] font-bold uppercase tracking-[0.16em] text-ink transition hover:bg-gold2"
           >
             WhatsApp
           </a>
         </div>
       </div>
       <p className="border-t border-white/10 px-4 py-5 text-center text-xs text-mist/45">
-        © {new Date().getFullYear()} Cabana House. Todos os direitos reservados.
+        © 2026 Cabana House. Todos os direitos reservados.
       </p>
     </footer>
   )

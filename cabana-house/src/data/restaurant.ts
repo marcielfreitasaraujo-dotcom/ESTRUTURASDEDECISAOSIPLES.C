@@ -3,7 +3,6 @@ export const restaurant = {
   tagline: 'Churrascaria',
   city: 'Estreito – MA',
   addressLine: 'Av. Chico Brito, s/n',
-  neighborhood: 'Centro',
   postalCode: '65975-000',
   phoneDisplay: '(99) 99208-4455',
   phoneE164: '5599992084455',
@@ -11,6 +10,9 @@ export const restaurant = {
   mapsQuery: 'Av. Chico Brito, Estreito - MA, 65975-000',
   ratingValue: 4,
   reviewCount: 17,
+  /** Sem horário oficial informado — preencher quando houver. */
+  hours: null as string | null,
+  /** Sem rede social oficial informada — preencher quando houver. */
   instagram: null as string | null,
 } as const
 
@@ -24,4 +26,8 @@ export function mapsUrl() {
 
 export function mapsEmbedSrc() {
   return `https://maps.google.com/maps?q=${encodeURIComponent(restaurant.mapsQuery)}&output=embed`
+}
+
+export function ratingLabel() {
+  return `${restaurant.ratingValue.toFixed(1).replace('.', ',')}`
 }

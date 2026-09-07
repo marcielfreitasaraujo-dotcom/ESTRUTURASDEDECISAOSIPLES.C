@@ -15,6 +15,7 @@ class TestCabanaHouse(unittest.TestCase):
         self.assertIn("5599992084455", texto)
         self.assertIn("Av. Chico Brito", texto)
         self.assertIn("Estreito", texto)
+        self.assertNotIn("neighborhood", texto)
 
     def test_cardapio_marcado_como_mock(self) -> None:
         texto = (ROOT / "src/data/menu.ts").read_text(encoding="utf-8")
@@ -44,6 +45,14 @@ class TestCabanaHouse(unittest.TestCase):
             "WhatsAppButton",
         ):
             self.assertTrue((ROOT / "src/components" / f"{nome}.tsx").is_file(), nome)
+
+    def test_imagens_principais_existem(self) -> None:
+        for nome in ("hero", "about", "brasa", "experience", "cta"):
+            self.assertTrue((ROOT / "public/images" / f"{nome}.jpg").is_file(), nome)
+            self.assertTrue((ROOT / "public/images" / f"{nome}.webp").is_file(), nome)
+
+    def test_logo_existe(self) -> None:
+        self.assertTrue((ROOT / "public/brand/logo.svg").is_file())
 
 
 if __name__ == "__main__":
