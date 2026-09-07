@@ -1,0 +1,32 @@
+import { whatsappUrl } from '../data/restaurant'
+import { Button } from './Button'
+
+export function CTA() {
+  return (
+    <section id="contato" className="relative isolate overflow-hidden py-28">
+      <div className="absolute inset-0 -z-10">
+        <picture>
+          <source type="image/webp" srcSet="/images/cta.webp" />
+          <img
+            src="/images/cta.jpg"
+            alt=""
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-ink/80" />
+      </div>
+      <div className="mx-auto max-w-3xl px-4 text-center md:px-6">
+        <h2 className="font-display text-4xl uppercase leading-none tracking-wide sm:text-6xl">
+          Seu próximo sabor favorito pode estar aqui.
+        </h2>
+        <div className="mt-10 flex flex-wrap justify-center gap-3">
+          <Button href="#cardapio">Ver cardápio</Button>
+          <Button href={whatsappUrl()} variant="ghost" external>
+            Falar no WhatsApp
+          </Button>
+        </div>
+      </div>
+    </section>
+  )
+}

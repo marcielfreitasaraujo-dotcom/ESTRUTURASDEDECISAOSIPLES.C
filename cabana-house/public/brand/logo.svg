@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" role="img" aria-label="Cabana House">
+  <defs>
+    <linearGradient id="flame" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFC800"/>
+      <stop offset="55%" stop-color="#FF6500"/>
+      <stop offset="100%" stop-color="#D300C5"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(4,8)">
+    <path d="M8 34 L28 12 L48 34 V54 H8 Z" fill="#050505" stroke="url(#flame)" stroke-width="3" stroke-linejoin="round"/>
+    <rect x="21" y="36" width="14" height="18" fill="#FFC800"/>
+    <path d="M16 22 L28 12 L40 22" fill="none" stroke="#D99F00" stroke-width="2"/>
+  </g>
+  <text x="66" y="34" fill="#FFFFFF" font-family="Oswald, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3">CABANA</text>
+  <text x="66" y="56" fill="#FFC800" font-family="Oswald, Arial, sans-serif" font-size="14" font-weight="600" letter-spacing="6">HOUSE</text>
+</svg>
