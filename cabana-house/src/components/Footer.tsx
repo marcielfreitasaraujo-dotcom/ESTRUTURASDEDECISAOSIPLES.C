@@ -8,7 +8,13 @@ export function Footer() {
       <BrandLine />
       <div className="mx-auto grid max-w-site gap-10 px-4 py-16 md:grid-cols-3 md:px-6">
         <div>
-          <img src="/brand/logo.svg" alt="Cabana House" width={180} height={46} className="h-12 w-auto" />
+          <img
+            src="/brand/logo.png"
+            alt="Cabana House"
+            width={169}
+            height={169}
+            className="h-20 w-20"
+          />
           <p className="mt-4 text-xs uppercase tracking-[0.2em] text-gold">{restaurant.tagline}</p>
           <p className="mt-4 text-sm text-mist/70">
             {restaurant.addressLine}

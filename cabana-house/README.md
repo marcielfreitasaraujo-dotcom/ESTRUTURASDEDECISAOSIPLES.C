@@ -27,7 +27,8 @@ Preview: `npm run preview`
 
 ## Marca e fotos
 
-- Logo provisória em `public/brand/logo.svg`, na paleta da marca. Substitua pelo arquivo oficial **sem distorcer nem recolorir**.
+- Logo oficial em `public/brand/logo.png` (selo circular, fundo transparente), com `logo@2x.png`, `apple-touch-icon.png` e favicons derivados do mesmo arquivo. As cores e as proporções não foram alteradas: o recorte apenas isolou o selo do fundo branco do arquivo entregue.
+- O arquivo recebido tem 305×218 px, o que dá um selo de 169 px. Isso cobre com folga os tamanhos usados (48–80 px, inclusive em telas 3x). Se surgir um vetor ou um PNG maior, substitua estes arquivos mantendo os nomes.
 - Fotos em `public/images/` são acervo gastronômico de placeholder. Troque pelos arquivos reais do salão, da brasa e dos pratos, mantendo os mesmos nomes ou atualizando `src/data/*`.
 
 ## Publicar

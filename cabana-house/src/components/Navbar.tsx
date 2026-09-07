@@ -40,7 +40,13 @@ export function Navbar({ open, onOpenChange }: NavbarProps) {
       >
         <div className="mx-auto flex max-w-site items-center justify-between gap-4 px-4 py-3 md:px-6">
           <a href="#inicio" className="flex items-center gap-3" aria-label="Cabana House — início">
-            <img src="/brand/logo.svg" alt="" width={168} height={44} className="h-11 w-auto" />
+            <img
+              src="/brand/logo.png"
+              alt=""
+              width={169}
+              height={169}
+              className="h-12 w-12 md:h-14 md:w-14"
+            />
           </a>
 
           <nav className="hidden items-center gap-7 lg:flex" aria-label="Seções do site">

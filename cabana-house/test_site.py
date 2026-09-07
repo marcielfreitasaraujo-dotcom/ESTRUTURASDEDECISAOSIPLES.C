@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import struct
 import unittest
 from pathlib import Path
 
@@ -15,6 +16,15 @@ COLOR_OPACITY = re.compile(
 )
 IMAGE_REF = re.compile(r"/images/[a-z0-9-]+\.jpg")
 WEBP_REF = re.compile(r"/images/[a-z0-9-]+\.webp")
+PNG_ASSINATURA = b"\x89PNG\r\n\x1a\n"
+
+
+def cabecalho_png(caminho: Path) -> tuple[int, int, int]:
+    """Largura, altura e color type do IHDR. Color type 6 = RGBA."""
+    dados = caminho.read_bytes()
+    assert dados[:8] == PNG_ASSINATURA, caminho
+    largura, altura = struct.unpack(">II", dados[16:24])
+    return largura, altura, dados[25]
 
 
 class TestCabanaHouse(unittest.TestCase):
@@ -59,8 +69,25 @@ class TestCabanaHouse(unittest.TestCase):
             self.assertTrue((ROOT / "public/images" / f"{nome}.jpg").is_file(), nome)
             self.assertTrue((ROOT / "public/images" / f"{nome}.webp").is_file(), nome)
 
-    def test_logo_existe(self) -> None:
-        self.assertTrue((ROOT / "public/brand/logo.svg").is_file())
+    def test_marca_oficial_presente(self) -> None:
+        for nome in ("logo.png", "apple-touch-icon.png", "favicon-32.png", "favicon-16.png"):
+            self.assertTrue((ROOT / "public/brand" / nome).is_file(), nome)
+
+    def test_logo_tem_fundo_transparente(self) -> None:
+        """Sem canal alfa o selo volta a aparecer dentro de um quadrado branco no site escuro."""
+        for nome in ("logo.png", "apple-touch-icon.png", "favicon-32.png", "favicon-16.png"):
+            largura, altura, color_type = cabecalho_png(ROOT / "public/brand" / nome)
+            self.assertEqual(color_type, 6, f"{nome} precisa ser RGBA")
+            self.assertEqual(largura, altura, f"{nome} precisa ser quadrado")
+
+    def test_logo_provisoria_removida(self) -> None:
+        """A logo oficial substituiu o rascunho; sobras voltariam a aparecer no site."""
+        for nome in ("logo.svg", "mark.svg"):
+            self.assertFalse((ROOT / "public/brand" / nome).exists(), nome)
+        for arquivo in [*(ROOT / "src").rglob("*.tsx"), ROOT / "index.html"]:
+            texto = arquivo.read_text(encoding="utf-8")
+            self.assertNotIn("logo.svg", texto, arquivo.name)
+            self.assertNotIn("mark.svg", texto, arquivo.name)
 
     def test_cada_foto_aparece_em_um_unico_lugar(self) -> None:
         """Repetir a mesma foto em seções diferentes descaracteriza a apresentação."""
