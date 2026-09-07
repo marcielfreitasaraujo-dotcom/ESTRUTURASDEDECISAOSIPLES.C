@@ -27,7 +27,7 @@ export function Footer() {
           <ul className="mt-2 text-sm text-mist/80">
             {navLinks.map((l) => (
               <li key={l.href}>
-                <a href={l.href} className="inline-flex min-h-11 items-center transition hover:text-gold">
+                <a href={l.href} className="flex min-h-11 items-center transition hover:text-gold">
                   {l.label}
                 </a>
               </li>

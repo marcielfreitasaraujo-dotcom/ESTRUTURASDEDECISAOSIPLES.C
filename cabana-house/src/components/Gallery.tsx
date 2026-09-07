@@ -32,7 +32,7 @@ export function Gallery() {
               type="button"
               aria-pressed={filter === f.id}
               onClick={() => setFilter(f.id)}
-              className={`min-h-10 rounded-full px-4 text-[0.7rem] font-bold uppercase tracking-[0.14em] transition duration-200 ${
+              className={`min-h-11 rounded-full px-4 text-[0.7rem] font-bold uppercase tracking-[0.14em] transition duration-200 ${
                 filter === f.id ? 'bg-gold text-ink' : 'border border-white/15 text-mist hover:border-gold'
               }`}
             >
