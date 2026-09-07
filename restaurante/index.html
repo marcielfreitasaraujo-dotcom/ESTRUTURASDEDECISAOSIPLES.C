@@ -3,32 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casa do Rio | Restaurante em Estreito - MA</title>
-  <meta name="description" content="Casa do Rio em Estreito - MA. Peixes do Tocantins, carne de sol, almoço e jantar à beira do rio. Reserve mesa ou peça pelo WhatsApp.">
+  <title>Casa do Rio | Restaurante à beira do Tocantins em Estreito - MA</title>
+  <meta name="description" content="Casa do Rio em Estreito - MA: peixes do Tocantins, carne de sol e cozinha brasileira. Reserve mesa ou peça pelo WhatsApp. Almoço e jantar, terça a domingo.">
+  <meta name="keywords" content="restaurante Estreito MA, peixe Tocantins, carne de sol, Casa do Rio, beira rio, reserva de mesa">
+  <meta name="author" content="Casa do Rio">
   <meta name="robots" content="index, follow">
+  <meta name="geo.region" content="BR-MA">
+  <meta name="geo.placename" content="Estreito">
   <link rel="canonical" href="./">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="restaurant.restaurant">
   <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Casa do Rio">
   <meta property="og:title" content="Casa do Rio | Restaurante em Estreito - MA">
   <meta property="og:description" content="Cozinha brasileira à beira do Tocantins. Cardápio, reservas e pedidos pelo WhatsApp.">
   <meta property="og:image" content="img/hero.jpg">
+  <meta property="og:image:alt" content="Mesa posta da Casa do Rio com pratos da casa">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#6e1826">
+  <meta name="twitter:title" content="Casa do Rio | Estreito - MA">
+  <meta name="twitter:description" content="Peixes do rio, carne de sol e mesa à beira do Tocantins. Reserve pelo WhatsApp.">
+  <meta name="twitter:image" content="img/hero.jpg">
+  <meta name="theme-color" content="#4a1018">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-src https://maps.google.com https://www.google.com; base-uri 'self'; form-action 'self' https://wa.me; frame-ancestors 'none'; upgrade-insecure-requests">
   <link rel="icon" type="image/png" href="img/favicon.png">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+  <link rel="preload" as="image" href="img/hero.webp" type="image/webp">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Restaurant",
     "name": "Casa do Rio",
-    "description": "Restaurante em Estreito - MA com peixes do rio, carnes e cozinha brasileira contemporânea.",
+    "image": ["img/hero.jpg", "img/sobre.jpg", "img/ambiente.jpg"],
+    "url": "./",
+    "description": "Restaurante em Estreito - MA com peixes do rio, carnes e cozinha brasileira contemporânea à beira do Tocantins.",
     "servesCuisine": ["Brasileira", "Peixes", "Regional"],
     "telephone": "+5599999990000",
     "sameAs": ["https://www.instagram.com/casadorio.estreito/"],
@@ -40,6 +52,7 @@
       "postalCode": "65975-000",
       "addressCountry": "BR"
     },
+    "geo": { "@type": "GeoCoordinates", "latitude": -6.5603, "longitude": -47.4419 },
     "openingHoursSpecification": [
       { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday"], "opens": "11:00", "closes": "15:00" },
       { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday"], "opens": "18:00", "closes": "23:00" },
@@ -50,6 +63,7 @@
     ],
     "acceptsReservations": "True",
     "priceRange": "$$",
+    "hasMenu": "./#cardapio",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.8",
@@ -62,10 +76,10 @@
 <body>
   <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
-  <header class="site-header">
+  <header class="site-header" id="topo">
     <div class="header-inner">
       <a class="brand" href="#inicio" aria-label="Casa do Rio — início">
-        <img src="img/logo.png" alt="Logo Casa do Rio" width="52" height="52">
+        <img src="img/logo.png" alt="" width="52" height="52">
         <span>
           <strong>Casa do Rio</strong>
           <small>Estreito — MA</small>
@@ -76,122 +90,199 @@
       </button>
       <div class="nav-backdrop" data-close-menu hidden></div>
       <nav class="nav" id="menu" aria-label="Seções do site">
-        <a href="#inicio">Início</a>
-        <a href="#sobre">Sobre</a>
-        <a href="#cardapio">Cardápio</a>
-        <a href="#galeria">Galeria</a>
-        <a href="#reservas">Reservas</a>
-        <a href="#localizacao">Localização</a>
-        <a class="btn btn-whatsapp" data-whatsapp data-whatsapp-texto="Olá! Conheci a Casa do Rio pelo site e gostaria de falar com vocês." href="https://wa.me/5599999990000" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="#inicio" data-nav>Início</a>
+        <a href="#sobre" data-nav>A casa</a>
+        <a href="#cardapio" data-nav>Cardápio</a>
+        <a href="#galeria" data-nav>Galeria</a>
+        <a href="#reservas" data-nav>Reservas</a>
+        <a href="#localizacao" data-nav>Como chegar</a>
+        <a class="btn btn-whatsapp nav-wa" data-whatsapp data-whatsapp-texto="Olá! Conheci a Casa do Rio pelo site e gostaria de falar com vocês." href="https://wa.me/5599999990000" target="_blank" rel="noopener noreferrer">WhatsApp</a>
       </nav>
+      <a class="btn btn-gold header-cta" href="#reservas">Reservar mesa</a>
     </div>
   </header>
 
   <main id="conteudo">
-    <section class="hero" id="inicio">
-      <div class="wrap hero-grid">
-        <div class="reveal">
-          <p class="status-pill" data-status-horario><span class="status-dot" aria-hidden="true"></span><span data-status-texto>Confira o horário</span></p>
-          <p class="kicker">Restaurante em Estreito - MA</p>
-          <h1>Sabor do rio, mesa da casa.</h1>
-          <p class="lead">Peixes do Tocantins, carne de sol e pratos da cozinha brasileira, com vista e clima de beira-rio.</p>
-          <div class="hero-actions">
-            <a class="btn btn-wine btn-lg" href="#reservas">Reservar mesa</a>
-            <a class="btn btn-ghost btn-lg" href="#cardapio">Ver cardápio</a>
-          </div>
-          <div class="hero-note">
-            <div><strong>4,8 ★</strong>36 avaliações</div>
-            <div><strong>Almoço e jantar</strong>Terça a domingo</div>
-            <div><strong>Pedidos</strong>Salão e WhatsApp</div>
-          </div>
+    <section class="hero" id="inicio" aria-labelledby="hero-titulo">
+      <div class="hero-media" aria-hidden="true">
+        <picture>
+          <source type="image/webp" srcset="img/hero.webp">
+          <img src="img/hero.jpg" width="1800" height="1200" alt="" fetchpriority="high">
+        </picture>
+      </div>
+      <div class="wrap hero-copy">
+        <p class="status-pill" data-status-horario>
+          <span class="status-dot" aria-hidden="true"></span>
+          <span data-status-texto>Confira o horário</span>
+        </p>
+        <p class="kicker kicker-light">Restaurante · Estreito - MA</p>
+        <h1 id="hero-titulo">Sabor do rio,<br><em>mesa da casa.</em></h1>
+        <p class="lead">Peixes do Tocantins, carne de sol e o tempo certo para a mesa — à beira do rio, terça a domingo.</p>
+        <div class="hero-actions">
+          <a class="btn btn-gold btn-lg" href="#reservas">Reservar mesa</a>
+          <a class="btn btn-ghost-light btn-lg" href="#cardapio">Ver cardápio</a>
         </div>
-        <div class="hero-visual reveal delay-2">
-          <picture>
-            <source type="image/webp" srcset="img/hero.webp">
-            <img src="img/hero.jpg" width="1800" height="1200" alt="Pratos servidos em um restaurante, com copos e mesa posta.">
-          </picture>
-          <div class="stamp">Estreito - MA<small>Av. Beira Rio</small></div>
-        </div>
+        <dl class="hero-note">
+          <div><dt>4,8 ★</dt><dd>36 avaliações</dd></div>
+          <div><dt>Almoço e jantar</dt><dd>Terça a domingo</dd></div>
+          <div><dt>Pedidos</dt><dd>Salão e WhatsApp</dd></div>
+        </dl>
       </div>
     </section>
 
     <section class="wrap stats" aria-label="Números da Casa do Rio">
-      <article class="reveal"><strong>4,8★</strong><span>avaliação dos clientes</span></article>
-      <article class="reveal delay-1"><strong>11h</strong><span>abertura no almoço</span></article>
-      <article class="reveal delay-2"><strong>Peixe</strong><span>especialidade da casa</span></article>
-      <article class="reveal delay-3"><strong>Família</strong><span>salão e porções grandes</span></article>
+      <article><strong>4,8★</strong><span>avaliação dos clientes</span></article>
+      <article><strong>11h</strong><span>abertura no almoço</span></article>
+      <article><strong>Peixe</strong><span>especialidade da casa</span></article>
+      <article><strong>Família</strong><span>salão e porções grandes</span></article>
+    </section>
+
+    <section class="section" id="experiencia" aria-labelledby="exp-titulo">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Como receber</p>
+          <h2 id="exp-titulo">Três jeitos de sentar à mesa</h2>
+        </div>
+        <div class="cards-3 exp-cards">
+          <article class="card exp-card">
+            <p class="exp-num" aria-hidden="true">01</p>
+            <h3>Almoço</h3>
+            <p>Executivo do dia, peixe fresco e porções para quem trabalha na cidade ou está de passagem.</p>
+          </article>
+          <article class="card exp-card">
+            <p class="exp-num" aria-hidden="true">02</p>
+            <h3>Jantar</h3>
+            <p>Mesa reservada, tambaqui na brasa, moqueca e o clima da beira-rio quando a luz baixa.</p>
+          </article>
+          <article class="card exp-card">
+            <p class="exp-num" aria-hidden="true">03</p>
+            <h3>Para viagem</h3>
+            <p>Monte o pedido no cardápio e envie no WhatsApp. Confirmamos peixe do dia e tempo de espera.</p>
+          </article>
+        </div>
+      </div>
     </section>
 
     <section class="section" id="sobre">
       <div class="wrap about-grid">
-        <picture class="reveal">
-          <source type="image/webp" srcset="img/sobre.webp">
-          <img src="img/sobre.jpg" width="1600" height="1067" alt="Salão de restaurante com mesas, cadeiras e iluminação aconchegante.">
-        </picture>
-        <div class="reveal delay-1">
-          <p class="kicker">Sobre nós</p>
-          <h2>Uma casa para comer bem à beira do Tocantins</h2>
-          <p class="muted">A Casa do Rio nasceu para reunir o que Estreito faz de melhor: peixe fresco, tempero de verdade e tempo para a mesa. No almoço ou no jantar, o salão recebe família, amigos e quem passa pela cidade.</p>
+        <figure class="about-photo">
+          <picture>
+            <source type="image/webp" srcset="img/sobre.webp">
+            <img src="img/sobre.jpg" width="1600" height="1067" alt="Salão da Casa do Rio com mesas, madeira e luz baixa." loading="lazy">
+          </picture>
+          <figcaption>Salão à beira do Tocantins · Estreito</figcaption>
+        </figure>
+        <div>
+          <p class="kicker">A casa</p>
+          <h2>Comer bem, sem pressa, perto do rio</h2>
+          <p class="muted">A Casa do Rio reúne o que Estreito faz de melhor: peixe fresco, tempero de verdade e tempo para a mesa. No almoço ou no jantar, o salão recebe família, amigos e quem passa pela cidade.</p>
           <ul class="about-list">
-            <li><span class="dot"></span><span>Peixes do rio e pratos regionais.</span></li>
-            <li><span class="dot"></span><span>Porções para dividir e executivos no almoço.</span></li>
-            <li><span class="dot"></span><span>Reserva de mesa pelo WhatsApp.</span></li>
-            <li><span class="dot"></span><span>Ambiente para família, com opção de pedidos para viagem.</span></li>
+            <li><span class="dot" aria-hidden="true"></span><span>Peixes do rio e pratos regionais.</span></li>
+            <li><span class="dot" aria-hidden="true"></span><span>Porções para dividir e executivos no almoço.</span></li>
+            <li><span class="dot" aria-hidden="true"></span><span>Reserva de mesa pelo WhatsApp.</span></li>
+            <li><span class="dot" aria-hidden="true"></span><span>Ambiente para família, com opção de viagem.</span></li>
           </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-tint" id="assinatura" aria-labelledby="ass-titulo">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="kicker">Assinatura</p>
+          <h2 id="ass-titulo">O que a casa não tira do fogo</h2>
+        </div>
+        <div class="cards-3">
+          <article class="card dish-card">
+            <picture>
+              <source type="image/webp" srcset="img/peixe.webp">
+              <img src="img/peixe.jpg" width="1400" height="933" alt="Tambaqui na brasa com farofa e vinagrete." loading="lazy">
+            </picture>
+            <div class="card-body">
+              <h3>Tambaqui na brasa</h3>
+              <p>Costela de tambaqui, farofa e vinagrete da casa.</p>
+              <p class="preco">R$ 89,00</p>
+            </div>
+          </article>
+          <article class="card dish-card">
+            <picture>
+              <source type="image/webp" srcset="img/carnes.webp">
+              <img src="img/carnes.jpg" width="1400" height="2100" alt="Carne de sol com mandioca e manteiga de garrafa." loading="lazy">
+            </picture>
+            <div class="card-body">
+              <h3>Carne de sol</h3>
+              <p>Mandioca, manteiga de garrafa e cebola caramelizada.</p>
+              <p class="preco">R$ 68,00</p>
+            </div>
+          </article>
+          <article class="card dish-card">
+            <picture>
+              <source type="image/webp" srcset="img/pratos.webp">
+              <img src="img/pratos.jpg" width="1400" height="933" alt="Moqueca de peixe do rio para duas pessoas." loading="lazy">
+            </picture>
+            <div class="card-body">
+              <h3>Moqueca do rio</h3>
+              <p>Para duas pessoas. Dendê, leite de coco e pirão.</p>
+              <p class="preco">R$ 148,00</p>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
     <section class="section" id="cardapio">
       <div class="wrap">
-        <div class="section-head reveal">
+        <div class="section-head">
           <p class="kicker">Cardápio</p>
           <h2>O que sai da cozinha</h2>
-          <p>Preços de referência. Disponibilidade do peixe do dia pode variar — confirme pelo WhatsApp antes de sair de casa.</p>
+          <p>Preços de referência. A disponibilidade do peixe do dia pode variar — confirme pelo WhatsApp antes de sair de casa.</p>
         </div>
         <div class="tabs" role="tablist" aria-label="Categorias do cardápio" id="cardapio-tabs"></div>
         <div id="cardapio-paineis"></div>
         <noscript>
-          <p>Ative o JavaScript para navegar o cardápio interativo. Em resumo: entradas, peixes do rio, carnes, pratos da casa, sobremesas e bebidas. Consulte preços e disponibilidade pelo WhatsApp.</p>
+          <ul>
+            <li>Entradas, peixes do rio, carnes, pratos da casa, sobremesas e bebidas.</li>
+            <li>Tambaqui na brasa, filé de pintado, moqueca, carne de sol e picanha na chapa.</li>
+          </ul>
         </noscript>
       </div>
     </section>
 
     <section class="section" id="galeria">
       <div class="wrap">
-        <div class="section-head reveal">
+        <div class="section-head">
           <p class="kicker">Galeria</p>
           <h2>Mesa, salão e o rio perto</h2>
         </div>
         <div class="galeria">
-          <a href="img/ambiente.jpg">
+          <a href="img/ambiente.jpg" data-lightbox>
             <picture>
               <source type="image/webp" srcset="img/ambiente.webp">
-              <img src="img/ambiente.jpg" width="1400" height="933" alt="Salão do restaurante com mesas reservadas.">
+              <img src="img/ambiente.jpg" width="1400" height="933" alt="Salão do restaurante com mesas reservadas." loading="lazy">
             </picture>
           </a>
-          <a href="img/galeria-1.jpg">
+          <a href="img/galeria-1.jpg" data-lightbox>
             <picture>
               <source type="image/webp" srcset="img/galeria-1.webp">
-              <img src="img/galeria-1.jpg" width="1400" height="933" alt="Prato servido na Casa do Rio.">
+              <img src="img/galeria-1.jpg" width="1400" height="933" alt="Prato servido na Casa do Rio." loading="lazy">
             </picture>
           </a>
-          <a href="img/galeria-2.jpg">
+          <a href="img/galeria-2.jpg" data-lightbox>
             <picture>
               <source type="image/webp" srcset="img/galeria-2.webp">
-              <img src="img/galeria-2.jpg" width="1400" height="1050" alt="Peixe grelhado com acompanhamentos.">
+              <img src="img/galeria-2.jpg" width="1400" height="1050" alt="Peixe grelhado com acompanhamentos." loading="lazy">
             </picture>
           </a>
-          <a href="img/peixe.jpg">
+          <a href="img/peixe.jpg" data-lightbox>
             <picture>
               <source type="image/webp" srcset="img/peixe.webp">
-              <img src="img/peixe.jpg" width="1400" height="933" alt="Peixe do rio preparado na casa.">
+              <img src="img/peixe.jpg" width="1400" height="933" alt="Peixe do rio preparado na casa." loading="lazy">
             </picture>
           </a>
-          <a href="img/galeria-3.jpg">
+          <a href="img/galeria-3.jpg" data-lightbox>
             <picture>
               <source type="image/webp" srcset="img/galeria-3.webp">
-              <img src="img/galeria-3.jpg" width="1400" height="1050" alt="Ambiente de restaurante à noite.">
+              <img src="img/galeria-3.jpg" width="1400" height="1050" alt="Ambiente de restaurante à noite." loading="lazy">
             </picture>
           </a>
         </div>
@@ -200,29 +291,29 @@
 
     <section class="section" id="avaliacoes">
       <div class="wrap">
-        <div class="reviews-hero reveal">
+        <div class="reviews-hero">
           <div>
             <p class="kicker">Avaliações</p>
             <h2>Quem sentou à mesa</h2>
             <div class="score">
               <div class="score-num">4,8</div>
               <div>
-                <div class="stars" aria-hidden="true">★★★★★</div>
-                <p class="muted">4,8 ⭐ · 36 avaliações</p>
+                <p class="stars" aria-label="4,8 de 5 estrelas">★★★★★</p>
+                <p class="muted">4,8 no Google · 36 avaliações</p>
               </div>
             </div>
           </div>
         </div>
         <div class="cards-3">
-          <blockquote class="card quote reveal">
+          <blockquote class="card quote">
             <p>“Peixe fresco, porção generosa e atendimento sem pressa. Voltamos no jantar.”</p>
             <footer>Cliente no Google</footer>
           </blockquote>
-          <blockquote class="card quote reveal delay-1">
+          <blockquote class="card quote">
             <p>“A carne de sol com mandioca é o pedido certo depois da viagem.”</p>
             <footer>Cliente no Google</footer>
           </blockquote>
-          <blockquote class="card quote reveal delay-2">
+          <blockquote class="card quote">
             <p>“Bom para família. A moqueca deu para dois e ainda sobrou.”</p>
             <footer>Cliente no Google</footer>
           </blockquote>
@@ -232,20 +323,21 @@
 
     <section class="section" id="reservas">
       <div class="wrap reserva-grid">
-        <div class="reveal">
+        <div>
           <p class="kicker">Reservas</p>
           <h2>Guarde a mesa pelo WhatsApp</h2>
-          <p class="muted">Preencha os dados. A gente abre a conversa no WhatsApp com o pedido de reserva pronto para enviar.</p>
-          <form class="form" id="form-reserva">
-            <label>Nome
-              <input name="nome" type="text" autocomplete="name" required maxlength="80" placeholder="Seu nome">
-            </label>
+          <p class="muted">Preencha os dados. Abrimos a conversa no WhatsApp com o pedido de reserva pronto para enviar. Segunda-feira a casa descansa.</p>
+          <form class="form" id="form-reserva" novalidate>
+            <label for="reserva-nome">Nome</label>
+            <input id="reserva-nome" name="nome" type="text" autocomplete="name" required maxlength="80" placeholder="Seu nome">
             <div class="form-row">
-              <label>Data
-                <input name="data" type="date" required>
-              </label>
-              <label>Horário
-                <select name="horario" required>
+              <div>
+                <label for="reserva-data">Data</label>
+                <input id="reserva-data" name="data" type="date" required>
+              </div>
+              <div>
+                <label for="reserva-horario">Horário</label>
+                <select id="reserva-horario" name="horario" required>
                   <option value="11:30">11:30</option>
                   <option value="12:00">12:00</option>
                   <option value="12:30">12:30</option>
@@ -257,11 +349,12 @@
                   <option value="20:30">20:30</option>
                   <option value="21:00">21:00</option>
                 </select>
-              </label>
+              </div>
             </div>
             <div class="form-row">
-              <label>Pessoas
-                <select name="pessoas" required>
+              <div>
+                <label for="reserva-pessoas">Pessoas</label>
+                <select id="reserva-pessoas" name="pessoas" required>
                   <option>1</option>
                   <option selected>2</option>
                   <option>3</option>
@@ -269,54 +362,56 @@
                   <option>5</option>
                   <option>6</option>
                   <option>8</option>
-                  <option>10+</option>
+                  <option value="10+">10+</option>
                 </select>
-              </label>
-              <label>Telefone
-                <input name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(99) 99999-0000">
-              </label>
+              </div>
+              <div>
+                <label for="reserva-telefone">Telefone</label>
+                <input id="reserva-telefone" name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(99) 99999-0000">
+              </div>
             </div>
-            <label>Observação
-              <textarea name="obs" maxlength="240" placeholder="Aniversário, cadeirinha, preferência de mesa…"></textarea>
-            </label>
+            <label for="reserva-obs">Observação</label>
+            <textarea id="reserva-obs" name="obs" maxlength="240" placeholder="Aniversário, cadeirinha, preferência de mesa…"></textarea>
+            <p class="form-erro" id="reserva-erro" role="alert" hidden></p>
             <button class="btn btn-wine" type="submit">Enviar reserva no WhatsApp</button>
-            <p class="aviso muted">Segunda-feira a casa descansa. Terça a domingo: almoço e jantar.</p>
+            <p class="aviso muted">Terça a domingo: almoço 11h–15h e jantar a partir das 18h.</p>
           </form>
         </div>
-        <div class="reveal delay-1">
+        <figure class="reserva-photo">
           <picture>
             <source type="image/webp" srcset="img/ambiente.webp">
-            <img src="img/ambiente.jpg" width="1400" height="933" alt="Mesas do salão prontas para receber reservas." style="width:100%;height:100%;min-height:320px;object-fit:cover;border-radius:28px;">
+            <img src="img/ambiente.jpg" width="1400" height="933" alt="Mesas do salão prontas para receber reservas." loading="lazy">
           </picture>
-        </div>
+        </figure>
       </div>
     </section>
 
     <section class="section" id="contato">
       <div class="wrap">
-        <div class="cta reveal">
-          <h2>Quer pedir para viagem?</h2>
+        <div class="cta">
+          <p class="kicker kicker-light">Viagem e encomenda</p>
+          <h2>Quer pedir para levar?</h2>
           <p>Monte o pedido no cardápio ou chame no WhatsApp. Confirmamos o peixe do dia, o tempo de espera e a forma de pagamento.</p>
-          <a class="btn btn-whatsapp btn-lg" data-whatsapp data-whatsapp-texto="Olá! Quero fazer um pedido na Casa do Rio." href="https://wa.me/5599999990000" target="_blank" rel="noopener noreferrer">Chamar no WhatsApp</a>
+          <a class="btn btn-gold btn-lg" data-whatsapp data-whatsapp-texto="Olá! Quero fazer um pedido na Casa do Rio." href="https://wa.me/5599999990000" target="_blank" rel="noopener noreferrer">Chamar no WhatsApp</a>
         </div>
       </div>
     </section>
 
     <section class="section" id="localizacao">
       <div class="wrap">
-        <div class="section-head reveal">
+        <div class="section-head">
           <p class="kicker">Localização</p>
           <h2>Como chegar</h2>
         </div>
         <div class="local-grid">
           <div>
-            <article class="info-card reveal">
+            <article class="info-card">
               <h3>Endereço</h3>
               <p data-endereco>Avenida Beira Rio, Estreito - MA, 65975-000. Às margens do Rio Tocantins.</p>
               <p><strong>Telefone:</strong> <a data-tel-link href="tel:+5599999990000">(99) 99999-0000</a></p>
               <a class="btn btn-dark" data-maps href="https://www.google.com/maps/search/?api=1&query=Avenida%20Beira%20Rio%2C%20Estreito%2C%20Maranh%C3%A3o" target="_blank" rel="noopener noreferrer">Abrir no Google Maps</a>
             </article>
-            <article class="hours-card reveal delay-1">
+            <article class="hours-card">
               <h3>Horários</h3>
               <ul class="hours-list" id="lista-horarios"></ul>
             </article>
@@ -342,8 +437,8 @@
         <ul>
           <li><a href="#cardapio">Cardápio</a></li>
           <li><a href="#reservas">Reservas</a></li>
-          <li><a href="#localizacao">Localização</a></li>
-          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#localizacao">Como chegar</a></li>
+          <li><a href="#sobre">A casa</a></li>
         </ul>
       </div>
       <div>
@@ -355,7 +450,7 @@
         </ul>
       </div>
     </div>
-    <p class="wrap copy">© <span data-ano>2026</span> Casa do Rio — Estreito, Maranhão. Todos os direitos reservados. Projeto independente: este site não altera o FinUP nem os demais projetos do repositório.</p>
+    <p class="wrap copy">© <span data-ano>2026</span> Casa do Rio — Estreito, Maranhão. Todos os direitos reservados.</p>
   </footer>
 
   <aside class="pedido-bar" id="pedido-bar" hidden>
@@ -368,16 +463,23 @@
 
   <div class="drawer" id="pedido-drawer" hidden>
     <div class="drawer-bg" data-fechar-pedido></div>
-    <div class="drawer-panel" role="dialog" aria-labelledby="pedido-titulo">
+    <div class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="pedido-titulo" tabindex="-1">
       <div class="drawer-head">
         <h2 id="pedido-titulo">Seu pedido</h2>
-        <button class="btn btn-icon" type="button" data-fechar-pedido aria-label="Fechar">✕</button>
+        <button class="btn btn-icon" type="button" data-fechar-pedido aria-label="Fechar pedido">✕</button>
       </div>
       <div id="pedido-itens"></div>
       <p><strong>Total: <span data-pedido-total>R$ 0,00</span></strong></p>
       <button class="btn btn-whatsapp" type="button" data-enviar-pedido>Enviar pedido no WhatsApp</button>
     </div>
   </div>
+
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="btn btn-icon lightbox-close" type="button" data-fechar-lightbox aria-label="Fechar imagem">✕</button>
+    <img id="lightbox-img" alt="">
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <a class="wa-float" data-whatsapp href="https://wa.me/5599999990000" target="_blank" rel="noopener noreferrer" aria-label="Falar no WhatsApp">
     <span class="wa-float-label">Falar no WhatsApp</span>

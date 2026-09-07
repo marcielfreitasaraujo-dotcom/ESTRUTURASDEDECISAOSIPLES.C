@@ -36,7 +36,11 @@ class TestSiteRestaurante(unittest.TestCase):
             'id="cardapio"',
             'id="reservas"',
             'id="localizacao"',
+            'id="experiencia"',
+            'id="assinatura"',
             "form-reserva",
+            "Reservar mesa",
+            "application/ld+json",
             "wa.me",
         ):
             self.assertIn(trecho, html)
@@ -57,6 +61,17 @@ class TestSiteRestaurante(unittest.TestCase):
         self.assertIn("form-reserva", js)
         self.assertIn("data-add", js)
         self.assertIn("data-enviar-pedido", js)
+        self.assertIn("Escape", js)
+        self.assertIn("ArrowRight", js)
+
+    def test_acessibilidade_basica(self) -> None:
+        html = (ROOT / "index.html").read_text(encoding="utf-8")
+        self.assertIn('class="skip"', html)
+        self.assertIn('lang="pt-BR"', html)
+        self.assertIn('aria-modal="true"', html)
+        self.assertIn("reserva-nome", html)
+        self.assertIn("lightbox", html)
+        self.assertIn("hasMenu", html)
 
 
 if __name__ == "__main__":
