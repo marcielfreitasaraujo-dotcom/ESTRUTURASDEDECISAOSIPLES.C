@@ -18,8 +18,11 @@ export function Location() {
             <br />
             {restaurant.postalCode}
           </address>
-          <p className="mt-4">
-            <a className="text-gold transition hover:text-gold2" href={`tel:+${restaurant.phoneE164}`}>
+          <p className="mt-2">
+            <a
+              className="inline-flex min-h-11 items-center text-gold transition hover:text-gold2"
+              href={`tel:+${restaurant.phoneE164}`}
+            >
               {restaurant.phoneDisplay}
             </a>
           </p>

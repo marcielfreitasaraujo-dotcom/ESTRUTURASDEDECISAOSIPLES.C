@@ -11,7 +11,7 @@ export function About() {
           <Picture
             src="/images/about.jpg"
             webp="/images/about.webp"
-            alt="Ambiente interno com madeira e iluminação quente"
+            alt="Salão do restaurante com madeira escura, metal e lâmpadas de luz quente"
             className="h-[420px] w-full object-cover md:h-[520px]"
           />
         </figure>
