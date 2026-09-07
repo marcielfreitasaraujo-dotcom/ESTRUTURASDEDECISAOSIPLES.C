@@ -549,6 +549,8 @@ html[data-theme="claro"] .btn-primary { color: #fff; }
 .btn-danger-ghost { background: transparent; color: var(--despesa); }
 .btn-sm { padding: 0.5rem 0.8rem; font-size: 0.9rem; }
 .btn-block { width: 100%; }
+a.btn { text-decoration: none; color: inherit; }
+html[data-theme="claro"] a.btn-primary { color: #fff; }
 .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .icon-btn {
   border: 0; background: var(--surface-2); width: 40px; height: 40px;
