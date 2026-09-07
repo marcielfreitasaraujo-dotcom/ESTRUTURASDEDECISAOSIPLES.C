@@ -33,3 +33,17 @@ Preview: `npm run preview`
 ## Publicar
 
 Pasta de publish: `cabana-house/dist` após o build. Há `netlify.toml` neste diretório.
+
+O site usa caminhos absolutos (`/images/...`, `/brand/...`), então precisa ser servido na raiz de um domínio. Hospedagem em subpasta (ex.: GitHub Pages de projeto) exigiria reescrever esses caminhos com `import.meta.env.BASE_URL`.
+
+## Link temporário para mostrar ao cliente
+
+Gera uma URL HTTPS pública apontando para o build local, sem cadastro. Serve para apresentação; cai quando o processo termina.
+
+```bash
+npm run build
+npx --yes serve -s dist -l 4180 &
+cloudflared tunnel --url http://127.0.0.1:4180
+```
+
+O `cloudflared` imprime a URL `https://<nome>.trycloudflare.com` no terminal. Para link permanente, use a hospedagem definitiva (Netlify/Vercel) em vez do túnel.
