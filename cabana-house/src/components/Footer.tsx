@@ -33,6 +33,11 @@ export function Footer() {
         </div>
         <div>
           <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-gold">Contato</p>
+          <p className="mt-4 text-sm text-mist/70">
+            Reservas e pedidos pelo WhatsApp.
+            <br />
+            {restaurant.phoneDisplay}
+          </p>
           <a
             href={whatsappUrl()}
             target="_blank"

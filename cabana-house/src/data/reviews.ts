@@ -12,6 +12,6 @@ export type ReviewQuote = {
 export const reviews = {
   ratingValue: 4,
   reviewCount: 17,
-  /** MOCK — manter vazio até existirem depoimentos autorizados. */
+  /** Vazio de propósito: não inventar depoimentos. Preencher com as avaliações reais autorizadas. */
   quotes: [] as ReviewQuote[],
 }

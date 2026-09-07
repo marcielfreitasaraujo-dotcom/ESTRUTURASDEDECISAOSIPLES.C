@@ -12,7 +12,9 @@ export function Hero() {
           priority
           className="h-full w-full object-cover animate-ken"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-ink/50 via-ink/72 to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/70 to-ink" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink/85 via-ink/45 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_10%,transparent_35%,rgba(5,5,5,0.75)_100%)]" />
       </div>
 
       <div className="mx-auto flex min-h-[100svh] max-w-site flex-col justify-end px-4 pb-20 pt-32 md:px-6 md:pb-24">

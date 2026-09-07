@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { About } from './components/About'
 import { Brasa } from './components/Brasa'
 import { CTA } from './components/CTA'
@@ -12,6 +13,8 @@ import { Reviews } from './components/Reviews'
 import { WhatsAppButton } from './components/WhatsAppButton'
 
 export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-ink text-mist pb-24 md:pb-8">
       <a
@@ -20,7 +23,7 @@ export default function App() {
       >
         Pular para o conteúdo
       </a>
-      <Navbar />
+      <Navbar open={menuOpen} onOpenChange={setMenuOpen} />
       <main id="conteudo">
         <Hero />
         <About />
@@ -33,7 +36,7 @@ export default function App() {
         <CTA />
       </main>
       <Footer />
-      <WhatsAppButton />
+      <WhatsAppButton hidden={menuOpen} />
     </div>
   )
 }

@@ -33,7 +33,7 @@ export function Lightbox({ items, index, onClose, onPrev, onNext }: LightboxProp
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/92 p-4 animate-fade"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/95 p-4 animate-fade"
       role="dialog"
       aria-modal="true"
       aria-label="Imagem ampliada"

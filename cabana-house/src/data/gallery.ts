@@ -27,7 +27,7 @@ export const galleryItems: GalleryItem[] = [
     category: 'churrasco',
     src: '/images/hero.jpg',
     srcWebp: '/images/hero.webp',
-    alt: 'Carnes e espetos grelhados na brasa',
+    alt: 'Cortes grelhados servidos na chapa quente',
     placeholder: true,
   },
   {
@@ -92,6 +92,14 @@ export const galleryItems: GalleryItem[] = [
     src: '/images/gal-4.jpg',
     srcWebp: '/images/gal-4.webp',
     alt: 'Corte grelhado servido no prato',
+    placeholder: true,
+  },
+  {
+    id: 'g10',
+    category: 'churrasco',
+    src: '/images/gal-7.jpg',
+    srcWebp: '/images/gal-7.webp',
+    alt: 'Picanha fatiada na tábua',
     placeholder: true,
   },
 ]
