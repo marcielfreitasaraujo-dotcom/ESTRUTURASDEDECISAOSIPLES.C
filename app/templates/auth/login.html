@@ -65,10 +65,8 @@
       </p>
       <button class="btn btn-primary btn-block" type="submit">Entrar</button>
     </form>
-    <p class="hint" style="margin-top:1rem">
-      Novo por aqui?
-      <a href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
-    </p>
+    <p class="hint" style="margin:1rem 0 0.5rem">Novo por aqui?</p>
+    <a class="btn btn-primary btn-block" href="{{ url_for('auth.cadastro') }}">Criar conta e assinar</a>
     {% if config.DEBUG %}
     <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
     {% endif %}
