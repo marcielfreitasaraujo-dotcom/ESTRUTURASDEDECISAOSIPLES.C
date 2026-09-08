@@ -13,21 +13,11 @@ Identidade: preto + amarelo `#FFD000`, com o logotipo oficial.
 
 Quando tiver o domínio, opcionalmente preencha `siteUrl` em `js/config.js`.
 
-## Configurar WhatsApp, Instagram e domínio
+## WhatsApp, Instagram e domínio
 
-Edite `js/config.js`:
+Os ícones já apontam para o WhatsApp **(99) 92000-8098** e o Instagram **@movifit_academia**.
 
-```js
-window.MOVIFIT_CONFIG = {
-  siteUrl: "https://www.seudominio.com.br",
-  whatsapp: "5599999999999",
-  instagram: "https://www.instagram.com/contaoficial/",
-  mapsQuery: "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito, Maranhão, Brasil, 65975-000",
-  mensagemWhatsApp: "Olá! Gostaria de conhecer a Movifit Academia e saber mais sobre os planos.",
-};
-```
-
-Campos vazios não inventam contato: os ícones de WhatsApp e Instagram continuam visíveis. Quando o número e o perfil oficiais forem preenchidos, os ícones abrem a conversa e o Instagram.
+Para o domínio, preencha `siteUrl` em `js/config.js`.
 
 ## Trocar fotos reais
 

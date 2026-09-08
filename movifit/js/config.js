@@ -1,19 +1,15 @@
 /**
  * Configuração pública da Movifit Academia.
- * Preencha os campos oficiais quando estiverem disponíveis.
- * Não invente telefone, WhatsApp ou redes sociais.
  */
 window.MOVIFIT_CONFIG = {
   // URL pública do site, sem barra no final.
-  // Vazio: usa o endereço atual (funciona em qualquer domínio, pasta ou link de teste).
-  // Ex.: "https://www.movifitacademia.com.br"
   siteUrl: "",
 
-  // Apenas dígitos com DDI, ex.: "5599999999999"
-  whatsapp: "",
+  // WhatsApp oficial
+  whatsapp: "5599920008098",
 
-  // URL completa, ex.: "https://www.instagram.com/movifitacademia/"
-  instagram: "",
+  // Instagram oficial
+  instagram: "https://www.instagram.com/movifit_academia/",
 
   mapsQuery: "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito, Maranhão, Brasil, 65975-000",
 

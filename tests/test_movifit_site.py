@@ -56,11 +56,12 @@ def test_horarios_oficiais():
     assert "21:30" in HTML
 
 
-def test_nao_inventa_contato():
-    assert 'whatsapp: ""' in CONFIG
-    assert 'instagram: ""' in CONFIG
-    assert "wa.me/55" not in HTML
-    assert "instagram.com/" not in HTML
+def test_contato_oficial():
+    assert 'whatsapp: "5599920008098"' in CONFIG
+    assert "movifit_academia" in CONFIG
+    assert "lead-form" not in HTML
+    assert 'name="nome"' not in HTML
+    assert "Seu nome" not in HTML
     assert "R$" not in HTML
     assert "depoimento" not in HTML.lower()
 
