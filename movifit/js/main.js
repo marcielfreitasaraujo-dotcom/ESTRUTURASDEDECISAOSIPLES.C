@@ -29,15 +29,11 @@
   const bindContact = (selector, url) => {
     document.querySelectorAll(selector).forEach((el) => {
       el.hidden = false;
-      if (url) {
-        el.setAttribute("href", url);
-        el.setAttribute("target", "_blank");
-        el.setAttribute("rel", "noopener noreferrer");
-      } else {
-        el.setAttribute("href", "#contato");
-        el.removeAttribute("target");
-        el.removeAttribute("rel");
-      }
+      // No celular, target=_blank abre uma aba em branco e o iOS/Android
+      // bloqueiam o redirecionamento para o app do WhatsApp/Instagram.
+      el.removeAttribute("target");
+      el.removeAttribute("rel");
+      if (url) el.setAttribute("href", url);
     });
   };
 

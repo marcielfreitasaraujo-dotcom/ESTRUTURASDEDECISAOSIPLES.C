@@ -75,3 +75,18 @@ def test_acessibilidade_basica():
     assert "data-instagram" in HTML
     assert "lead-form" not in HTML
     assert 'Fale com a Movifit' in HTML
+
+
+def test_links_whatsapp_instagram_no_html():
+    wa = "https://wa.me/5599920008098"
+    ig = "https://www.instagram.com/movifit_academia/"
+    assert HTML.count('data-whatsapp') == 3
+    assert HTML.count('data-instagram') == 3
+    assert HTML.count(wa) == 3
+    assert ig in HTML
+    assert HTML.count('href="' + ig + '"') == 3
+    js = (ROOT / "js" / "main.js").read_text(encoding="utf-8")
+    assert 'target", "_blank"' not in js
+    css = (ROOT / "css" / "style.css").read_text(encoding="utf-8")
+    assert "pointer-events: none" in css
+    assert "touch-action: manipulation" in css

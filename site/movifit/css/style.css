@@ -350,6 +350,10 @@ h1, h2, h3 {
   z-index: 40;
 }
 
+.nav-backdrop[hidden] {
+  display: none !important;
+}
+
 /* Hero */
 .hero {
   position: relative;
@@ -380,6 +384,7 @@ h1, h2, h3 {
   background:
     linear-gradient(90deg, rgba(5, 5, 5, 0.88) 0%, rgba(5, 5, 5, 0.42) 52%, rgba(5, 5, 5, 0.62) 100%),
     linear-gradient(180deg, rgba(5, 5, 5, 0.35) 0%, transparent 28%, rgba(5, 5, 5, 0.92) 100%);
+  pointer-events: none;
 }
 
 .hero-glow {
@@ -828,6 +833,7 @@ h1, h2, h3 {
     radial-gradient(ellipse at 80% 20%, rgba(255, 208, 0, 0.14), transparent 45%);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
+  pointer-events: none;
 }
 
 .cta-inner { position: relative; z-index: 1; padding: 5rem 0; }
@@ -855,7 +861,15 @@ h1, h2, h3 {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-size: 0.86rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(255, 208, 0, 0.28);
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.icon-btn svg,
+.icon-btn span {
+  pointer-events: none;
 }
 
 .icon-btn svg {
@@ -916,9 +930,9 @@ h1, h2, h3 {
 
 .float-contact {
   position: fixed;
-  right: 1.1rem;
-  bottom: 1.1rem;
-  z-index: 60;
+  right: max(1.1rem, env(safe-area-inset-right));
+  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  z-index: 80;
   display: grid;
   gap: 0.7rem;
 }
@@ -1061,6 +1075,11 @@ body.lightbox-open .float-contact { visibility: hidden; }
   }
 
   .nav.is-open { transform: none; }
+
+  .nav:not(.is-open) {
+    pointer-events: none;
+    visibility: hidden;
+  }
 
   .nav a {
     padding: 0.9rem 0.2rem;
