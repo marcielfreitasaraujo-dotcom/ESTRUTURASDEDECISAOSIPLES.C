@@ -4,6 +4,11 @@
  * Não invente telefone, WhatsApp ou redes sociais.
  */
 window.MOVIFIT_CONFIG = {
+  // URL pública do site, sem barra no final.
+  // Vazio: usa o endereço atual (funciona em qualquer domínio, pasta ou link de teste).
+  // Ex.: "https://www.movifitacademia.com.br"
+  siteUrl: "",
+
   // Apenas dígitos com DDI, ex.: "5599999999999"
   whatsapp: "",
 

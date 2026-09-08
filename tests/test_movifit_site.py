@@ -16,6 +16,9 @@ def test_arquivos_essenciais_existem():
         "img/favicon.png",
         "img/hero.webp",
         "img/og.jpg",
+        "fonts/bebas-neue-400-latin.woff2",
+        "fonts/inter-400-latin.woff2",
+        "fonts/oswald-600-latin.woff2",
         "robots.txt",
         "site.webmanifest",
     ]:
@@ -63,6 +66,7 @@ def test_nao_inventa_contato():
 
 
 def test_acessibilidade_basica():
+    assert "fonts.googleapis.com" not in HTML
     assert 'lang="pt-BR"' in HTML
     assert "Pular para o conteúdo" in HTML
     assert 'aria-label="Abrir menu"' in HTML

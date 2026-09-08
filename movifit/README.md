@@ -1,43 +1,39 @@
 # Movifit Academia — site institucional
 
-Site estático da **Movifit Academia**, em Estreito - MA.
+Pasta **pronta para publicar**. É um site estático: copie `movifit/` para qualquer hospedagem ou domínio.
 
-Identidade visual: preto + amarelo `#FFD000`, com o logotipo oficial.
+Identidade: preto + amarelo `#FFD000`, com o logotipo oficial.
 
-## Como publicar
+## Publicar em qualquer domínio
 
-Publique a pasta `movifit/` como site estático (Netlify, GitHub Pages, Vercel ou qualquer hospedagem).
+1. Use **somente** o conteúdo desta pasta (`index.html`, `css/`, `js/`, `img/`, `fonts/`).
+2. No Netlify / Vercel / GitHub Pages / Hostinger / cPanel, o diretório publicado deve ser esta pasta (a raiz do site).
+3. Não precisa de servidor Python, banco nem build.
+4. O site funciona na raiz (`seusite.com.br`) ou em subpasta (`seusite.com.br/movifit/`).
 
-## Configurar WhatsApp e Instagram
+Quando tiver o domínio, opcionalmente preencha `siteUrl` em `js/config.js`.
+
+## Configurar WhatsApp, Instagram e domínio
 
 Edite `js/config.js`:
 
 ```js
 window.MOVIFIT_CONFIG = {
-  whatsapp: "5599999999999", // DDI + DDD + número, só dígitos
+  siteUrl: "https://www.seudominio.com.br",
+  whatsapp: "5599999999999",
   instagram: "https://www.instagram.com/contaoficial/",
-  mapsQuery: "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito - MA, 65975-000",
+  mapsQuery: "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito, Maranhão, Brasil, 65975-000",
   mensagemWhatsApp: "Olá! Gostaria de conhecer a Movifit Academia e saber mais sobre os planos.",
 };
 ```
 
-Enquanto esses campos estiverem vazios, o site mostra “em breve” e o formulário de contato continua funcionando como convite para visitar a academia.
+Campos vazios não inventam contato: o site mostra “em breve”.
 
 ## Trocar fotos reais
 
-Substitua os arquivos em `img/` mantendo os mesmos nomes:
+Substitua os arquivos em `img/` mantendo os mesmos nomes (`hero`, `sobre`, `estrutura`, `experiencia`, `fachada`, `cta`, `galeria-1` … `galeria-6`, `.jpg` e `.webp`).
 
-- `hero.jpg` / `hero.webp`
-- `sobre.jpg` / `sobre.webp`
-- `estrutura.jpg` / `estrutura.webp`
-- `experiencia.jpg` / `experiencia.webp`
-- `fachada.jpg` / `fachada.webp`
-- `cta.jpg` / `cta.webp`
-- `galeria-1.jpg` … `galeria-6.jpg` (e `.webp`)
-
-O logotipo oficial está em `logo.png` e `logo-transparente.png`. Não distorça o arquivo.
-
-As fotos atuais são **conceituais**, alinhadas à identidade da marca, até as fotos reais da estrutura serem adicionadas.
+O logotipo oficial está em `logo.png` e `logo-transparente.png`. Não distorça.
 
 ## Horários oficiais
 

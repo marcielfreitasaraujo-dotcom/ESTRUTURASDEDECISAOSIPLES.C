@@ -4,6 +4,13 @@
   const instagram = String(cfg.instagram || "").trim();
   const mapsQuery = cfg.mapsQuery || "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito, Maranhão, Brasil, 65975-000";
   const mensagem = cfg.mensagemWhatsApp || "Olá! Gostaria de conhecer a Movifit Academia e saber mais sobre os planos.";
+  const siteUrl = String(cfg.siteUrl || "").replace(/\/$/, "");
+  const paginaUrl = siteUrl || (window.location.origin + window.location.pathname.replace(/index\.html$/, ""));
+
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.setAttribute("href", paginaUrl);
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (ogUrl) ogUrl.setAttribute("content", paginaUrl);
 
   const waUrl = whatsapp
     ? "https://wa.me/" + whatsapp + "?text=" + encodeURIComponent(mensagem)
