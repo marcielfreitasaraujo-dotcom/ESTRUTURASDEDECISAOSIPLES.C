@@ -35,7 +35,30 @@ Preview: `npm run preview`
 
 Pasta de publish: `cabana-house/dist` após o build. Há `netlify.toml` neste diretório.
 
-O site usa caminhos absolutos (`/images/...`, `/brand/...`), então precisa ser servido na raiz de um domínio. Hospedagem em subpasta (ex.: GitHub Pages de projeto) exigiria reescrever esses caminhos com `import.meta.env.BASE_URL`.
+O build usa caminhos relativos (`base: './'` no `vite.config.ts`), então roda tanto na raiz de um domínio quanto em subpasta.
+
+## Link pelo Git (githack)
+
+O `dist/` fica versionado justamente para isso: o githack serve arquivo cru do repositório, então o build precisa estar commitado. **Depois de mexer no site, rode `npm run build` e commite o `dist` junto** — sem isso o link continua mostrando a versão antiga.
+
+Fixo num commit, que é o formato para mandar ao cliente:
+
+```
+https://rawcdn.githack.com/marcielfreitasaraujo-dotcom/ESTRUTURASDEDECISAOSIPLES.C/<sha>/cabana-house/dist/index.html
+```
+
+Acompanhando o branch, que se atualiza sozinho a cada push:
+
+```
+https://raw.githack.com/marcielfreitasaraujo-dotcom/ESTRUTURASDEDECISAOSIPLES.C/cursor/site-restaurante-ccd9/cabana-house/dist/index.html
+```
+
+Duas coisas a saber antes de mandar para alguém:
+
+- Na primeira visita o githack mostra um aviso ("External Content Notice") com o botão **Open the page**. É a tela padrão dele para conteúdo de terceiros, não é erro do site.
+- `raw.githack.com` não tem cache e é limitado por taxa; `rawcdn.githack.com` passa por CDN e é o indicado para divulgar. Como o CDN guarda a resposta por URL, use-o sempre com o SHA do commit, nunca com o nome do branch.
+
+O GitHub Pages deste repositório **não** é uma alternativa: já está ocupado pelo site da Realiza Consultoria, com domínio próprio apontando para ele.
 
 ## Link temporário para mostrar ao cliente
 
