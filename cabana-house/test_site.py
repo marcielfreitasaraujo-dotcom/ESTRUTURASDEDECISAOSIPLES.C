@@ -45,6 +45,18 @@ class TestCabanaHouse(unittest.TestCase):
         self.assertIn("reviewCount: 17", texto)
         self.assertIn("quotes: []", texto)
 
+    def test_destaques_nao_usam_quatro_colunas_na_coluna_estreita(self) -> None:
+        """Em md o layout vira duas colunas e a lista perde metade da largura.
+
+        Com 4 tracks ali, "Experiência" não cabe e o texto vaza da moldura entre
+        768px e ~1010px de viewport.
+        """
+        texto = (ROOT / "src/components/About.tsx").read_text(encoding="utf-8")
+        ul = next(l for l in texto.splitlines() if "<ul" in l)
+        self.assertIn("md:grid-cols-2", ul, ul.strip())
+        self.assertNotIn("md:grid-cols-4", ul, ul.strip())
+        self.assertNotIn("lg:grid-cols-4", ul, ul.strip())
+
     def test_componentes_existem(self) -> None:
         for nome in (
             "Navbar",

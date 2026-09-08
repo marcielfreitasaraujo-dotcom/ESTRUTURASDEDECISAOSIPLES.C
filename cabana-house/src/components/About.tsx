@@ -31,7 +31,9 @@ export function About() {
             A casa foi feita para quem passa e resolve ficar: o cheiro da brasa chega antes do prato
             e a conversa segue depois da última fatia.
           </p>
-          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {/* Volta a 2 colunas em md porque ali o layout vira duas colunas e esta lista
+              perde metade da largura — em 4 tracks "Experiência" não caberia. */}
+          <ul className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-2 xl:grid-cols-4">
             {highlights.map((item) => (
               <li
                 key={item}
