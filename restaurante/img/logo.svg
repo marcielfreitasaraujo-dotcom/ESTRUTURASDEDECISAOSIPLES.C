@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Casa do Rio">
+  <circle cx="256" cy="256" r="248" fill="#2a1012"/>
+  <circle cx="256" cy="256" r="228" fill="#6e1826"/>
+  <circle cx="256" cy="256" r="200" fill="#f7eddc"/>
+  <path fill="#2a7a76" d="M56 280c48-36 96-20 144-8s96 8 144-16 80-28 112-8v160H56z"/>
+  <path fill="#1e5a5c" d="M56 340c56-28 112-8 168 4s120-8 176-24v128H56z"/>
+  <circle cx="256" cy="198" r="78" fill="none" stroke="#6e1826" stroke-width="12"/>
+  <circle cx="256" cy="198" r="48" fill="none" stroke="#c49a56" stroke-width="7"/>
+  <circle cx="256" cy="198" r="10" fill="#c49a56"/>
+</svg>
