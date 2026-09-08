@@ -27,24 +27,38 @@ const securityHeaders = [
       "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()",
   },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Content-Security-Policy", value: contentSecurityPolicy },
 ];
+
+const githack = process.env.GITHACK_EXPORT === "1";
+const githackBase =
+  "/marcielfreitasaraujo-dotcom/ESTRUTURASDEDECISAOSIPLES.C/cursor/fix-logo-crest-tip-ad5f/paulo-henrique-site";
 
 const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
-  images: {
-    formats: ["image/avif", "image/webp"],
-  },
-  async headers() {
-    return [
-      {
-        source: "/:path*",
-        headers: securityHeaders,
-      },
-    ];
-  },
+  ...(githack
+    ? {
+        output: "export" as const,
+        trailingSlash: true,
+        basePath: githackBase,
+        images: { unoptimized: true },
+      }
+    : {
+        images: {
+          formats: ["image/avif", "image/webp"],
+        },
+        async headers() {
+          return [
+            {
+              source: "/:path*",
+              headers: securityHeaders,
+            },
+          ];
+        },
+      }),
 };
 
 export default nextConfig;

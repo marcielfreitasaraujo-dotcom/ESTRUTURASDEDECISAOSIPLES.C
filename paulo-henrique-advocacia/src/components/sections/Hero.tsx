@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef } from "react";
 import { ButtonLink, WhatsAppButton } from "@/components/ui/ButtonLink";
 import { ScrollWords } from "@/components/ui/ScrollWords";
+import { withBase } from "@/lib/paths";
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
@@ -84,7 +85,7 @@ export function Hero() {
         <div className="hero-portrait relative mx-auto w-full max-w-md overflow-hidden bg-navy-deep lg:max-w-none">
           <div className="gold-frame overflow-hidden bg-navy-deep">
             <Image
-              src="/images/paulo-henrique.webp"
+              src={withBase("/images/paulo-henrique.webp")}
               alt="Paulo Henrique, advogado previdenciário em Estreito - MA"
               width={629}
               height={627}

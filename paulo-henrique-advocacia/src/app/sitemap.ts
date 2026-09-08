@@ -3,6 +3,8 @@ import { areas } from "@/lib/areas";
 import { articles } from "@/lib/articles";
 import { site } from "@/lib/site";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date("2026-09-07");
   const staticRoutes = [

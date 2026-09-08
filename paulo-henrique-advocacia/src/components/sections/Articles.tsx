@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { articles } from "@/lib/articles";
+import { withBase } from "@/lib/paths";
 
 export function Articles() {
   const [featured, ...rest] = articles;
@@ -62,7 +63,7 @@ export function ArticleCard({
           }`}
         >
           <Image
-            src={article.image}
+            src={withBase(article.image)}
             alt={article.imageAlt}
             fill
             sizes={featured ? "(min-width:1024px) 58vw, 100vw" : "50vw"}

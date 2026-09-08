@@ -2,6 +2,7 @@ import Image from "next/image";
 import { ButtonLink } from "@/components/ui/ButtonLink";
 import { Reveal } from "@/components/ui/Reveal";
 import { ScrollWords } from "@/components/ui/ScrollWords";
+import { withBase } from "@/lib/paths";
 
 export function About() {
   return (
@@ -10,7 +11,7 @@ export function About() {
         <Reveal>
           <div className="gold-frame">
             <Image
-              src="/images/paulo-henrique.webp"
+              src={withBase("/images/paulo-henrique.webp")}
               alt="Paulo Henrique, advogado do escritório Paulo Henrique Advocacia Previdenciária"
               width={629}
               height={627}

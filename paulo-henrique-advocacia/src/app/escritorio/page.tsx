@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { WhatsAppButton } from "@/components/ui/ButtonLink";
 import { PageHero } from "@/components/ui/PageHero";
+import { withBase } from "@/lib/paths";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function EscritorioPage() {
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8">
         <div>
           <Image
-            src="/images/paulo-henrique.webp"
+            src={withBase("/images/paulo-henrique.webp")}
             alt="Paulo Henrique, advogado previdenciário em Estreito - MA"
             width={629}
             height={627}
