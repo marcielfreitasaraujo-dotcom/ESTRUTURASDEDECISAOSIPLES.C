@@ -26,43 +26,23 @@
     frame.setAttribute("src", mapsEmbed);
   });
 
-  const applyWhatsapp = () => {
-    document.querySelectorAll("[data-whatsapp]").forEach((el) => {
-      if (waUrl) {
-        el.hidden = false;
-        el.setAttribute("href", waUrl);
+  const bindContact = (selector, url) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      el.hidden = false;
+      if (url) {
+        el.setAttribute("href", url);
         el.setAttribute("target", "_blank");
         el.setAttribute("rel", "noopener noreferrer");
-      } else if (el.classList.contains("wa-float") || el.classList.contains("btn")) {
+      } else {
         el.setAttribute("href", "#contato");
         el.removeAttribute("target");
-      } else {
-        el.hidden = true;
+        el.removeAttribute("rel");
       }
-    });
-    document.querySelectorAll("[data-whatsapp-soon]").forEach((el) => {
-      el.hidden = Boolean(waUrl);
     });
   };
 
-  const applyInstagram = () => {
-    document.querySelectorAll("[data-instagram]").forEach((el) => {
-      if (instagram) {
-        el.hidden = false;
-        el.setAttribute("href", instagram);
-        el.setAttribute("target", "_blank");
-        el.setAttribute("rel", "noopener noreferrer");
-      } else {
-        el.hidden = true;
-      }
-    });
-    document.querySelectorAll("[data-instagram-soon]").forEach((el) => {
-      el.hidden = Boolean(instagram);
-    });
-  };
-
-  applyWhatsapp();
-  applyInstagram();
+  bindContact("[data-whatsapp]", waUrl);
+  bindContact("[data-instagram]", instagram);
 
   const header = document.querySelector(".site-header");
   const toggle = document.querySelector(".menu-toggle");
@@ -173,33 +153,4 @@
       if (event.key === "ArrowRight") openLightbox(current + 1);
     }
   });
-
-  const form = document.getElementById("formulario");
-  if (form) {
-    form.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const nome = (form.nome.value || "").trim();
-      const fone = (form.whatsapp.value || "").trim();
-      const texto = (form.mensagem.value || "").trim() || mensagem;
-      const status = form.querySelector(".form-status");
-
-      if (!nome || !fone) {
-        status.textContent = "Preencha nome e WhatsApp para continuar.";
-        return;
-      }
-
-      const corpo = "Olá! Meu nome é " + nome + ". WhatsApp: " + fone + ". " + texto;
-
-      if (waUrl) {
-        const url = "https://wa.me/" + whatsapp + "?text=" + encodeURIComponent(corpo);
-        window.open(url, "_blank", "noopener,noreferrer");
-        status.textContent = "Abrindo o WhatsApp da Movifit...";
-        form.reset();
-        return;
-      }
-
-      status.textContent =
-        "O WhatsApp oficial ainda será publicado. Enquanto isso, visite a academia na Av. Chico Brito, 94 — Estreito-MA.";
-    });
-  }
 })();

@@ -70,4 +70,7 @@ def test_acessibilidade_basica():
     assert 'lang="pt-BR"' in HTML
     assert "Pular para o conteúdo" in HTML
     assert 'aria-label="Abrir menu"' in HTML
+    assert "data-whatsapp" in HTML
+    assert "data-instagram" in HTML
+    assert "lead-form" not in HTML
     assert 'Fale com a Movifit' in HTML

@@ -813,7 +813,7 @@ h1, h2, h3 {
 
 .cta-final {
   position: relative;
-  min-height: 760px;
+  min-height: 620px;
   display: grid;
   align-items: center;
   overflow: hidden;
@@ -832,50 +832,59 @@ h1, h2, h3 {
 
 .cta-inner { position: relative; z-index: 1; padding: 5rem 0; }
 .cta-lead { color: var(--gray); font-size: 1.15rem; }
-.cta-actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin: 1.4rem 0 2rem; }
 
-.lead-form {
-  max-width: 420px;
-  display: grid;
-  gap: 0.8rem;
-  background: rgba(5, 5, 5, 0.72);
-  border: 1px solid var(--line);
-  padding: 1.3rem;
-  border-radius: var(--radius);
+.contact-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 1.6rem;
 }
 
-.form-title {
-  margin: 0;
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 56px;
+  padding: 0.75rem 1.2rem;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--black);
   font-family: var(--font-head);
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.82rem;
-  color: var(--yellow);
+  font-size: 0.86rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
-.lead-form label {
-  display: grid;
-  gap: 0.35rem;
-  font-size: 0.82rem;
-  color: var(--gray);
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
 }
 
-.lead-form input,
-.lead-form textarea {
-  background: #101010;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--white);
-  border-radius: var(--radius);
-  padding: 0.75rem 0.8rem;
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  transform: scale(1.05);
+  background: #ffe14a;
+  box-shadow: 0 0 28px rgba(255, 208, 0, 0.28);
 }
 
-.lead-form input:focus,
-.lead-form textarea:focus {
-  outline: none;
-  border-color: var(--yellow);
+.icon-btn-sm {
+  width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
 }
 
-.form-status { min-height: 1.2em; margin: 0; color: var(--yellow); font-size: 0.88rem; }
+.icon-btn-sm span { display: none; }
+
+.social {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
 
 .site-footer {
   background: var(--black);
@@ -897,10 +906,6 @@ h1, h2, h3 {
 .footer-nav a { color: var(--gray); }
 .footer-nav a:hover { color: var(--yellow); }
 
-.social { display: grid; gap: 0.35rem; margin-top: 1rem; }
-.social-link { color: var(--yellow); font-weight: 600; }
-.social-soon { color: var(--gray); font-size: 0.88rem; }
-
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin-top: 2rem;
@@ -909,23 +914,26 @@ h1, h2, h3 {
   font-size: 0.88rem;
 }
 
-.wa-float {
+.float-contact {
   position: fixed;
   right: 1.1rem;
   bottom: 1.1rem;
   z-index: 60;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: var(--yellow);
-  color: var(--black);
   display: grid;
-  place-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(255, 208, 0, 0.35);
+  gap: 0.7rem;
 }
 
-.wa-float svg { width: 28px; height: 28px; }
-.wa-float:hover { transform: scale(1.06); }
+.icon-btn-float {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  min-height: 58px;
+  padding: 0;
+  border-radius: 50%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.icon-btn-float svg { width: 28px; height: 28px; }
 
 .wa-tip {
   position: absolute;
@@ -943,8 +951,8 @@ h1, h2, h3 {
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.wa-float:hover .wa-tip,
-.wa-float:focus-visible .wa-tip {
+.icon-btn-float:hover .wa-tip,
+.icon-btn-float:focus-visible .wa-tip {
   opacity: 1;
   transform: none;
 }
@@ -1016,7 +1024,7 @@ body.menu-open,
 body.lightbox-open { overflow: hidden; }
 
 body.lightbox-open .site-header,
-body.lightbox-open .wa-float { visibility: hidden; }
+body.lightbox-open .float-contact { visibility: hidden; }
 
 @media (max-width: 1024px) {
   .cards { grid-template-columns: 1fr 1fr; }
@@ -1076,8 +1084,9 @@ body.lightbox-open .wa-float { visibility: hidden; }
   .cards, .gallery, .footer-grid { grid-template-columns: 1fr; }
   .mosaic { grid-template-columns: 1fr; }
   .hero-copy { padding: 7rem 0 6.5rem; }
-  .hero-actions, .cta-actions { flex-direction: column; }
-  .hero-actions .btn, .cta-actions .btn { width: 100%; }
+  .hero-actions { flex-direction: column; }
+  .hero-actions .btn { width: 100%; }
+  .contact-icons { flex-direction: column; align-items: flex-start; }
   .about-media picture { min-height: 280px; }
   .wa-tip { display: none; }
   .lightbox-prev, .lightbox-next { top: auto; bottom: 1rem; }

@@ -27,7 +27,7 @@ window.MOVIFIT_CONFIG = {
 };
 ```
 
-Campos vazios não inventam contato: o site mostra “em breve”.
+Campos vazios não inventam contato: os ícones de WhatsApp e Instagram continuam visíveis. Quando o número e o perfil oficiais forem preenchidos, os ícones abrem a conversa e o Instagram.
 
 ## Trocar fotos reais
 
