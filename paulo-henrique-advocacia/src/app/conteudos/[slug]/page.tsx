@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { WhatsAppButton } from "@/components/ui/ButtonLink";
 import { PageHero } from "@/components/ui/PageHero";
 import { articles, getArticle } from "@/lib/articles";
+import { withBase } from "@/lib/paths";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -42,7 +43,7 @@ export default async function ArticlePage({ params }: Props) {
         </p>
         <div className="relative mt-6 aspect-[16/9] overflow-hidden">
           <Image
-            src={article.image}
+            src={withBase(article.image)}
             alt={article.imageAlt}
             fill
             className="object-cover"

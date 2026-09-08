@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { footerLinks, site, whatsappUrl } from "@/lib/site";
+import { withBase } from "@/lib/paths";
 
 export function Footer() {
   return (
@@ -9,7 +10,7 @@ export function Footer() {
         <div className="lg:col-span-5">
           <Link href="/#inicio" className="inline-flex max-w-xs items-center">
             <Image
-              src="/images/logo-oficial.webp"
+              src={withBase("/images/logo-oficial.webp")}
               alt="Paulo Henrique de Araújo dos Santos — Advogado"
               width={280}
               height={230}

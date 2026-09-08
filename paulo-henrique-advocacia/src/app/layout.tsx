@@ -5,6 +5,7 @@ import { FloatingActions } from "@/components/layout/FloatingActions";
 import { Header } from "@/components/layout/Header";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { MotionRoot } from "@/components/ui/MotionRoot";
+import { withBase } from "@/lib/paths";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
     description: site.description,
     images: [
       {
-        url: "/images/og.jpg",
+        url: withBase("/images/og.jpg"),
         width: 1200,
         height: 630,
         alt: site.name,
@@ -66,15 +67,15 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Paulo Henrique Advocacia Previdenciária | Estreito - MA",
     description: site.description,
-    images: ["/images/og.jpg"],
+    images: [withBase("/images/og.jpg")],
   },
   robots: { index: true, follow: true },
   icons: {
     icon: [
-      { url: "/images/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/images/favicon-64.png", sizes: "64x64", type: "image/png" },
+      { url: withBase("/images/favicon-32.png"), sizes: "32x32", type: "image/png" },
+      { url: withBase("/images/favicon-64.png"), sizes: "64x64", type: "image/png" },
     ],
-    apple: [{ url: "/images/apple-touch-icon.png", sizes: "180x180" }],
+    apple: [{ url: withBase("/images/apple-touch-icon.png"), sizes: "180x180" }],
   },
 };
 
