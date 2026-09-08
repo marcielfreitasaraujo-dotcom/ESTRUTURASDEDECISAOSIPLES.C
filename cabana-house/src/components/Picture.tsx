@@ -1,3 +1,5 @@
+import { asset } from '../lib/asset'
+
 type PictureProps = {
   src: string
   webp?: string
@@ -9,9 +11,9 @@ type PictureProps = {
 export function Picture({ src, webp, alt, className, priority }: PictureProps) {
   return (
     <picture className="contents">
-      {webp ? <source type="image/webp" srcSet={webp} /> : null}
+      {webp ? <source type="image/webp" srcSet={asset(webp)} /> : null}
       <img
-        src={src}
+        src={asset(src)}
         alt={alt}
         className={className}
         loading={priority ? 'eager' : 'lazy'}

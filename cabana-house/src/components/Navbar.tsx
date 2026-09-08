@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { restaurant, whatsappUrl } from '../data/restaurant'
 import { navLinks } from '../data/nav'
+import { asset } from '../lib/asset'
 
 type NavbarProps = {
   open: boolean
@@ -41,7 +42,7 @@ export function Navbar({ open, onOpenChange }: NavbarProps) {
         <div className="mx-auto flex max-w-site items-center justify-between gap-4 px-4 py-3 md:px-6">
           <a href="#inicio" className="flex items-center gap-3" aria-label="Cabana House — início">
             <img
-              src="/brand/logo.png"
+              src={asset('/brand/logo.png')}
               alt=""
               width={169}
               height={169}

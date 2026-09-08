@@ -1,6 +1,7 @@
 import { restaurant, whatsappUrl } from '../data/restaurant'
 import { navLinks } from '../data/nav'
 import { BrandLine } from './BrandLine'
+import { asset } from '../lib/asset'
 
 export function Footer() {
   return (
@@ -9,7 +10,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-site gap-10 px-4 py-16 md:grid-cols-3 md:px-6">
         <div>
           <img
-            src="/brand/logo.png"
+            src={asset('/brand/logo.png')}
             alt="Cabana House"
             width={169}
             height={169}

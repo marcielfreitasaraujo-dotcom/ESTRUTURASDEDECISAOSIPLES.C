@@ -17,6 +17,7 @@ COLOR_OPACITY = re.compile(
 IMAGE_REF = re.compile(r"/images/[a-z0-9-]+\.jpg")
 WEBP_REF = re.compile(r"/images/[a-z0-9-]+\.webp")
 PNG_ASSINATURA = b"\x89PNG\r\n\x1a\n"
+TAG_CRUA = re.compile(r"<(?:img|source)\b[^>]*>", re.S)
 
 
 def cabecalho_png(caminho: Path) -> tuple[int, int, int]:
@@ -100,6 +101,28 @@ class TestCabanaHouse(unittest.TestCase):
             texto = arquivo.read_text(encoding="utf-8")
             self.assertNotIn("logo.svg", texto, arquivo.name)
             self.assertNotIn("mark.svg", texto, arquivo.name)
+
+    def test_build_usa_caminhos_relativos(self) -> None:
+        """Sem `base: './'` o build só funciona na raiz de um domínio.
+
+        Servido em subpasta (githack, GitHub Pages de projeto) um caminho absoluto
+        aponta para a raiz do host e o site abre sem CSS, sem JS e sem imagem.
+        """
+        config = (ROOT / "vite.config.ts").read_text(encoding="utf-8")
+        self.assertRegex(config, r"base:\s*'\./'")
+
+    def test_assets_passam_pelo_resolvedor_de_base(self) -> None:
+        """Uma tag crua com `src` absoluto escapa do `asset()` e quebra em subpasta.
+
+        `<Picture src="/images/...">` continua valendo: quem resolve a base ali é o
+        próprio Picture. O risco é o `<img>`/`<source>` escrito à mão.
+        """
+        for arquivo in (ROOT / "src").rglob("*.tsx"):
+            for tag in TAG_CRUA.findall(arquivo.read_text(encoding="utf-8")):
+                for atributo in ('src="/', 'srcSet="/'):
+                    self.assertNotIn(
+                        atributo, tag, f"{arquivo.name}: envolva com asset() -> {tag[:60]}"
+                    )
 
     def test_cada_foto_aparece_em_um_unico_lugar(self) -> None:
         """Repetir a mesma foto em seções diferentes descaracteriza a apresentação."""
