@@ -823,7 +823,7 @@ h1, h2, h3 {
 .lightbox {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 100;
   background: rgba(0, 0, 0, 0.92);
   display: grid;
   place-items: center;
@@ -883,7 +883,11 @@ h1, h2, h3 {
   to { opacity: 1; transform: none; }
 }
 
-body.menu-open { overflow: hidden; }
+body.menu-open,
+body.lightbox-open { overflow: hidden; }
+
+body.lightbox-open .site-header,
+body.lightbox-open .wa-float { visibility: hidden; }
 
 @media (max-width: 1024px) {
   .cards { grid-template-columns: 1fr 1fr; }
@@ -940,7 +944,7 @@ body.menu-open { overflow: hidden; }
 
 @media (max-width: 640px) {
   :root { --header: 72px; }
-  .cards, .gallery, .footer-grid, .hero-strip { grid-template-columns: 1fr; }
+  .cards, .gallery, .footer-grid { grid-template-columns: 1fr; }
   .mosaic { grid-template-columns: 1fr; }
   .hero-copy { padding: 7rem 0 6.5rem; }
   .hero-actions, .cta-actions { flex-direction: column; }

@@ -124,14 +124,14 @@
     lightboxImg.alt = item.querySelector("img") ? item.querySelector("img").alt : "";
     lightboxCap.textContent = item.getAttribute("data-caption") || "";
     lightbox.hidden = false;
-    document.body.style.overflow = "hidden";
+    document.body.classList.add("lightbox-open");
     lightbox.querySelector(".lightbox-close").focus();
   };
 
   const closeLightbox = () => {
     if (!lightbox) return;
     lightbox.hidden = true;
-    document.body.style.overflow = "";
+    document.body.classList.remove("lightbox-open");
     lightboxImg.src = "";
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   };
