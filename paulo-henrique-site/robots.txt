@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Host: https://paulohenriqueadvocacia.com.br
+Sitemap: https://paulohenriqueadvocacia.com.br/sitemap.xml

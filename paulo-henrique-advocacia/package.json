@@ -7,6 +7,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "export:githack": "GITHACK_EXPORT=1 NEXT_PUBLIC_BASE_PATH=/marcielfreitasaraujo-dotcom/ESTRUTURASDEDECISAOSIPLES.C/cursor/fix-logo-crest-tip-ad5f/paulo-henrique-site next build && rm -rf ../paulo-henrique-site && mv out ../paulo-henrique-site && touch ../paulo-henrique-site/.nojekyll",
     "lint": "eslint"
   },
   "dependencies": {

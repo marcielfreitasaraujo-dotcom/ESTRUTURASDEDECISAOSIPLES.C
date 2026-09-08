@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { withBase } from "@/lib/paths";
 import { whatsappUrl } from "@/lib/site";
 
 type Variant = "gold" | "outline-light" | "outline-dark" | "ghost";
@@ -34,7 +35,7 @@ export function ButtonLink({
 
   return (
     <a
-      href={href}
+      href={isExternal ? href : withBase(href)}
       aria-label={ariaLabel}
       {...(isExternal
         ? { target: "_blank", rel: "noopener noreferrer" }

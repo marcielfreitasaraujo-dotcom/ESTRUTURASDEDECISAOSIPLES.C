@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { withBase } from "@/lib/paths";
 import { navItems, site, whatsappUrl } from "@/lib/site";
 
 export function Header() {
@@ -82,7 +83,7 @@ export function Header() {
         >
           <span className="header-crest">
             <img
-              src="/images/logo.png"
+              src={withBase("/images/logo.png")}
               alt="Brasão PH — Paulo Henrique Advocacia"
               width={52}
               height={62}
@@ -107,7 +108,7 @@ export function Header() {
           {navItems.map((item) => (
             <a
               key={item.href}
-              href={isHome ? `#${item.id}` : item.href}
+              href={isHome ? `#${item.id}` : withBase(item.href)}
               className="nav-link"
               aria-current={isHome && active === item.id ? "true" : undefined}
             >
@@ -156,7 +157,7 @@ export function Header() {
           {navItems.map((item) => (
             <a
               key={item.href}
-              href={isHome ? `#${item.id}` : item.href}
+              href={isHome ? `#${item.id}` : withBase(item.href)}
               className="border-b border-white/10 py-3.5 text-sm tracking-wide text-ivory"
               onClick={() => setOpen(false)}
             >
