@@ -2,7 +2,7 @@
   const cfg = window.MOVIFIT_CONFIG || {};
   const whatsapp = String(cfg.whatsapp || "").replace(/\D/g, "");
   const instagram = String(cfg.instagram || "").trim();
-  const mapsQuery = cfg.mapsQuery || "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito - MA, 65975-000";
+  const mapsQuery = cfg.mapsQuery || "Av. Chico Brito, 94, Loteamento São Bernardo, Estreito, Maranhão, Brasil, 65975-000";
   const mensagem = cfg.mensagemWhatsApp || "Olá! Gostaria de conhecer a Movifit Academia e saber mais sobre os planos.";
 
   const waUrl = whatsapp
