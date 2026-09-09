@@ -2,8 +2,12 @@ import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth-forms";
+import { missingRuntimeSecrets } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
+
+const CONFIG_ERROR =
+  "O site ainda não tem banco de dados. No Netlify, abra Variáveis ambientais e cadastre DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL.";
 
 export default async function LoginPage({
   searchParams,
@@ -11,13 +15,14 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const params = await searchParams;
+  const needsConfig = missingRuntimeSecrets().length > 0;
   const error =
-    params.error === "credentials"
-      ? "Usuário ou senha inválidos."
-      : params.error === "invalid"
-        ? "Informe o usuário e a senha."
-        : params.error === "config"
-          ? "O site ainda não tem banco de dados. No Netlify, abra Variáveis ambientais e cadastre DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL."
+    needsConfig || params.error === "config"
+      ? CONFIG_ERROR
+      : params.error === "credentials"
+        ? "Usuário ou senha inválidos."
+        : params.error === "invalid"
+          ? "Informe o usuário e a senha."
           : undefined;
 
   return (
