@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isInfraError, missingRuntimeSecrets } from "@/lib/env";
 import { signInSchema, signUpSchema } from "@/server/validation";
 import { writeAudit } from "@/server/audit";
 import { publicErrorMessage } from "@/lib/errors";
@@ -38,9 +39,12 @@ export async function signInFormAction(formData: FormData) {
   if (!parsed.success) {
     redirect("/entrar?error=invalid");
   }
-  const email = await resolveLoginEmail(parsed.data.login);
-  if (!email) redirect("/entrar?error=credentials");
+  if (missingRuntimeSecrets().length) {
+    redirect("/entrar?error=config");
+  }
   try {
+    const email = await resolveLoginEmail(parsed.data.login);
+    if (!email) redirect("/entrar?error=credentials");
     const signedIn = await auth.api.signInEmail({
       headers: await headers(),
       body: { email, password: parsed.data.password },
@@ -56,6 +60,7 @@ export async function signInFormAction(formData: FormData) {
   } catch (error) {
     const digest = typeof error === "object" && error && "digest" in error ? String((error as { digest?: string }).digest) : "";
     if (digest.startsWith("NEXT_REDIRECT")) throw error;
+    if (isInfraError(error)) redirect("/entrar?error=config");
     redirect("/entrar?error=credentials");
   }
 }
@@ -68,9 +73,15 @@ export async function signInAction(formData: FormData) {
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
-  const email = await resolveLoginEmail(parsed.data.login);
-  if (!email) return { error: "Usuário ou senha inválidos." };
+  if (missingRuntimeSecrets().length) {
+    return {
+      error:
+        "O site ainda não tem banco de dados. Cadastre DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL no Netlify.",
+    };
+  }
   try {
+    const email = await resolveLoginEmail(parsed.data.login);
+    if (!email) return { error: "Usuário ou senha inválidos." };
     const signedIn = await auth.api.signInEmail({
       headers: await headers(),
       body: { email, password: parsed.data.password },

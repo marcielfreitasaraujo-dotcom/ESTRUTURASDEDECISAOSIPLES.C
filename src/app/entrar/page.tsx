@@ -3,6 +3,8 @@ import { Brand } from "@/components/brand";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth-forms";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage({
   searchParams,
 }: {
@@ -14,7 +16,9 @@ export default async function LoginPage({
       ? "Usuário ou senha inválidos."
       : params.error === "invalid"
         ? "Informe o usuário e a senha."
-        : undefined;
+        : params.error === "config"
+          ? "O site ainda não tem banco de dados. No Netlify, abra Variáveis ambientais e cadastre DATABASE_URL, BETTER_AUTH_SECRET e BETTER_AUTH_URL."
+          : undefined;
 
   return (
     <div className="dark flex min-h-screen items-center justify-center bg-background px-4 text-foreground">

@@ -12,6 +12,13 @@ export const auth = betterAuth({
   appName: env.APP_NAME,
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins: [
+    env.BETTER_AUTH_URL,
+    process.env.URL,
+    process.env.DEPLOY_PRIME_URL,
+    process.env.DEPLOY_URL,
+    "https://*.netlify.app",
+  ].filter((value): value is string => Boolean(value)),
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
