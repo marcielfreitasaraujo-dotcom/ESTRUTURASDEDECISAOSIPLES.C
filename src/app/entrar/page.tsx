@@ -34,12 +34,12 @@ export default async function LoginPage({
               <ul className="mt-2 space-y-1">
                 <li>Plataforma: xavier.y@example.org</li>
                 <li>Dona: maria.s@example.com</li>
-                <li>Gerente: xavier.y@example.org</li>
+                <li>Gerente: gerente.central@comandaia.test</li>
                 <li>Caixa: marco.r@example.org</li>
                 <li>Garçom: paula.r@example.org</li>
                 <li>Cozinha: leo.a@example.org</li>
-                <li>Motoboy: marco.r@example.org</li>
-                <li>Apoio: paula.r@example.org</li>
+                <li>Motoboy: motoboy.central@comandaia.test</li>
+                <li>Apoio: apoio.central@comandaia.test</li>
               </ul>
             </div>
           ) : null}

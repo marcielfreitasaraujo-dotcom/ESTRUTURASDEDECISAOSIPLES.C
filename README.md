@@ -28,12 +28,12 @@ Abra [http://127.0.0.1:3000](http://127.0.0.1:3000).
 |---|---|---|
 | Super admin (plataforma) | xavier.y@example.org | FornoAdmin!2026 |
 | Owner Central da Pizza | maria.s@example.com | CentralPizza!2026 |
-| Gerente | xavier.y@example.org | Gerente!2026 |
+| Gerente | gerente.central@comandaia.test | Gerente!2026 |
 | Caixa | marco.r@example.org | Caixa!2026 |
 | Garçom | paula.r@example.org | Garcom!2026 |
 | Cozinha | leo.a@example.org | Cozinha!2026 |
-| Motoboy | marco.r@example.org | Entrega!2026 |
-| Apoio | paula.r@example.org | Staff!2026 |
+| Motoboy | motoboy.central@comandaia.test | Entrega!2026 |
+| Apoio | apoio.central@comandaia.test | Staff!2026 |
 | Owner tenant B | wendy.h@example.net | PizzariaTeste!2026 |
 
 Cardápio piloto: `/loja/central-da-pizza`  

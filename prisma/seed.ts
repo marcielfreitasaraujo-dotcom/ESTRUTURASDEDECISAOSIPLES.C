@@ -541,7 +541,7 @@ async function main() {
   });
   const manager = await upsertUser({
     name: "Gerente Central",
-    email: "xavier.y@example.org",
+    email: "gerente.central@comandaia.test",
     password: "Gerente!2026",
     platformRole: "USER",
   });
@@ -553,13 +553,13 @@ async function main() {
   });
   const driverUser = await upsertUser({
     name: "Motoboy Central",
-    email: "marco.r@example.org",
+    email: "motoboy.central@comandaia.test",
     password: "Entrega!2026",
     platformRole: "USER",
   });
   const staff = await upsertUser({
     name: "Apoio Central",
-    email: "paula.r@example.org",
+    email: "apoio.central@comandaia.test",
     password: "Staff!2026",
     platformRole: "USER",
   });
