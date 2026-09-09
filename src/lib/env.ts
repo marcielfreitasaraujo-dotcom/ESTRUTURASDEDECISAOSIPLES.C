@@ -5,7 +5,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.string().url(),
-  APP_NAME: z.string().default("Forno"),
+  APP_NAME: z.string().default("Comanda IA"),
   APP_VERSION: z.string().default("0.1.0"),
   SEED_SUPER_ADMIN_EMAIL: z.string().email().optional(),
   SEED_SUPER_ADMIN_PASSWORD: z.string().min(8).optional(),

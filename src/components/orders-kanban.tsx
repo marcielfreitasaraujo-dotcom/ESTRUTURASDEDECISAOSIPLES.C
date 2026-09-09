@@ -9,6 +9,7 @@ type OrderCard = {
   publicCode: string;
   status: OrderStatus;
   customerName: string;
+  tableNumber?: string | null;
   totalCents: number;
   notes: string | null;
   items: { name: string; quantity: number }[];
@@ -37,7 +38,10 @@ export function OrdersKanban({ orders }: { orders: OrderCard[] }) {
                     <p className="font-mono text-sm">#{order.publicCode}</p>
                     <StatusBadge status={order.status} />
                   </div>
-                  <p className="mt-2 text-sm">{order.customerName}</p>
+                  <p className="mt-2 text-sm">
+                    {order.customerName}
+                    {order.tableNumber ? ` · Mesa ${order.tableNumber}` : ""}
+                  </p>
                   <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
                     {order.items.map((item) => (
                       <li key={item.name}>

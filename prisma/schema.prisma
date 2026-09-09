@@ -21,6 +21,7 @@ enum TenantRole {
   OWNER
   MANAGER
   CASHIER
+  WAITER
   KITCHEN
   DELIVERY
   STAFF
@@ -67,6 +68,7 @@ enum OrderStatus {
 enum FulfillmentType {
   DELIVERY
   PICKUP
+  DINE_IN
 }
 
 enum PaymentMethod {
@@ -628,6 +630,7 @@ model Order {
   customer           Customer?       @relation(fields: [customerId], references: [id])
   status             OrderStatus     @default(PENDING)
   fulfillment        FulfillmentType
+  tableNumber        String?
   customerName       String
   customerPhone      String
   customerEmail      String?
@@ -666,6 +669,7 @@ model Order {
   @@unique([tenantId, idempotencyKey])
   @@index([tenantId, status, createdAt])
   @@index([tenantId, customerId])
+  @@index([tenantId, tableNumber])
   @@map("orders")
 }
 

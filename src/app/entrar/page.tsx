@@ -17,18 +17,32 @@ export default async function LoginPage({
         : undefined;
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="dark flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
       <Card className="w-full max-w-md">
-        <CardHeader>
+        <CardHeader className="gap-4">
           <Brand />
-          <CardTitle className="font-heading text-2xl">Entrar no Forno</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Entrar no Comanda IA</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            O mesmo login na nuvem. O sistema abre o app certo: plataforma, caixa ou garçom.
+          </p>
         </CardHeader>
         <CardContent className="grid gap-4">
           <LoginForm error={error} />
+          {process.env.NODE_ENV !== "production" ? (
+            <div className="rounded-xl border p-3 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">Acessos de teste</p>
+              <ul className="mt-2 space-y-1">
+                <li>Plataforma: xavier.y@example.org</li>
+                <li>Dona / gestão: maria.s@example.com</li>
+                <li>Caixa: xavier.y@example.org</li>
+                <li>Garçom: paula.r@example.org</li>
+              </ul>
+            </div>
+          ) : null}
           <p className="text-center text-sm text-muted-foreground">
             Ainda não tem conta?{" "}
             <Link className="underline" href="/cadastrar">
-              Criar pizzaria
+              Criar restaurante
             </Link>
           </p>
         </CardContent>

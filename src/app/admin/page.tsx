@@ -18,8 +18,10 @@ export default async function AdminHomePage() {
   return (
     <div className="grid gap-6">
       <div>
-        <h1 className="font-heading text-3xl">Painel da plataforma</h1>
-        <p className="text-sm text-muted-foreground">Métricas reais do banco. Ações sensíveis geram AuditLog.</p>
+        <h1 className="text-3xl font-semibold">Painel da plataforma</h1>
+        <p className="text-sm text-muted-foreground">
+          Comanda IA: estabelecimentos, uso e receita. Ações sensíveis geram AuditLog.
+        </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(([label, value]) => (

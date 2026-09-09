@@ -1,6 +1,6 @@
-# Arquitetura — Forno
+# Arquitetura — Comanda IA
 
-Forno é uma plataforma SaaS multi-tenant para pizzarias. O repositório anterior (FinUP / Flask) foi substituído neste branch: o produto agora é Next.js, PostgreSQL e domínio de restaurante, não finanças pessoais.
+Comanda IA é uma plataforma SaaS multi-tenant para restaurantes e pizzarias. O repositório anterior (FinUP / Flask) foi substituído neste branch. O produto é um único sistema na nuvem, com superfícies distintas para plataforma, caixa, garçom, cozinha e cliente.
 
 ## Princípios
 

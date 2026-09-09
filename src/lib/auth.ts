@@ -19,7 +19,7 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       await sendTransactionalEmail({
         to: user.email,
-        subject: "Redefinição de senha — Forno",
+        subject: "Redefinição de senha — Comanda IA",
         text: `Olá ${user.name},\n\nPara redefinir sua senha, acesse:\n${url}\n\nSe você não pediu isso, ignore este e-mail.`,
       });
     },
@@ -55,7 +55,7 @@ export const auth = betterAuth({
     max: 20,
   },
   advanced: {
-    cookiePrefix: "forno",
+    cookiePrefix: "comanda",
     useSecureCookies: env.NODE_ENV === "production",
   },
   databaseHooks: {

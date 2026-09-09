@@ -7,7 +7,7 @@ function write(level: LogLevel, message: string, fields?: LogFields) {
     level,
     message,
     timestamp: new Date().toISOString(),
-    service: "forno",
+    service: "comanda-ia",
     ...fields,
   };
   const line = JSON.stringify(payload);

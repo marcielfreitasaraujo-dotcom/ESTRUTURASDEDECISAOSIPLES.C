@@ -5,11 +5,11 @@ import { SignUpForm } from "@/components/auth-forms";
 
 export default function SignUpPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="dark flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
       <Card className="w-full max-w-md">
         <CardHeader>
           <Brand />
-          <CardTitle className="font-heading text-2xl">Cadastrar pizzaria</CardTitle>
+          <CardTitle className="text-2xl font-semibold">Cadastrar restaurante</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4">
           <SignUpForm />

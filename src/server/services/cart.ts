@@ -8,7 +8,7 @@ import { writeAudit } from "@/server/audit";
 import { getPaymentProvider } from "@/server/providers/payment";
 import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
 
-const CART_COOKIE = "forno_cart";
+const CART_COOKIE = "comanda_cart";
 
 export async function getCart(tenantId: string) {
   const store = await cookies();

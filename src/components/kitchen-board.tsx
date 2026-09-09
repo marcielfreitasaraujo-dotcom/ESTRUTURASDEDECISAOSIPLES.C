@@ -5,6 +5,7 @@ import { formatBRL } from "@/lib/money";
 type Ticket = {
   id: string;
   publicCode: string;
+  tableNumber?: string | null;
   status: "CONFIRMED" | "PREPARING";
   elapsedMinutes: number;
   notes: string | null;
@@ -28,6 +29,7 @@ export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
               <h2 className="font-mono text-2xl">#{ticket.publicCode}</h2>
               <span className="text-sm">{minutes} min</span>
             </div>
+            {ticket.tableNumber ? <p className="mt-1 text-sm text-primary">Mesa {ticket.tableNumber}</p> : null}
             <ul className="mt-4 space-y-2 text-sm">
               {ticket.items.map((item) => (
                 <li key={item.name}>

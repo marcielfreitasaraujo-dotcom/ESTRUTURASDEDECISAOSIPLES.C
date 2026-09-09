@@ -10,18 +10,20 @@ export function AppShell({
   title,
   items,
   userName,
+  homeHref = "/app",
   children,
 }: {
   title: string;
   items: NavItem[];
   userName: string;
+  homeHref?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="dark min-h-screen bg-background text-foreground">
       <div className="mx-auto flex min-h-screen max-w-[1400px]">
-        <aside className="hidden w-60 shrink-0 border-r p-4 md:block">
-          <Brand />
+        <aside className="hidden w-64 shrink-0 border-r p-4 md:block">
+          <Brand href={homeHref} />
           <p className="mt-3 text-xs text-muted-foreground">{title}</p>
           <nav className="mt-6 grid gap-1" aria-label="Principal">
             {items.map((item) => (
@@ -38,7 +40,7 @@ export function AppShell({
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
             <div className="md:hidden">
-              <Brand />
+              <Brand compact href={homeHref} />
             </div>
             <nav className="flex gap-2 overflow-x-auto md:hidden" aria-label="Mobile">
               {items.map((item) => (

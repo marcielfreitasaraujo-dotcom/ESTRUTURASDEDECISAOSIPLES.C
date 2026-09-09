@@ -6,6 +6,8 @@ describe("RBAC", () => {
   it("OWNER gerencia o estabelecimento e CASHIER não altera o cardápio", () => {
     expect(hasPermission("OWNER", PERMISSIONS.SETTINGS_WRITE)).toBe(true);
     expect(hasPermission("CASHIER", PERMISSIONS.CATALOG_WRITE)).toBe(false);
+    expect(hasPermission("WAITER", PERMISSIONS.ORDER_CREATE)).toBe(true);
+    expect(hasPermission("WAITER", PERMISSIONS.ORDER_UPDATE)).toBe(false);
     expect(hasPermission("KITCHEN", PERMISSIONS.KITCHEN_UPDATE)).toBe(true);
     expect(hasPermission("DELIVERY", PERMISSIONS.ORDER_CANCEL)).toBe(false);
   });

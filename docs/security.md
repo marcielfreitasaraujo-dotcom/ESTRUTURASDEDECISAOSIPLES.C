@@ -1,6 +1,6 @@
 # Segurança
 
-- Sessões Better Auth, cookies prefixados `forno`, `secure` em produção.
+- Sessões Better Auth, cookies prefixados `comanda`, `secure` em produção.
 - Senhas com hash do Better Auth (`better-auth/crypto`). Nunca bcrypt manual.
 - RBAC estruturado; nenhum `if (email === ...)`.
 - Isolamento de tenant no servidor.

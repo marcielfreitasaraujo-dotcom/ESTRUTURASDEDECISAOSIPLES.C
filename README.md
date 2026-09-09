@@ -1,8 +1,8 @@
-# Forno
+# Comanda IA
 
-Plataforma SaaS para pizzarias: cardápio digital, montagem de pizza, pedidos, KDS e gestão do estabelecimento. Multi-tenant desde a primeira linha.
+Plataforma SaaS para restaurantes e pizzarias: cardápio digital, comanda no celular do garçom, PDV no computador do caixa, KDS e painel da plataforma. Multi-tenant, um único sistema na nuvem.
 
-Documentação: [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROADMAP.md](./ROADMAP.md) · [docs/](./docs/)
+Documentação: [ARCHITECTURE.md](./ARCHITECTURE.md) · [ROADMAP.md](./ROADMAP.md) · [docs/surfaces.md](./docs/surfaces.md) · [docs/](./docs/)
 
 ## Requisitos
 
@@ -26,11 +26,16 @@ Abra [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 | Papel | E-mail | Senha |
 |---|---|---|
-| Super admin | xavier.y@example.org | FornoAdmin!2026 |
+| Super admin (plataforma) | xavier.y@example.org | FornoAdmin!2026 |
 | Owner Central da Pizza | maria.s@example.com | CentralPizza!2026 |
+| Caixa | xavier.y@example.org | Caixa!2026 |
+| Garçom | paula.r@example.org | Garcom!2026 |
 | Owner tenant B | wendy.h@example.net | PizzariaTeste!2026 |
 
-Cardápio piloto: `/loja/central-da-pizza`
+Cardápio piloto: `/loja/central-da-pizza`  
+Garçom: `/garcom` (no celular: Adicionar à tela inicial)  
+Caixa: `/caixa`  
+Admin da plataforma: `/admin`
 
 Altere essas senhas antes de qualquer ambiente compartilhado. Em produção o seed não deve rodar.
 

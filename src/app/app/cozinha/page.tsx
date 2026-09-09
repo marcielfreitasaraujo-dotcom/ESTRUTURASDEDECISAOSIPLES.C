@@ -23,6 +23,7 @@ export default async function KitchenPage() {
           tickets={tickets.map((ticket) => ({
             id: ticket.id,
             publicCode: ticket.publicCode,
+            tableNumber: ticket.tableNumber,
             status: ticket.status as "CONFIRMED" | "PREPARING",
             elapsedMinutes: ticket.elapsedMinutes,
             notes: ticket.notes,

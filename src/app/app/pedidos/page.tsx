@@ -25,6 +25,7 @@ export default async function OrdersPage() {
             publicCode: order.publicCode,
             status: order.status,
             customerName: order.customerName,
+            tableNumber: order.tableNumber,
             totalCents: order.totalCents,
             notes: order.notes,
             items: order.items,

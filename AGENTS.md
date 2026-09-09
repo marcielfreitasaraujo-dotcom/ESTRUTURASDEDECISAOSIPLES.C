@@ -12,14 +12,14 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Product
 
-Forno is a multi-tenant SaaS for pizzerias (Next.js 16 + PostgreSQL + Prisma + Better Auth). Pilot tenant: Central da Pizza (`/loja/central-da-pizza`).
+Comanda IA is a multi-tenant SaaS for restaurants (Next.js 16 + PostgreSQL + Prisma + Better Auth). Same cloud system for platform admin (`/admin`), cashier POS (`/caixa`) and waiter phone (`/garcom`). Pilot tenant: Central da Pizza (`/loja/central-da-pizza`).
 
 ## Start / stop
 
 - `cp .env.example .env` then `npx prisma migrate dev && npm run db:seed && npm run dev`
 - App: `http://127.0.0.1:3000` (also `0.0.0.0:3000`)
 - Health: `GET /api/health`
-- Dev logins (seed only): `xavier.y@example.org` / `FornoAdmin!2026` and `maria.s@example.com` / `CentralPizza!2026`
+- Dev logins (seed only): platform `xavier.y@example.org` / `FornoAdmin!2026`; owner `maria.s@example.com` / `CentralPizza!2026`; cashier `xavier.y@example.org` / `Caixa!2026`; waiter `paula.r@example.org` / `Garcom!2026`
 
 ## Lint / test / build
 

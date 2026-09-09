@@ -1,4 +1,4 @@
-# Roadmap — Forno
+# Roadmap — Comanda IA
 
 Não construir tudo de uma vez. Cada fase só avança com lint, typecheck, testes e build verdes.
 
@@ -82,7 +82,7 @@ Não construir tudo de uma vez. Cada fase só avança com lint, typecheck, teste
 - Onboarding wizard com barra de progresso
 - Tempo real (SSE/WebSocket) no kanban
 - Upload S3 de logo/fotos
-- PWA instalável
+- PWA offline completo (manifest e ícones já existem; instalação no celular do garçom)
 - Domínio customizado do tenant
 - Gateway PIX/cartão de verdade
 - WhatsApp Business API

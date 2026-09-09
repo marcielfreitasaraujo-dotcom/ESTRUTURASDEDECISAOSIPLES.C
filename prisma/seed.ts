@@ -413,7 +413,7 @@ async function main() {
   await seedPermissions();
 
   const superAdmin = await upsertUser({
-    name: "Super Admin Forno",
+    name: "Super Admin Comanda IA",
     email: "xavier.y@example.org",
     password: "FornoAdmin!2026",
     platformRole: "SUPER_ADMIN",
@@ -422,6 +422,18 @@ async function main() {
     name: "Márcia Oliveira",
     email: "maria.s@example.com",
     password: "CentralPizza!2026",
+    platformRole: "USER",
+  });
+  const cashier = await upsertUser({
+    name: "Caixa Central",
+    email: "xavier.y@example.org",
+    password: "Caixa!2026",
+    platformRole: "USER",
+  });
+  const waiter = await upsertUser({
+    name: "Garçom Central",
+    email: "paula.r@example.org",
+    password: "Garcom!2026",
     platformRole: "USER",
   });
   const otherOwner = await upsertUser({
@@ -444,6 +456,16 @@ async function main() {
   });
 
   const central = await seedCentral(owner.id);
+  await prisma.tenantMembership.upsert({
+    where: { tenantId_userId: { tenantId: central.id, userId: cashier.id } },
+    update: { role: "CASHIER" },
+    create: { tenantId: central.id, userId: cashier.id, role: "CASHIER" },
+  });
+  await prisma.tenantMembership.upsert({
+    where: { tenantId_userId: { tenantId: central.id, userId: waiter.id } },
+    update: { role: "WAITER" },
+    create: { tenantId: central.id, userId: waiter.id, role: "WAITER" },
+  });
   await seedSecondTenant(otherOwner.id);
 
   await prisma.subscription.upsert({
@@ -469,6 +491,8 @@ async function main() {
   console.log("Seed ok");
   console.log(`super admin: ${superAdmin.email}`);
   console.log(`owner: ${owner.email}`);
+  console.log(`cashier: ${cashier.email}`);
+  console.log(`waiter: ${waiter.email}`);
   console.log(`tenant B: ${otherOwner.email}`);
 }
 

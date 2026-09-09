@@ -7,6 +7,26 @@ import { prisma } from "@/lib/db";
 import { signInSchema, signUpSchema } from "@/server/validation";
 import { writeAudit } from "@/server/audit";
 import { publicErrorMessage } from "@/lib/errors";
+import { postLoginPath } from "@/domain/rbac/home";
+import type { PlatformRole, TenantRole } from "@/domain/rbac/roles";
+
+async function homeForSession(
+  userId: string,
+  platformRole: string | null | undefined,
+  activeTenantId: string | null | undefined,
+) {
+  let tenantRole: TenantRole | null = null;
+  if (activeTenantId) {
+    const membership = await prisma.tenantMembership.findUnique({
+      where: { tenantId_userId: { tenantId: activeTenantId, userId } },
+    });
+    tenantRole = membership?.role ?? null;
+  }
+  return postLoginPath({
+    platformRole: (platformRole ?? "USER") as PlatformRole,
+    tenantRole,
+  });
+}
 
 export async function signInFormAction(formData: FormData) {
   const parsed = signInSchema.safeParse({
@@ -25,17 +45,15 @@ export async function signInFormAction(formData: FormData) {
     redirect("/entrar?error=credentials");
   }
   const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect("/entrar?error=credentials");
   await writeAudit({
     action: "LOGIN",
     entity: "User",
-    entityId: session?.user.id,
-    userId: session?.user.id,
-    tenantId: session?.session.activeTenantId,
+    entityId: session.user.id,
+    userId: session.user.id,
+    tenantId: session.session.activeTenantId,
   });
-  if (session?.user.platformRole === "SUPER_ADMIN" || session?.user.platformRole === "PLATFORM_ADMIN") {
-    redirect("/admin");
-  }
-  redirect("/app");
+  redirect(await homeForSession(session.user.id, session.user.platformRole, session.session.activeTenantId));
 }
 
 export async function signInAction(formData: FormData) {
@@ -59,7 +77,12 @@ export async function signInAction(formData: FormData) {
       userId: session?.user.id,
       tenantId: session?.session.activeTenantId,
     });
-    const destination = session?.user.platformRole === "SUPER_ADMIN" ? "/admin" : "/app";
+    if (!session) return { error: "E-mail ou senha inválidos." };
+    const destination = await homeForSession(
+      session.user.id,
+      session.user.platformRole,
+      session.session.activeTenantId,
+    );
     return { ok: true, redirectTo: destination };
   } catch (error) {
     return { error: publicErrorMessage(error).message === "Algo deu errado. Tente novamente em instantes."
@@ -150,4 +173,5 @@ export async function signOutAction() {
       userId: session.user.id,
     });
   }
+  redirect("/entrar");
 }
