@@ -429,13 +429,27 @@ async function seedCentral(ownerId: string) {
       });
   }
 
-  const readyOrder = await prisma.order.findFirst({ where: { tenantId: tenant.id, number: 1043 } });
-  if (!readyOrder) {
+  const readyKey = "seed-order-ready-delivery";
+  const readyOrder = await prisma.order.findFirst({
+    where: { tenantId: tenant.id, idempotencyKey: readyKey },
+  });
+  if (readyOrder) {
+    await prisma.order.update({
+      where: { id: readyOrder.id },
+      data: { status: "READY", fulfillment: "DELIVERY" },
+    });
+  } else {
+    const last = await prisma.order.findFirst({
+      where: { tenantId: tenant.id },
+      orderBy: { number: "desc" },
+      select: { number: true },
+    });
+    const number = (last?.number ?? 1040) + 1;
     await prisma.order.create({
       data: {
         tenantId: tenant.id,
-        number: 1043,
-        publicCode: "1043",
+        number,
+        publicCode: String(number).padStart(4, "0"),
         customerId: customer.id,
         status: "READY",
         fulfillment: "DELIVERY",
@@ -451,7 +465,7 @@ async function seedCentral(ownerId: string) {
         totalCents: 6490,
         paymentMethod: "PIX",
         paymentStatus: "PAID",
-        idempotencyKey: "seed-order-1043",
+        idempotencyKey: readyKey,
         items: {
           create: [
             {
