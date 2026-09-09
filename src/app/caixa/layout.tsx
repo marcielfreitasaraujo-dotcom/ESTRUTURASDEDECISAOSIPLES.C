@@ -1,14 +1,9 @@
 import { redirect } from "next/navigation";
 import { requireSession } from "@/server/context";
 import { postLoginPath } from "@/domain/rbac/home";
+import { navForUser } from "@/domain/rbac/nav";
 import { AppShell } from "@/components/app-shell";
 import { isPlatformAdmin } from "@/domain/rbac/roles";
-
-const ITEMS = [
-  { href: "/caixa", label: "PDV" },
-  { href: "/app/pedidos", label: "Fila" },
-  { href: "/app/cozinha", label: "Cozinha" },
-];
 
 export default async function CashierLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession().catch(() => null);
@@ -19,7 +14,12 @@ export default async function CashierLayout({ children }: { children: React.Reac
     redirect(postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole }));
   }
   return (
-    <AppShell title="Caixa · computador" items={ITEMS} userName={session.name} homeHref="/caixa">
+    <AppShell
+      title="Caixa · computador"
+      items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "caixa" })}
+      userName={session.name}
+      homeHref="/caixa"
+    >
       {children}
     </AppShell>
   );

@@ -1,34 +1,27 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { requireSession } from "@/server/context";
 import { postLoginPath } from "@/domain/rbac/home";
 import { navForUser } from "@/domain/rbac/nav";
 import { AppShell } from "@/components/app-shell";
 import { isPlatformAdmin } from "@/domain/rbac/roles";
 
-export default async function WaiterLayout({ children }: { children: React.ReactNode }) {
+export default async function EntregaLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession().catch(() => null);
   if (!session) redirect("/entrar");
   if (isPlatformAdmin(session.platformRole) && !session.tenantId) redirect("/admin");
-  const allowed = ["OWNER", "MANAGER", "WAITER", "STAFF", "CASHIER"];
+  const allowed = ["OWNER", "MANAGER", "DELIVERY"];
   if (session.tenantRole && !allowed.includes(session.tenantRole) && !isPlatformAdmin(session.platformRole)) {
     redirect(postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole }));
   }
 
   return (
     <AppShell
-      title="Garçom · celular"
-      items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "garcom" })}
+      title="Motoboy · celular"
+      items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "entrega" })}
       userName={session.name}
-      homeHref="/garcom"
+      homeHref="/entrega"
     >
       <div className="mx-auto max-w-xl">{children}</div>
-      <p className="mx-auto mt-8 max-w-xl text-center text-xs text-muted-foreground">
-        No celular: menu do navegador → <strong>Adicionar à tela inicial</strong>. É o mesmo sistema na nuvem.{" "}
-        <Link className="underline" href="/caixa">
-          Abrir caixa
-        </Link>
-      </p>
     </AppShell>
   );
 }

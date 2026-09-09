@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { requireTenantPermission } from "@/server/context";
+import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listCatalog } from "@/server/services/catalog";
 import { listOpenFloorOrders } from "@/server/services/pos";
@@ -15,8 +14,7 @@ export default async function CashierPage({
 }: {
   searchParams: Promise<{ error?: string; ok?: string }>;
 }) {
-  const ctx = await requireTenantPermission(PERMISSIONS.ORDER_CREATE).catch(() => null);
-  if (!ctx) redirect("/entrar");
+  const ctx = await requirePage(PERMISSIONS.ORDER_CREATE);
   const [{ error, ok }, catalog, open] = await Promise.all([
     searchParams,
     listCatalog(ctx.tenantId),

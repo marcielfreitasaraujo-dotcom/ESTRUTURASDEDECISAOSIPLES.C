@@ -1,13 +1,11 @@
-import { redirect } from "next/navigation";
-import { requireTenantPermission } from "@/server/context";
+import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { getKitchenQueue } from "@/server/services/orders";
 import { KitchenBoard } from "@/components/kitchen-board";
 import { EmptyState } from "@/components/empty-state";
 
 export default async function KitchenPage() {
-  const ctx = await requireTenantPermission(PERMISSIONS.KITCHEN_READ).catch(() => null);
-  if (!ctx) redirect("/entrar");
+  const ctx = await requirePage(PERMISSIONS.KITCHEN_READ);
   const tickets = await getKitchenQueue(ctx.tenantId);
 
   return (

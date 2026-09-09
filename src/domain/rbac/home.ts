@@ -14,7 +14,7 @@ export function postLoginPath(input: {
     case "KITCHEN":
       return "/app/cozinha";
     case "DELIVERY":
-      return "/app/pedidos";
+      return "/entrega";
     default:
       return "/app";
   }

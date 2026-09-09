@@ -1,13 +1,11 @@
-import { redirect } from "next/navigation";
-import { requireTenantPermission } from "@/server/context";
+import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listOrdersByStatus } from "@/server/services/orders";
 import { OrdersKanban } from "@/components/orders-kanban";
 import { EmptyState } from "@/components/empty-state";
 
 export default async function OrdersPage() {
-  const ctx = await requireTenantPermission(PERMISSIONS.ORDER_READ).catch(() => null);
-  if (!ctx) redirect("/entrar");
+  const ctx = await requirePage(PERMISSIONS.ORDER_READ);
   const orders = await listOrdersByStatus(ctx.tenantId);
 
   return (

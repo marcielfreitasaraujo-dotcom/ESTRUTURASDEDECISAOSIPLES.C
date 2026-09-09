@@ -17,6 +17,7 @@ export const PERMISSIONS = {
   TEAM_READ: "team.read",
   TEAM_WRITE: "team.write",
   FINANCE_READ: "finance.read",
+  FINANCE_WRITE: "finance.write",
   INVENTORY_READ: "inventory.read",
   INVENTORY_WRITE: "inventory.write",
   PLATFORM_ADMIN: "platform.admin",

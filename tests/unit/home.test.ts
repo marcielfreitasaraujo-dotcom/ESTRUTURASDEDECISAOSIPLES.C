@@ -7,6 +7,8 @@ describe("postLoginPath", () => {
     expect(postLoginPath({ platformRole: "USER", tenantRole: "CASHIER" })).toBe("/caixa");
     expect(postLoginPath({ platformRole: "USER", tenantRole: "WAITER" })).toBe("/garcom");
     expect(postLoginPath({ platformRole: "USER", tenantRole: "KITCHEN" })).toBe("/app/cozinha");
+    expect(postLoginPath({ platformRole: "USER", tenantRole: "DELIVERY" })).toBe("/entrega");
+    expect(postLoginPath({ platformRole: "USER", tenantRole: "STAFF" })).toBe("/garcom");
     expect(postLoginPath({ platformRole: "USER", tenantRole: "OWNER" })).toBe("/app");
   });
 });

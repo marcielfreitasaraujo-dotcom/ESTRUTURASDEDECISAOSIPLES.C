@@ -38,3 +38,28 @@ export async function setTenantStatus(input: {
 
   return updated;
 }
+
+export async function listPlatformUsers() {
+  return prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      memberships: { include: { tenant: { select: { name: true, slug: true } } } },
+    },
+    take: 200,
+  });
+}
+
+export async function listAuditLogs(limit = 80) {
+  return prisma.auditLog.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { user: { select: { name: true, email: true } }, tenant: { select: { name: true } } },
+  });
+}
+
+export async function listPlansWithSubs() {
+  return prisma.plan.findMany({
+    orderBy: { monthlyPriceCents: "asc" },
+    include: { subscriptions: { include: { tenant: { select: { name: true, slug: true } } } } },
+  });
+}

@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import { requireTenantPermission } from "@/server/context";
+import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { getTenantDashboard } from "@/server/services/dashboard";
 import { prisma } from "@/lib/db";
@@ -7,8 +6,7 @@ import { formatBRL } from "@/lib/money";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function DashboardPage() {
-  const ctx = await requireTenantPermission(PERMISSIONS.DASHBOARD_READ).catch(() => null);
-  if (!ctx) redirect("/entrar");
+  const ctx = await requirePage(PERMISSIONS.DASHBOARD_READ);
   const [metrics, tenant] = await Promise.all([
     getTenantDashboard(ctx.tenantId),
     prisma.tenant.findUnique({ where: { id: ctx.tenantId } }),

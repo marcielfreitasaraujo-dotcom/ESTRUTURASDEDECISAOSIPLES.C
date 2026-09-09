@@ -231,6 +231,20 @@ export async function placeOrder(input: {
   });
   const number = (last?.number ?? 1000) + 1;
   const publicCode = `${number.toString().padStart(4, "0")}`;
+  const digits = (input.customerPhone ?? "").replace(/\D/g, "");
+  const customer =
+    digits.length >= 10
+      ? await prisma.customer.upsert({
+          where: { tenantId_phone: { tenantId: input.tenantId, phone: digits } },
+          update: { name: input.customerName, email: input.customerEmail },
+          create: {
+            tenantId: input.tenantId,
+            name: input.customerName,
+            phone: digits,
+            email: input.customerEmail,
+          },
+        })
+      : null;
 
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
@@ -238,6 +252,7 @@ export async function placeOrder(input: {
         tenantId: input.tenantId,
         number,
         publicCode,
+        customerId: customer?.id,
         status: "PENDING",
         fulfillment: input.fulfillment,
         customerName: input.customerName,

@@ -120,12 +120,26 @@ export async function createStaffOrder(input: {
   });
   const number = (last?.number ?? 1000) + 1;
   const status = input.confirmImmediately ? "CONFIRMED" : "PENDING";
+  const digits = (input.customerPhone ?? "").replace(/\D/g, "");
+  const customer =
+    digits.length >= 10
+      ? await prisma.customer.upsert({
+          where: { tenantId_phone: { tenantId: input.tenantId, phone: digits } },
+          update: { name: input.customerName },
+          create: {
+            tenantId: input.tenantId,
+            name: input.customerName,
+            phone: digits,
+          },
+        })
+      : null;
 
   const order = await prisma.order.create({
     data: {
       tenantId: input.tenantId,
       number,
       publicCode: number.toString().padStart(4, "0"),
+      customerId: customer?.id,
       status,
       fulfillment: input.fulfillment,
       tableNumber: input.tableNumber,

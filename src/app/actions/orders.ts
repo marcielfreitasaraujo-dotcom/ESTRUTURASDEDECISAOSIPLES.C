@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireTenantPermission } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
+import { requireAnyPermission } from "@/server/context";
 import { changeOrderStatus } from "@/server/services/orders";
 import type { OrderStatus } from "@/domain/ordering/status";
 import { publicErrorMessage } from "@/lib/errors";
@@ -25,10 +25,14 @@ export async function updateOrderStatusFormAction(formData: FormData) {
   }
   const permission =
     toStatus === "PREPARING" || toStatus === "READY"
-      ? PERMISSIONS.KITCHEN_UPDATE
-      : PERMISSIONS.ORDER_UPDATE;
+      ? [PERMISSIONS.KITCHEN_UPDATE]
+      : toStatus === "OUT_FOR_DELIVERY" || toStatus === "DELIVERED"
+        ? [PERMISSIONS.DELIVERY_UPDATE, PERMISSIONS.ORDER_UPDATE]
+        : toStatus === "CANCELLED"
+          ? [PERMISSIONS.ORDER_CANCEL, PERMISSIONS.ORDER_UPDATE]
+          : [PERMISSIONS.ORDER_UPDATE];
   try {
-    const ctx = await requireTenantPermission(permission);
+    const ctx = await requireAnyPermission(permission);
     await changeOrderStatus({
       tenantId: ctx.tenantId,
       orderId,
@@ -37,6 +41,8 @@ export async function updateOrderStatusFormAction(formData: FormData) {
     });
     revalidatePath("/app/pedidos");
     revalidatePath("/app/cozinha");
+    revalidatePath("/caixa");
+    revalidatePath("/entrega");
   } catch (error) {
     throw new Error(publicErrorMessage(error).message);
   }

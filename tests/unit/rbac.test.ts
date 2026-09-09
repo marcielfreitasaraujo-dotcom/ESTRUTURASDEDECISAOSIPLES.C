@@ -9,7 +9,10 @@ describe("RBAC", () => {
     expect(hasPermission("WAITER", PERMISSIONS.ORDER_CREATE)).toBe(true);
     expect(hasPermission("WAITER", PERMISSIONS.ORDER_UPDATE)).toBe(false);
     expect(hasPermission("KITCHEN", PERMISSIONS.KITCHEN_UPDATE)).toBe(true);
-    expect(hasPermission("DELIVERY", PERMISSIONS.ORDER_CANCEL)).toBe(false);
+    expect(hasPermission("STAFF", PERMISSIONS.ORDER_CREATE)).toBe(true);
+    expect(hasPermission("STAFF", PERMISSIONS.FINANCE_READ)).toBe(false);
+    expect(hasPermission("MANAGER", PERMISSIONS.TEAM_WRITE)).toBe(true);
+    expect(hasPermission("MANAGER", PERMISSIONS.FINANCE_WRITE)).toBe(true);
   });
 
   it("não usa e-mail hardcoded: SUPER_ADMIN é um papel", () => {

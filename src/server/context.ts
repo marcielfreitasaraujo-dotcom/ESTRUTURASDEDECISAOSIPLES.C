@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
 import { hasPermission, isPlatformAdmin, type TenantRole } from "@/domain/rbac/roles";
 import type { Permission } from "@/domain/rbac/permissions";
 import { createTenantPrisma } from "@/server/tenancy";
+import { postLoginPath } from "@/domain/rbac/home";
 
 export type AuthContext = {
   userId: string;
@@ -73,4 +75,32 @@ export async function requireTenantPermission(permission: Permission) {
     throw new ForbiddenError("Este estabelecimento está suspenso.");
   }
   return { ...ctx, db: createTenantPrisma(ctx.tenantId), tenantId: ctx.tenantId };
+}
+
+export async function requireAnyPermission(permissions: Permission[]) {
+  const ctx = await requireSession();
+  if (isPlatformAdmin(ctx.platformRole) && ctx.tenantId) {
+    return { ...ctx, db: createTenantPrisma(ctx.tenantId), tenantId: ctx.tenantId };
+  }
+  if (!ctx.tenantId || !ctx.tenantRole) {
+    throw new ForbiddenError("Nenhum estabelecimento ativo nesta sessão.");
+  }
+  if (!permissions.some((permission) => hasPermission(ctx.tenantRole!, permission))) {
+    throw new ForbiddenError();
+  }
+  const tenant = await prisma.tenant.findUnique({ where: { id: ctx.tenantId } });
+  if (!tenant || tenant.status === "SUSPENDED" || tenant.status === "CANCELLED") {
+    throw new ForbiddenError("Este estabelecimento está suspenso.");
+  }
+  return { ...ctx, db: createTenantPrisma(ctx.tenantId), tenantId: ctx.tenantId };
+}
+
+export async function requirePage(permission: Permission) {
+  const session = await getAuthContext();
+  if (!session) redirect("/entrar");
+  try {
+    return await requireTenantPermission(permission);
+  } catch {
+    redirect(postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole }));
+  }
 }
