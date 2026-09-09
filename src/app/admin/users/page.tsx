@@ -45,7 +45,7 @@ export default async function AdminUsersPage({
           <CardTitle>Novo usuário</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={createPlatformUserAction} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <form action={createPlatformUserAction} method="post" autoComplete="off" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="grid gap-2">
               <Label htmlFor="name">Nome</Label>
               <Input id="name" name="name" required />

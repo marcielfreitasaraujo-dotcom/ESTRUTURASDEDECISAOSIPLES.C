@@ -46,7 +46,7 @@ export default async function TeamPage({
             <CardTitle>Novo funcionário</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={addTeamMemberAction} className="grid gap-3 sm:grid-cols-2">
+            <form action={addTeamMemberAction} method="post" autoComplete="off" className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="name">Nome</Label>
                 <Input id="name" name="name" required />
