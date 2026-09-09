@@ -1,34 +1,47 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-.venv/
-venv/
-env/
-*.egg-info/
-.pytest_cache/
-.coverage
-htmlcov/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Ambiente
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
 .env
 .env.local
+.env.*.local
+!.env.example
 
-# Banco e arquivos de usuário
-instance/*.db
-instance/*.db-journal
-uploads/comprovantes/**
-!uploads/comprovantes/.gitkeep
-backups/**
-!backups/.gitkeep
+# local object storage
+.storage/
 
-# IDE
-.idea/
-.vscode/
-*.swp
+# vercel
+.vercel
 
-# Sistema
-.DS_Store
-Thumbs.db
+# typescript
+*.tsbuildinfo
+next-env.d.ts
