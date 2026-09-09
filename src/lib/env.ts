@@ -25,9 +25,26 @@ export type Env = z.infer<typeof envSchema>;
 
 let cached: Env | undefined;
 
+// During `next build`, Next.js imports route modules (e.g. the Better Auth
+// catch-all route) to collect page data. This only inspects the module
+// shape and never issues a real request, so the runtime secrets below
+// don't need to be real yet — Netlify injects the actual values into the
+// deployed function's process at request time. Falling back here keeps the
+// build from failing when these secrets are configured for the runtime
+// environment but not for the build environment.
+const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+const buildPhaseFallbacks = {
+  DATABASE_URL: "postgresql://build:build@localhost:5432/build_phase_placeholder",
+  BETTER_AUTH_SECRET: "build-phase-placeholder-secret-0000000000000000",
+  BETTER_AUTH_URL: "http://localhost:3000",
+};
+
 export function getEnv(): Env {
   if (cached) return cached;
-  const parsed = envSchema.safeParse(process.env);
+  const source = isBuildPhase
+    ? { ...buildPhaseFallbacks, ...process.env }
+    : process.env;
+  const parsed = envSchema.safeParse(source);
   if (!parsed.success) {
     const issues = parsed.error.issues
       .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
