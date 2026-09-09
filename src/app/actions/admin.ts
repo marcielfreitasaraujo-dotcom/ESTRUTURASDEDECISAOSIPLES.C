@@ -59,7 +59,7 @@ export async function updatePlatformUserAction(formData: FormData) {
       userId: String(formData.get("userId") || ""),
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
-      password: String(formData.get("password") || "") || undefined,
+      password: String(formData.get("newPassword") || formData.get("password") || "") || undefined,
       platformRole: String(formData.get("platformRole") || "USER") as PlatformRole,
     });
   } catch (error) {

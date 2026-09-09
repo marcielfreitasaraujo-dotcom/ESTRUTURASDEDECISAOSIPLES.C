@@ -71,7 +71,7 @@ export async function updateTeamMemberAction(formData: FormData) {
       membershipId: String(formData.get("membershipId") || ""),
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
-      password: String(formData.get("password") || "") || undefined,
+      password: String(formData.get("newPassword") || formData.get("password") || "") || undefined,
       role: String(formData.get("role") || "STAFF") as TenantRole,
     });
   } catch (error) {

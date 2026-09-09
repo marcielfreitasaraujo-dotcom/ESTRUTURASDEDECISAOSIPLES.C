@@ -87,7 +87,7 @@ export default async function TeamPage({
                     <input type="hidden" name="membershipId" value={member.id} />
                     <Input name="name" defaultValue={member.user.name} required aria-label="Nome" />
                     <Input name="email" type="email" defaultValue={member.user.email} required aria-label="E-mail" />
-                    <Input name="password" type="password" minLength={8} placeholder="Nova senha (opcional)" aria-label="Nova senha" />
+                    <Input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="Nova senha (opcional)" aria-label="Nova senha" />
                     <select name="role" defaultValue={member.role} className="h-8 rounded-lg border bg-background px-2 text-sm" aria-label="Papel">
                       {roleOptions.map((role) => (
                         <option key={role} value={role}>

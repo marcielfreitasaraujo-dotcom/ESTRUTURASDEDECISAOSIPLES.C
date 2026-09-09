@@ -106,7 +106,7 @@ export default async function AdminUsersPage({
               <input type="hidden" name="userId" value={user.id} />
               <Input name="name" defaultValue={user.name} required aria-label="Nome" />
               <Input name="email" type="email" defaultValue={user.email} required aria-label="E-mail" />
-              <Input name="password" type="password" minLength={8} placeholder="Nova senha (opcional)" aria-label="Nova senha" />
+              <Input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="Nova senha (opcional)" aria-label="Nova senha" />
               <select name="platformRole" defaultValue={user.platformRole} className="h-8 rounded-lg border bg-background px-2 text-sm" aria-label="Papel na plataforma">
                 {PLATFORM_ROLES.map((role) => (
                   <option key={role} value={role}>
