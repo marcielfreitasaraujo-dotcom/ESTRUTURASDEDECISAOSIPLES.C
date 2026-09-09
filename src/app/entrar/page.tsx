@@ -11,9 +11,9 @@ export default async function LoginPage({
   const params = await searchParams;
   const error =
     params.error === "credentials"
-      ? "E-mail ou senha inválidos."
+      ? "Usuário ou senha inválidos."
       : params.error === "invalid"
-        ? "Informe um e-mail e senha válidos."
+        ? "Informe o usuário e a senha."
         : undefined;
 
   return (
@@ -21,9 +21,9 @@ export default async function LoginPage({
       <Card className="w-full max-w-md">
         <CardHeader className="gap-4">
           <Brand />
-          <CardTitle className="text-2xl font-semibold">Entrar no Comanda IA</CardTitle>
+          <CardTitle className="text-2xl font-semibold">PDV da equipe</CardTitle>
           <p className="text-sm text-muted-foreground">
-            O mesmo login na nuvem. O sistema abre o app do seu papel: plataforma, loja, caixa, garçom, cozinha ou motoboy.
+            Acesso de admin, dono, caixa, garçom, cozinha e motoboy. O cliente pede pela loja, sem login.
           </p>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -32,21 +32,21 @@ export default async function LoginPage({
             <div className="rounded-xl border p-3 text-xs text-muted-foreground">
               <p className="font-medium text-foreground">Acessos de teste</p>
               <ul className="mt-2 space-y-1">
-                <li>Plataforma: xavier.y@example.org</li>
-                <li>Dona: maria.s@example.com</li>
-                <li>Gerente: gerente.central@comandaia.test</li>
-                <li>Caixa: marco.r@example.org</li>
-                <li>Garçom: paula.r@example.org</li>
-                <li>Cozinha: leo.a@example.org</li>
-                <li>Motoboy: motoboy.central@comandaia.test</li>
-                <li>Apoio: apoio.central@comandaia.test</li>
+                <li>Admin: admin / Maciel.2004</li>
+                <li>Dona: dona / CentralPizza!2026</li>
+                <li>Gerente: gerente / Gerente!2026</li>
+                <li>Caixa: caixa / Caixa!2026</li>
+                <li>Garçom: garcom / Garcom!2026</li>
+                <li>Cozinha: cozinha / Cozinha!2026</li>
+                <li>Motoboy: motoboy / Entrega!2026</li>
+                <li>Apoio: apoio / Staff!2026</li>
               </ul>
             </div>
           ) : null}
           <p className="text-center text-sm text-muted-foreground">
-            Ainda não tem conta?{" "}
-            <Link className="underline" href="/cadastrar">
-              Criar restaurante
+            Pedido de casa ou da mesa?{" "}
+            <Link className="underline" href="/loja/central-da-pizza">
+              Abrir cardápio
             </Link>
           </p>
         </CardContent>

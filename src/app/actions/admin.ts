@@ -38,6 +38,7 @@ export async function createPlatformUserAction(formData: FormData) {
       actorPlatformRole: ctx.platformRole,
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
+      username: String(formData.get("username") || "") || undefined,
       password: String(formData.get("password") || ""),
       platformRole: String(formData.get("platformRole") || "USER") as PlatformRole,
       tenantId: String(formData.get("tenantId") || "") || undefined,
@@ -59,6 +60,7 @@ export async function updatePlatformUserAction(formData: FormData) {
       userId: String(formData.get("userId") || ""),
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
+      username: String(formData.get("username") || "") || undefined,
       password: String(formData.get("newPassword") || formData.get("password") || "") || undefined,
       platformRole: String(formData.get("platformRole") || "USER") as PlatformRole,
     });

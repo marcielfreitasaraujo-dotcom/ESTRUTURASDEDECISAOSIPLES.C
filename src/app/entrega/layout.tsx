@@ -16,7 +16,7 @@ export default async function EntregaLayout({ children }: { children: React.Reac
 
   return (
     <AppShell
-      title="Motoboy · celular"
+      title="Entrega"
       items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "entrega" })}
       userName={session.name}
       homeHref="/entrega"

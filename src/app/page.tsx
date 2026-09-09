@@ -9,51 +9,51 @@ export default function HomePage() {
         <Brand />
         <nav className="flex items-center gap-2">
           <Button variant="ghost" asChild>
-            <Link href="/entrar">Entrar</Link>
+            <Link href="/loja/central-da-pizza">Cardápio</Link>
           </Button>
           <Button asChild>
-            <Link href="/cadastrar">Começar</Link>
+            <Link href="/entrar">Entrar no PDV</Link>
           </Button>
         </nav>
       </header>
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-4 pb-20 pt-8">
-        <section className="grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+        <section className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">
-              Gestão inteligente para restaurantes
-            </p>
+            <p className="text-sm font-medium uppercase tracking-[0.18em] text-primary">Comanda IA</p>
             <h1 className="mt-4 max-w-xl text-4xl font-semibold leading-tight md:text-6xl">
-              Um sistema na nuvem. Três jeitos de trabalhar.
+              PDV para a equipe. Cardápio para o cliente.
             </h1>
             <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-              O garçom no celular, o caixa no computador e você no painel da plataforma — o mesmo
-              pedido, o mesmo cardápio, o mesmo estabelecimento.
+              Admin, dono, caixa, garçom e cozinha trabalham no mesmo ponto de venda. Quem pede de
+              casa ou da mesa usa a loja normal, sem login.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" asChild>
-                <Link href="/entrar">Entrar no sistema</Link>
+                <Link href="/entrar">Entrar no PDV</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/loja/central-da-pizza">Cardápio do cliente</Link>
+                <Link href="/loja/central-da-pizza">Pedir agora</Link>
               </Button>
             </div>
           </div>
           <div className="grid gap-3">
-            {[
-              ["Celular do garçom", "/garcom", "Abre mesa, lança pizza e envia para a cozinha. Instala como app."],
-              ["Computador do caixa", "/caixa", "PDV: recebe pagamento, confirma pedido e controla a fila."],
-              ["Admin da plataforma", "/admin", "Sua visão: pizzarias, uso, assinaturas e suporte."],
-            ].map(([title, href, body]) => (
-              <Link
-                key={title}
-                href={href}
-                className="rounded-2xl border bg-card p-5 transition hover:border-primary/50"
-              >
-                <p className="text-xs uppercase tracking-wide text-primary">{href}</p>
-                <h2 className="mt-1 text-xl font-semibold">{title}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{body}</p>
-              </Link>
-            ))}
+            <Link href="/entrar" className="rounded-2xl border bg-card p-5 transition hover:border-primary/50">
+              <p className="text-xs uppercase tracking-wide text-primary">Equipe</p>
+              <h2 className="mt-1 text-xl font-semibold">PDV completo</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Caixa, salão, cozinha, entregas e painel do dono — o mesmo sistema, cada um no seu papel.
+              </p>
+            </Link>
+            <Link
+              href="/loja/central-da-pizza"
+              className="rounded-2xl border bg-card p-5 transition hover:border-primary/50"
+            >
+              <p className="text-xs uppercase tracking-wide text-primary">Cliente</p>
+              <h2 className="mt-1 text-xl font-semibold">Pedido de casa ou da mesa</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Cardápio, pizza montada, retirada, entrega ou mesa. Sem cadastro da equipe.
+              </p>
+            </Link>
           </div>
         </section>
       </main>

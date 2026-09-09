@@ -65,6 +65,7 @@ export async function checkoutFormAction(formData: FormData) {
     paymentMethod: formData.get("paymentMethod"),
     notes: formData.get("notes") || undefined,
     couponCode: String(formData.get("couponCode") || "") || undefined,
+    tableNumber: String(formData.get("tableNumber") || "") || undefined,
     street: formData.get("street") || undefined,
     addressNumber: formData.get("addressNumber") || undefined,
     neighborhood: formData.get("neighborhood") || undefined,

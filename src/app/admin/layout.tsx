@@ -7,7 +7,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await requirePlatformAdmin().catch(() => null);
   if (!session) redirect("/entrar");
   return (
-    <AppShell title="Plataforma Comanda IA" items={PLATFORM_NAV} userName={session.name} homeHref="/admin">
+    <AppShell title="Plataforma" items={PLATFORM_NAV} userName={session.name} homeHref="/admin">
       {children}
     </AppShell>
   );

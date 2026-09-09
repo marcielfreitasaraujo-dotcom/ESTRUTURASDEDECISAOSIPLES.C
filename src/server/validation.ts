@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const signInSchema = z.object({
-  email: z.string().email("Informe um e-mail válido."),
+  login: z.string().trim().min(2, "Informe o usuário ou o e-mail."),
   password: z.string().min(8, "A senha precisa ter pelo menos 8 caracteres."),
 });
 
@@ -16,7 +16,8 @@ export const checkoutSchema = z.object({
   customerName: z.string().min(2),
   customerPhone: z.string().min(8),
   customerEmail: z.string().email().optional().or(z.literal("")),
-  fulfillment: z.enum(["DELIVERY", "PICKUP"]),
+  fulfillment: z.enum(["DELIVERY", "PICKUP", "DINE_IN"]),
+  tableNumber: z.string().max(10).optional(),
   paymentMethod: z.enum(["PIX", "CASH", "CARD", "OTHER"]),
   notes: z.string().max(500).optional(),
   couponCode: z.string().optional(),

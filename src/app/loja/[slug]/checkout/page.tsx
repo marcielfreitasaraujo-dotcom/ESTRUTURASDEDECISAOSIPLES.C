@@ -9,10 +9,11 @@ export default async function CheckoutPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; mesa?: string }>;
 }) {
   const { slug } = await params;
-  const { error } = await searchParams;
+  const { error, mesa } = await searchParams;
+  const tableNumber = mesa?.trim() || "";
   const tenant = await prisma.tenant.findUnique({ where: { slug } });
   if (!tenant) notFound();
   const cart = await getCart(tenant.id);
@@ -30,17 +31,24 @@ export default async function CheckoutPage({
             : undefined;
 
   return (
-    <div className="mx-auto grid min-h-screen max-w-3xl gap-8 px-4 py-8">
+    <div className="mx-auto grid min-h-screen max-w-3xl gap-8 bg-[oklch(0.985_0.01_70)] px-4 py-8">
       <div>
         <h1 className="font-heading text-3xl">Checkout</h1>
         <p className="text-sm text-muted-foreground">
-          O preço enviado pelo navegador é ignorado. O servidor recalcula pizza, cupom e taxa.
+          {tableNumber
+            ? `Pedido da mesa ${tableNumber}. A cozinha recebe na hora.`
+            : "Retirada, entrega em casa ou mesa. O servidor recalcula o preço."}
         </p>
       </div>
       <p>
         Itens: {items.length} · subtotal {formatBRL(subtotal)}
       </p>
-      <CheckoutForm slug={slug} error={errorMessage} idempotencyKey={crypto.randomUUID()} />
+      <CheckoutForm
+        slug={slug}
+        error={errorMessage}
+        idempotencyKey={crypto.randomUUID()}
+        tableNumber={tableNumber || undefined}
+      />
     </div>
   );
 }

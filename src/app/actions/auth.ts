@@ -8,90 +8,88 @@ import { signInSchema, signUpSchema } from "@/server/validation";
 import { writeAudit } from "@/server/audit";
 import { publicErrorMessage } from "@/lib/errors";
 import { postLoginPath } from "@/domain/rbac/home";
+import { resolveLoginEmail } from "@/server/services/login";
 import type { PlatformRole, TenantRole } from "@/domain/rbac/roles";
 
-async function homeForSession(
-  userId: string,
-  platformRole: string | null | undefined,
-  activeTenantId: string | null | undefined,
-) {
-  let tenantRole: TenantRole | null = null;
-  if (activeTenantId) {
-    const membership = await prisma.tenantMembership.findUnique({
-      where: { tenantId_userId: { tenantId: activeTenantId, userId } },
-    });
-    tenantRole = membership?.role ?? null;
-  }
-  return postLoginPath({
-    platformRole: (platformRole ?? "USER") as PlatformRole,
-    tenantRole,
+async function destinationForUser(userId: string, platformRole?: string | null) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { platformRole: true },
   });
+  const membership = await prisma.tenantMembership.findFirst({
+    where: { userId },
+    orderBy: { createdAt: "asc" },
+  });
+  return postLoginPath({
+    platformRole: (platformRole ?? user?.platformRole ?? "USER") as PlatformRole,
+    tenantRole: (membership?.role ?? null) as TenantRole | null,
+  });
+}
+
+function loginFromForm(formData: FormData) {
+  return String(formData.get("login") || formData.get("email") || "");
 }
 
 export async function signInFormAction(formData: FormData) {
   const parsed = signInSchema.safeParse({
-    email: formData.get("email"),
+    login: loginFromForm(formData),
     password: formData.get("password"),
   });
   if (!parsed.success) {
     redirect("/entrar?error=invalid");
   }
-  try {
-    await auth.api.signInEmail({
-      headers: await headers(),
-      body: parsed.data,
-    });
-  } catch {
-    redirect("/entrar?error=credentials");
-  }
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/entrar?error=credentials");
-  await writeAudit({
-    action: "LOGIN",
-    entity: "User",
-    entityId: session.user.id,
-    userId: session.user.id,
-    tenantId: session.session.activeTenantId,
-  });
-  redirect(await homeForSession(session.user.id, session.user.platformRole, session.session.activeTenantId));
-}
-
-export async function signInAction(formData: FormData) {
-  const parsed = signInSchema.safeParse({
-    email: formData.get("email"),
-    password: formData.get("password"),
-  });
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
-  }
+  const email = await resolveLoginEmail(parsed.data.login);
+  if (!email) redirect("/entrar?error=credentials");
   try {
     const signedIn = await auth.api.signInEmail({
       headers: await headers(),
-      body: parsed.data,
+      body: { email, password: parsed.data.password },
     });
     const userId = signedIn.user.id;
-    const session = await auth.api.getSession({ headers: await headers() }).catch(() => null);
-    const membership = session?.session.activeTenantId
-      ? null
-      : await prisma.tenantMembership.findFirst({
-          where: { userId },
-          orderBy: { createdAt: "asc" },
-        });
-    const tenantId = session?.session.activeTenantId ?? membership?.tenantId ?? null;
-    const platformRole = session?.user.platformRole ?? signedIn.user.platformRole;
     await writeAudit({
       action: "LOGIN",
       entity: "User",
       entityId: userId,
       userId,
-      tenantId,
     });
-    const destination = await homeForSession(userId, platformRole, tenantId);
-    return { ok: true, redirectTo: destination };
+    redirect(await destinationForUser(userId, signedIn.user.platformRole));
   } catch (error) {
-    return { error: publicErrorMessage(error).message === "Algo deu errado. Tente novamente em instantes."
-      ? "E-mail ou senha inválidos."
-      : publicErrorMessage(error).message };
+    const digest = typeof error === "object" && error && "digest" in error ? String((error as { digest?: string }).digest) : "";
+    if (digest.startsWith("NEXT_REDIRECT")) throw error;
+    redirect("/entrar?error=credentials");
+  }
+}
+
+export async function signInAction(formData: FormData) {
+  const parsed = signInSchema.safeParse({
+    login: loginFromForm(formData),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+  const email = await resolveLoginEmail(parsed.data.login);
+  if (!email) return { error: "Usuário ou senha inválidos." };
+  try {
+    const signedIn = await auth.api.signInEmail({
+      headers: await headers(),
+      body: { email, password: parsed.data.password },
+    });
+    const userId = signedIn.user.id;
+    await writeAudit({
+      action: "LOGIN",
+      entity: "User",
+      entityId: userId,
+      userId,
+    });
+    return { ok: true, redirectTo: await destinationForUser(userId, signedIn.user.platformRole) };
+  } catch (error) {
+    return {
+      error:
+        publicErrorMessage(error).message === "Algo deu errado. Tente novamente em instantes."
+          ? "Usuário ou senha inválidos."
+          : publicErrorMessage(error).message,
+    };
   }
 }
 

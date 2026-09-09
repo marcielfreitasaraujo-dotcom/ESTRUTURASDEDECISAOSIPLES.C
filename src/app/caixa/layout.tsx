@@ -15,7 +15,7 @@ export default async function CashierLayout({ children }: { children: React.Reac
   }
   return (
     <AppShell
-      title="Caixa · computador"
+      title="Caixa"
       items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "caixa" })}
       userName={session.name}
       homeHref="/caixa"

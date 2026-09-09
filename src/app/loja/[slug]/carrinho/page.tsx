@@ -7,17 +7,27 @@ import { updateCartItemAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 
-export default async function CartPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CartPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ mesa?: string }>;
+}) {
   const { slug } = await params;
+  const { mesa } = await searchParams;
+  const tableNumber = mesa?.trim() || "";
   const tenant = await prisma.tenant.findUnique({ where: { slug } });
   if (!tenant) notFound();
   const cart = await getCart(tenant.id);
   const items = cart?.items ?? [];
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
+  const query = tableNumber ? `?mesa=${encodeURIComponent(tableNumber)}` : "";
 
   return (
-    <div className="mx-auto min-h-screen max-w-3xl px-4 py-8">
+    <div className="mx-auto min-h-screen max-w-3xl bg-[oklch(0.985_0.01_70)] px-4 py-8">
       <h1 className="font-heading text-3xl">Seu pedido</h1>
+      {tableNumber ? <p className="mt-1 text-sm text-muted-foreground">Mesa {tableNumber}</p> : null}
       {items.length === 0 ? (
         <div className="mt-8">
           <EmptyState title="Carrinho vazio" description="Volte ao cardápio e adicione uma pizza ou uma bebida." />
@@ -25,7 +35,7 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
       ) : (
         <ul className="mt-6 grid gap-4">
           {items.map((item) => (
-            <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border p-4">
+            <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-4">
               <div>
                 <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-muted-foreground">
@@ -44,10 +54,10 @@ export default async function CartPage({ params }: { params: Promise<{ slug: str
       <p className="mt-6 text-lg">Subtotal {formatBRL(subtotal)}</p>
       <div className="mt-6 flex gap-3">
         <Button variant="outline" asChild>
-          <Link href={`/loja/${slug}`}>Continuar comprando</Link>
+          <Link href={`/loja/${slug}${query}`}>Continuar comprando</Link>
         </Button>
         <Button asChild disabled={items.length === 0}>
-          <Link href={`/loja/${slug}/checkout`}>Finalizar</Link>
+          <Link href={`/loja/${slug}/checkout${query}`}>Finalizar</Link>
         </Button>
       </div>
     </div>

@@ -10,7 +10,7 @@ import { addProductToCartAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
 import { PizzaBuilder } from "@/components/pizza-builder";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ mesa?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -23,8 +23,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function StorePage({ params }: Props) {
+export default async function StorePage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { mesa } = await searchParams;
+  const tableNumber = mesa?.trim() || "";
   const tenant = await prisma.tenant.findUnique({
     where: { slug },
     include: { hours: true },
@@ -43,11 +45,15 @@ export default async function StorePage({ params }: Props) {
             <p className="text-sm opacity-80">{status.label}</p>
             <h1 className="font-heading text-4xl">{tenant.name}</h1>
             <p className="mt-2 text-sm opacity-90">
-              {tenant.estimatedMinutes} min · pedido mínimo {formatBRL(tenant.minimumOrderCents)}
+              {tableNumber
+                ? `Pedido da mesa ${tableNumber}`
+                : `${tenant.estimatedMinutes} min · pedido mínimo ${formatBRL(tenant.minimumOrderCents)}`}
             </p>
           </div>
           <Button variant="secondary" asChild>
-            <Link href={`/loja/${slug}/carrinho`}>Pedido ({cart?.items.length ?? 0})</Link>
+            <Link href={`/loja/${slug}/carrinho${tableNumber ? `?mesa=${encodeURIComponent(tableNumber)}` : ""}`}>
+              Pedido ({cart?.items.length ?? 0})
+            </Link>
           </Button>
         </div>
       </header>

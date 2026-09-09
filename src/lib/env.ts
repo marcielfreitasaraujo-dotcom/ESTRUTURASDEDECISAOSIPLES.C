@@ -8,6 +8,7 @@ const envSchema = z.object({
   APP_NAME: z.string().default("Comanda IA"),
   APP_VERSION: z.string().default("0.1.0"),
   SEED_SUPER_ADMIN_EMAIL: z.string().email().optional(),
+  SEED_SUPER_ADMIN_USERNAME: z.string().min(2).optional(),
   SEED_SUPER_ADMIN_PASSWORD: z.string().min(8).optional(),
   STORAGE_ENDPOINT: z.string().optional(),
   STORAGE_ACCESS_KEY: z.string().optional(),

@@ -16,10 +16,12 @@ export function CheckoutForm({
   slug,
   error,
   idempotencyKey,
+  tableNumber,
 }: {
   slug: string;
   error?: string;
   idempotencyKey: string;
+  tableNumber?: string;
 }) {
   return (
     <form action={checkoutFormAction} method="post" className="grid gap-4">
@@ -44,11 +46,16 @@ export function CheckoutForm({
           id="fulfillment"
           name="fulfillment"
           className="h-10 rounded-lg border bg-background px-3"
-          defaultValue="PICKUP"
+          defaultValue={tableNumber ? "DINE_IN" : "PICKUP"}
         >
           <option value="PICKUP">Retirada</option>
-          <option value="DELIVERY">Entrega</option>
+          <option value="DELIVERY">Entrega em casa</option>
+          <option value="DINE_IN">Mesa</option>
         </select>
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="tableNumber">Mesa (se for no salão)</Label>
+        <Input id="tableNumber" name="tableNumber" defaultValue={tableNumber} placeholder="7" />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="street">Rua (entrega)</Label>

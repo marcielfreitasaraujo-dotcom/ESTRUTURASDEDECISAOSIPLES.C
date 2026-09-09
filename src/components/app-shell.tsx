@@ -21,16 +21,18 @@ export function AppShell({
 }) {
   return (
     <div className="dark min-h-screen bg-background text-foreground">
-      <div className="mx-auto flex min-h-screen max-w-[1400px]">
-        <aside className="hidden w-64 shrink-0 border-r p-4 md:block">
+      <div className="flex min-h-screen">
+        <aside className="hidden w-60 shrink-0 border-r bg-card/40 p-3 md:block">
           <Brand href={homeHref} />
-          <p className="mt-3 text-xs text-muted-foreground">{title}</p>
-          <nav className="mt-6 grid gap-1" aria-label="Principal">
+          <p className="mt-3 rounded-md bg-primary/15 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-primary">
+            PDV · {title}
+          </p>
+          <nav className="mt-4 grid gap-0.5" aria-label="Principal">
             {items.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="rounded-md px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {item.label}
               </Link>
@@ -38,19 +40,19 @@ export function AppShell({
           </nav>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
+          <header className="flex items-center justify-between gap-3 border-b bg-card/30 px-3 py-2">
             <div className="md:hidden">
               <Brand compact href={homeHref} />
             </div>
-            <nav className="flex gap-2 overflow-x-auto md:hidden" aria-label="Mobile">
+            <nav className="flex gap-1 overflow-x-auto md:hidden" aria-label="Mobile">
               {items.map((item) => (
-                <Link key={item.href} href={item.href} className="rounded-full bg-muted px-3 py-1 text-xs">
+                <Link key={item.href} href={item.href} className="rounded-md bg-muted px-3 py-2 text-xs">
                   {item.label}
                 </Link>
               ))}
             </nav>
             <div className="ml-auto flex items-center gap-3 text-sm">
-              <span className="hidden text-muted-foreground sm:inline">{userName}</span>
+              <span className="hidden font-medium text-muted-foreground sm:inline">{userName}</span>
               <form action={signOutAction}>
                 <Button type="submit" variant="ghost" size="sm">
                   Sair
@@ -59,7 +61,7 @@ export function AppShell({
             </div>
           </header>
           <Separator className="md:hidden" />
-          <main className="flex-1 p-4 md:p-8">{children}</main>
+          <main className="flex-1 p-3 md:p-5">{children}</main>
         </div>
       </div>
     </div>

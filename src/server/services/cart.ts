@@ -166,6 +166,7 @@ export async function placeOrder(input: {
   state?: string;
   postalCode?: string;
   reference?: string;
+  tableNumber?: string;
 }) {
   const existing = await prisma.order.findUnique({
     where: { tenantId_idempotencyKey: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey } },
@@ -267,6 +268,7 @@ export async function placeOrder(input: {
         postalCode: input.postalCode,
         reference: input.reference,
         notes: input.notes,
+        tableNumber: input.tableNumber,
         couponCode: coupon?.code,
         subtotalCents: totals.subtotalCents,
         discountCents: totals.discountCents,

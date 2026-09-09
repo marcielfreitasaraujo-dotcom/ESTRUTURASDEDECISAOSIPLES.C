@@ -17,6 +17,6 @@ O produto é **um único sistema na nuvem**. Não há bases separadas para garç
 | Garçom | `/garcom` | Garçom / apoio | Celular (PWA) |
 | Cozinha | `/app/cozinha` | Cozinha | Tablet / monitor |
 | Motoboy | `/entrega` | Entregador | Celular |
-| Cliente | `/loja/[slug]` | Cliente final | Celular |
+| Cliente | `/loja/[slug]` | Cliente final | Celular — casa, retirada ou `?mesa=7` |
 
 Pedido lançado no celular do garçom aparece no caixa e no KDS na hora, no mesmo tenant.

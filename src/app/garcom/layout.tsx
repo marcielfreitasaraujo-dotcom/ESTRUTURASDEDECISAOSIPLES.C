@@ -17,7 +17,7 @@ export default async function WaiterLayout({ children }: { children: React.React
 
   return (
     <AppShell
-      title="Garçom · celular"
+      title="Salão"
       items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "garcom" })}
       userName={session.name}
       homeHref="/garcom"

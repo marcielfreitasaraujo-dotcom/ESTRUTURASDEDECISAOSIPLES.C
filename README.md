@@ -24,16 +24,18 @@ Abra [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
 **Somente desenvolvimento (seed)**
 
-| Papel | E-mail | Senha |
+| Papel | Usuário | Senha |
 |---|---|---|
-| Super admin (plataforma) | xavier.y@example.org | FornoAdmin!2026 |
-| Owner Central da Pizza | maria.s@example.com | CentralPizza!2026 |
-| Gerente | gerente.central@comandaia.test | Gerente!2026 |
-| Caixa | marco.r@example.org | Caixa!2026 |
-| Garçom | paula.r@example.org | Garcom!2026 |
-| Cozinha | leo.a@example.org | Cozinha!2026 |
-| Motoboy | motoboy.central@comandaia.test | Entrega!2026 |
-| Apoio | apoio.central@comandaia.test | Staff!2026 |
+| Admin (você) | `admin` | Maciel.2004 |
+| Dona | `dona` | CentralPizza!2026 |
+| Gerente | `gerente` | Gerente!2026 |
+| Caixa | `caixa` | Caixa!2026 |
+| Garçom | `garcom` | Garcom!2026 |
+| Cozinha | `cozinha` | Cozinha!2026 |
+| Motoboy | `motoboy` | Entrega!2026 |
+| Apoio | `apoio` | Staff!2026 |
+
+Também entra com o e-mail antigo, se preferir. O PDV é `/entrar`. O cliente pede em `/loja/central-da-pizza` (mesa: `?mesa=7`).
 | Owner tenant B | wendy.h@example.net | PizzariaTeste!2026 |
 
 Cardápio piloto: `/loja/central-da-pizza`  
@@ -50,6 +52,20 @@ Altere essas senhas antes de qualquer ambiente compartilhado. Em produção o se
 
 - `npm run lint` / `npm run typecheck` / `npm test` / `npm run build`
 - `npm run db:seed`
+
+## Netlify
+
+1. Crie um Postgres (Neon, Supabase ou o banco que você já usa) e rode `npx prisma migrate deploy`.
+2. No Netlify: New site from Git, este repositório, branch da aplicação.
+3. Variáveis:
+   - `DATABASE_URL`
+   - `BETTER_AUTH_SECRET` (pelo menos 32 caracteres)
+   - `BETTER_AUTH_URL` = `https://SEU-SITE.netlify.app`
+   - `NODE_ENV=production`
+4. Build command e publish já estão em `netlify.toml`.
+5. Rode o seed **uma vez** contra o banco de produção (`npm run db:seed`) para criar o admin `admin` / `Maciel.2004`.
+
+O PDV abre em `/entrar`. O cliente pede em `/loja/central-da-pizza`.
 
 ## Segurança
 

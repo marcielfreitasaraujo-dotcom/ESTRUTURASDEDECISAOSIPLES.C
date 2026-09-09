@@ -28,8 +28,8 @@ export function LoginForm({ error }: { error?: string }) {
         </Alert>
       ) : null}
       <div className="grid gap-2">
-        <Label htmlFor="email">E-mail</Label>
-        <Input id="email" name="email" type="email" autoComplete="username" required />
+        <Label htmlFor="login">Usuário</Label>
+        <Input id="login" name="login" type="text" autoComplete="username" required placeholder="admin" />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="password">Senha</Label>

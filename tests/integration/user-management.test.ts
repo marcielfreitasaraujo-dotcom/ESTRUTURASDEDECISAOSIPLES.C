@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { verifyPassword } from "better-auth/crypto";
 import { addTeamMember, updateTeamMember } from "@/server/services/team";
 import { createPlatformUser, updatePlatformUser } from "@/server/services/users";
+import { resolveLoginEmail } from "@/server/services/login";
 import { ForbiddenError } from "@/lib/errors";
 
 const prisma = new PrismaClient();
@@ -114,5 +115,17 @@ describe("admin e dono gerenciam logins", () => {
     expect(updated?.name).toBe("Garçom da Noite");
     const hash = updated?.accounts.find((item) => item.providerId === "credential")?.password;
     await expect(verifyPassword({ hash: hash!, password: "GarcomNoite!2026" })).resolves.toBe(true);
+  });
+
+  it("admin entra de primeira com usuario admin", async () => {
+    const email = await resolveLoginEmail("admin");
+    expect(email).toBe("xavier.y@example.org");
+    const user = await prisma.user.findUnique({
+      where: { email: email! },
+      include: { accounts: true },
+    });
+    const hash = user?.accounts.find((item) => item.providerId === "credential")?.password;
+    expect(hash).toBeTruthy();
+    await expect(verifyPassword({ hash: hash!, password: "Maciel.2004" })).resolves.toBe(true);
   });
 });

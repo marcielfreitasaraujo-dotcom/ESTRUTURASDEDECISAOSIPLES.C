@@ -8,6 +8,7 @@ import {
 import { writeAudit } from "@/server/audit";
 import { ConflictError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { setCredentialPassword } from "@/server/services/credentials";
+import { normalizeUsername } from "@/server/services/login";
 
 export async function listTeam(tenantId: string) {
   return prisma.tenantMembership.findMany({
@@ -27,6 +28,7 @@ export async function addTeamMember(input: {
   actorUserId: string;
   name: string;
   email: string;
+  username?: string;
   password: string;
   role: TenantRole;
 }) {
@@ -37,7 +39,12 @@ export async function addTeamMember(input: {
 
   const email = input.email.toLowerCase().trim();
   const name = input.name.trim();
+  const username = normalizeUsername(input.username);
   if (!name || !email) throw new Error("Informe nome e e-mail.");
+  if (username) {
+    const taken = await prisma.user.findFirst({ where: { username } });
+    if (taken && taken.email !== email) throw new ConflictError("Este usuário já está em uso.");
+  }
 
   let user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -47,13 +54,14 @@ export async function addTeamMember(input: {
         id,
         name,
         email,
+        username,
         emailVerified: true,
         platformRole: "USER",
       },
     });
     await setCredentialPassword(user.id, input.password);
   } else {
-    await prisma.user.update({ where: { id: user.id }, data: { name } });
+    await prisma.user.update({ where: { id: user.id }, data: { name, username: username ?? user.username } });
     if (input.password.trim()) await setCredentialPassword(user.id, input.password);
   }
 
@@ -80,6 +88,7 @@ export async function updateTeamMember(input: {
   membershipId: string;
   name: string;
   email: string;
+  username?: string;
   password?: string;
   role: TenantRole;
 }) {
@@ -100,16 +109,23 @@ export async function updateTeamMember(input: {
 
   const email = input.email.toLowerCase().trim();
   const name = input.name.trim();
+  const username = normalizeUsername(input.username);
   if (!name || !email) throw new Error("Informe nome e e-mail.");
 
   const taken = await prisma.user.findFirst({
     where: { email, NOT: { id: membership.userId } },
   });
   if (taken) throw new ConflictError("Este e-mail já está em uso.");
+  if (username) {
+    const userTaken = await prisma.user.findFirst({
+      where: { username, NOT: { id: membership.userId } },
+    });
+    if (userTaken) throw new ConflictError("Este usuário já está em uso.");
+  }
 
   await prisma.user.update({
     where: { id: membership.userId },
-    data: { name, email },
+    data: { name, email, username },
   });
   if (input.password?.trim()) {
     await setCredentialPassword(membership.userId, input.password);

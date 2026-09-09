@@ -51,6 +51,7 @@ export async function addTeamMemberAction(formData: FormData) {
       actorUserId: ctx.userId,
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
+      username: String(formData.get("username") || "") || undefined,
       password: String(formData.get("password") || ""),
       role: String(formData.get("role") || "STAFF") as TenantRole,
     });
@@ -71,6 +72,7 @@ export async function updateTeamMemberAction(formData: FormData) {
       membershipId: String(formData.get("membershipId") || ""),
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
+      username: String(formData.get("username") || "") || undefined,
       password: String(formData.get("newPassword") || formData.get("password") || "") || undefined,
       role: String(formData.get("role") || "STAFF") as TenantRole,
     });

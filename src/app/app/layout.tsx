@@ -16,7 +16,7 @@ export default async function TenantLayout({ children }: { children: React.React
   });
 
   return (
-    <AppShell title="Estabelecimento" items={items} userName={session.name} homeHref="/app">
+    <AppShell title="Loja" items={items} userName={session.name} homeHref="/app">
       {children}
     </AppShell>
   );

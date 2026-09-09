@@ -9,10 +9,12 @@ const prisma = new PrismaClient();
 async function upsertUser(input: {
   name: string;
   email: string;
+  username?: string;
   password: string;
   platformRole: "SUPER_ADMIN" | "PLATFORM_ADMIN" | "USER";
 }) {
   const password = await hashPassword(input.password);
+  const username = input.username?.trim().toLowerCase() || null;
   const existing = await prisma.user.findUnique({ where: { email: input.email } });
   if (existing) {
     await prisma.account.updateMany({
@@ -21,7 +23,7 @@ async function upsertUser(input: {
     });
     return prisma.user.update({
       where: { id: existing.id },
-      data: { name: input.name, platformRole: input.platformRole, emailVerified: true },
+      data: { name: input.name, platformRole: input.platformRole, emailVerified: true, username },
     });
   }
 
@@ -31,6 +33,7 @@ async function upsertUser(input: {
       id,
       name: input.name,
       email: input.email,
+      username,
       emailVerified: true,
       platformRole: input.platformRole,
     },
@@ -529,57 +532,66 @@ async function main() {
   await seedPermissions();
 
   const superAdmin = await upsertUser({
-    name: "Super Admin Comanda IA",
-    email: "xavier.y@example.org",
-    password: "FornoAdmin!2026",
+    name: "Marciel",
+    email: process.env.SEED_SUPER_ADMIN_EMAIL ?? "xavier.y@example.org",
+    username: process.env.SEED_SUPER_ADMIN_USERNAME ?? "admin",
+    password: process.env.SEED_SUPER_ADMIN_PASSWORD ?? "Maciel.2004",
     platformRole: "SUPER_ADMIN",
   });
   await prisma.tenantMembership.deleteMany({ where: { userId: superAdmin.id } });
   const owner = await upsertUser({
     name: "Márcia Oliveira",
     email: "maria.s@example.com",
+    username: "dona",
     password: "CentralPizza!2026",
     platformRole: "USER",
   });
   const cashier = await upsertUser({
     name: "Caixa Central",
     email: "marco.r@example.org",
+    username: "caixa",
     password: "Caixa!2026",
     platformRole: "USER",
   });
   const waiter = await upsertUser({
     name: "Garçom Central",
     email: "paula.r@example.org",
+    username: "garcom",
     password: "Garcom!2026",
     platformRole: "USER",
   });
   const manager = await upsertUser({
     name: "Gerente Central",
     email: "gerente.central@comandaia.test",
+    username: "gerente",
     password: "Gerente!2026",
     platformRole: "USER",
   });
   const kitchen = await upsertUser({
     name: "Cozinha Central",
     email: "leo.a@example.org",
+    username: "cozinha",
     password: "Cozinha!2026",
     platformRole: "USER",
   });
   const driverUser = await upsertUser({
     name: "Motoboy Central",
     email: "motoboy.central@comandaia.test",
+    username: "motoboy",
     password: "Entrega!2026",
     platformRole: "USER",
   });
   const staff = await upsertUser({
     name: "Apoio Central",
     email: "apoio.central@comandaia.test",
+    username: "apoio",
     password: "Staff!2026",
     platformRole: "USER",
   });
   const otherOwner = await upsertUser({
     name: "Carlos Teste",
     email: "wendy.h@example.net",
+    username: "teste",
     password: "PizzariaTeste!2026",
     platformRole: "USER",
   });

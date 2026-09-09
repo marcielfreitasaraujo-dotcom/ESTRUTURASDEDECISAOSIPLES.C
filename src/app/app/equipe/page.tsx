@@ -35,7 +35,7 @@ export default async function TeamPage({
       <div>
         <h1 className="text-3xl font-semibold">Equipe</h1>
         <p className="text-sm text-muted-foreground">
-          O dono cria e altera os logins dos funcionários. Cada um entra com o próprio e-mail e cai no app do papel.
+          O dono cria e altera os logins dos funcionários. Cada um entra com usuário ou e-mail e cai no PDV do papel.
         </p>
       </div>
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">{error}</p> : null}
@@ -52,8 +52,12 @@ export default async function TeamPage({
                 <Input id="new-member-name" name="name" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="new-member-email">E-mail de login</Label>
+                <Label htmlFor="new-member-email">E-mail</Label>
                 <Input id="new-member-email" name="email" type="email" required />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="new-member-username">Usuário (PDV)</Label>
+                <Input id="new-member-username" name="username" placeholder="caixa" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="new-member-password">Senha</Label>
@@ -83,10 +87,11 @@ export default async function TeamPage({
             <article key={member.id} className="rounded-xl border bg-card p-4">
               {canEditThis ? (
                 <div className="grid gap-3">
-                  <form action={updateTeamMemberAction} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                  <form action={updateTeamMemberAction} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
                     <input type="hidden" name="membershipId" value={member.id} />
                     <Input name="name" defaultValue={member.user.name} required aria-label="Nome" />
                     <Input name="email" type="email" defaultValue={member.user.email} required aria-label="E-mail" />
+                    <Input name="username" defaultValue={member.user.username ?? ""} placeholder="Usuário" aria-label="Usuário" />
                     <Input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="Nova senha (opcional)" aria-label="Nova senha" />
                     <select name="role" defaultValue={member.role} className="h-8 rounded-lg border bg-background px-2 text-sm" aria-label="Papel">
                       {roleOptions.map((role) => (

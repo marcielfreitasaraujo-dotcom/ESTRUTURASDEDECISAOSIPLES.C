@@ -9,12 +9,14 @@ import {
   type TenantRole,
 } from "@/domain/rbac/roles";
 import { setCredentialPassword } from "@/server/services/credentials";
+import { normalizeUsername } from "@/server/services/login";
 
 export async function createPlatformUser(input: {
   actorUserId: string;
   actorPlatformRole: PlatformRole;
   name: string;
   email: string;
+  username?: string;
   password: string;
   platformRole: PlatformRole;
   tenantId?: string;
@@ -26,9 +28,14 @@ export async function createPlatformUser(input: {
   }
   const email = input.email.toLowerCase().trim();
   const name = input.name.trim();
+  const username = normalizeUsername(input.username);
   if (!name || !email) throw new Error("Informe nome e e-mail.");
   const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) throw new ConflictError("Este e-mail já está cadastrado.");
+  if (username) {
+    const taken = await prisma.user.findFirst({ where: { username } });
+    if (taken) throw new ConflictError("Este usuário já está em uso.");
+  }
 
   const id = crypto.randomUUID();
   const user = await prisma.user.create({
@@ -36,6 +43,7 @@ export async function createPlatformUser(input: {
       id,
       name,
       email,
+      username,
       emailVerified: true,
       platformRole: input.platformRole,
     },
@@ -68,6 +76,7 @@ export async function updatePlatformUser(input: {
   userId: string;
   name: string;
   email: string;
+  username?: string;
   password?: string;
   platformRole: PlatformRole;
 }) {
@@ -86,13 +95,18 @@ export async function updatePlatformUser(input: {
 
   const email = input.email.toLowerCase().trim();
   const name = input.name.trim();
+  const username = normalizeUsername(input.username);
   if (!name || !email) throw new Error("Informe nome e e-mail.");
   const taken = await prisma.user.findFirst({ where: { email, NOT: { id: user.id } } });
   if (taken) throw new ConflictError("Este e-mail já está em uso.");
+  if (username) {
+    const userTaken = await prisma.user.findFirst({ where: { username, NOT: { id: user.id } } });
+    if (userTaken) throw new ConflictError("Este usuário já está em uso.");
+  }
 
   await prisma.user.update({
     where: { id: user.id },
-    data: { name, email, platformRole: input.platformRole },
+    data: { name, email, username, platformRole: input.platformRole },
   });
   if (input.password?.trim()) {
     await setCredentialPassword(user.id, input.password);
