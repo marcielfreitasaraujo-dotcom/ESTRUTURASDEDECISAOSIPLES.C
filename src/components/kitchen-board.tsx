@@ -1,7 +1,4 @@
-"use client";
-
-import { useTransition } from "react";
-import { updateOrderStatusAction } from "@/app/actions/orders";
+import { updateOrderStatusFormAction } from "@/app/actions/orders";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/money";
 
@@ -16,13 +13,12 @@ type Ticket = {
 };
 
 export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
-  const [pending, start] = useTransition();
-
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {tickets.map((ticket) => {
         const minutes = ticket.elapsedMinutes;
         const late = minutes >= 30;
+        const nextStatus = ticket.status === "CONFIRMED" ? "PREPARING" : "READY";
         return (
           <article
             key={ticket.id}
@@ -44,33 +40,13 @@ export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
             </ul>
             {ticket.notes ? <p className="mt-4 text-sm">Observação: {ticket.notes}</p> : null}
             <p className="mt-4 text-sm text-muted-foreground">{formatBRL(ticket.totalCents)}</p>
-            <div className="mt-5 flex gap-2">
-              {ticket.status === "CONFIRMED" ? (
-                <Button
-                  className="flex-1"
-                  disabled={pending}
-                  onClick={() =>
-                    start(() => {
-                      void updateOrderStatusAction(ticket.id, "PREPARING");
-                    })
-                  }
-                >
-                  Iniciar
-                </Button>
-              ) : (
-                <Button
-                  className="flex-1"
-                  disabled={pending}
-                  onClick={() =>
-                    start(() => {
-                      void updateOrderStatusAction(ticket.id, "READY");
-                    })
-                  }
-                >
-                  Pronto
-                </Button>
-              )}
-            </div>
+            <form action={updateOrderStatusFormAction} method="post" className="mt-5">
+              <input type="hidden" name="orderId" value={ticket.id} />
+              <input type="hidden" name="toStatus" value={nextStatus} />
+              <Button className="w-full" type="submit">
+                {ticket.status === "CONFIRMED" ? "Iniciar" : "Pronto"}
+              </Button>
+            </form>
           </article>
         );
       })}

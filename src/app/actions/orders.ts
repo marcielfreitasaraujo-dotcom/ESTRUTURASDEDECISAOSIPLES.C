@@ -7,11 +7,27 @@ import { changeOrderStatus } from "@/server/services/orders";
 import type { OrderStatus } from "@/domain/ordering/status";
 import { publicErrorMessage } from "@/lib/errors";
 
-export async function updateOrderStatusAction(orderId: string, toStatus: OrderStatus) {
-  try {
-    const permission = toStatus === "PREPARING" || toStatus === "READY"
+const STATUSES = new Set<OrderStatus>([
+  "PENDING",
+  "CONFIRMED",
+  "PREPARING",
+  "READY",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+]);
+
+export async function updateOrderStatusFormAction(formData: FormData) {
+  const orderId = String(formData.get("orderId") || "");
+  const toStatus = String(formData.get("toStatus") || "") as OrderStatus;
+  if (!orderId || !STATUSES.has(toStatus)) {
+    throw new Error("Pedido ou status inválido.");
+  }
+  const permission =
+    toStatus === "PREPARING" || toStatus === "READY"
       ? PERMISSIONS.KITCHEN_UPDATE
       : PERMISSIONS.ORDER_UPDATE;
+  try {
     const ctx = await requireTenantPermission(permission);
     await changeOrderStatus({
       tenantId: ctx.tenantId,
@@ -21,8 +37,7 @@ export async function updateOrderStatusAction(orderId: string, toStatus: OrderSt
     });
     revalidatePath("/app/pedidos");
     revalidatePath("/app/cozinha");
-    return { ok: true };
   } catch (error) {
-    return { error: publicErrorMessage(error).message };
+    throw new Error(publicErrorMessage(error).message);
   }
 }

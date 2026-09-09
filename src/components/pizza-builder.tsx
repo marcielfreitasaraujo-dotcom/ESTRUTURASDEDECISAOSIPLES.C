@@ -30,7 +30,6 @@ export function PizzaBuilder({
   const [flavorIds, setFlavorIds] = useState<string[]>([]);
   const [crustId, setCrustId] = useState(crusts[0]?.id ?? "");
   const [addonIds, setAddonIds] = useState<string[]>([]);
-  const [message, setMessage] = useState<string | null>(null);
 
   const size = sizes.find((item) => item.id === sizeId) ?? sizes[0];
   const selectedFlavors = flavors.filter((flavor) => flavorIds.includes(flavor.id));
@@ -72,10 +71,8 @@ export function PizzaBuilder({
   return (
     <form
       className="grid gap-5 rounded-2xl border bg-card p-5"
-      action={async (formData) => {
-        const result = await addPizzaToCartAction(formData);
-        setMessage(result.error ?? "Pizza adicionada ao pedido.");
-      }}
+      action={addPizzaToCartAction}
+      method="post"
     >
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="quantity" value="1" />
@@ -150,10 +147,7 @@ export function PizzaBuilder({
         <Textarea id="notes" name="notes" placeholder="Pouco queijo, sem cebola..." />
       </div>
       <p className="text-lg font-medium">{preview ? formatBRL(preview.totalCents) : "Escolha os sabores"}</p>
-      {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
-      <Button type="submit" disabled={!preview}>
-        Adicionar ao pedido
-      </Button>
+      <Button type="submit">Adicionar ao pedido</Button>
     </form>
   );
 }

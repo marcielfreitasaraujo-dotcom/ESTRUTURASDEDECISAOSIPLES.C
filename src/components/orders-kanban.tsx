@@ -1,7 +1,4 @@
-"use client";
-
-import { useTransition } from "react";
-import { updateOrderStatusAction } from "@/app/actions/orders";
+import { updateOrderStatusFormAction } from "@/app/actions/orders";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
 import { formatBRL } from "@/lib/money";
@@ -26,8 +23,6 @@ const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
 };
 
 export function OrdersKanban({ orders }: { orders: OrderCard[] }) {
-  const [pending, start] = useTransition();
-
   return (
     <div className="grid gap-4 lg:grid-cols-3 xl:grid-cols-6">
       {KANBAN_COLUMNS.map((column) => (
@@ -53,18 +48,13 @@ export function OrdersKanban({ orders }: { orders: OrderCard[] }) {
                   {order.notes ? <p className="mt-2 text-xs">Obs.: {order.notes}</p> : null}
                   <p className="mt-2 text-sm font-medium">{formatBRL(order.totalCents)}</p>
                   {NEXT[order.status] ? (
-                    <Button
-                      className="mt-3 w-full"
-                      size="sm"
-                      disabled={pending}
-                      onClick={() =>
-                        start(() => {
-                          void updateOrderStatusAction(order.id, NEXT[order.status]!);
-                        })
-                      }
-                    >
-                      Avançar
-                    </Button>
+                    <form action={updateOrderStatusFormAction} method="post">
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <input type="hidden" name="toStatus" value={NEXT[order.status]} />
+                      <Button className="mt-3 w-full" size="sm" type="submit">
+                        Avançar
+                      </Button>
+                    </form>
                   ) : null}
                 </article>
               ))}

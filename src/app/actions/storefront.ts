@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { checkoutSchema } from "@/server/validation";
 import { addPizzaToCart, addSimpleProductToCart, placeOrder, updateCartItemQuantity } from "@/server/services/cart";
@@ -25,8 +26,8 @@ export async function addProductToCartAction(slug: string, productId: string, qu
 }
 
 export async function addPizzaToCartAction(formData: FormData) {
+  const slug = String(formData.get("slug"));
   try {
-    const slug = String(formData.get("slug"));
     const tenant = await tenantBySlug(slug);
     await addPizzaToCart({
       tenantId: tenant.id,
@@ -38,9 +39,9 @@ export async function addPizzaToCartAction(formData: FormData) {
       quantity: Number(formData.get("quantity") || 1),
     });
     revalidatePath(`/loja/${slug}`);
-    return { ok: true };
+    revalidatePath(`/loja/${slug}/carrinho`);
   } catch (error) {
-    return { error: publicErrorMessage(error).message };
+    throw new Error(publicErrorMessage(error).message);
   }
 }
 
@@ -54,30 +55,50 @@ export async function updateCartItemAction(slug: string, itemId: string, quantit
   }
 }
 
-export async function checkoutAction(slug: string, formData: FormData) {
+export async function checkoutFormAction(formData: FormData) {
+  const slug = String(formData.get("slug") || "");
+  const parsed = checkoutSchema.safeParse({
+    customerName: formData.get("customerName"),
+    customerPhone: formData.get("customerPhone"),
+    customerEmail: formData.get("customerEmail") || "",
+    fulfillment: formData.get("fulfillment"),
+    paymentMethod: formData.get("paymentMethod"),
+    notes: formData.get("notes") || undefined,
+    couponCode: String(formData.get("couponCode") || "") || undefined,
+    street: formData.get("street") || undefined,
+    addressNumber: formData.get("addressNumber") || undefined,
+    neighborhood: formData.get("neighborhood") || undefined,
+    city: formData.get("city") || undefined,
+    state: formData.get("state") || undefined,
+    postalCode: formData.get("postalCode") || undefined,
+    reference: formData.get("reference") || undefined,
+    idempotencyKey: formData.get("idempotencyKey") || crypto.randomUUID(),
+  });
+  if (!parsed.success) {
+    redirect(`/loja/${slug}/checkout?error=invalid`);
+  }
+
+  let publicCode = "";
   try {
     const tenant = await tenantBySlug(slug);
-    const parsed = checkoutSchema.parse({
-      customerName: formData.get("customerName"),
-      customerPhone: formData.get("customerPhone"),
-      customerEmail: formData.get("customerEmail") || "",
-      fulfillment: formData.get("fulfillment"),
-      paymentMethod: formData.get("paymentMethod"),
-      notes: formData.get("notes") || undefined,
-      couponCode: formData.get("couponCode") || undefined,
-      street: formData.get("street") || undefined,
-      addressNumber: formData.get("addressNumber") || undefined,
-      neighborhood: formData.get("neighborhood") || undefined,
-      city: formData.get("city") || undefined,
-      state: formData.get("state") || undefined,
-      postalCode: formData.get("postalCode") || undefined,
-      reference: formData.get("reference") || undefined,
-      idempotencyKey: formData.get("idempotencyKey") || crypto.randomUUID(),
+    const order = await placeOrder({
+      tenantId: tenant.id,
+      ...parsed.data,
+      customerEmail: parsed.data.customerEmail || undefined,
     });
-    const order = await placeOrder({ tenantId: tenant.id, ...parsed, customerEmail: parsed.customerEmail || undefined });
+    publicCode = order.publicCode;
     revalidatePath(`/loja/${slug}`);
-    return { ok: true, redirectTo: `/loja/${slug}/pedido/${order.publicCode}` };
+    revalidatePath(`/loja/${slug}/carrinho`);
+    revalidatePath("/app/pedidos");
+    revalidatePath("/app/cozinha");
   } catch (error) {
-    return { error: publicErrorMessage(error).message };
+    const code =
+      publicErrorMessage(error).message.includes("vazio")
+        ? "empty"
+        : publicErrorMessage(error).message.includes("bairro")
+          ? "delivery"
+          : "failed";
+    redirect(`/loja/${slug}/checkout?error=${code}`);
   }
+  redirect(`/loja/${slug}/pedido/${publicCode}`);
 }
