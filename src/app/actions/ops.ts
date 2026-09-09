@@ -1,15 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireTenantPermission } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
+import { isPlatformAdmin, type TenantRole } from "@/domain/rbac/roles";
 import { createCustomer } from "@/server/services/customers";
-import { addTeamMember } from "@/server/services/team";
+import { addTeamMember, removeTeamMember, updateTeamMember } from "@/server/services/team";
 import { saveStoreSettings } from "@/server/services/settings";
 import { upsertZone, upsertDriver, assignDelivery, createCoupon, toggleCoupon } from "@/server/services/ops";
 import { createExpense, createRevenue, upsertInventoryItem, addStockMovement } from "@/server/services/finance";
 import { publicErrorMessage } from "@/lib/errors";
-import type { CouponType, PaymentMethod, StockMovementType, TenantRole } from "@prisma/client";
+import type { CouponType, PaymentMethod, StockMovementType } from "@prisma/client";
 
 function revalidateOps() {
   revalidatePath("/app/clientes");
@@ -34,13 +36,18 @@ export async function saveCustomerAction(formData: FormData) {
   revalidateOps();
 }
 
+function teamActorRole(ctx: { tenantRole: TenantRole | null; platformRole: string }): TenantRole {
+  if (ctx.tenantRole) return ctx.tenantRole;
+  if (isPlatformAdmin(ctx.platformRole as "SUPER_ADMIN" | "PLATFORM_ADMIN" | "USER")) return "OWNER";
+  throw new Error("Sem papel no estabelecimento.");
+}
+
 export async function addTeamMemberAction(formData: FormData) {
   const ctx = await requireTenantPermission(PERMISSIONS.TEAM_WRITE);
-  if (!ctx.tenantRole) throw new Error("Sem papel no estabelecimento.");
   try {
     await addTeamMember({
       tenantId: ctx.tenantId,
-      actorRole: ctx.tenantRole,
+      actorRole: teamActorRole(ctx),
       actorUserId: ctx.userId,
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
@@ -48,9 +55,46 @@ export async function addTeamMemberAction(formData: FormData) {
       role: String(formData.get("role") || "STAFF") as TenantRole,
     });
   } catch (error) {
-    throw new Error(publicErrorMessage(error).message);
+    redirect(`/app/equipe?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
   }
   revalidateOps();
+  redirect("/app/equipe?ok=created");
+}
+
+export async function updateTeamMemberAction(formData: FormData) {
+  const ctx = await requireTenantPermission(PERMISSIONS.TEAM_WRITE);
+  try {
+    await updateTeamMember({
+      tenantId: ctx.tenantId,
+      actorRole: teamActorRole(ctx),
+      actorUserId: ctx.userId,
+      membershipId: String(formData.get("membershipId") || ""),
+      name: String(formData.get("name") || ""),
+      email: String(formData.get("email") || ""),
+      password: String(formData.get("password") || "") || undefined,
+      role: String(formData.get("role") || "STAFF") as TenantRole,
+    });
+  } catch (error) {
+    redirect(`/app/equipe?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
+  }
+  revalidateOps();
+  redirect("/app/equipe?ok=updated");
+}
+
+export async function removeTeamMemberAction(formData: FormData) {
+  const ctx = await requireTenantPermission(PERMISSIONS.TEAM_WRITE);
+  try {
+    await removeTeamMember({
+      tenantId: ctx.tenantId,
+      actorRole: teamActorRole(ctx),
+      actorUserId: ctx.userId,
+      membershipId: String(formData.get("membershipId") || ""),
+    });
+  } catch (error) {
+    redirect(`/app/equipe?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
+  }
+  revalidateOps();
+  redirect("/app/equipe?ok=removed");
 }
 
 export async function saveStoreAction(formData: FormData) {

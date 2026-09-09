@@ -55,11 +55,3 @@ export function navForUser(input: {
   if (!input.tenantRole) return [];
   return TENANT_NAV.filter((item) => !item.permission || hasPermission(input.tenantRole!, item.permission));
 }
-
-export const ROLES_MANAGER_CAN_ASSIGN: TenantRole[] = [
-  "CASHIER",
-  "WAITER",
-  "KITCHEN",
-  "DELIVERY",
-  "STAFF",
-];
