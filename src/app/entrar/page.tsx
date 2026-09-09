@@ -34,7 +34,7 @@ export default async function LoginPage({
               <ul className="mt-2 space-y-1">
                 <li>Plataforma: xavier.y@example.org</li>
                 <li>Dona / gestão: maria.s@example.com</li>
-                <li>Caixa: xavier.y@example.org</li>
+                <li>Caixa: marco.r@example.org</li>
                 <li>Garçom: paula.r@example.org</li>
               </ul>
             </div>

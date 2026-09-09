@@ -19,7 +19,7 @@ Comanda IA is a multi-tenant SaaS for restaurants (Next.js 16 + PostgreSQL + Pri
 - `cp .env.example .env` then `npx prisma migrate dev && npm run db:seed && npm run dev`
 - App: `http://127.0.0.1:3000` (also `0.0.0.0:3000`)
 - Health: `GET /api/health`
-- Dev logins (seed only): platform `xavier.y@example.org` / `FornoAdmin!2026`; owner `maria.s@example.com` / `CentralPizza!2026`; cashier `xavier.y@example.org` / `Caixa!2026`; waiter `paula.r@example.org` / `Garcom!2026`
+- Dev logins (seed only): platform `xavier.y@example.org` / `FornoAdmin!2026`; owner `maria.s@example.com` / `CentralPizza!2026`; cashier `marco.r@example.org` / `Caixa!2026`; waiter `paula.r@example.org` / `Garcom!2026`
 
 ## Lint / test / build
 

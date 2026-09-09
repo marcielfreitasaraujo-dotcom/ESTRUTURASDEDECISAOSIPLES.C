@@ -28,7 +28,7 @@ Abra [http://127.0.0.1:3000](http://127.0.0.1:3000).
 |---|---|---|
 | Super admin (plataforma) | xavier.y@example.org | FornoAdmin!2026 |
 | Owner Central da Pizza | maria.s@example.com | CentralPizza!2026 |
-| Caixa | xavier.y@example.org | Caixa!2026 |
+| Caixa | marco.r@example.org | Caixa!2026 |
 | Garçom | paula.r@example.org | Garcom!2026 |
 | Owner tenant B | wendy.h@example.net | PizzariaTeste!2026 |
 

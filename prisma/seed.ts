@@ -418,6 +418,7 @@ async function main() {
     password: "FornoAdmin!2026",
     platformRole: "SUPER_ADMIN",
   });
+  await prisma.tenantMembership.deleteMany({ where: { userId: superAdmin.id } });
   const owner = await upsertUser({
     name: "Márcia Oliveira",
     email: "maria.s@example.com",
@@ -426,7 +427,7 @@ async function main() {
   });
   const cashier = await upsertUser({
     name: "Caixa Central",
-    email: "xavier.y@example.org",
+    email: "marco.r@example.org",
     password: "Caixa!2026",
     platformRole: "USER",
   });
