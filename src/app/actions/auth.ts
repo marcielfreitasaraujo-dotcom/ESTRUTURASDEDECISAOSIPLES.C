@@ -96,6 +96,18 @@ export async function requestPasswordResetAction(formData: FormData) {
   }
 }
 
+export async function recordLoginAction() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return;
+  await writeAudit({
+    action: "LOGIN",
+    entity: "User",
+    entityId: session.user.id,
+    userId: session.user.id,
+    tenantId: session.session.activeTenantId,
+  });
+}
+
 export async function signOutAction() {
   const session = await auth.api.getSession({ headers: await headers() });
   await auth.api.signOut({ headers: await headers() });
