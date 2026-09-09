@@ -1,11 +1,42 @@
 "use server";
 
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { signInSchema, signUpSchema } from "@/server/validation";
 import { writeAudit } from "@/server/audit";
 import { publicErrorMessage } from "@/lib/errors";
+
+export async function signInFormAction(formData: FormData) {
+  const parsed = signInSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    redirect("/entrar?error=invalid");
+  }
+  try {
+    await auth.api.signInEmail({
+      headers: await headers(),
+      body: parsed.data,
+    });
+  } catch {
+    redirect("/entrar?error=credentials");
+  }
+  const session = await auth.api.getSession({ headers: await headers() });
+  await writeAudit({
+    action: "LOGIN",
+    entity: "User",
+    entityId: session?.user.id,
+    userId: session?.user.id,
+    tenantId: session?.session.activeTenantId,
+  });
+  if (session?.user.platformRole === "SUPER_ADMIN" || session?.user.platformRole === "PLATFORM_ADMIN") {
+    redirect("/admin");
+  }
+  redirect("/app");
+}
 
 export async function signInAction(formData: FormData) {
   const parsed = signInSchema.safeParse({
