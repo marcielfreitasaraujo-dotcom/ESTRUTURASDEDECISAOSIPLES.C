@@ -23,7 +23,7 @@ export default async function LoginPage({
           <Brand />
           <CardTitle className="text-2xl font-semibold">Entrar no Comanda IA</CardTitle>
           <p className="text-sm text-muted-foreground">
-            O mesmo login na nuvem. O sistema abre o app certo: plataforma, caixa ou garçom.
+            O mesmo login na nuvem. O sistema abre o app do seu papel: plataforma, loja, caixa, garçom, cozinha ou motoboy.
           </p>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -33,9 +33,13 @@ export default async function LoginPage({
               <p className="font-medium text-foreground">Acessos de teste</p>
               <ul className="mt-2 space-y-1">
                 <li>Plataforma: xavier.y@example.org</li>
-                <li>Dona / gestão: maria.s@example.com</li>
+                <li>Dona: maria.s@example.com</li>
+                <li>Gerente: xavier.y@example.org</li>
                 <li>Caixa: marco.r@example.org</li>
                 <li>Garçom: paula.r@example.org</li>
+                <li>Cozinha: leo.a@example.org</li>
+                <li>Motoboy: marco.r@example.org</li>
+                <li>Apoio: paula.r@example.org</li>
               </ul>
             </div>
           ) : null}

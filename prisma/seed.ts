@@ -317,6 +317,62 @@ async function seedCentral(ownerId: string) {
     },
   });
 
+  const existingDriver = await prisma.driver.findFirst({
+    where: { tenantId: tenant.id, phone: "11977776666" },
+  });
+  if (!existingDriver) {
+    await prisma.driver.create({
+      data: {
+        tenantId: tenant.id,
+        name: "João Motoboy",
+        phone: "11977776666",
+        status: "AVAILABLE",
+      },
+    });
+  }
+
+  const inventorySeed = [
+    { name: "Mussarela", unit: "kg", quantity: 8, minQuantity: 3, costCents: 4200 },
+    { name: "Farinha", unit: "kg", quantity: 12, minQuantity: 5, costCents: 600 },
+    { name: "Molho de tomate", unit: "L", quantity: 2, minQuantity: 4, costCents: 800 },
+  ];
+  for (const item of inventorySeed) {
+    const found = await prisma.inventoryItem.findFirst({ where: { tenantId: tenant.id, name: item.name } });
+    if (!found) {
+      await prisma.inventoryItem.create({ data: { tenantId: tenant.id, ...item } });
+    }
+  }
+
+  const expenseFound = await prisma.expense.findFirst({
+    where: { tenantId: tenant.id, description: "Aluguel do salão (seed)" },
+  });
+  if (!expenseFound) {
+    await prisma.expense.create({
+      data: {
+        tenantId: tenant.id,
+        category: "Aluguel",
+        description: "Aluguel do salão (seed)",
+        amountCents: 450000,
+        dueDate: new Date(),
+      },
+    });
+  }
+
+  const revenueFound = await prisma.revenue.findFirst({
+    where: { tenantId: tenant.id, description: "Evento corporativo (seed)" },
+  });
+  if (!revenueFound) {
+    await prisma.revenue.create({
+      data: {
+        tenantId: tenant.id,
+        category: "Evento",
+        description: "Evento corporativo (seed)",
+        amountCents: 120000,
+        receivedAt: new Date(),
+      },
+    });
+  }
+
   const existingOrder = await prisma.order.findFirst({ where: { tenantId: tenant.id, number: 1042 } });
   if (!existingOrder) {
     await prisma.order.create({
@@ -367,6 +423,52 @@ async function seedCentral(ownerId: string) {
             { tenantId: tenant.id, toStatus: "PENDING" },
             { tenantId: tenant.id, fromStatus: "PENDING", toStatus: "CONFIRMED" },
             { tenantId: tenant.id, fromStatus: "CONFIRMED", toStatus: "PREPARING" },
+          ],
+        },
+        },
+      });
+  }
+
+  const readyOrder = await prisma.order.findFirst({ where: { tenantId: tenant.id, number: 1043 } });
+  if (!readyOrder) {
+    await prisma.order.create({
+      data: {
+        tenantId: tenant.id,
+        number: 1043,
+        publicCode: "1043",
+        customerId: customer.id,
+        status: "READY",
+        fulfillment: "DELIVERY",
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        street: "Rua das Pizzas",
+        addressNumber: "100",
+        neighborhood: "Centro",
+        city: "São Paulo",
+        state: "SP",
+        subtotalCents: 5990,
+        deliveryFeeCents: 500,
+        totalCents: 6490,
+        paymentMethod: "PIX",
+        paymentStatus: "PAID",
+        idempotencyKey: "seed-order-1043",
+        items: {
+          create: [
+            {
+              tenantId: tenant.id,
+              name: "Pizza Grande — Calabresa",
+              quantity: 1,
+              unitPriceCents: 5990,
+              totalCents: 5990,
+            },
+          ],
+        },
+        statusHistory: {
+          create: [
+            { tenantId: tenant.id, toStatus: "PENDING" },
+            { tenantId: tenant.id, fromStatus: "PENDING", toStatus: "CONFIRMED" },
+            { tenantId: tenant.id, fromStatus: "CONFIRMED", toStatus: "PREPARING" },
+            { tenantId: tenant.id, fromStatus: "PREPARING", toStatus: "READY" },
           ],
         },
       },
@@ -437,6 +539,30 @@ async function main() {
     password: "Garcom!2026",
     platformRole: "USER",
   });
+  const manager = await upsertUser({
+    name: "Gerente Central",
+    email: "xavier.y@example.org",
+    password: "Gerente!2026",
+    platformRole: "USER",
+  });
+  const kitchen = await upsertUser({
+    name: "Cozinha Central",
+    email: "leo.a@example.org",
+    password: "Cozinha!2026",
+    platformRole: "USER",
+  });
+  const driverUser = await upsertUser({
+    name: "Motoboy Central",
+    email: "marco.r@example.org",
+    password: "Entrega!2026",
+    platformRole: "USER",
+  });
+  const staff = await upsertUser({
+    name: "Apoio Central",
+    email: "paula.r@example.org",
+    password: "Staff!2026",
+    platformRole: "USER",
+  });
   const otherOwner = await upsertUser({
     name: "Carlos Teste",
     email: "wendy.h@example.net",
@@ -455,18 +581,35 @@ async function main() {
       yearlyPriceCents: 181440,
     },
   });
+  await prisma.plan.upsert({
+    where: { code: "pro" },
+    update: {},
+    create: {
+      code: "pro",
+      name: "Pro",
+      description: "Tudo do Starter + estoque, financeiro e entregas.",
+      monthlyPriceCents: 34900,
+      yearlyPriceCents: 335040,
+    },
+  });
 
   const central = await seedCentral(owner.id);
-  await prisma.tenantMembership.upsert({
-    where: { tenantId_userId: { tenantId: central.id, userId: cashier.id } },
-    update: { role: "CASHIER" },
-    create: { tenantId: central.id, userId: cashier.id, role: "CASHIER" },
-  });
-  await prisma.tenantMembership.upsert({
-    where: { tenantId_userId: { tenantId: central.id, userId: waiter.id } },
-    update: { role: "WAITER" },
-    create: { tenantId: central.id, userId: waiter.id, role: "WAITER" },
-  });
+  const memberships: { userId: string; role: "CASHIER" | "WAITER" | "MANAGER" | "KITCHEN" | "DELIVERY" | "STAFF" }[] =
+    [
+      { userId: cashier.id, role: "CASHIER" },
+      { userId: waiter.id, role: "WAITER" },
+      { userId: manager.id, role: "MANAGER" },
+      { userId: kitchen.id, role: "KITCHEN" },
+      { userId: driverUser.id, role: "DELIVERY" },
+      { userId: staff.id, role: "STAFF" },
+    ];
+  for (const membership of memberships) {
+    await prisma.tenantMembership.upsert({
+      where: { tenantId_userId: { tenantId: central.id, userId: membership.userId } },
+      update: { role: membership.role },
+      create: { tenantId: central.id, userId: membership.userId, role: membership.role },
+    });
+  }
   await seedSecondTenant(otherOwner.id);
 
   await prisma.subscription.upsert({
@@ -492,8 +635,12 @@ async function main() {
   console.log("Seed ok");
   console.log(`super admin: ${superAdmin.email}`);
   console.log(`owner: ${owner.email}`);
+  console.log(`manager: ${manager.email}`);
   console.log(`cashier: ${cashier.email}`);
   console.log(`waiter: ${waiter.email}`);
+  console.log(`kitchen: ${kitchen.email}`);
+  console.log(`delivery: ${driverUser.email}`);
+  console.log(`staff: ${staff.email}`);
   console.log(`tenant B: ${otherOwner.email}`);
 }
 
