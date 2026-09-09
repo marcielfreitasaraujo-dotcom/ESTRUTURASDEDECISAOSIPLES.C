@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { listCatalog } from "@/server/services/catalog";
-import { getOrCreateCart } from "@/server/services/cart";
+import { getCart } from "@/server/services/cart";
 import { getStoreStatus } from "@/domain/hours/store-status";
 import { formatBRL } from "@/lib/money";
 import { addProductToCartAction } from "@/app/actions/storefront";
@@ -31,7 +31,7 @@ export default async function StorePage({ params }: Props) {
   });
   if (!tenant || tenant.status === "SUSPENDED" || tenant.deletedAt) notFound();
 
-  const [catalog, cart] = await Promise.all([listCatalog(tenant.id), getOrCreateCart(tenant.id)]);
+  const [catalog, cart] = await Promise.all([listCatalog(tenant.id), getCart(tenant.id)]);
   const status = getStoreStatus(tenant.hours, new Date(), tenant.timezone);
   const simpleProducts = catalog.products.filter((product) => product.kind !== "PIZZA" && product.active);
 
@@ -47,7 +47,7 @@ export default async function StorePage({ params }: Props) {
             </p>
           </div>
           <Button variant="secondary" asChild>
-            <Link href={`/loja/${slug}/carrinho`}>Pedido ({cart.items.length})</Link>
+            <Link href={`/loja/${slug}/carrinho`}>Pedido ({cart?.items.length ?? 0})</Link>
           </Button>
         </div>
       </header>

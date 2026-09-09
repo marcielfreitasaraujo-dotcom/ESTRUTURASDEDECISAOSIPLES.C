@@ -10,21 +10,25 @@ import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
 
 const CART_COOKIE = "forno_cart";
 
-export async function getOrCreateCart(tenantId: string) {
+export async function getCart(tenantId: string) {
   const store = await cookies();
   const existingId = store.get(CART_COOKIE)?.value;
-  if (existingId) {
-    const cart = await prisma.cart.findFirst({
-      where: { id: existingId, tenantId },
-      include: { items: true },
-    });
-    if (cart) return cart;
-  }
+  if (!existingId) return null;
+  return prisma.cart.findFirst({
+    where: { id: existingId, tenantId },
+    include: { items: true },
+  });
+}
+
+export async function getOrCreateCart(tenantId: string) {
+  const existing = await getCart(tenantId);
+  if (existing) return existing;
 
   const cart = await prisma.cart.create({
     data: { tenantId },
     include: { items: true },
   });
+  const store = await cookies();
   store.set(CART_COOKIE, cart.id, {
     httpOnly: true,
     sameSite: "lax",
