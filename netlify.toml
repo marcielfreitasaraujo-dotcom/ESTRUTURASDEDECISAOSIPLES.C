@@ -1,8 +1,0 @@
-# Next.js no Netlify: não definir publish nem bundler de functions.
-# O runtime OpenNext trata .next, redirects e headers.
-
-[build]
-  command = "npm run build"
-
-[build.environment]
-  NODE_VERSION = "22"

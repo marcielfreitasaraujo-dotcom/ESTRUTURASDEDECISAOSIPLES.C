@@ -55,15 +55,14 @@ Altere essas senhas antes de qualquer ambiente compartilhado. Em produção o se
 
 ## Netlify
 
-1. Crie um Postgres (Neon, Supabase ou o banco que você já usa) e rode `npx prisma migrate deploy`.
-2. No Netlify: New site from Git, este repositório, branch da aplicação.
-3. Variáveis:
-   - `DATABASE_URL`
+O site já está ligado ao repositório (`monumental-cannoli-6648ef`). O Netlify detecta o Next.js sozinho — não use `publish = .next`.
+
+1. No painel, confira as variáveis:
+   - `DATABASE_URL` (Postgres, por exemplo Neon)
    - `BETTER_AUTH_SECRET` (pelo menos 32 caracteres)
-   - `BETTER_AUTH_URL` = `https://SEU-SITE.netlify.app`
+   - `BETTER_AUTH_URL` = URL pública do site
    - `NODE_ENV=production`
-4. Build command já está em `netlify.toml` (`npm run build`). Não use `publish = .next`.
-5. Rode as migrations **uma vez** no banco (`npx prisma migrate deploy`) e o seed **uma vez** (`npm run db:seed`) para criar o admin `admin` / `Maciel.2004`.
+2. Rode **uma vez** no banco: `npx prisma migrate deploy` e `npm run db:seed` (cria o admin `admin` / `Maciel.2004`).
 
 O PDV abre em `/entrar`. O cliente pede em `/loja/central-da-pizza`.
 
