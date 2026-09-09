@@ -1,14 +1,8 @@
+# Next.js no Netlify: não definir publish nem bundler de functions.
+# O runtime OpenNext trata .next, redirects e headers.
+
 [build]
-  command = "npx prisma migrate deploy && npm run build"
-  publish = ".next"
+  command = "npm run build"
 
 [build.environment]
   NODE_VERSION = "22"
-  NPM_FLAGS = "--legacy-peer-deps"
-
-[functions]
-  node_bundler = "esbuild"
-
-# O Netlify aplica o runtime Next.js automaticamente.
-# Variáveis obrigatórias no painel:
-# DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL

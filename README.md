@@ -62,8 +62,8 @@ Altere essas senhas antes de qualquer ambiente compartilhado. Em produção o se
    - `BETTER_AUTH_SECRET` (pelo menos 32 caracteres)
    - `BETTER_AUTH_URL` = `https://SEU-SITE.netlify.app`
    - `NODE_ENV=production`
-4. Build command e publish já estão em `netlify.toml`.
-5. Rode o seed **uma vez** contra o banco de produção (`npm run db:seed`) para criar o admin `admin` / `Maciel.2004`.
+4. Build command já está em `netlify.toml` (`npm run build`). Não use `publish = .next`.
+5. Rode as migrations **uma vez** no banco (`npx prisma migrate deploy`) e o seed **uma vez** (`npm run db:seed`) para criar o admin `admin` / `Maciel.2004`.
 
 O PDV abre em `/entrar`. O cliente pede em `/loja/central-da-pizza`.
 
