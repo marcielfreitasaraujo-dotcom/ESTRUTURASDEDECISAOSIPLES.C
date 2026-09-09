@@ -45,22 +45,22 @@ export default async function AdminUsersPage({
           <CardTitle>Novo usuário</CardTitle>
         </CardHeader>
         <CardContent>
-            <form action={createPlatformUserAction} method="post" autoComplete="off" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <form action={createPlatformUserAction} autoComplete="off" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             <div className="grid gap-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input id="name" name="name" required />
+              <Label htmlFor="new-user-name">Nome</Label>
+              <Input id="new-user-name" name="name" required />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">E-mail de login</Label>
-              <Input id="email" name="email" type="email" required />
+              <Label htmlFor="new-user-email">E-mail de login</Label>
+              <Input id="new-user-email" name="email" type="email" required />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input id="password" name="password" type="password" minLength={8} required />
+              <Label htmlFor="new-user-password">Senha</Label>
+              <Input id="new-user-password" name="password" type="password" minLength={8} autoComplete="new-password" required />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="platformRole">Papel na plataforma</Label>
-              <select id="platformRole" name="platformRole" defaultValue="USER" className="h-8 rounded-lg border bg-background px-2 text-sm">
+              <Label htmlFor="new-user-platform-role">Papel na plataforma</Label>
+              <select id="new-user-platform-role" name="platformRole" defaultValue="USER" className="h-8 rounded-lg border bg-background px-2 text-sm">
                 {PLATFORM_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {PLATFORM_ROLE_LABELS[role] ?? role}
@@ -69,8 +69,8 @@ export default async function AdminUsersPage({
               </select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="tenantId">Loja (opcional)</Label>
-              <select id="tenantId" name="tenantId" className="h-8 rounded-lg border bg-background px-2 text-sm">
+              <Label htmlFor="new-user-tenant">Loja (opcional)</Label>
+              <select id="new-user-tenant" name="tenantId" className="h-8 rounded-lg border bg-background px-2 text-sm">
                 <option value="">Sem loja</option>
                 {tenants.map((tenant) => (
                   <option key={tenant.id} value={tenant.id}>
@@ -80,8 +80,8 @@ export default async function AdminUsersPage({
               </select>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="tenantRole">Papel na loja</Label>
-              <select id="tenantRole" name="tenantRole" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
+              <Label htmlFor="new-user-tenant-role">Papel na loja</Label>
+              <select id="new-user-tenant-role" name="tenantRole" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
                 {TENANT_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {TENANT_ROLE_LABELS[role] ?? role}

@@ -65,24 +65,28 @@ export async function signInAction(formData: FormData) {
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
   try {
-    await auth.api.signInEmail({
+    const signedIn = await auth.api.signInEmail({
       headers: await headers(),
       body: parsed.data,
     });
-    const session = await auth.api.getSession({ headers: await headers() });
+    const userId = signedIn.user.id;
+    const session = await auth.api.getSession({ headers: await headers() }).catch(() => null);
+    const membership = session?.session.activeTenantId
+      ? null
+      : await prisma.tenantMembership.findFirst({
+          where: { userId },
+          orderBy: { createdAt: "asc" },
+        });
+    const tenantId = session?.session.activeTenantId ?? membership?.tenantId ?? null;
+    const platformRole = session?.user.platformRole ?? signedIn.user.platformRole;
     await writeAudit({
       action: "LOGIN",
       entity: "User",
-      entityId: session?.user.id,
-      userId: session?.user.id,
-      tenantId: session?.session.activeTenantId,
+      entityId: userId,
+      userId,
+      tenantId,
     });
-    if (!session) return { error: "E-mail ou senha inválidos." };
-    const destination = await homeForSession(
-      session.user.id,
-      session.user.platformRole,
-      session.session.activeTenantId,
-    );
+    const destination = await homeForSession(userId, platformRole, tenantId);
     return { ok: true, redirectTo: destination };
   } catch (error) {
     return { error: publicErrorMessage(error).message === "Algo deu errado. Tente novamente em instantes."

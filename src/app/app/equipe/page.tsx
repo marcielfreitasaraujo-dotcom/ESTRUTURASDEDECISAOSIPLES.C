@@ -46,22 +46,22 @@ export default async function TeamPage({
             <CardTitle>Novo funcionário</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={addTeamMemberAction} method="post" autoComplete="off" className="grid gap-3 sm:grid-cols-2">
+            <form action={addTeamMemberAction} autoComplete="off" className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input id="name" name="name" required />
+                <Label htmlFor="new-member-name">Nome</Label>
+                <Input id="new-member-name" name="name" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="email">E-mail de login</Label>
-                <Input id="email" name="email" type="email" required />
+                <Label htmlFor="new-member-email">E-mail de login</Label>
+                <Input id="new-member-email" name="email" type="email" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Senha</Label>
-                <Input id="password" name="password" type="password" minLength={8} required />
+                <Label htmlFor="new-member-password">Senha</Label>
+                <Input id="new-member-password" name="password" type="password" minLength={8} autoComplete="new-password" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="role">Papel</Label>
-                <select id="role" name="role" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
+                <Label htmlFor="new-member-role">Papel</Label>
+                <select id="new-member-role" name="role" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
                   {roles.map((role) => (
                     <option key={role} value={role}>
                       {TENANT_ROLE_LABELS[role] ?? role}
