@@ -38,6 +38,7 @@ jobs:
       - run: npx prisma migrate deploy
       - run: npm run db:seed
       - run: npm run lint
+      # typecheck já inclui `next typegen` (next-env.d.ts não é commitado)
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
