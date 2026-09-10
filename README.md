@@ -27,16 +27,14 @@ Abra [http://127.0.0.1:3000](http://127.0.0.1:3000).
 | Papel | Usuário | Senha |
 |---|---|---|
 | Admin (você) | `admin` | Maciel.2004 |
-| Dona | `dona` | CentralPizza!2026 |
-| Gerente | `gerente` | Gerente!2026 |
+| Gerente (dono da loja) | `gerente` | Gerente!2026 |
 | Caixa | `caixa` | Caixa!2026 |
-| Garçom | `garcom` | Garcom!2026 |
-| Cozinha | `cozinha` | Cozinha!2026 |
-| Motoboy | `motoboy` | Entrega!2026 |
-| Apoio | `apoio` | Staff!2026 |
+| Garçom (celular) | `garcom` | Garcom!2026 |
+| Motoboy (celular) | `motoboy` | Entrega!2026 |
+
+O gerente é o dono da loja (mesmo login). O caixa vende e abastece o estoque do cardápio, sem fechar caixa nem mexer na equipe. O admin controla tudo, inclusive usuários; o gerente gerencia a equipe, menos o admin.
 
 Também entra com o e-mail antigo, se preferir. O PDV é `/entrar`. O cliente pede em `/loja/central-da-pizza` (mesa: `?mesa=7`).
-| Owner tenant B | wendy.h@example.net | PizzariaTeste!2026 |
 
 Cardápio piloto: `/loja/central-da-pizza`  
 Garçom: `/garcom` (no celular: Adicionar à tela inicial)  

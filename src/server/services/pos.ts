@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { NotFoundError } from "@/lib/errors";
+import { ConflictError, NotFoundError } from "@/lib/errors";
 import { quotePizza } from "@/domain/catalog/pizza-pricing";
 import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
 import { writeAudit } from "@/server/audit";
@@ -231,4 +231,56 @@ export async function listOpenFloorOrders(tenantId: string) {
     include: { items: true },
     orderBy: { createdAt: "desc" },
   });
+}
+
+function startOfLocalDay() {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+export async function summarizeCashDay(tenantId: string) {
+  const from = startOfLocalDay();
+  const orders = await prisma.order.findMany({
+    where: { tenantId, createdAt: { gte: from }, status: { not: "CANCELLED" } },
+    orderBy: { createdAt: "desc" },
+  });
+  const open = orders.filter((order) => order.status !== "DELIVERED");
+  const unpaid = orders.filter((order) => order.paymentStatus !== "PAID");
+  const paid = orders.filter((order) => order.paymentStatus === "PAID");
+  const byMethod: Record<string, { count: number; totalCents: number }> = {};
+  for (const order of paid) {
+    const bucket = byMethod[order.paymentMethod] ?? { count: 0, totalCents: 0 };
+    bucket.count += 1;
+    bucket.totalCents += order.totalCents;
+    byMethod[order.paymentMethod] = bucket;
+  }
+  return {
+    from,
+    orders,
+    openCount: open.length,
+    unpaidCount: unpaid.length,
+    paidCount: paid.length,
+    paidTotalCents: paid.reduce((sum, order) => sum + order.totalCents, 0),
+    byMethod,
+  };
+}
+
+export async function closeCashRegister(input: { tenantId: string; userId: string }) {
+  const summary = await summarizeCashDay(input.tenantId);
+  if (summary.unpaidCount > 0) {
+    throw new ConflictError("Ainda há pedidos sem receber. Receba ou cancele antes de fechar o caixa.");
+  }
+  await writeAudit({
+    action: "UPDATE",
+    entity: "CashRegister",
+    tenantId: input.tenantId,
+    userId: input.userId,
+    metadata: {
+      closedAt: new Date().toISOString(),
+      paidCount: summary.paidCount,
+      paidTotalCents: summary.paidTotalCents,
+    },
+  });
+  return summary;
 }

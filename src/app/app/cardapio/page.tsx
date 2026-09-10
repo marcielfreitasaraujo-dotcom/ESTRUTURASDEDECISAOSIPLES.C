@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatBRL } from "@/lib/money";
 
 export default async function CatalogPage() {
-  const ctx = await requirePage(PERMISSIONS.CATALOG_READ);
+  const ctx = await requirePage(PERMISSIONS.CATALOG_WRITE);
   const catalog = await listCatalog(ctx.tenantId);
   const canWrite =
     isPlatformAdmin(ctx.platformRole) ||

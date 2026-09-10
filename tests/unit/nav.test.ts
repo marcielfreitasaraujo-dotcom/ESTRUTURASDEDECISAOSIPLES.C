@@ -6,7 +6,7 @@ function hrefs(role: Parameters<typeof navForUser>[0]["tenantRole"]) {
 }
 
 describe("navForUser", () => {
-  it("mostra gestão completa para dono e gerente", () => {
+  it("mostra gestão completa para o gerente", () => {
     for (const role of ["OWNER", "MANAGER"] as const) {
       const links = hrefs(role);
       expect(links).toContain("/app/financeiro");
@@ -20,6 +20,9 @@ describe("navForUser", () => {
   it("abre só o que o caixa, a cozinha e o motoboy podem ver", () => {
     expect(hrefs("CASHIER")).toContain("/caixa");
     expect(hrefs("CASHIER")).not.toContain("/app/financeiro");
+    expect(hrefs("CASHIER")).not.toContain("/app/equipe");
+    expect(hrefs("CASHIER")).not.toContain("/app/cardapio");
+    expect(hrefs("CASHIER")).not.toContain("/app");
     expect(hrefs("KITCHEN")).toEqual(["/app/pedidos", "/app/cozinha"]);
     expect(hrefs("DELIVERY")).toContain("/entrega");
     expect(hrefs("DELIVERY")).not.toContain("/caixa");
@@ -27,17 +30,31 @@ describe("navForUser", () => {
     expect(hrefs("WAITER")).not.toContain("/caixa");
   });
 
-  it("mostra estoque na nav do caixa", () => {
-    const links = navForUser({ platformRole: "USER", tenantRole: "CASHIER", surface: "caixa" }).map(
+  it("mostra estoque na nav do caixa e fechamento só para o gerente", () => {
+    const caixa = navForUser({ platformRole: "USER", tenantRole: "CASHIER", surface: "caixa" }).map(
       (item) => item.href,
     );
-    expect(links).toEqual(["/caixa", "/caixa/estoque", "/app/pedidos", "/app/clientes"]);
+    expect(caixa).toEqual(["/caixa", "/caixa/estoque", "/app/pedidos", "/app/clientes"]);
+    const gerente = navForUser({ platformRole: "USER", tenantRole: "OWNER", surface: "caixa" }).map(
+      (item) => item.href,
+    );
+    expect(gerente).toContain("/caixa/fechamento");
+    expect(gerente).toContain("/app/equipe");
+    expect(gerente).toContain("/app/cardapio");
   });
 
   it("usa a nav da plataforma no admin", () => {
     const links = navForUser({ platformRole: "SUPER_ADMIN", tenantRole: null, surface: "admin" }).map(
       (item) => item.href,
     );
-    expect(links).toEqual(["/admin", "/admin/tenants", "/admin/users", "/admin/plans", "/admin/audit"]);
+    expect(links).toEqual([
+      "/admin",
+      "/admin/tenants",
+      "/admin/users",
+      "/admin/plans",
+      "/admin/audit",
+      "/app",
+      "/caixa",
+    ]);
   });
 });

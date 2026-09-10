@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireTenantPermission } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
-import { createStaffOrder, markOrderPaid } from "@/server/services/pos";
+import { createStaffOrder, markOrderPaid, closeCashRegister } from "@/server/services/pos";
 import { setProductStock } from "@/server/services/catalog";
 import { publicErrorMessage } from "@/lib/errors";
 import type { StaffOrderItemInput } from "@/server/services/pos";
@@ -117,6 +117,19 @@ export async function setCashierProductStockAction(productId: string, quantity: 
       revalidatePath(`/loja/${tenant.slug}`);
       revalidatePath(`/loja/${tenant.slug}/carrinho`);
     }
+    return { ok: true as const };
+  } catch (error) {
+    throw new Error(publicErrorMessage(error).message);
+  }
+}
+
+export async function closeCashRegisterAction() {
+  try {
+    const ctx = await requireTenantPermission(PERMISSIONS.FINANCE_WRITE);
+    await closeCashRegister({ tenantId: ctx.tenantId, userId: ctx.userId });
+    revalidatePath("/caixa");
+    revalidatePath("/caixa/fechamento");
+    revalidatePath("/app/financeiro");
     return { ok: true as const };
   } catch (error) {
     throw new Error(publicErrorMessage(error).message);

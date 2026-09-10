@@ -2,7 +2,7 @@ import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listTeam } from "@/server/services/team";
 import { addTeamMemberAction, removeTeamMemberAction, updateTeamMemberAction } from "@/app/actions/ops";
-import { canManageTenantMember, hasPermission, isPlatformAdmin, rolesActorCanAssign } from "@/domain/rbac/roles";
+import { canManageTenantMember, hasPermission, isPlatformAdmin, rolesActorCanAssign, type PlatformRole } from "@/domain/rbac/roles";
 import { TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ export default async function TeamPage({
     isPlatformAdmin(ctx.platformRole) ||
     (ctx.tenantRole ? hasPermission(ctx.tenantRole, PERMISSIONS.TEAM_WRITE) : false);
   const actorRole = ctx.tenantRole ?? (isPlatformAdmin(ctx.platformRole) ? "OWNER" : null);
-  const roles = actorRole ? rolesActorCanAssign(actorRole) : [];
+  const roles = actorRole ? rolesActorCanAssign(actorRole, ctx.platformRole) : [];
   const okMessage =
     ok === "created"
       ? "Funcionário criado. Já pode entrar com o e-mail e a senha."
@@ -35,7 +35,8 @@ export default async function TeamPage({
       <div>
         <h1 className="text-3xl font-semibold">Equipe</h1>
         <p className="text-sm text-muted-foreground">
-          O dono cria e altera os logins dos funcionários. Cada um entra com usuário ou e-mail e cai no PDV do papel.
+          O gerente cria e altera caixa, garçom e motoboy. O admin não aparece nesta lista e ninguém, além dele mesmo,
+          altera esse login.
         </p>
       </div>
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">{error}</p> : null}
@@ -80,9 +81,19 @@ export default async function TeamPage({
       ) : null}
       <div className="grid gap-4">
         {team.map((member) => {
+          const protectedAdmin = isPlatformAdmin((member.user.platformRole ?? "USER") as PlatformRole);
           const canEditThis =
-            canWrite && actorRole ? isPlatformAdmin(ctx.platformRole) || canManageTenantMember(actorRole, member.role) : false;
-          const roleOptions = roles.includes(member.role) ? roles : [member.role, ...roles];
+            !protectedAdmin &&
+            canWrite &&
+            actorRole &&
+            (member.userId === ctx.userId ||
+              canManageTenantMember(actorRole, member.role, ctx.platformRole));
+          const roleOptions =
+            member.userId === ctx.userId
+              ? [member.role]
+              : roles.includes(member.role)
+                ? roles
+                : [member.role, ...roles];
           return (
             <article key={member.id} className="rounded-xl border bg-card p-4">
               {canEditThis ? (

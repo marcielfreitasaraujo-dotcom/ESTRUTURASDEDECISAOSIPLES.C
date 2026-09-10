@@ -624,11 +624,17 @@ async function main() {
     password: process.env.SEED_SUPER_ADMIN_PASSWORD ?? "Maciel.2004",
     platformRole: "SUPER_ADMIN",
   });
-  await prisma.tenantMembership.deleteMany({ where: { userId: superAdmin.id } });
-  const owner = await upsertUser({
+  const gerente = await upsertUser({
+    name: "Gerente",
+    email: "gerente.central@comandaia.test",
+    username: "gerente",
+    password: "Gerente!2026",
+    platformRole: "USER",
+  });
+  const legacyOwner = await upsertUser({
     name: "Márcia Oliveira",
     email: "maria.s@example.com",
-    username: "dona",
+    username: "dona-inativa",
     password: "CentralPizza!2026",
     platformRole: "USER",
   });
@@ -644,13 +650,6 @@ async function main() {
     email: "paula.r@example.org",
     username: "garcom",
     password: "Garcom!2026",
-    platformRole: "USER",
-  });
-  const manager = await upsertUser({
-    name: "Gerente Central",
-    email: "gerente.central@comandaia.test",
-    username: "gerente",
-    password: "Gerente!2026",
     platformRole: "USER",
   });
   const kitchen = await upsertUser({
@@ -705,16 +704,20 @@ async function main() {
     },
   });
 
-  const central = await seedCentral(owner.id);
-  const memberships: { userId: string; role: "CASHIER" | "WAITER" | "MANAGER" | "KITCHEN" | "DELIVERY" | "STAFF" }[] =
-    [
-      { userId: cashier.id, role: "CASHIER" },
-      { userId: waiter.id, role: "WAITER" },
-      { userId: manager.id, role: "MANAGER" },
-      { userId: kitchen.id, role: "KITCHEN" },
-      { userId: driverUser.id, role: "DELIVERY" },
-      { userId: staff.id, role: "STAFF" },
-    ];
+  const central = await seedCentral(gerente.id);
+  await prisma.tenantMembership.upsert({
+    where: { tenantId_userId: { tenantId: central.id, userId: superAdmin.id } },
+    update: { role: "OWNER" },
+    create: { tenantId: central.id, userId: superAdmin.id, role: "OWNER" },
+  });
+  await prisma.tenantMembership.deleteMany({ where: { userId: legacyOwner.id, tenantId: central.id } });
+  const memberships: { userId: string; role: "CASHIER" | "WAITER" | "KITCHEN" | "DELIVERY" | "STAFF" }[] = [
+    { userId: cashier.id, role: "CASHIER" },
+    { userId: waiter.id, role: "WAITER" },
+    { userId: kitchen.id, role: "KITCHEN" },
+    { userId: driverUser.id, role: "DELIVERY" },
+    { userId: staff.id, role: "STAFF" },
+  ];
   for (const membership of memberships) {
     await prisma.tenantMembership.upsert({
       where: { tenantId_userId: { tenantId: central.id, userId: membership.userId } },
@@ -745,9 +748,8 @@ async function main() {
   });
 
   console.log("Seed ok");
-  console.log(`super admin: ${superAdmin.email}`);
-  console.log(`owner: ${owner.email}`);
-  console.log(`manager: ${manager.email}`);
+  console.log(`admin: ${superAdmin.email}`);
+  console.log(`gerente: ${gerente.email}`);
   console.log(`cashier: ${cashier.email}`);
   console.log(`waiter: ${waiter.email}`);
   console.log(`kitchen: ${kitchen.email}`);

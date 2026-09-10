@@ -1,5 +1,5 @@
 import { PERMISSIONS, type Permission } from "@/domain/rbac/permissions";
-import { hasPermission, isPlatformAdmin, type PlatformRole, type TenantRole } from "@/domain/rbac/roles";
+import { hasPermission, isPlatformAdmin, isStoreGerente, type PlatformRole, type TenantRole } from "@/domain/rbac/roles";
 
 export type NavItem = { href: string; label: string; permission?: Permission };
 
@@ -9,13 +9,15 @@ export const PLATFORM_NAV: NavItem[] = [
   { href: "/admin/users", label: "Usuários" },
   { href: "/admin/plans", label: "Planos" },
   { href: "/admin/audit", label: "Auditoria" },
+  { href: "/app", label: "Loja" },
+  { href: "/caixa", label: "Caixa" },
 ];
 
 const TENANT_NAV: NavItem[] = [
   { href: "/app", label: "Painel", permission: PERMISSIONS.DASHBOARD_READ },
   { href: "/app/pedidos", label: "Pedidos", permission: PERMISSIONS.ORDER_READ },
   { href: "/app/cozinha", label: "Cozinha", permission: PERMISSIONS.KITCHEN_READ },
-  { href: "/app/cardapio", label: "Cardápio", permission: PERMISSIONS.CATALOG_READ },
+  { href: "/app/cardapio", label: "Cardápio", permission: PERMISSIONS.CATALOG_WRITE },
   { href: "/app/clientes", label: "Clientes", permission: PERMISSIONS.CUSTOMER_READ },
   { href: "/app/entregas", label: "Entregas", permission: PERMISSIONS.DELIVERY_READ },
   { href: "/app/cupons", label: "Cupons", permission: PERMISSIONS.CATALOG_WRITE },
@@ -37,12 +39,18 @@ export function navForUser(input: {
     if (input.surface === "admin" || !input.tenantRole) return PLATFORM_NAV;
   }
   if (input.surface === "caixa") {
-    return [
+    const items: NavItem[] = [
       { href: "/caixa", label: "PDV" },
       { href: "/caixa/estoque", label: "Estoque" },
       { href: "/app/pedidos", label: "Fila" },
       { href: "/app/clientes", label: "Clientes" },
     ];
+    if (isStoreGerente(input.tenantRole) || isPlatformAdmin(input.platformRole)) {
+      items.push({ href: "/caixa/fechamento", label: "Fechar caixa" });
+      items.push({ href: "/app/equipe", label: "Equipe" });
+      items.push({ href: "/app/cardapio", label: "Cardápio" });
+    }
+    return items;
   }
   if (input.surface === "garcom") {
     return [{ href: "/garcom", label: "Comandas" }];

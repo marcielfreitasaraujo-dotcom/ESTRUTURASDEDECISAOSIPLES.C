@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PrismaClient } from "@prisma/client";
 import { verifyPassword } from "better-auth/crypto";
-import { addTeamMember, updateTeamMember } from "@/server/services/team";
+import { addTeamMember, listTeam, updateTeamMember } from "@/server/services/team";
 import { createPlatformUser, updatePlatformUser } from "@/server/services/users";
 import { resolveLoginEmail } from "@/server/services/login";
 import { ForbiddenError } from "@/lib/errors";
@@ -16,7 +16,7 @@ describe("admin e dono gerenciam logins", () => {
 
   beforeAll(async () => {
     const tenant = await prisma.tenant.findUnique({ where: { slug: "central-da-pizza" } });
-    const owner = await prisma.user.findUnique({ where: { email: "maria.s@example.com" } });
+    const owner = await prisma.user.findUnique({ where: { email: "gerente.central@comandaia.test" } });
     const admin = await prisma.user.findUnique({ where: { email: "xavier.y@example.org" } });
     if (!tenant || !owner || !admin) throw new Error("Seed incompleto: rode npm run db:seed");
     tenantId = tenant.id;
@@ -68,7 +68,7 @@ describe("admin e dono gerenciam logins", () => {
     await expect(verifyPassword({ hash: nextHash!, password: "CaixaNoite!2026" })).resolves.toBe(true);
   });
 
-  it("gerente não promove ninguém a dono", async () => {
+  it("gerente não promove ninguém a dono e não cria outro gerente", async () => {
     await expect(
       addTeamMember({
         tenantId,
@@ -80,6 +80,41 @@ describe("admin e dono gerenciam logins", () => {
         role: "OWNER",
       }),
     ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("gerente não altera o admin", async () => {
+    const adminMembership = await prisma.tenantMembership.findFirst({
+      where: { tenantId, userId: adminId },
+    });
+    expect(adminMembership).toBeTruthy();
+    await expect(
+      updateTeamMember({
+        tenantId,
+        actorRole: "OWNER",
+        actorUserId: ownerId,
+        membershipId: adminMembership!.id,
+        name: "Hack",
+        email: "xavier.y@example.org",
+        role: "CASHIER",
+      }),
+    ).rejects.toThrow(ForbiddenError);
+    await expect(
+      addTeamMember({
+        tenantId,
+        actorRole: "OWNER",
+        actorUserId: ownerId,
+        name: "Hack",
+        email: "xavier.y@example.org",
+        password: "HackAdmin!2026",
+        role: "CASHIER",
+      }),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("equipe da loja não lista o admin", async () => {
+    const team = await listTeam(tenantId);
+    expect(team.some((member) => member.userId === adminId)).toBe(false);
+    expect(team.some((member) => member.userId === ownerId)).toBe(true);
   });
 
   it("admin cria usuário e altera o login", async () => {

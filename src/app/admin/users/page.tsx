@@ -36,7 +36,8 @@ export default async function AdminUsersPage({
       <div>
         <h1 className="font-heading text-3xl">Usuários</h1>
         <p className="text-sm text-muted-foreground">
-          Você cria, altera e vê qualquer login: donos, funcionários e a equipe da plataforma.
+          Só o admin altera este painel. O gerente gerencia caixa, garçom e motoboy na Equipe da loja, sem mexer no
+          admin.
         </p>
       </div>
       <Card>

@@ -49,6 +49,7 @@ export async function addTeamMemberAction(formData: FormData) {
       tenantId: ctx.tenantId,
       actorRole: teamActorRole(ctx),
       actorUserId: ctx.userId,
+      actorPlatformRole: ctx.platformRole,
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
       username: String(formData.get("username") || "") || undefined,
@@ -69,6 +70,7 @@ export async function updateTeamMemberAction(formData: FormData) {
       tenantId: ctx.tenantId,
       actorRole: teamActorRole(ctx),
       actorUserId: ctx.userId,
+      actorPlatformRole: ctx.platformRole,
       membershipId: String(formData.get("membershipId") || ""),
       name: String(formData.get("name") || ""),
       email: String(formData.get("email") || ""),
@@ -90,6 +92,7 @@ export async function removeTeamMemberAction(formData: FormData) {
       tenantId: ctx.tenantId,
       actorRole: teamActorRole(ctx),
       actorUserId: ctx.userId,
+      actorPlatformRole: ctx.platformRole,
       membershipId: String(formData.get("membershipId") || ""),
     });
   } catch (error) {

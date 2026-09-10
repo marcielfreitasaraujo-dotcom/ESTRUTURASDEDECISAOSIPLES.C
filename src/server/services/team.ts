@@ -3,6 +3,8 @@ import {
   TENANT_ROLES,
   canAssignTenantRole,
   canManageTenantMember,
+  isPlatformAdmin,
+  type PlatformRole,
   type TenantRole,
 } from "@/domain/rbac/roles";
 import { writeAudit } from "@/server/audit";
@@ -11,11 +13,12 @@ import { setCredentialPassword } from "@/server/services/credentials";
 import { normalizeUsername } from "@/server/services/login";
 
 export async function listTeam(tenantId: string) {
-  return prisma.tenantMembership.findMany({
+  const members = await prisma.tenantMembership.findMany({
     where: { tenantId },
     include: { user: true },
     orderBy: { createdAt: "asc" },
   });
+  return members.filter((member) => !isPlatformAdmin((member.user.platformRole ?? "USER") as PlatformRole));
 }
 
 async function countOwners(tenantId: string) {
@@ -26,6 +29,7 @@ export async function addTeamMember(input: {
   tenantId: string;
   actorRole: TenantRole;
   actorUserId: string;
+  actorPlatformRole?: PlatformRole;
   name: string;
   email: string;
   username?: string;
@@ -33,7 +37,7 @@ export async function addTeamMember(input: {
   role: TenantRole;
 }) {
   if (!TENANT_ROLES.includes(input.role)) throw new Error("Papel inválido.");
-  if (!canAssignTenantRole(input.actorRole, input.role)) {
+  if (!canAssignTenantRole(input.actorRole, input.role, input.actorPlatformRole)) {
     throw new ForbiddenError("Você não pode atribuir este papel.");
   }
 
@@ -47,6 +51,9 @@ export async function addTeamMember(input: {
   }
 
   let user = await prisma.user.findUnique({ where: { email } });
+  if (user && isPlatformAdmin((user.platformRole ?? "USER") as PlatformRole)) {
+    throw new ForbiddenError("O usuário admin não pode ser alterado por aqui.");
+  }
   if (!user) {
     const id = crypto.randomUUID();
     user = await prisma.user.create({
@@ -85,6 +92,7 @@ export async function updateTeamMember(input: {
   tenantId: string;
   actorRole: TenantRole;
   actorUserId: string;
+  actorPlatformRole?: PlatformRole;
   membershipId: string;
   name: string;
   email: string;
@@ -97,10 +105,17 @@ export async function updateTeamMember(input: {
     include: { user: true },
   });
   if (!membership) throw new NotFoundError("Funcionário não encontrado.");
-  if (!canManageTenantMember(input.actorRole, membership.role)) {
+  if (isPlatformAdmin((membership.user.platformRole ?? "USER") as PlatformRole)) {
+    throw new ForbiddenError("O usuário admin não pode ser alterado por aqui.");
+  }
+  const editingSelf = membership.userId === input.actorUserId;
+  if (!editingSelf && !canManageTenantMember(input.actorRole, membership.role, input.actorPlatformRole)) {
     throw new ForbiddenError("Você não pode alterar este funcionário.");
   }
-  if (!canAssignTenantRole(input.actorRole, input.role)) {
+  if (editingSelf && input.role !== membership.role) {
+    throw new ForbiddenError("Você não pode alterar o próprio papel.");
+  }
+  if (!editingSelf && input.role !== membership.role && !canAssignTenantRole(input.actorRole, input.role, input.actorPlatformRole)) {
     throw new ForbiddenError("Você não pode atribuir este papel.");
   }
   if (membership.role === "OWNER" && input.role !== "OWNER" && (await countOwners(input.tenantId)) <= 1) {
@@ -157,16 +172,21 @@ export async function removeTeamMember(input: {
   tenantId: string;
   actorRole: TenantRole;
   actorUserId: string;
+  actorPlatformRole?: PlatformRole;
   membershipId: string;
 }) {
   const membership = await prisma.tenantMembership.findFirst({
     where: { id: input.membershipId, tenantId: input.tenantId },
+    include: { user: true },
   });
   if (!membership) throw new NotFoundError("Funcionário não encontrado.");
   if (membership.userId === input.actorUserId) {
     throw new Error("Você não pode remover a si mesmo.");
   }
-  if (!canManageTenantMember(input.actorRole, membership.role)) {
+  if (isPlatformAdmin((membership.user.platformRole ?? "USER") as PlatformRole)) {
+    throw new ForbiddenError("O usuário admin não pode ser removido por aqui.");
+  }
+  if (!canManageTenantMember(input.actorRole, membership.role, input.actorPlatformRole)) {
     throw new ForbiddenError("Você não pode remover este funcionário.");
   }
   if (membership.role === "OWNER" && (await countOwners(input.tenantId)) <= 1) {

@@ -4,19 +4,15 @@ O produto é **um único sistema na nuvem**. Não há bases separadas para garç
 
 | Superfície | Rota | Quem | Dispositivo |
 |---|---|---|---|
-| Plataforma | `/admin` | Você (SUPER_ADMIN) | Qualquer |
-| Gestão da loja | `/app` | Dono / gerente | Computador ou tablet |
-| Clientes | `/app/clientes` | Dono / gerente / caixa / garçom | Computador |
-| Equipe | `/app/equipe` | Dono / gerente | Computador |
-| Loja | `/app/configuracoes` | Dono / gerente | Computador |
-| Entregas (cadastro) | `/app/entregas` | Dono / gerente | Computador |
-| Cupons | `/app/cupons` | Dono / gerente | Computador |
-| Estoque | `/app/estoque` | Dono / gerente | Computador |
-| Financeiro | `/app/financeiro` | Dono / gerente | Computador |
-| Caixa | `/caixa` | Caixa | Computador do PDV |
-| Garçom | `/garcom` | Garçom / apoio | Celular (PWA) |
-| Cozinha | `/app/cozinha` | Cozinha | Tablet / monitor |
-| Motoboy | `/entrega` | Entregador | Celular |
+| Plataforma | `/admin` | Você (admin) | Qualquer |
+| Gestão da loja | `/app` | Gerente (dono) e admin | Computador ou tablet |
+| Equipe | `/app/equipe` | Gerente e admin (gerente não mexe no admin) | Computador |
+| Cardápio | `/app/cardapio` | Gerente e admin | Computador |
+| Caixa | `/caixa` | Caixa, gerente e admin | Computador do PDV |
+| Estoque do cardápio | `/caixa/estoque` | Caixa, gerente e admin | Computador do PDV |
+| Fechar caixa | `/caixa/fechamento` | Gerente e admin | Computador |
+| Garçom | `/garcom` | Garçom | Celular (PWA) |
+| Motoboy | `/entrega` | Motoboy | Celular |
 | Cliente | `/loja/[slug]` | Cliente final | Celular — casa, retirada ou `?mesa=7` |
 
 Pedido lançado no celular do garçom aparece no caixa e no KDS na hora, no mesmo tenant.

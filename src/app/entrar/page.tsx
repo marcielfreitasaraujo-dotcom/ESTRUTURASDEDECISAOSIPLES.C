@@ -32,8 +32,8 @@ export default async function LoginPage({
         <CardHeader className="gap-4">
           <Brand />
           <CardTitle className="text-2xl font-semibold">PDV da equipe</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Acesso de admin, dono, caixa, garçom, cozinha e motoboy. O cliente pede pela loja, sem login.
+            <p className="text-sm text-muted-foreground">
+            Acesso de admin, gerente, caixa, garçom e motoboy. O cliente pede pela loja, sem login.
           </p>
         </CardHeader>
         <CardContent className="grid gap-4">
