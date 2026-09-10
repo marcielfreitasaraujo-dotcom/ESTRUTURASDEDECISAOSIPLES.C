@@ -15,6 +15,12 @@ describe("cardápio da Central da Pizza", () => {
     expect(CENTRAL_MENU.sizes.map((size) => size.slices)).toEqual([6, 8, 10, 12]);
     expect(CENTRAL_MENU.sizes.map((size) => size.basePriceCents)).toEqual([4500, 5000, 6000, 6500]);
     expect(CENTRAL_MENU.sizes.every((size) => size.maxFlavors === 2)).toBe(true);
+    expect(CENTRAL_MENU.sizes.map((size) => size.imageUrl)).toEqual([
+      "/tenants/central-da-pizza/pizza-p.jpg",
+      "/tenants/central-da-pizza/pizza-m.jpg",
+      "/tenants/central-da-pizza/pizza-g.jpg",
+      "/tenants/central-da-pizza/pizza-gg.jpg",
+    ]);
   });
 
   it("cobra +R$ 5 no sabor premium e marca itens em falta", () => {

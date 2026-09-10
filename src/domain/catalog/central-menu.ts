@@ -19,10 +19,10 @@ export const CENTRAL_MENU = {
     closedWeekday: 1,
   },
   sizes: [
-    { name: "P", slug: "p", maxFlavors: 2, slices: 6, basePriceCents: 4500, sortOrder: 1, featured: false, badge: null, stockQuantity: 3 },
-    { name: "M", slug: "m", maxFlavors: 2, slices: 8, basePriceCents: 5000, sortOrder: 2, featured: true, badge: "RECOMENDADO", stockQuantity: null },
-    { name: "G", slug: "g", maxFlavors: 2, slices: 10, basePriceCents: 6000, sortOrder: 3, featured: false, badge: null, stockQuantity: null },
-    { name: "GG", slug: "gg", maxFlavors: 2, slices: 12, basePriceCents: 6500, sortOrder: 4, featured: true, badge: "RECOMENDADO", stockQuantity: null },
+    { name: "P", slug: "p", maxFlavors: 2, slices: 6, basePriceCents: 4500, sortOrder: 1, featured: false, badge: null, stockQuantity: 3, imageUrl: "/tenants/central-da-pizza/pizza-p.jpg" },
+    { name: "M", slug: "m", maxFlavors: 2, slices: 8, basePriceCents: 5000, sortOrder: 2, featured: true, badge: "RECOMENDADO", stockQuantity: null, imageUrl: "/tenants/central-da-pizza/pizza-m.jpg" },
+    { name: "G", slug: "g", maxFlavors: 2, slices: 10, basePriceCents: 6000, sortOrder: 3, featured: false, badge: null, stockQuantity: null, imageUrl: "/tenants/central-da-pizza/pizza-g.jpg" },
+    { name: "GG", slug: "gg", maxFlavors: 2, slices: 12, basePriceCents: 6500, sortOrder: 4, featured: true, badge: "RECOMENDADO", stockQuantity: null, imageUrl: "/tenants/central-da-pizza/pizza-gg.jpg" },
   ],
   drinks: [
     {

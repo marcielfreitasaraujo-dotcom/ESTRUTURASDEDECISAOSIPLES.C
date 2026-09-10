@@ -323,8 +323,6 @@ async function seedCentral(ownerId: string) {
 
   const pizzaCategory = categoryBySlug.pizzas;
 
-  const pizzaImage = "/tenants/central-da-pizza/pizza.png";
-
   const products: Prisma.ProductCreateManyInput[] = [
     ...CENTRAL_MENU.sizes.map((size) => ({
       tenantId: tenant.id,
@@ -333,7 +331,7 @@ async function seedCentral(ownerId: string) {
       name: `Pizza ${size.name}`,
       slug: pizzaProductSlug(size.slug),
       description: `${size.slices} fatias`,
-      imageUrl: pizzaImage,
+      imageUrl: size.imageUrl,
       priceCents: size.basePriceCents,
       featured: size.featured,
       available: true,
