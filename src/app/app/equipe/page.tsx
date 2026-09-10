@@ -66,7 +66,7 @@ export default async function TeamPage({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="new-member-role">Papel</Label>
-                <select id="new-member-role" name="role" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
+                <select id="new-member-role" name="role" defaultValue="CASHIER" className="h-8 rounded-lg border bg-background px-2 text-sm">
                   {roles.map((role) => (
                     <option key={role} value={role}>
                       {TENANT_ROLE_LABELS[role] ?? role}
