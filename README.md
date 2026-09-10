@@ -53,18 +53,22 @@ Altere essas senhas antes de qualquer ambiente compartilhado. Em produção o se
 - `npm run lint` / `npm run typecheck` / `npm test` / `npm run build`
 - `npm run db:seed`
 
-## Netlify
+## Railway
 
-O site já está ligado ao repositório (`monumental-cannoli-6648ef`). O Netlify detecta o Next.js sozinho — não use `publish = .next`.
+Hospedagem igual ao FinUP (Railway + Postgres). Projeto **novo** — não reutilize o serviço Flask do FinUP.
 
-1. No painel, confira as variáveis:
-   - `DATABASE_URL` (Postgres, por exemplo Neon)
-   - `BETTER_AUTH_SECRET` (pelo menos 32 caracteres)
-   - `BETTER_AUTH_URL` = URL pública do site
-   - `NODE_ENV=production`
-2. Rode **uma vez** no banco: `npx prisma migrate deploy` e `npm run db:seed` (cria o admin `admin` / `Maciel.2004`).
+1. [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub repo**.
+2. Repo: `ESTRUTURASDEDECISAOSIPLES.C`. Branch: `cursor/forno-saas-foundation-658e`.
+3. **+ New** → **Database** → **PostgreSQL**.
+4. No serviço web, Variables:
+   - `DATABASE_URL` → Add Variable Reference → `Postgres.DATABASE_URL`
+   - `BETTER_AUTH_SECRET` → 32+ caracteres aleatórios
+   - `NODE_ENV` → `production`
+5. Settings → Networking → **Generate Domain**.
+6. `BETTER_AUTH_URL` = `https://SEU-SERVICO.up.railway.app` (a URL gerada) → Redeploy.
+7. Uma vez, no terminal do serviço ou `railway run npm run db:seed`.
 
-O PDV abre em `/entrar`. O cliente pede em `/loja/central-da-pizza`.
+Login: `admin` / `Maciel.2004`. Detalhes em [docs/deployment.md](./docs/deployment.md).
 
 ## Segurança
 

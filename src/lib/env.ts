@@ -32,12 +32,11 @@ const BUILD_PLACEHOLDERS = {
 let cached: Env | undefined;
 
 export function publicAppUrl() {
-  return (
-    process.env.BETTER_AUTH_URL ||
-    process.env.DEPLOY_PRIME_URL ||
-    process.env.URL ||
-    "http://localhost:3000"
-  );
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.RAILWAY_PUBLIC_DOMAIN) {
+    return `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`;
+  }
+  return process.env.DEPLOY_PRIME_URL || process.env.URL || "http://localhost:3000";
 }
 
 export function missingRuntimeSecrets() {

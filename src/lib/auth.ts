@@ -17,6 +17,11 @@ export const auth = betterAuth({
     process.env.URL,
     process.env.DEPLOY_PRIME_URL,
     process.env.DEPLOY_URL,
+    process.env.RAILWAY_PUBLIC_DOMAIN
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`
+      : undefined,
+    "https://*.up.railway.app",
+    "https://*.railway.app",
     "https://*.netlify.app",
   ].filter((value): value is string => Boolean(value)),
   database: prismaAdapter(prisma, { provider: "postgresql" }),
