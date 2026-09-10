@@ -43,11 +43,16 @@ describe("cardápio da Central da Pizza", () => {
     expect(loyaltyPointsForPrice(5000)).toBe(750);
   });
 
-  it("usa foto real nas bebidas e desenho único nas pizzas", () => {
+  it("usa foto isolada nas jarras e foto real nas demais bebidas", () => {
     expect(CENTRAL_MENU.drinks.map((drink) => drink.imageUrl)).toEqual([
-      "/tenants/central-da-pizza/suco-laranja.webp",
+      "/tenants/central-da-pizza/suco-laranja.jpg",
+      "/tenants/central-da-pizza/suco-acerola.jpg",
+      "/tenants/central-da-pizza/suco-morango.jpg",
       "/tenants/central-da-pizza/coca-cola-2l.jpg",
       "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
+      "/tenants/central-da-pizza/guarana-antarctica-2l.jpg",
+      "/tenants/central-da-pizza/fanta-laranja-2l.jpg",
+      "/tenants/central-da-pizza/sprite-2l.jpg",
       "/tenants/central-da-pizza/agua-mineral.jpg",
       "/tenants/central-da-pizza/agua-com-gas.jpg",
     ]);
@@ -61,14 +66,25 @@ describe("cardápio da Central da Pizza", () => {
       ]),
     );
     expect(byGroup).toEqual({
-      sucos: ["jarra-suco-laranja"],
-      refrigerantes: ["coca-cola-2l", "coca-cola-zero-2l"],
+      sucos: ["jarra-suco-laranja", "jarra-suco-acerola", "jarra-suco-morango"],
+      refrigerantes: [
+        "coca-cola-2l",
+        "coca-cola-zero-2l",
+        "guarana-antarctica-2l",
+        "fanta-laranja-2l",
+        "sprite-2l",
+      ],
       aguas: ["agua-mineral-500ml", "agua-com-gas-500ml"],
     });
     expect(CENTRAL_MENU.drinks.map((drink) => drink.name)).toEqual([
       "Jarra de suco de laranja",
+      "Jarra de suco de acerola",
+      "Jarra de suco de morango",
       "Coca-Cola 2L",
       "Coca-Cola Zero 2L",
+      "Guaraná Antarctica 2L",
+      "Fanta Laranja 2L",
+      "Sprite 2L",
       "Água Crystal 500ml",
       "Água Crystal com gás 500ml",
     ]);
