@@ -1,29 +1,14 @@
-import { spawn } from "node:child_process";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { PrismaClient } from "@prisma/client";
+import { bin, migrateWithRetry, run } from "./railway-cmd.mjs";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const bin = (name) => path.join(root, "node_modules", ".bin", name);
-
-function run(command, args) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd: root,
-      stdio: "inherit",
-      env: process.env,
-    });
-    child.on("error", reject);
-    child.on("exit", (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`${path.basename(command)} ${args.join(" ")} saiu com código ${code}`));
-    });
-  });
+if (!process.env.DATABASE_URL) {
+  console.error("Falta DATABASE_URL. No Railway: Variáveis → Add Variable Reference → Postgres → DATABASE_URL.");
+  process.exit(1);
 }
 
 const port = process.env.PORT || "3000";
 
-await run(bin("prisma"), ["migrate", "deploy"]);
+await migrateWithRetry();
 
 const prisma = new PrismaClient();
 try {
