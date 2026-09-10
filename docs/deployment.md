@@ -26,23 +26,20 @@ Build: `npm run build` (gera Prisma Client + Next).
 
 ## Railway
 
-Igual ao FinUP: um projeto no Railway + Postgres do próprio Railway. Este app é Next.js (não Flask): o `railway.json` faz `npm run build`, `npx prisma migrate deploy` e `npm run start` na porta `PORT`.
+O `npm start` em produção roda `prisma migrate deploy` e, se o banco estiver vazio, o seed (login `admin` / `Maciel.2004`).
 
 1. [railway.app](https://railway.app) → **New Project** → **GitHub repo** → este repositório.
-2. Branch: `cursor/forno-saas-foundation-658e` (não `main`).
+2. Branch: `cursor/forno-saas-foundation-658e` (não `main`). **Aguarde CI desligado**.
 3. **+ New** → **Database** → **PostgreSQL**.
 4. No serviço do app, **Variables**:
-   - `DATABASE_URL` = referência `${{Postgres.DATABASE_URL}}` (Add Reference Variable)
+   - `DATABASE_URL` = referência `${{Postgres.DATABASE_URL}}`
    - `BETTER_AUTH_SECRET` = texto aleatório ≥ 32 caracteres
-   - `BETTER_AUTH_URL` = URL pública (depois de Generate Domain)
+   - `BETTER_AUTH_URL` = URL pública (depois de Generate Domain); se faltar, usa `RAILWAY_PUBLIC_DOMAIN`
    - `NODE_ENV=production`
-5. **Settings → Networking → Generate Domain**.
-6. Ajuste `BETTER_AUTH_URL` para `https://<dominio>.up.railway.app` e redeploy.
-7. Seed **uma vez** (Railway CLI ou um one-off): `npm run db:seed`.
+5. **Settings → Networking → Generate Domain** → Redeploy.
+6. Comando de construção `npm run build`, inicialização `npm run start`, saúde `/api/health`. Sem servidor desligado.
 
 Login: usuário `admin`, senha `Maciel.2004`. Health: `GET /api/health`.
-
-Se o painel não ler o `railway.json` (projetos novos usam IaC), copie no serviço: Build `npm run build`, Pre-deploy `npx prisma migrate deploy`, Start `npm run start`, Health `/api/health`.
 
 ## Netlify
 

@@ -46,7 +46,7 @@ Motoboy: `/entrega`
 Gestão da loja: `/app` (clientes, equipe, estoque, financeiro, cupons, entregas, loja)  
 Admin da plataforma: `/admin`
 
-Altere essas senhas antes de qualquer ambiente compartilhado. Em produção o seed não deve rodar.
+Altere essas senhas antes de qualquer ambiente compartilhado. No Railway o seed só roda se o banco estiver vazio.
 
 ## Scripts
 
@@ -66,9 +66,8 @@ Hospedagem igual ao FinUP (Railway + Postgres). Projeto **novo** — não reutil
    - `NODE_ENV` → `production`
 5. Settings → Networking → **Generate Domain**.
 6. `BETTER_AUTH_URL` = `https://SEU-SERVICO.up.railway.app` (a URL gerada) → Redeploy.
-7. Uma vez, no terminal do serviço ou `railway run npm run db:seed`.
 
-Login: `admin` / `Maciel.2004`. Detalhes em [docs/deployment.md](./docs/deployment.md).
+O primeiro start cria as tabelas e o usuário `admin`. Login: `admin` / `Maciel.2004`.
 
 ## Segurança
 
