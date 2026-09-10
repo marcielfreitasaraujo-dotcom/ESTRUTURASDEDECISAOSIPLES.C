@@ -55,14 +55,18 @@ describe("cardápio da Central da Pizza", () => {
       "/tenants/central-da-pizza/guarana-antarctica-2l.jpg",
       "/tenants/central-da-pizza/fanta-laranja-2l.jpg",
       "/tenants/central-da-pizza/sprite-2l.jpg",
+      "/tenants/central-da-pizza/coca-cola-lata.jpg",
+      "/tenants/central-da-pizza/coca-cola-sem-acucar-lata.jpg",
+      "/tenants/central-da-pizza/guarana-antarctica-lata.jpg",
+      "/tenants/central-da-pizza/fanta-laranja-lata.jpg",
       "/tenants/central-da-pizza/agua-mineral.jpg",
       "/tenants/central-da-pizza/agua-com-gas.jpg",
     ]);
   });
 
-  it("separa bebidas em sucos, refrigerantes e águas", () => {
+  it("separa bebidas em sucos, refrigerantes, latas e águas", () => {
     const byGroup = Object.fromEntries(
-      ["sucos", "refrigerantes", "aguas"].map((slug) => [
+      ["sucos", "refrigerantes", "refrigerantes-lata", "aguas"].map((slug) => [
         slug,
         CENTRAL_MENU.drinks.filter((drink) => drink.categorySlug === slug).map((drink) => drink.slug),
       ]),
@@ -82,6 +86,12 @@ describe("cardápio da Central da Pizza", () => {
         "fanta-laranja-2l",
         "sprite-2l",
       ],
+      "refrigerantes-lata": [
+        "coca-cola-lata-350ml",
+        "coca-cola-zero-lata-350ml",
+        "guarana-antarctica-lata-350ml",
+        "fanta-laranja-lata-350ml",
+      ],
       aguas: ["agua-mineral-500ml", "agua-com-gas-500ml"],
     });
     expect(CENTRAL_MENU.drinks.map((drink) => drink.name)).toEqual([
@@ -95,6 +105,10 @@ describe("cardápio da Central da Pizza", () => {
       "Guaraná Antarctica 2L",
       "Fanta Laranja 2L",
       "Sprite 2L",
+      "Coca-Cola lata 350ml",
+      "Coca-Cola Zero lata 350ml",
+      "Guaraná Antarctica lata 350ml",
+      "Fanta Laranja lata 350ml",
       "Água Crystal 500ml",
       "Água Crystal com gás 500ml",
     ]);
@@ -107,6 +121,11 @@ describe("cardápio da Central da Pizza", () => {
       CENTRAL_MENU.drinks
         .filter((drink) => drink.categorySlug === "sucos" && drink.slug.endsWith("-1l"))
         .every((drink) => drink.priceCents === 1500),
+    ).toBe(true);
+    expect(
+      CENTRAL_MENU.drinks
+        .filter((drink) => drink.categorySlug === "refrigerantes-lata")
+        .every((drink) => drink.priceCents === 600),
     ).toBe(true);
     expect(CENTRAL_MENU.drinks.some((drink) => /morango/i.test(drink.name))).toBe(false);
   });

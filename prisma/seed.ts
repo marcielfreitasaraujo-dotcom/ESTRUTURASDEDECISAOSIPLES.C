@@ -159,6 +159,7 @@ async function seedCentral(ownerId: string) {
     { name: "Pizzas", slug: "pizzas" },
     { name: "Sucos", slug: "sucos" },
     { name: "Refrigerantes", slug: "refrigerantes" },
+    { name: "Refrigerantes lata", slug: "refrigerantes-lata" },
     { name: "Águas", slug: "aguas" },
   ];
   const categories = await Promise.all(
