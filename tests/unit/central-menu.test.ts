@@ -46,6 +46,7 @@ describe("cardápio da Central da Pizza", () => {
   it("usa foto isolada nas jarras e foto real nas demais bebidas", () => {
     expect(CENTRAL_MENU.drinks.map((drink) => drink.imageUrl)).toEqual([
       "/tenants/central-da-pizza/suco-laranja.jpg",
+      "/tenants/central-da-pizza/suco-acerola.jpg",
       "/tenants/central-da-pizza/coca-cola-2l.jpg",
       "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
       "/tenants/central-da-pizza/guarana-antarctica-2l.jpg",
@@ -64,7 +65,7 @@ describe("cardápio da Central da Pizza", () => {
       ]),
     );
     expect(byGroup).toEqual({
-      sucos: ["jarra-suco-laranja"],
+      sucos: ["jarra-suco-laranja", "jarra-suco-acerola"],
       refrigerantes: [
         "coca-cola-2l",
         "coca-cola-zero-2l",
@@ -76,6 +77,7 @@ describe("cardápio da Central da Pizza", () => {
     });
     expect(CENTRAL_MENU.drinks.map((drink) => drink.name)).toEqual([
       "Jarra de suco de laranja",
+      "Jarra de suco de acerola",
       "Coca-Cola 2L",
       "Coca-Cola Zero 2L",
       "Guaraná Antarctica 2L",
@@ -84,6 +86,6 @@ describe("cardápio da Central da Pizza", () => {
       "Água Crystal 500ml",
       "Água Crystal com gás 500ml",
     ]);
-    expect(CENTRAL_MENU.drinks.some((drink) => /acerola|morango/i.test(drink.name))).toBe(false);
+    expect(CENTRAL_MENU.drinks.some((drink) => /morango/i.test(drink.name))).toBe(false);
   });
 });
