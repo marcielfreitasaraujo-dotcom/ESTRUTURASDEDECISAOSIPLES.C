@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { clampStockQuantity } from "@/domain/catalog/stock";
 import { ConflictError, NotFoundError } from "@/lib/errors";
 import { writeAudit } from "@/server/audit";
 
@@ -158,4 +159,42 @@ export async function duplicateProduct(tenantId: string, productId: string) {
       featured: false,
     },
   });
+}
+
+export async function setProductStock(input: {
+  tenantId: string;
+  productId: string;
+  quantity: number;
+  userId?: string | null;
+}) {
+  const stockQuantity = clampStockQuantity(input.quantity);
+  const product = await prisma.product.findFirst({
+    where: { id: input.productId, tenantId: input.tenantId, deletedAt: null },
+  });
+  if (!product) throw new NotFoundError("Produto não encontrado.");
+
+  const updated = await prisma.product.update({
+    where: { id: product.id },
+    data: {
+      stockQuantity,
+      trackInventory: true,
+      available: stockQuantity > 0,
+    },
+  });
+
+  await writeAudit({
+    action: "UPDATE",
+    entity: "Product",
+    entityId: product.id,
+    tenantId: input.tenantId,
+    userId: input.userId,
+    metadata: {
+      field: "stock",
+      from: product.stockQuantity,
+      to: stockQuantity,
+      available: updated.available,
+    },
+  });
+
+  return updated;
 }

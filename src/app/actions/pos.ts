@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/db";
 import { requireTenantPermission } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { createStaffOrder, markOrderPaid } from "@/server/services/pos";
+import { setProductStock } from "@/server/services/catalog";
 import { publicErrorMessage } from "@/lib/errors";
 import type { StaffOrderItemInput } from "@/server/services/pos";
 
@@ -94,4 +96,29 @@ export async function markOrderPaidAction(formData: FormData) {
   await markOrderPaid({ tenantId: ctx.tenantId, orderId, userId: ctx.userId });
   revalidatePath("/caixa");
   revalidatePath("/app/pedidos");
+}
+
+export async function setCashierProductStockAction(productId: string, quantity: number) {
+  try {
+    const ctx = await requireTenantPermission(PERMISSIONS.ORDER_UPDATE);
+    await setProductStock({
+      tenantId: ctx.tenantId,
+      productId,
+      quantity,
+      userId: ctx.userId,
+    });
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: ctx.tenantId },
+      select: { slug: true },
+    });
+    revalidatePath("/caixa/estoque");
+    revalidatePath("/caixa");
+    if (tenant?.slug) {
+      revalidatePath(`/loja/${tenant.slug}`);
+      revalidatePath(`/loja/${tenant.slug}/carrinho`);
+    }
+    return { ok: true as const };
+  } catch (error) {
+    throw new Error(publicErrorMessage(error).message);
+  }
 }

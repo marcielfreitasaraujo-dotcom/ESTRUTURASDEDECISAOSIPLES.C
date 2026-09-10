@@ -60,6 +60,7 @@ export function PizzaCustomizeDialog({
   flavors,
   addonGroups,
   stockQuantity,
+  soldOut = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -69,6 +70,7 @@ export function PizzaCustomizeDialog({
   flavors: StoreFlavor[];
   addonGroups: StoreAddonGroup[];
   stockQuantity?: number | null;
+  soldOut?: boolean;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -83,6 +85,7 @@ export function PizzaCustomizeDialog({
             flavors={flavors}
             addonGroups={addonGroups}
             stockQuantity={stockQuantity}
+            soldOut={soldOut}
             onAdded={() => {
               onOpenChange(false);
               onAdded?.();
@@ -100,6 +103,7 @@ function PizzaCustomizeForm({
   flavors,
   addonGroups,
   stockQuantity,
+  soldOut = false,
   onAdded,
 }: {
   slug: string;
@@ -107,6 +111,7 @@ function PizzaCustomizeForm({
   flavors: StoreFlavor[];
   addonGroups: StoreAddonGroup[];
   stockQuantity?: number | null;
+  soldOut?: boolean;
   onAdded: () => void;
 }) {
   const [flavorIds, setFlavorIds] = useState<string[]>([]);
@@ -161,6 +166,10 @@ function PizzaCustomizeForm({
 
   function submit(formData: FormData) {
     setError(null);
+    if (soldOut) {
+      setError("Este tamanho está esgotado.");
+      return;
+    }
     startTransition(async () => {
       try {
         await addPizzaToCartAction(formData);
@@ -335,12 +344,17 @@ function PizzaCustomizeForm({
           rows={3}
         />
         {lowStock ? <p className="text-sm font-medium text-amber-700">Últimas {lowStock} unidades</p> : null}
+        {soldOut ? <p className="text-sm font-medium text-destructive">Este tamanho está esgotado.</p> : null}
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </section>
 
       <div className="sticky bottom-0 border-t bg-background px-5 py-4">
-        <Button type="submit" className="h-11 w-full text-base" disabled={pending || !flavorMet}>
-          {pending ? "Adicionando..." : `Adicionar ao carrinho · ${formatBRL(preview.totalCents)}`}
+        <Button type="submit" className="h-11 w-full text-base" disabled={pending || !flavorMet || soldOut}>
+          {soldOut
+            ? "Esgotado"
+            : pending
+              ? "Adicionando..."
+              : `Adicionar ao carrinho · ${formatBRL(preview.totalCents)}`}
         </Button>
       </div>
     </form>

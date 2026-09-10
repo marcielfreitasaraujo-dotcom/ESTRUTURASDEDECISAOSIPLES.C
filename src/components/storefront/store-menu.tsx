@@ -17,6 +17,7 @@ import { formatBRL } from "@/lib/money";
 import { loyaltyPointsForPrice, loyaltyRedeemHint } from "@/domain/catalog/loyalty";
 import { PizzaCustomizeDialog, type StoreAddonGroup, type StoreFlavor, type StoreSize } from "@/components/pizza-builder";
 import { pizzaProductSlug } from "@/domain/catalog/central-menu";
+import { isSoldOut } from "@/domain/catalog/stock";
 import { StoreCartButton, StoreCartSheet } from "@/components/storefront/store-cart";
 
 type Product = {
@@ -31,6 +32,7 @@ type Product = {
   featured: boolean;
   active: boolean;
   available: boolean;
+  trackInventory: boolean;
   stockQuantity: number | null;
   categoryId: string | null;
   sortOrder: number;
@@ -89,7 +91,7 @@ export function StoreMenu({
   const subtotal = cartItems.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
 
   const visibleCategories = categories.filter((category) => category.active);
-  const visibleProducts = products.filter((product) => product.active && product.available);
+  const visibleProducts = products.filter((product) => product.active);
 
   const pizzaStock = useMemo(() => {
     const stock = new Map<string, number | null>();
@@ -101,6 +103,7 @@ export function StoreMenu({
   }, [products]);
 
   function openPizza(product: Product) {
+    if (isSoldOut(product)) return;
     const sizeSlug = product.slug.replace(/^pizza-/, "");
     const size = sizes.find((item) => item.slug === sizeSlug || pizzaProductSlug(item.slug) === product.slug);
     if (size) setPizzaSize(size);
@@ -236,6 +239,16 @@ export function StoreMenu({
         flavors={flavors}
         addonGroups={addonGroups}
         stockQuantity={pizzaSize ? pizzaStock.get(pizzaSize.slug) : null}
+        soldOut={
+          pizzaSize
+            ? products.some(
+                (product) =>
+                  product.kind === "PIZZA" &&
+                  (product.slug === pizzaProductSlug(pizzaSize.slug) || product.slug === `pizza-${pizzaSize.slug}`) &&
+                  isSoldOut(product),
+              )
+            : false
+        }
       />
 
       <Dialog open={deliveryOpen} onOpenChange={setDeliveryOpen}>
@@ -275,6 +288,17 @@ export function StoreMenu({
   );
 }
 
+function SoldOutRibbon() {
+  return (
+    <span
+      className="pointer-events-none absolute top-4 -right-8 z-20 w-[148px] rotate-45 bg-zinc-950 py-1 text-center text-[11px] font-extrabold tracking-wider text-white uppercase shadow-sm"
+      aria-hidden
+    >
+      Esgotado
+    </span>
+  );
+}
+
 function ProductCard({
   slug,
   product,
@@ -290,19 +314,30 @@ function ProductCard({
 }) {
   const [pending, startTransition] = useTransition();
   const isPizza = product.kind === "PIZZA";
+  const soldOut = isSoldOut(product);
   const points = loyaltyPointsForPrice(product.priceCents);
   const price = product.promotionalPriceCents ?? product.priceCents;
 
   function addDrink() {
+    if (soldOut) return;
     startTransition(async () => {
       await addProductToCartAction(slug, product.id, 1);
       onAddedToCart();
     });
   }
 
+  function select() {
+    if (soldOut) return;
+    if (isPizza) onPizza();
+    else addDrink();
+  }
+
   return (
-    <article className="relative flex min-h-[168px] overflow-hidden rounded-2xl bg-white p-4 shadow-sm">
-      {badge ? (
+    <article
+      className="relative flex min-h-[168px] overflow-hidden rounded-2xl bg-white p-4 shadow-sm"
+      aria-disabled={soldOut}
+    >
+      {badge && !soldOut ? (
         <span
           className={`absolute top-3 left-3 z-10 rounded px-2 py-0.5 text-[10px] font-bold tracking-wide ${
             badge === "MAIS PEDIDO" ? "bg-amber-100 text-amber-800" : "bg-sky-100 text-sky-700"
@@ -311,18 +346,26 @@ function ProductCard({
           {badge}
         </span>
       ) : null}
-      <button
-        type="button"
-        className="flex min-w-0 flex-1 flex-col items-start text-left"
-        onClick={isPizza ? onPizza : addDrink}
-      >
-        <h3 className={`font-medium ${badge ? "mt-5" : ""}`}>{product.name}</h3>
-        {product.description ? <p className="mt-1 text-sm text-zinc-500">{product.description}</p> : null}
-        <p className="mt-auto pt-4 text-sm font-medium">{pending ? "Adicionando..." : formatBRL(price)}</p>
-      </button>
+      {soldOut ? (
+        <div className="flex min-w-0 flex-1 flex-col items-start text-left">
+          <h3 className="font-medium">{product.name}</h3>
+          {product.description ? <p className="mt-1 text-sm text-zinc-500">{product.description}</p> : null}
+          <p className="mt-auto pt-4 text-sm font-medium">{formatBRL(price)}</p>
+        </div>
+      ) : (
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 flex-col items-start text-left"
+          onClick={select}
+        >
+          <h3 className={`font-medium ${badge ? "mt-5" : ""}`}>{product.name}</h3>
+          {product.description ? <p className="mt-1 text-sm text-zinc-500">{product.description}</p> : null}
+          <p className="mt-auto pt-4 text-sm font-medium">{pending ? "Adicionando..." : formatBRL(price)}</p>
+        </button>
+      )}
       <div
-        className="relative ml-3 size-[128px] shrink-0 cursor-pointer"
-        onClick={isPizza ? onPizza : addDrink}
+        className={`relative ml-3 size-[128px] shrink-0 overflow-hidden ${soldOut ? "" : "cursor-pointer"}`}
+        onClick={select}
       >
         {isPizza ? (
           <Tooltip>
@@ -344,7 +387,9 @@ function ProductCard({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={product.imageUrl} alt={product.name} width={128} height={128} className="size-[128px] object-contain" />
         ) : null}
+        {soldOut ? <SoldOutRibbon /> : null}
       </div>
+      {soldOut ? <span className="sr-only">Esgotado</span> : null}
     </article>
   );
 }

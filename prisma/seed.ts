@@ -361,9 +361,11 @@ async function seedCentral(ownerId: string) {
 
   const keepSlugs = products.map((product) => product.slug);
   for (const product of products) {
+    const { available: _available, trackInventory: _trackInventory, stockQuantity: _stockQuantity, ...catalogFields } =
+      product;
     await prisma.product.upsert({
       where: { tenantId_slug: { tenantId: tenant.id, slug: product.slug } },
-      update: product,
+      update: catalogFields,
       create: product,
     });
   }

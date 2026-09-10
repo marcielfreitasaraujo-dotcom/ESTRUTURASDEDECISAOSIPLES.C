@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
-import { NotFoundError } from "@/lib/errors";
+import { ConflictError, NotFoundError } from "@/lib/errors";
+import { isSoldOut } from "@/domain/catalog/stock";
 import { quotePizza } from "@/domain/catalog/pizza-pricing";
 import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
 import { evaluateCoupon } from "@/domain/coupons/evaluate";
@@ -49,6 +50,7 @@ export async function addSimpleProductToCart(input: {
     where: { id: input.productId, tenantId: input.tenantId, active: true, archived: false },
   });
   if (!product) throw new NotFoundError("Produto não encontrado.");
+  if (isSoldOut(product)) throw new ConflictError("Produto esgotado.");
 
   const price = product.promotionalPriceCents ?? product.priceCents;
   const cart = await getOrCreateCart(input.tenantId);
@@ -80,6 +82,17 @@ export async function addPizzaToCart(input: {
     include: { flavorPrices: true },
   });
   if (!size) throw new NotFoundError("Tamanho não encontrado.");
+
+  const pizzaProduct = await prisma.product.findFirst({
+    where: {
+      tenantId: input.tenantId,
+      kind: "PIZZA",
+      OR: [{ sku: `SIZE:${size.slug}` }, { slug: `pizza-${size.slug}` }],
+    },
+  });
+  if (pizzaProduct && isSoldOut(pizzaProduct)) {
+    throw new ConflictError("Este tamanho está esgotado.");
+  }
 
   const flavors = await prisma.pizzaFlavor.findMany({
     where: { id: { in: input.flavorIds }, tenantId: input.tenantId, active: true },

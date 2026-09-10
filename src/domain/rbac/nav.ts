@@ -39,6 +39,7 @@ export function navForUser(input: {
   if (input.surface === "caixa") {
     return [
       { href: "/caixa", label: "PDV" },
+      { href: "/caixa/estoque", label: "Estoque" },
       { href: "/app/pedidos", label: "Fila" },
       { href: "/app/clientes", label: "Clientes" },
     ];

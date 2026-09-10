@@ -27,6 +27,13 @@ describe("navForUser", () => {
     expect(hrefs("WAITER")).not.toContain("/caixa");
   });
 
+  it("mostra estoque na nav do caixa", () => {
+    const links = navForUser({ platformRole: "USER", tenantRole: "CASHIER", surface: "caixa" }).map(
+      (item) => item.href,
+    );
+    expect(links).toEqual(["/caixa", "/caixa/estoque", "/app/pedidos", "/app/clientes"]);
+  });
+
   it("usa a nav da plataforma no admin", () => {
     const links = navForUser({ platformRole: "SUPER_ADMIN", tenantRole: null, surface: "admin" }).map(
       (item) => item.href,

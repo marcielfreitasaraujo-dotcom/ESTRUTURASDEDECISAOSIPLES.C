@@ -59,6 +59,7 @@ export default async function StorePage({ params, searchParams }: Props) {
         featured: product.featured,
         active: product.active,
         available: product.available,
+        trackInventory: product.trackInventory,
         stockQuantity: product.stockQuantity,
         categoryId: product.categoryId,
         sortOrder: product.sortOrder,
