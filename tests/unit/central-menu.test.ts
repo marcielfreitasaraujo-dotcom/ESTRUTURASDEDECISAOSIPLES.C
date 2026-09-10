@@ -45,9 +45,25 @@ describe("cardápio da Central da Pizza", () => {
 
   it("usa foto real nas bebidas e desenho único nas pizzas", () => {
     expect(CENTRAL_MENU.drinks.map((drink) => drink.imageUrl)).toEqual([
+      "/tenants/central-da-pizza/suco-laranja.webp",
       "/tenants/central-da-pizza/coca-cola-2l.jpg",
       "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
-      "/tenants/central-da-pizza/suco-laranja.webp",
+      "/tenants/central-da-pizza/agua-mineral.jpg",
+      "/tenants/central-da-pizza/agua-com-gas.jpg",
     ]);
+  });
+
+  it("separa bebidas em sucos, refrigerantes e águas", () => {
+    const byGroup = Object.fromEntries(
+      ["sucos", "refrigerantes", "aguas"].map((slug) => [
+        slug,
+        CENTRAL_MENU.drinks.filter((drink) => drink.categorySlug === slug).map((drink) => drink.slug),
+      ]),
+    );
+    expect(byGroup).toEqual({
+      sucos: ["jarra-suco-laranja"],
+      refrigerantes: ["coca-cola-2l", "coca-cola-zero-2l"],
+      aguas: ["agua-mineral-500ml", "agua-com-gas-500ml"],
+    });
   });
 });

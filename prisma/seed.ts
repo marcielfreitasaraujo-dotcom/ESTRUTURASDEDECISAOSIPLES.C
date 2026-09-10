@@ -155,11 +155,14 @@ async function seedCentral(ownerId: string) {
     });
   }
 
+  const categoryDefs = [
+    { name: "Pizzas", slug: "pizzas" },
+    { name: "Sucos", slug: "sucos" },
+    { name: "Refrigerantes", slug: "refrigerantes" },
+    { name: "Águas", slug: "aguas" },
+  ];
   const categories = await Promise.all(
-    [
-      { name: "Pizzas", slug: "pizzas" },
-      { name: "Bebidas", slug: "refrigerante-2l" },
-    ].map((category, index) =>
+    categoryDefs.map((category, index) =>
       prisma.category.upsert({
         where: { tenantId_slug: { tenantId: tenant.id, slug: category.slug } },
         update: { name: category.name, sortOrder: index, active: true, deletedAt: null },
@@ -168,9 +171,10 @@ async function seedCentral(ownerId: string) {
     ),
   );
   await prisma.category.updateMany({
-    where: { tenantId: tenant.id, slug: { notIn: ["pizzas", "refrigerante-2l"] } },
+    where: { tenantId: tenant.id, slug: { notIn: categoryDefs.map((category) => category.slug) } },
     data: { active: false },
   });
+  const categoryBySlug = Object.fromEntries(categories.map((category) => [category.slug, category]));
 
   const sizeSlugs = CENTRAL_MENU.sizes.map((size) => size.slug);
   const sizes = await Promise.all(
@@ -315,8 +319,7 @@ async function seedCentral(ownerId: string) {
     }
   }
 
-  const pizzaCategory = categories[0];
-  const drinksCategory = categories[1];
+  const pizzaCategory = categoryBySlug.pizzas;
 
   const pizzaImage = "/tenants/central-da-pizza/pizza.png";
 
@@ -341,7 +344,7 @@ async function seedCentral(ownerId: string) {
     })),
     ...CENTRAL_MENU.drinks.map((drink, index) => ({
       tenantId: tenant.id,
-      categoryId: drinksCategory?.id,
+      categoryId: categoryBySlug[drink.categorySlug]?.id,
       kind: "BEVERAGE" as const,
       name: drink.name,
       slug: drink.slug,
