@@ -157,6 +157,7 @@ async function seedCentral(ownerId: string) {
 
   const categoryDefs = [
     { name: "Pizzas", slug: "pizzas" },
+    { name: "Suco 300 ML", slug: "suco-300ml" },
     { name: "Sucos", slug: "sucos" },
     { name: "Refrigerantes", slug: "refrigerantes" },
     { name: "Refrigerantes lata", slug: "refrigerantes-lata" },

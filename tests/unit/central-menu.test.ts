@@ -45,6 +45,9 @@ describe("cardápio da Central da Pizza", () => {
 
   it("usa foto isolada nas jarras e foto real nas demais bebidas", () => {
     expect(CENTRAL_MENU.drinks.map((drink) => drink.imageUrl)).toEqual([
+      "/tenants/central-da-pizza/suco-maracuja-300ml.jpg",
+      "/tenants/central-da-pizza/suco-laranja-300ml.jpg",
+      "/tenants/central-da-pizza/suco-acerola-300ml.jpg",
       "/tenants/central-da-pizza/suco-laranja.jpg",
       "/tenants/central-da-pizza/suco-laranja.jpg",
       "/tenants/central-da-pizza/suco-maracuja.jpg",
@@ -66,12 +69,13 @@ describe("cardápio da Central da Pizza", () => {
 
   it("separa bebidas em sucos, refrigerantes, latas e águas", () => {
     const byGroup = Object.fromEntries(
-      ["sucos", "refrigerantes", "refrigerantes-lata", "aguas"].map((slug) => [
+      ["suco-300ml", "sucos", "refrigerantes", "refrigerantes-lata", "aguas"].map((slug) => [
         slug,
         CENTRAL_MENU.drinks.filter((drink) => drink.categorySlug === slug).map((drink) => drink.slug),
       ]),
     );
     expect(byGroup).toEqual({
+      "suco-300ml": ["suco-maracuja-300ml", "suco-laranja-300ml", "suco-acerola-300ml"],
       sucos: [
         "suco-laranja-500ml",
         "suco-laranja-1l",
@@ -95,6 +99,9 @@ describe("cardápio da Central da Pizza", () => {
       aguas: ["agua-mineral-500ml", "agua-com-gas-500ml"],
     });
     expect(CENTRAL_MENU.drinks.map((drink) => drink.name)).toEqual([
+      "Maracujá 300ml",
+      "Laranja 300ml",
+      "Acerola 300ml",
       "Jarra de suco de laranja 500ml",
       "Jarra de suco de laranja 1L",
       "Jarra de suco de maracujá 500ml",
@@ -112,6 +119,11 @@ describe("cardápio da Central da Pizza", () => {
       "Água Crystal 500ml",
       "Água Crystal com gás 500ml",
     ]);
+    expect(
+      CENTRAL_MENU.drinks
+        .filter((drink) => drink.categorySlug === "suco-300ml")
+        .every((drink) => drink.priceCents === 600),
+    ).toBe(true);
     expect(
       CENTRAL_MENU.drinks
         .filter((drink) => drink.categorySlug === "sucos" && drink.slug.endsWith("-500ml"))
