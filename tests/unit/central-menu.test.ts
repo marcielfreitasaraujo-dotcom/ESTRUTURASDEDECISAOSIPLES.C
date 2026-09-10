@@ -65,5 +65,12 @@ describe("cardápio da Central da Pizza", () => {
       refrigerantes: ["coca-cola-2l", "coca-cola-zero-2l"],
       aguas: ["agua-mineral-500ml", "agua-com-gas-500ml"],
     });
+    expect(CENTRAL_MENU.drinks.map((drink) => drink.name)).toEqual([
+      "Jarra de suco de laranja",
+      "Coca-Cola 2L",
+      "Coca-Cola Zero 2L",
+      "Água Crystal 500ml",
+      "Água Crystal com gás 500ml",
+    ]);
   });
 });

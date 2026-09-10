@@ -56,9 +56,9 @@ export const CENTRAL_MENU = {
       imageUrl: "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
     },
     {
-      name: "Água mineral 500ml",
+      name: "Água Crystal 500ml",
       slug: "agua-mineral-500ml",
-      description: "Água sem gás.",
+      description: "Água mineral sem gás.",
       priceCents: 500,
       featured: false,
       badge: null,
@@ -66,9 +66,9 @@ export const CENTRAL_MENU = {
       imageUrl: "/tenants/central-da-pizza/agua-mineral.jpg",
     },
     {
-      name: "Água com gás 500ml",
+      name: "Água Crystal com gás 500ml",
       slug: "agua-com-gas-500ml",
-      description: "Água com gás.",
+      description: "Água mineral com gás.",
       priceCents: 600,
       featured: false,
       badge: null,
