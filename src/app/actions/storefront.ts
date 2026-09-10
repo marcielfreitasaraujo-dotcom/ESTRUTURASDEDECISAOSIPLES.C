@@ -20,6 +20,7 @@ export async function addProductToCartAction(slug: string, productId: string, qu
     const tenant = await tenantBySlug(slug);
     await addSimpleProductToCart({ tenantId: tenant.id, productId, quantity });
     revalidatePath(`/loja/${slug}`);
+    revalidatePath(`/loja/${slug}/carrinho`);
   } catch (error) {
     throw new Error(publicErrorMessage(error).message);
   }
@@ -62,7 +63,9 @@ export async function updateCartItemAction(slug: string, itemId: string, quantit
   try {
     const tenant = await tenantBySlug(slug);
     await updateCartItemQuantity(tenant.id, itemId, quantity);
+    revalidatePath(`/loja/${slug}`);
     revalidatePath(`/loja/${slug}/carrinho`);
+    revalidatePath(`/loja/${slug}/checkout`);
   } catch (error) {
     throw new Error(publicErrorMessage(error).message);
   }

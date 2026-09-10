@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import Link from "next/link";
-import { ChevronRight, Gift, MapPin, ShoppingBag, Ticket } from "lucide-react";
+import { ChevronRight, Gift, MapPin, Ticket } from "lucide-react";
 import { addProductToCartAction, applyCartCouponAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +17,7 @@ import { formatBRL } from "@/lib/money";
 import { loyaltyPointsForPrice, loyaltyRedeemHint } from "@/domain/catalog/loyalty";
 import { PizzaCustomizeDialog, type StoreAddonGroup, type StoreFlavor, type StoreSize } from "@/components/pizza-builder";
 import { pizzaProductSlug } from "@/domain/catalog/central-menu";
+import { StoreCartButton, StoreCartSheet } from "@/components/storefront/store-cart";
 
 type Product = {
   id: string;
@@ -83,11 +83,10 @@ export function StoreMenu({
   const [pizzaSize, setPizzaSize] = useState<StoreSize | null>(null);
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [couponOpen, setCouponOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const query = tableNumber ? `?mesa=${encodeURIComponent(tableNumber)}` : "";
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cartItems.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
-  const checkoutHref = `/loja/${slug}/checkout${query}`;
-  const cartHref = `/loja/${slug}/carrinho${query}`;
 
   const visibleCategories = categories.filter((category) => category.active);
   const visibleProducts = products.filter((product) => product.active && product.available);
@@ -109,7 +108,7 @@ export function StoreMenu({
 
   return (
     <div className="min-h-screen bg-[#eef1f4] text-zinc-900">
-      <header className="border-b bg-white">
+      <header className="sticky top-0 z-30 border-b bg-white">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -120,6 +119,7 @@ export function StoreMenu({
             <h1 className="truncate font-heading text-lg leading-tight">{tenantName}</h1>
             {phone ? <p className="text-xs text-zinc-500">{phone}</p> : null}
           </div>
+          <StoreCartButton itemCount={itemCount} onClick={() => setCartOpen(true)} />
         </div>
         <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-3">
           {visibleCategories.map((category) => (
@@ -158,6 +158,7 @@ export function StoreMenu({
                       product={product}
                       badge={PRODUCT_BADGE[product.slug]}
                       onPizza={() => openPizza(product)}
+                      onAddedToCart={() => setCartOpen(true)}
                     />
                   ))}
                 </div>
@@ -180,32 +181,14 @@ export function StoreMenu({
           </button>
 
           <div className="rounded-2xl bg-white p-4 shadow-sm">
-            {itemCount === 0 ? (
-              <div className="grid justify-items-center gap-2 py-8 text-zinc-400">
-                <ShoppingBag className="size-12" />
-                <p>Sacola vazia</p>
-              </div>
-            ) : (
-              <div className="grid gap-3">
-                <ul className="grid gap-2">
-                  {cartItems.map((item) => (
-                    <li key={item.id} className="flex items-start justify-between gap-2 text-sm">
-                      <span>
-                        {item.quantity}× {item.name}
-                      </span>
-                      <span className="shrink-0">{formatBRL(item.unitPriceCents * item.quantity)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="flex justify-between font-medium">
-                  <span>Subtotal</span>
-                  <span>{formatBRL(subtotal)}</span>
-                </p>
-                <Button variant="outline" asChild>
-                  <Link href={cartHref}>Ver sacola</Link>
-                </Button>
-              </div>
-            )}
+            <p className="text-sm text-zinc-600">
+              {itemCount === 0
+                ? "Toque no carrinho no canto superior direito. Os itens escolhidos entram lá."
+                : `${itemCount} ${itemCount === 1 ? "item" : "itens"} no carrinho · ${formatBRL(subtotal)}`}
+            </p>
+            <Button type="button" className="mt-3 w-full" variant="outline" onClick={() => setCartOpen(true)}>
+              {itemCount === 0 ? "Abrir carrinho" : "Ver carrinho"}
+            </Button>
           </div>
 
           <button
@@ -218,7 +201,7 @@ export function StoreMenu({
               <span>
                 <span className="block font-medium">{couponCode ? couponCode : "Tem um cupom?"}</span>
                 <span className="text-xs text-zinc-500">
-                  {couponCode ? "Cupom aplicado na sacola" : "Clique e insira o código"}
+                  {couponCode ? "Cupom aplicado no carrinho" : "Clique e insira o código"}
                 </span>
               </span>
             </span>
@@ -226,10 +209,13 @@ export function StoreMenu({
           </button>
 
           {storeOpen ? (
-            <Button asChild className="h-11 w-full" disabled={itemCount === 0}>
-              <Link href={itemCount === 0 ? cartHref : checkoutHref}>
-                {itemCount === 0 ? "Sacola vazia" : "Fechar pedido"}
-              </Link>
+            <Button
+              type="button"
+              className="h-11 w-full"
+              disabled={itemCount === 0}
+              onClick={() => setCartOpen(true)}
+            >
+              {itemCount === 0 ? "Carrinho vazio" : "Finalizar pedido"}
             </Button>
           ) : (
             <Button type="button" disabled className="h-11 w-full bg-zinc-700 text-white disabled:opacity-100">
@@ -244,6 +230,7 @@ export function StoreMenu({
         onOpenChange={(open) => {
           if (!open) setPizzaSize(null);
         }}
+        onAdded={() => setCartOpen(true)}
         slug={slug}
         size={pizzaSize}
         flavors={flavors}
@@ -276,6 +263,14 @@ export function StoreMenu({
       </Dialog>
 
       <CouponDialog slug={slug} open={couponOpen} onOpenChange={setCouponOpen} current={couponCode} />
+      <StoreCartSheet
+        open={cartOpen}
+        onOpenChange={setCartOpen}
+        slug={slug}
+        tableQuery={query}
+        items={cartItems}
+        storeOpen={storeOpen}
+      />
     </div>
   );
 }
@@ -285,11 +280,13 @@ function ProductCard({
   product,
   badge,
   onPizza,
+  onAddedToCart,
 }: {
   slug: string;
   product: Product;
   badge?: string;
   onPizza: () => void;
+  onAddedToCart: () => void;
 }) {
   const [pending, startTransition] = useTransition();
   const isPizza = product.kind === "PIZZA";
@@ -299,6 +296,7 @@ function ProductCard({
   function addDrink() {
     startTransition(async () => {
       await addProductToCartAction(slug, product.id, 1);
+      onAddedToCart();
     });
   }
 

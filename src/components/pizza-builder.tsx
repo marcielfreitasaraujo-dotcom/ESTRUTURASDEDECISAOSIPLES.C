@@ -54,6 +54,7 @@ export type StoreAddonGroup = {
 export function PizzaCustomizeDialog({
   open,
   onOpenChange,
+  onAdded,
   slug,
   size,
   flavors,
@@ -62,6 +63,7 @@ export function PizzaCustomizeDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onAdded?: () => void;
   slug: string;
   size: StoreSize | null;
   flavors: StoreFlavor[];
@@ -81,7 +83,10 @@ export function PizzaCustomizeDialog({
             flavors={flavors}
             addonGroups={addonGroups}
             stockQuantity={stockQuantity}
-            onAdded={() => onOpenChange(false)}
+            onAdded={() => {
+              onOpenChange(false);
+              onAdded?.();
+            }}
           />
         ) : null}
       </DialogContent>
@@ -335,7 +340,7 @@ function PizzaCustomizeForm({
 
       <div className="sticky bottom-0 border-t bg-background px-5 py-4">
         <Button type="submit" className="h-11 w-full text-base" disabled={pending || !flavorMet}>
-          {pending ? "Adicionando..." : `Adicionar · ${formatBRL(preview.totalCents)}`}
+          {pending ? "Adicionando..." : `Adicionar ao carrinho · ${formatBRL(preview.totalCents)}`}
         </Button>
       </div>
     </form>
