@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PLATFORM_ROLES, TENANT_ROLES } from "@/domain/rbac/roles";
 import { PLATFORM_ROLE_LABELS, TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
+import { STAFF_LOGINS } from "@/domain/auth/staff-logins";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -35,9 +36,30 @@ export default async function AdminUsersPage({
       <div>
         <h1 className="font-heading text-3xl">Usuários</h1>
         <p className="text-sm text-muted-foreground">
-          Você cria e altera qualquer login: donos, funcionários e a equipe da plataforma.
+          Você cria, altera e vê qualquer login: donos, funcionários e a equipe da plataforma.
         </p>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Acessos da equipe</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Use estes usuários para entrar no PDV de cada papel e ver a tela daquela pessoa.
+          </p>
+          <ul className="grid gap-2 text-sm sm:grid-cols-2">
+            {STAFF_LOGINS.map((access) => (
+              <li key={access.username} className="rounded-lg border px-3 py-2">
+                <p className="font-medium">{access.label}</p>
+                <p className="text-muted-foreground">
+                  {access.username} / {access.password}
+                </p>
+                <p className="text-xs text-muted-foreground">Abre em {access.landing}</p>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">{error}</p> : null}
       {okMessage ? <p className="rounded-lg border bg-muted/40 px-3 py-2 text-sm">{okMessage}</p> : null}
       <Card>
@@ -102,6 +124,9 @@ export default async function AdminUsersPage({
           <article key={user.id} className="grid gap-4 rounded-xl border bg-card p-4">
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-medium">{user.name}</p>
+              {user.username ? (
+                <Badge variant="outline">{user.username}</Badge>
+              ) : null}
               <Badge variant={user.platformRole === "USER" ? "secondary" : "default"}>
                 {PLATFORM_ROLE_LABELS[user.platformRole] ?? user.platformRole}
               </Badge>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Brand } from "@/components/brand";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth-forms";
+import { STAFF_LOGINS } from "@/domain/auth/staff-logins";
 import { missingRuntimeSecrets } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -37,21 +38,17 @@ export default async function LoginPage({
         </CardHeader>
         <CardContent className="grid gap-4">
           <LoginForm error={error} />
-          {process.env.NODE_ENV !== "production" ? (
-            <div className="rounded-xl border p-3 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">Acessos de teste</p>
-              <ul className="mt-2 space-y-1">
-                <li>Admin: admin / Maciel.2004</li>
-                <li>Dona: dona / CentralPizza!2026</li>
-                <li>Gerente: gerente / Gerente!2026</li>
-                <li>Caixa: caixa / Caixa!2026</li>
-                <li>Garçom: garcom / Garcom!2026</li>
-                <li>Cozinha: cozinha / Cozinha!2026</li>
-                <li>Motoboy: motoboy / Entrega!2026</li>
-                <li>Apoio: apoio / Staff!2026</li>
-              </ul>
-            </div>
-          ) : null}
+          <div className="rounded-xl border p-3 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground">Acessos da equipe</p>
+            <p className="mt-1">Entre com cada um para ver a tela daquele usuário.</p>
+            <ul className="mt-2 space-y-1">
+              {STAFF_LOGINS.map((access) => (
+                <li key={access.username}>
+                  {access.label}: {access.username} / {access.password}
+                </li>
+              ))}
+            </ul>
+          </div>
           <p className="text-center text-sm text-muted-foreground">
             Pedido de casa ou da mesa?{" "}
             <Link className="underline" href="/loja/central-da-pizza">
