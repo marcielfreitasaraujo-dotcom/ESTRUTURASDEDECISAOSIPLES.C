@@ -72,7 +72,9 @@ export default async function StorePage({ params, searchParams }: Props) {
         basePriceCents: size.basePriceCents,
         pricingMode: size.pricingMode,
       }))}
-      flavors={catalog.flavors.map((flavor) => ({
+      flavors={catalog.flavors
+        .filter((flavor) => flavor.active || Boolean(flavor.description?.trim()))
+        .map((flavor) => ({
         id: flavor.id,
         name: flavor.name,
         description: flavor.description,

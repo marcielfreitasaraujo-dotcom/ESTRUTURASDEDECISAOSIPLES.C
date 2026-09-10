@@ -158,6 +158,9 @@ export async function applyCartCoupon(tenantId: string, code: string) {
   const cart = await getOrCreateCart(tenantId);
   const normalized = code.trim().toUpperCase();
   if (!normalized) {
+    if (!cart.couponCode) {
+      return { ok: false as const, message: "Informe o código do cupom." };
+    }
     await prisma.cart.update({ where: { id: cart.id }, data: { couponCode: null } });
     return { ok: true as const, message: "Cupom removido." };
   }

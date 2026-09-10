@@ -237,9 +237,8 @@ async function seedCentral(ownerId: string) {
       });
     }
   }
-  await prisma.pizzaFlavor.updateMany({
+  await prisma.pizzaFlavor.deleteMany({
     where: { tenantId: tenant.id, slug: { notIn: flavorSlugs } },
-    data: { active: false },
   });
 
   const traditionalCrust = await prisma.crust.findFirst({
@@ -312,7 +311,7 @@ async function seedCentral(ownerId: string) {
   for (const leftover of leftoverAddons) {
     const known = CENTRAL_ADDONS.some((addon) => addon.name === leftover.name);
     if (!known) {
-      await prisma.addon.update({ where: { id: leftover.id }, data: { active: false } });
+      await prisma.addon.delete({ where: { id: leftover.id } });
     }
   }
 

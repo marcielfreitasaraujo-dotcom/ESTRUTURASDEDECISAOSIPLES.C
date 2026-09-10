@@ -386,7 +386,7 @@ function CouponDialog({
           <DialogDescription>O desconto entra no fechamento do pedido.</DialogDescription>
         </DialogHeader>
         <form action={submit} className="grid gap-3">
-          <Input name="couponCode" placeholder="BEMVINDO10" defaultValue={current ?? ""} className="h-11" />
+          <Input name="couponCode" placeholder="BEMVINDO10" defaultValue={current ?? ""} required className="h-11" />
           {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
           <Button type="submit" disabled={pending}>
             {pending ? "Validando..." : "Aplicar cupom"}
