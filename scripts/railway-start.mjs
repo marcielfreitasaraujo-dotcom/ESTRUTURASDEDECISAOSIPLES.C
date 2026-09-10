@@ -11,17 +11,19 @@ const port = String(process.env.PORT || "3000");
 process.env.HOSTNAME = "0.0.0.0";
 process.env.PORT = port;
 
-console.log(`Comanda IA: migrate + start em 0.0.0.0:${port}`);
+console.log(`Comanda IA: migrate + seed + start em 0.0.0.0:${port}`);
 
 await migrateWithRetry();
 
 const prisma = new PrismaClient();
 try {
   const users = await prisma.user.count();
-  if (users === 0) {
-    console.log("Banco vazio: aplicando seed inicial (admin / Maciel.2004).");
-    await run(bin("tsx"), ["prisma/seed.ts"], 120_000);
-  }
+  console.log(
+    users === 0
+      ? "Banco vazio: aplicando seed inicial (admin / Maciel.2004)."
+      : "Atualizando seed do cardápio da Central da Pizza (upsert).",
+  );
+  await run(bin("tsx"), ["prisma/seed.ts"], 180_000);
 } finally {
   await prisma.$disconnect();
 }

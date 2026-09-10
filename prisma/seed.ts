@@ -3,6 +3,15 @@ import { PrismaClient, type Prisma } from "@prisma/client";
 import { hashPassword } from "better-auth/crypto";
 import { ROLE_PERMISSIONS, TENANT_ROLES } from "../src/domain/rbac/roles";
 import { PERMISSIONS } from "../src/domain/rbac/permissions";
+import {
+  ADDON_GROUP_NAME,
+  ADDON_MAX_SELECT,
+  CENTRAL_ADDONS,
+  CENTRAL_FLAVORS,
+  CENTRAL_MENU,
+  flavorExtraCents,
+  pizzaProductSlug,
+} from "../src/domain/catalog/central-menu";
 
 const prisma = new PrismaClient();
 
@@ -76,13 +85,17 @@ async function seedHours(tenantId: string) {
   for (let weekday = 0; weekday < 7; weekday += 1) {
     await prisma.businessHour.upsert({
       where: { tenantId_weekday: { tenantId, weekday } },
-      update: {},
+      update: {
+        closed: weekday === CENTRAL_MENU.hours.closedWeekday,
+        opensAt: CENTRAL_MENU.hours.opensAt,
+        closesAt: CENTRAL_MENU.hours.closesAt,
+      },
       create: {
         tenantId,
         weekday,
-        closed: weekday === 1,
-        opensAt: "18:00",
-        closesAt: "23:30",
+        closed: weekday === CENTRAL_MENU.hours.closedWeekday,
+        opensAt: CENTRAL_MENU.hours.opensAt,
+        closesAt: CENTRAL_MENU.hours.closesAt,
       },
     });
   }
@@ -90,21 +103,37 @@ async function seedHours(tenantId: string) {
 
 async function seedCentral(ownerId: string) {
   const tenant = await prisma.tenant.upsert({
-    where: { slug: "central-da-pizza" },
-    update: { status: "ACTIVE", onboardingCompletedAt: new Date(), onboardingStep: 7 },
-    create: {
-      slug: "central-da-pizza",
-      name: "Central da Pizza",
-      tradeName: "Central da Pizza",
-      phone: "(11) 4000-0000",
-      whatsapp: "(11) 90000-0000",
-      city: "São Paulo",
-      state: "SP",
-      neighborhood: "Centro",
+    where: { slug: CENTRAL_MENU.tenant.slug },
+    update: {
       status: "ACTIVE",
-      estimatedMinutes: 40,
-      minimumOrderCents: 2500,
-      primaryColor: "#C2410C",
+      onboardingCompletedAt: new Date(),
+      onboardingStep: 7,
+      name: CENTRAL_MENU.tenant.name,
+      tradeName: CENTRAL_MENU.tenant.tradeName,
+      phone: CENTRAL_MENU.tenant.phone,
+      whatsapp: CENTRAL_MENU.tenant.whatsapp,
+      city: CENTRAL_MENU.tenant.city,
+      state: CENTRAL_MENU.tenant.state,
+      neighborhood: CENTRAL_MENU.tenant.neighborhood,
+      estimatedMinutes: CENTRAL_MENU.tenant.estimatedMinutes,
+      minimumOrderCents: CENTRAL_MENU.tenant.minimumOrderCents,
+      primaryColor: CENTRAL_MENU.tenant.primaryColor,
+      logoUrl: CENTRAL_MENU.tenant.logoUrl,
+    },
+    create: {
+      slug: CENTRAL_MENU.tenant.slug,
+      name: CENTRAL_MENU.tenant.name,
+      tradeName: CENTRAL_MENU.tenant.tradeName,
+      phone: CENTRAL_MENU.tenant.phone,
+      whatsapp: CENTRAL_MENU.tenant.whatsapp,
+      city: CENTRAL_MENU.tenant.city,
+      state: CENTRAL_MENU.tenant.state,
+      neighborhood: CENTRAL_MENU.tenant.neighborhood,
+      status: "ACTIVE",
+      estimatedMinutes: CENTRAL_MENU.tenant.estimatedMinutes,
+      minimumOrderCents: CENTRAL_MENU.tenant.minimumOrderCents,
+      primaryColor: CENTRAL_MENU.tenant.primaryColor,
+      logoUrl: CENTRAL_MENU.tenant.logoUrl,
       onboardingStep: 7,
       onboardingCompletedAt: new Date(),
     },
@@ -129,156 +158,211 @@ async function seedCentral(ownerId: string) {
   const categories = await Promise.all(
     [
       { name: "Pizzas", slug: "pizzas" },
-      { name: "Bebidas", slug: "bebidas" },
-      { name: "Sobremesas", slug: "sobremesas" },
-      { name: "Combos", slug: "combos" },
+      { name: "Refrigerante 2L", slug: "refrigerante-2l" },
     ].map((category, index) =>
       prisma.category.upsert({
         where: { tenantId_slug: { tenantId: tenant.id, slug: category.slug } },
-        update: { name: category.name, sortOrder: index },
+        update: { name: category.name, sortOrder: index, active: true, deletedAt: null },
         create: { tenantId: tenant.id, ...category, sortOrder: index },
       }),
     ),
   );
+  await prisma.category.updateMany({
+    where: { tenantId: tenant.id, slug: { notIn: ["pizzas", "refrigerante-2l"] } },
+    data: { active: false },
+  });
 
+  const sizeSlugs = CENTRAL_MENU.sizes.map((size) => size.slug);
   const sizes = await Promise.all(
-    [
-      { name: "Pequena", slug: "pequena", maxFlavors: 1, slices: 4, basePriceCents: 0, sortOrder: 1 },
-      { name: "Média", slug: "media", maxFlavors: 2, slices: 6, basePriceCents: 0, sortOrder: 2 },
-      { name: "Grande", slug: "grande", maxFlavors: 2, slices: 8, basePriceCents: 0, sortOrder: 3 },
-      { name: "Família", slug: "familia", maxFlavors: 3, slices: 12, basePriceCents: 0, sortOrder: 4 },
-    ].map((size) =>
+    CENTRAL_MENU.sizes.map((size) =>
       prisma.pizzaSize.upsert({
         where: { tenantId_slug: { tenantId: tenant.id, slug: size.slug } },
-        update: size,
-        create: { tenantId: tenant.id, ...size },
+        update: {
+          name: size.name,
+          maxFlavors: size.maxFlavors,
+          slices: size.slices,
+          basePriceCents: size.basePriceCents,
+          pricingMode: "HIGHEST_FLAVOR",
+          sortOrder: size.sortOrder,
+          active: true,
+        },
+        create: {
+          tenantId: tenant.id,
+          name: size.name,
+          slug: size.slug,
+          maxFlavors: size.maxFlavors,
+          slices: size.slices,
+          basePriceCents: size.basePriceCents,
+          pricingMode: "HIGHEST_FLAVOR",
+          sortOrder: size.sortOrder,
+        },
       }),
     ),
   );
+  await prisma.pizzaSize.updateMany({
+    where: { tenantId: tenant.id, slug: { notIn: [...sizeSlugs] } },
+    data: { active: false },
+  });
 
-  const flavorDefs = [
-    { name: "Calabresa", slug: "calabresa", prices: [3990, 4990, 5990, 7990] },
-    { name: "Frango com Catupiry", slug: "frango-catupiry", prices: [4490, 5490, 6490, 8490] },
-    { name: "Portuguesa", slug: "portuguesa", prices: [4490, 5490, 6490, 8490] },
-    { name: "Quatro Queijos", slug: "quatro-queijos", prices: [4690, 5690, 6690, 8690] },
-    { name: "Margherita", slug: "margherita", prices: [3990, 4990, 5990, 7990] },
-    { name: "Pepperoni", slug: "pepperoni", prices: [4790, 5790, 6790, 8790] },
-  ];
-
-  for (const [index, flavorDef] of flavorDefs.entries()) {
+  const flavorSlugs = CENTRAL_FLAVORS.map((flavor) => flavor.slug);
+  for (const [index, flavorDef] of CENTRAL_FLAVORS.entries()) {
     const flavor = await prisma.pizzaFlavor.upsert({
       where: { tenantId_slug: { tenantId: tenant.id, slug: flavorDef.slug } },
-      update: { name: flavorDef.name, sortOrder: index, active: true },
+      update: {
+        name: flavorDef.name,
+        description: flavorDef.description,
+        sortOrder: index,
+        active: flavorDef.available,
+      },
       create: {
         tenantId: tenant.id,
         name: flavorDef.name,
         slug: flavorDef.slug,
+        description: flavorDef.description,
         sortOrder: index,
+        active: flavorDef.available,
       },
     });
-    for (const [sizeIndex, size] of sizes.entries()) {
+    const extra = flavorExtraCents(flavorDef);
+    for (const size of sizes) {
       await prisma.pizzaFlavorPrice.upsert({
         where: { flavorId_sizeId: { flavorId: flavor.id, sizeId: size.id } },
-        update: { priceCents: flavorDef.prices[sizeIndex] ?? 0 },
+        update: { priceCents: extra },
         create: {
           tenantId: tenant.id,
           flavorId: flavor.id,
           sizeId: size.id,
-          priceCents: flavorDef.prices[sizeIndex] ?? 0,
+          priceCents: extra,
         },
       });
     }
   }
+  await prisma.pizzaFlavor.updateMany({
+    where: { tenantId: tenant.id, slug: { notIn: flavorSlugs } },
+    data: { active: false },
+  });
 
-  const crusts = [
-    { name: "Tradicional", priceCents: 0 },
-    { name: "Catupiry", priceCents: 900 },
-    { name: "Cheddar", priceCents: 900 },
-    { name: "Chocolate", priceCents: 1200 },
-  ];
-  for (const [index, crust] of crusts.entries()) {
+  const traditionalCrust = await prisma.crust.findFirst({
+    where: { tenantId: tenant.id, name: "Tradicional" },
+  });
+  if (traditionalCrust) {
+    await prisma.crust.update({
+      where: { id: traditionalCrust.id },
+      data: { priceCents: 0, active: true, sortOrder: 0 },
+    });
+  } else {
     await prisma.crust.create({
-      data: { tenantId: tenant.id, ...crust, sortOrder: index },
-    }).catch(() => undefined);
+      data: { tenantId: tenant.id, name: "Tradicional", priceCents: 0, sortOrder: 0 },
+    });
+  }
+  await prisma.crust.updateMany({
+    where: { tenantId: tenant.id, name: { not: "Tradicional" } },
+    data: { active: false },
+  });
+
+  let extras = await prisma.addonGroup.findFirst({
+    where: { tenantId: tenant.id, name: { in: [ADDON_GROUP_NAME, "Extras"] } },
+  });
+  if (extras) {
+    extras = await prisma.addonGroup.update({
+      where: { id: extras.id },
+      data: { name: ADDON_GROUP_NAME, required: false, minSelect: 0, maxSelect: ADDON_MAX_SELECT, sortOrder: 0 },
+    });
+  } else {
+    extras = await prisma.addonGroup.create({
+      data: {
+        tenantId: tenant.id,
+        name: ADDON_GROUP_NAME,
+        required: false,
+        minSelect: 0,
+        maxSelect: ADDON_MAX_SELECT,
+        sortOrder: 0,
+      },
+    });
   }
 
-  const extras = await prisma.addonGroup.create({
-    data: {
-      tenantId: tenant.id,
-      name: "Extras",
-      required: false,
-      minSelect: 0,
-      maxSelect: 4,
-      addons: {
-        create: [
-          { tenantId: tenant.id, name: "Bacon", priceCents: 600 },
-          { tenantId: tenant.id, name: "Queijo extra", priceCents: 500 },
-          { tenantId: tenant.id, name: "Milho", priceCents: 300 },
-          { tenantId: tenant.id, name: "Calabresa extra", priceCents: 500 },
-        ],
-      },
-    },
-  }).catch(() => prisma.addonGroup.findFirst({ where: { tenantId: tenant.id, name: "Extras" } }));
+  for (const [index, addonDef] of CENTRAL_ADDONS.entries()) {
+    const existingAddon = await prisma.addon.findFirst({
+      where: { tenantId: tenant.id, groupId: extras.id, OR: [{ name: addonDef.name }, { name: addonDef.slug }] },
+    });
+    if (existingAddon) {
+      await prisma.addon.update({
+        where: { id: existingAddon.id },
+        data: {
+          name: addonDef.name,
+          priceCents: addonDef.priceCents,
+          active: addonDef.available,
+          sortOrder: index,
+        },
+      });
+    } else {
+      await prisma.addon.create({
+        data: {
+          tenantId: tenant.id,
+          groupId: extras.id,
+          name: addonDef.name,
+          priceCents: addonDef.priceCents,
+          active: addonDef.available,
+          sortOrder: index,
+        },
+      });
+    }
+  }
+  const leftoverAddons = await prisma.addon.findMany({ where: { tenantId: tenant.id, groupId: extras.id } });
+  for (const leftover of leftoverAddons) {
+    const known = CENTRAL_ADDONS.some((addon) => addon.name === leftover.name);
+    if (!known) {
+      await prisma.addon.update({ where: { id: leftover.id }, data: { active: false } });
+    }
+  }
 
   const pizzaCategory = categories[0];
   const drinksCategory = categories[1];
-  const dessertCategory = categories[2];
-  const comboCategory = categories[3];
+
+  const pizzaImage: Record<(typeof CENTRAL_MENU.sizes)[number]["slug"], string> = {
+    p: "/tenants/central-da-pizza/pizza-p.svg",
+    m: "/tenants/central-da-pizza/pizza-m.svg",
+    g: "/tenants/central-da-pizza/pizza-g.svg",
+    gg: "/tenants/central-da-pizza/pizza-gg.svg",
+  };
 
   const products: Prisma.ProductCreateManyInput[] = [
-    {
+    ...CENTRAL_MENU.sizes.map((size) => ({
       tenantId: tenant.id,
       categoryId: pizzaCategory?.id,
-      kind: "PIZZA",
-      name: "Monte sua pizza",
-      slug: "monte-sua-pizza",
-      description: "Escolha tamanho, sabores, borda e extras. O preço é calculado no servidor.",
-      priceCents: 0,
-      featured: true,
-      sortOrder: 0,
-    },
-    {
+      kind: "PIZZA" as const,
+      name: `Pizza ${size.name}`,
+      slug: pizzaProductSlug(size.slug),
+      description: `${size.slices} fatias`,
+      imageUrl: pizzaImage[size.slug],
+      priceCents: size.basePriceCents,
+      featured: size.featured,
+      available: true,
+      active: true,
+      archived: false,
+      trackInventory: size.stockQuantity != null,
+      stockQuantity: size.stockQuantity,
+      sortOrder: size.sortOrder,
+      sku: `SIZE:${size.slug}`,
+    })),
+    ...CENTRAL_MENU.drinks.map((drink, index) => ({
       tenantId: tenant.id,
       categoryId: drinksCategory?.id,
-      kind: "BEVERAGE",
-      name: "Coca-Cola 2L",
-      slug: "coca-cola-2l",
-      description: "Refrigerante gelado 2 litros.",
-      priceCents: 1400,
-      sortOrder: 1,
-    },
-    {
-      tenantId: tenant.id,
-      categoryId: drinksCategory?.id,
-      kind: "BEVERAGE",
-      name: "Guaraná Antarctica 2L",
-      slug: "guarana-2l",
-      priceCents: 1200,
-      sortOrder: 2,
-    },
-    {
-      tenantId: tenant.id,
-      categoryId: dessertCategory?.id,
-      kind: "SIMPLE",
-      name: "Brownie com sorvete",
-      slug: "brownie",
-      priceCents: 1800,
-      sortOrder: 3,
-    },
-    {
-      tenantId: tenant.id,
-      categoryId: comboCategory?.id,
-      kind: "COMBO",
-      name: "Combo Família",
-      slug: "combo-familia",
-      description: "Pizza família + refrigerante 2L + brownie.",
-      priceCents: 9990,
-      promotionalPriceCents: 8990,
-      featured: true,
-      sortOrder: 4,
-    },
+      kind: "BEVERAGE" as const,
+      name: drink.name,
+      slug: drink.slug,
+      description: drink.description,
+      imageUrl: drink.imageUrl,
+      priceCents: drink.priceCents,
+      featured: drink.featured,
+      available: true,
+      active: true,
+      archived: false,
+      sortOrder: 10 + index,
+    })),
   ];
 
+  const keepSlugs = products.map((product) => product.slug);
   for (const product of products) {
     await prisma.product.upsert({
       where: { tenantId_slug: { tenantId: tenant.id, slug: product.slug } },
@@ -286,6 +370,10 @@ async function seedCentral(ownerId: string) {
       create: product,
     });
   }
+  await prisma.product.updateMany({
+    where: { tenantId: tenant.id, slug: { notIn: keepSlugs } },
+    data: { active: false, archived: true },
+  });
 
   await prisma.deliveryZone.createMany({
     data: [
@@ -492,7 +580,6 @@ async function seedCentral(ownerId: string) {
     });
   }
 
-  void extras;
   return tenant;
 }
 

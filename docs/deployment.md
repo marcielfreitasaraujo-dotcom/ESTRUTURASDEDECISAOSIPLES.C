@@ -26,7 +26,7 @@ Build: `npm run build` (gera Prisma Client + Next).
 
 ## Railway
 
-O `npm start` em produção roda `prisma migrate deploy` e, se o banco estiver vazio, o seed (login `admin` / `Maciel.2004`).
+O `npm start` em produção roda `prisma migrate deploy` e o seed (upsert do cardápio da Central da Pizza + login `admin` / `Maciel.2004`).
 
 1. [railway.app](https://railway.app) → **New Project** → **GitHub repo** → este repositório.
 2. Branch: `cursor/forno-saas-foundation-658e` (não `main`). **Aguarde CI desligado**.

@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatBRL } from "@/lib/money";
 
-type Product = { id: string; name: string; priceCents: number; promotionalPriceCents: number | null; kind: string };
+type Product = { id: string; name: string; priceCents: number; promotionalPriceCents: number | null; kind: string; active?: boolean };
 type Size = { id: string; name: string; maxFlavors: number };
-type Flavor = { id: string; name: string };
+type Flavor = { id: string; name: string; active?: boolean };
 type Crust = { id: string; name: string; priceCents: number };
 
 export function StaffOrderForm({
@@ -27,7 +27,8 @@ export function StaffOrderForm({
   ok?: string;
 }) {
   const action = mode === "waiter" ? createWaiterOrderAction : createCashierOrderAction;
-  const simple = products.filter((product) => product.kind !== "PIZZA");
+  const simple = products.filter((product) => product.kind !== "PIZZA" && product.active !== false);
+  const availableFlavors = flavors.filter((flavor) => flavor.active !== false);
 
   return (
     <form action={action} method="post" className="grid gap-5">
@@ -91,7 +92,7 @@ export function StaffOrderForm({
         </select>
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium">Sabores</legend>
-          {flavors.map((flavor) => (
+          {availableFlavors.map((flavor) => (
             <label key={flavor.id} className="flex min-h-11 items-center gap-2">
               <input type="checkbox" name="flavorId" value={flavor.id} className="size-5" />
               {flavor.name}

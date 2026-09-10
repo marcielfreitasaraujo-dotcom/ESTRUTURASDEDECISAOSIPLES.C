@@ -12,7 +12,7 @@ function slugify(value: string) {
 }
 
 export async function listCatalog(tenantId: string) {
-  const [categories, products, sizes, flavors, crusts, addonGroups] = await Promise.all([
+  const [categories, products, sizes, flavors, crusts, addonGroups, deliveryZones] = await Promise.all([
     prisma.category.findMany({
       where: { tenantId, deletedAt: null },
       orderBy: { sortOrder: "asc" },
@@ -24,18 +24,19 @@ export async function listCatalog(tenantId: string) {
     }),
     prisma.pizzaSize.findMany({ where: { tenantId, active: true }, orderBy: { sortOrder: "asc" } }),
     prisma.pizzaFlavor.findMany({
-      where: { tenantId, active: true },
+      where: { tenantId },
       include: { prices: true },
       orderBy: { sortOrder: "asc" },
     }),
     prisma.crust.findMany({ where: { tenantId, active: true }, orderBy: { sortOrder: "asc" } }),
     prisma.addonGroup.findMany({
       where: { tenantId },
-      include: { addons: { where: { active: true }, orderBy: { sortOrder: "asc" } } },
+      include: { addons: { orderBy: { sortOrder: "asc" } } },
       orderBy: { sortOrder: "asc" },
     }),
+    prisma.deliveryZone.findMany({ where: { tenantId, active: true }, orderBy: { name: "asc" } }),
   ]);
-  return { categories, products, sizes, flavors, crusts, addonGroups };
+  return { categories, products, sizes, flavors, crusts, addonGroups, deliveryZones };
 }
 
 export async function upsertCategory(input: {

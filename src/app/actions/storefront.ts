@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { checkoutSchema } from "@/server/validation";
-import { addPizzaToCart, addSimpleProductToCart, placeOrder, updateCartItemQuantity } from "@/server/services/cart";
+import { addPizzaToCart, addSimpleProductToCart, applyCartCoupon, placeOrder, updateCartItemQuantity } from "@/server/services/cart";
 import { publicErrorMessage } from "@/lib/errors";
 
 async function tenantBySlug(slug: string) {
@@ -40,6 +40,19 @@ export async function addPizzaToCartAction(formData: FormData) {
     });
     revalidatePath(`/loja/${slug}`);
     revalidatePath(`/loja/${slug}/carrinho`);
+  } catch (error) {
+    throw new Error(publicErrorMessage(error).message);
+  }
+}
+
+export async function applyCartCouponAction(slug: string, code: string) {
+  try {
+    const tenant = await tenantBySlug(slug);
+    const result = await applyCartCoupon(tenant.id, code);
+    revalidatePath(`/loja/${slug}`);
+    revalidatePath(`/loja/${slug}/carrinho`);
+    revalidatePath(`/loja/${slug}/checkout`);
+    return result;
   } catch (error) {
     throw new Error(publicErrorMessage(error).message);
   }

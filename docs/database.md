@@ -12,4 +12,4 @@ Soft delete: `deletedAt` em Tenant, Category, Product.
 
 Migrations: `npx prisma migrate dev`. Produção: `prisma migrate deploy`.
 
-Seed de desenvolvimento: Central da Pizza (`/loja/central-da-pizza`) + Pizzaria Teste (isolamento). Não tratar o seed como dados oficiais do estabelecimento real.
+Seed de desenvolvimento: Central da Pizza (`/loja/central-da-pizza`) + Pizzaria Teste (isolamento). O seed da Central espelha o cardápio operacional (tamanhos P/M/G/GG, sabores, adicionais e itens em falta).

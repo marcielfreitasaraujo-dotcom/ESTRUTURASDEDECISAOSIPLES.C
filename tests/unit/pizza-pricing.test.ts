@@ -34,6 +34,22 @@ describe("quotePizza", () => {
     ).toThrow(/no máximo 1/);
   });
 
+  it("usa o preço-base da pizza P e soma só o adicional do sabor mais caro", () => {
+    const quote = quotePizza({
+      sizeName: "P",
+      maxFlavors: 2,
+      basePriceCents: 4500,
+      pricingMode: "HIGHEST_FLAVOR",
+      flavors: [
+        { id: "1", name: "Calabresa", priceCents: 0 },
+        { id: "2", name: "2 Queijos", priceCents: 500 },
+      ],
+      addons: [{ id: "a", name: "Catupiry", priceCents: 500, quantity: 1 }],
+    });
+    expect(quote.flavorPriceCents).toBe(500);
+    expect(quote.totalCents).toBe(4500 + 500 + 500);
+  });
+
   it("não aceita preço do navegador: o total sai só dos itens do servidor", () => {
     const quote = quotePizza({
       sizeName: "Média",

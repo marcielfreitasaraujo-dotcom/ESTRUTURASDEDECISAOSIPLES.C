@@ -48,6 +48,7 @@ export default async function CheckoutPage({
         error={errorMessage}
         idempotencyKey={crypto.randomUUID()}
         tableNumber={tableNumber || undefined}
+        couponCode={cart?.couponCode}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { NotFoundError } from "@/lib/errors";
 import { quotePizza } from "@/domain/catalog/pizza-pricing";
 import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
 import { evaluateCoupon } from "@/domain/coupons/evaluate";
+import { PIZZA_NOTES_MAX } from "@/domain/catalog/central-menu";
 import { writeAudit } from "@/server/audit";
 import { getPaymentProvider } from "@/server/providers/payment";
 import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
@@ -87,6 +88,9 @@ export async function addPizzaToCart(input: {
   if (flavors.length !== input.flavorIds.length) {
     throw new NotFoundError("Um ou mais sabores são inválidos.");
   }
+  if (input.notes && input.notes.length > PIZZA_NOTES_MAX) {
+    throw new Error(`Observação pode ter no máximo ${PIZZA_NOTES_MAX} caracteres.`);
+  }
 
   const crust = input.crustId
     ? await prisma.crust.findFirst({ where: { id: input.crustId, tenantId: input.tenantId, active: true } })
@@ -94,6 +98,19 @@ export async function addPizzaToCart(input: {
   const addons = input.addonIds?.length
     ? await prisma.addon.findMany({ where: { id: { in: input.addonIds }, tenantId: input.tenantId, active: true } })
     : [];
+  if (input.addonIds?.length && addons.length !== input.addonIds.length) {
+    throw new NotFoundError("Um ou mais adicionais são inválidos.");
+  }
+  const addonGroups = await prisma.addonGroup.findMany({
+    where: { tenantId: input.tenantId },
+    include: { addons: { select: { id: true } } },
+  });
+  for (const group of addonGroups) {
+    const selected = addons.filter((addon) => group.addons.some((item) => item.id === addon.id)).length;
+    if (selected > group.maxSelect) {
+      throw new Error(`Escolha até ${group.maxSelect} opções em ${group.name}.`);
+    }
+  }
 
   const quote = quotePizza({
     sizeName: size.name,
@@ -135,6 +152,23 @@ export async function addPizzaToCart(input: {
     },
   });
   return getOrCreateCart(input.tenantId);
+}
+
+export async function applyCartCoupon(tenantId: string, code: string) {
+  const cart = await getOrCreateCart(tenantId);
+  const normalized = code.trim().toUpperCase();
+  if (!normalized) {
+    await prisma.cart.update({ where: { id: cart.id }, data: { couponCode: null } });
+    return { ok: true as const, message: "Cupom removido." };
+  }
+  const coupon = await prisma.coupon.findFirst({
+    where: { tenantId, code: normalized },
+  });
+  if (!coupon || !coupon.active) {
+    return { ok: false as const, message: "Cupom não encontrado." };
+  }
+  await prisma.cart.update({ where: { id: cart.id }, data: { couponCode: coupon.code } });
+  return { ok: true as const, message: `Cupom ${coupon.code} aplicado.` };
 }
 
 export async function updateCartItemQuantity(tenantId: string, itemId: string, quantity: number) {

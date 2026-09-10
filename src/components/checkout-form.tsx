@@ -17,11 +17,13 @@ export function CheckoutForm({
   error,
   idempotencyKey,
   tableNumber,
+  couponCode,
 }: {
   slug: string;
   error?: string;
   idempotencyKey: string;
   tableNumber?: string;
+  couponCode?: string | null;
 }) {
   return (
     <form action={checkoutFormAction} method="post" className="grid gap-4">
@@ -83,7 +85,7 @@ export function CheckoutForm({
       </div>
       <div className="grid gap-2">
         <Label htmlFor="couponCode">Cupom</Label>
-        <Input id="couponCode" name="couponCode" placeholder="BEMVINDO10" />
+        <Input id="couponCode" name="couponCode" placeholder="BEMVINDO10" defaultValue={couponCode ?? ""} />
       </div>
       <SubmitButton />
     </form>
