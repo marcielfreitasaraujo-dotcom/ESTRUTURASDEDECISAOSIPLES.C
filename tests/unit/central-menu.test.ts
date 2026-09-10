@@ -46,6 +46,9 @@ describe("cardápio da Central da Pizza", () => {
   it("usa foto isolada nas jarras e foto real nas demais bebidas", () => {
     expect(CENTRAL_MENU.drinks.map((drink) => drink.imageUrl)).toEqual([
       "/tenants/central-da-pizza/suco-laranja.jpg",
+      "/tenants/central-da-pizza/suco-laranja.jpg",
+      "/tenants/central-da-pizza/suco-maracuja.jpg",
+      "/tenants/central-da-pizza/suco-maracuja.jpg",
       "/tenants/central-da-pizza/suco-acerola.jpg",
       "/tenants/central-da-pizza/coca-cola-2l.jpg",
       "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
@@ -65,7 +68,13 @@ describe("cardápio da Central da Pizza", () => {
       ]),
     );
     expect(byGroup).toEqual({
-      sucos: ["jarra-suco-laranja", "jarra-suco-acerola"],
+      sucos: [
+        "suco-laranja-500ml",
+        "suco-laranja-1l",
+        "suco-maracuja-500ml",
+        "suco-maracuja-1l",
+        "jarra-suco-acerola",
+      ],
       refrigerantes: [
         "coca-cola-2l",
         "coca-cola-zero-2l",
@@ -76,7 +85,10 @@ describe("cardápio da Central da Pizza", () => {
       aguas: ["agua-mineral-500ml", "agua-com-gas-500ml"],
     });
     expect(CENTRAL_MENU.drinks.map((drink) => drink.name)).toEqual([
-      "Jarra de suco de laranja",
+      "Jarra de suco de laranja 500ml",
+      "Jarra de suco de laranja 1L",
+      "Jarra de suco de maracujá 500ml",
+      "Jarra de suco de maracujá 1L",
       "Jarra de suco de acerola",
       "Coca-Cola 2L",
       "Coca-Cola Zero 2L",
@@ -86,6 +98,16 @@ describe("cardápio da Central da Pizza", () => {
       "Água Crystal 500ml",
       "Água Crystal com gás 500ml",
     ]);
+    expect(
+      CENTRAL_MENU.drinks
+        .filter((drink) => drink.categorySlug === "sucos" && drink.slug.endsWith("-500ml"))
+        .every((drink) => drink.priceCents === 800),
+    ).toBe(true);
+    expect(
+      CENTRAL_MENU.drinks
+        .filter((drink) => drink.categorySlug === "sucos" && drink.slug.endsWith("-1l"))
+        .every((drink) => drink.priceCents === 1500),
+    ).toBe(true);
     expect(CENTRAL_MENU.drinks.some((drink) => /morango/i.test(drink.name))).toBe(false);
   });
 });
