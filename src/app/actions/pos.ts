@@ -64,7 +64,10 @@ export async function createWaiterOrderAction(formData: FormData) {
 }
 
 export async function createCashierOrderAction(formData: FormData) {
-  const customerName = String(formData.get("customerName") || "Balcão").trim() || "Balcão";
+  const tableNumber = String(formData.get("tableNumber") || "").trim();
+  const customerName =
+    String(formData.get("customerName") || "").trim() || (tableNumber ? `Mesa ${tableNumber}` : "Balcão");
+  const mesaQuery = tableNumber ? `&mesa=${encodeURIComponent(tableNumber)}` : "";
   let publicCode = "";
   try {
     const ctx = await requireTenantPermission(PERMISSIONS.ORDER_CREATE);
@@ -72,9 +75,10 @@ export async function createCashierOrderAction(formData: FormData) {
       tenantId: ctx.tenantId,
       userId: ctx.userId,
       idempotencyKey: String(formData.get("idempotencyKey") || crypto.randomUUID()),
+      tableNumber: tableNumber || undefined,
       customerName,
       customerPhone: String(formData.get("customerPhone") || "00000000"),
-      fulfillment: "PICKUP",
+      fulfillment: tableNumber ? "DINE_IN" : "PICKUP",
       paymentMethod: (String(formData.get("paymentMethod") || "CASH") as "PIX" | "CASH" | "CARD") || "CASH",
       notes: String(formData.get("notes") || "") || undefined,
       items: collectItems(formData),
@@ -85,9 +89,9 @@ export async function createCashierOrderAction(formData: FormData) {
     revalidatePath("/app/pedidos");
     revalidatePath("/app/cozinha");
   } catch (error) {
-    redirect(`/caixa?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
+    redirect(`/caixa?error=${encodeURIComponent(publicErrorMessage(error).message)}${mesaQuery}`);
   }
-  redirect(`/caixa?ok=${publicCode}`);
+  redirect(`/caixa?ok=${publicCode}${mesaQuery}`);
 }
 
 export async function markOrderPaidAction(formData: FormData) {

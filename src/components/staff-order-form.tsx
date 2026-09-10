@@ -15,6 +15,7 @@ export function StaffOrderForm({
   sizes,
   flavors,
   crusts,
+  tableNumber,
   error,
   ok,
 }: {
@@ -23,6 +24,7 @@ export function StaffOrderForm({
   sizes: Size[];
   flavors: Flavor[];
   crusts: Crust[];
+  tableNumber?: string;
   error?: string;
   ok?: string;
 }) {
@@ -43,9 +45,17 @@ export function StaffOrderForm({
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
+          {tableNumber ? <input type="hidden" name="tableNumber" value={tableNumber} /> : null}
           <div className="grid gap-2">
-            <Label htmlFor="customerName">Cliente</Label>
-            <Input id="customerName" name="customerName" placeholder="Balcão" className="h-12" />
+            <Label htmlFor="customerName">{tableNumber ? "Mesa" : "Cliente"}</Label>
+            <Input
+              id="customerName"
+              name="customerName"
+              placeholder={tableNumber ? `Mesa ${tableNumber}` : "Balcão"}
+              defaultValue={tableNumber ? `Mesa ${tableNumber}` : ""}
+              className="h-12"
+              readOnly={Boolean(tableNumber)}
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="paymentMethod">Pagamento</Label>

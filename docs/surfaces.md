@@ -9,6 +9,7 @@ O produto é **um único sistema na nuvem**. Não há bases separadas para garç
 | Equipe | `/app/equipe` | Gerente e admin (gerente não mexe no admin) | Computador |
 | Cardápio | `/app/cardapio` | Gerente e admin | Computador |
 | Caixa | `/caixa` | Caixa, gerente e admin | Computador do PDV |
+| Salão (mesas) | `/caixa` | Caixa vê mesas livres/ocupadas no PDV | Computador do PDV |
 | Estoque do cardápio | `/caixa/estoque` | Caixa, gerente e admin | Computador do PDV |
 | Fechar caixa | `/caixa/fechamento` | Gerente e admin | Computador |
 | Garçom | `/garcom` | Garçom | Celular (PWA) |
