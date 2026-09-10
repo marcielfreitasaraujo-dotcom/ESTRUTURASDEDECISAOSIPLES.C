@@ -158,7 +158,7 @@ async function seedCentral(ownerId: string) {
   const categories = await Promise.all(
     [
       { name: "Pizzas", slug: "pizzas" },
-      { name: "Refrigerante 2L", slug: "refrigerante-2l" },
+      { name: "Bebidas", slug: "refrigerante-2l" },
     ].map((category, index) =>
       prisma.category.upsert({
         where: { tenantId_slug: { tenantId: tenant.id, slug: category.slug } },
@@ -318,12 +318,7 @@ async function seedCentral(ownerId: string) {
   const pizzaCategory = categories[0];
   const drinksCategory = categories[1];
 
-  const pizzaImage: Record<(typeof CENTRAL_MENU.sizes)[number]["slug"], string> = {
-    p: "/tenants/central-da-pizza/pizza-p.svg",
-    m: "/tenants/central-da-pizza/pizza-m.svg",
-    g: "/tenants/central-da-pizza/pizza-g.svg",
-    gg: "/tenants/central-da-pizza/pizza-gg.svg",
-  };
+  const pizzaImage = "/tenants/central-da-pizza/pizza.png";
 
   const products: Prisma.ProductCreateManyInput[] = [
     ...CENTRAL_MENU.sizes.map((size) => ({
@@ -333,7 +328,7 @@ async function seedCentral(ownerId: string) {
       name: `Pizza ${size.name}`,
       slug: pizzaProductSlug(size.slug),
       description: `${size.slices} fatias`,
-      imageUrl: pizzaImage[size.slug],
+      imageUrl: pizzaImage,
       priceCents: size.basePriceCents,
       featured: size.featured,
       available: true,

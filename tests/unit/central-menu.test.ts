@@ -42,4 +42,12 @@ describe("cardápio da Central da Pizza", () => {
     expect(loyaltyPointsForPrice(4500)).toBe(675);
     expect(loyaltyPointsForPrice(5000)).toBe(750);
   });
+
+  it("usa foto real nas bebidas e desenho único nas pizzas", () => {
+    expect(CENTRAL_MENU.drinks.map((drink) => drink.imageUrl)).toEqual([
+      "/tenants/central-da-pizza/coca-cola-2l.jpg",
+      "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
+      "/tenants/central-da-pizza/suco-laranja.webp",
+    ]);
+  });
 });

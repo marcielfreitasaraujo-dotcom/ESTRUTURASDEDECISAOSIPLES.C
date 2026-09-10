@@ -32,7 +32,7 @@ export const CENTRAL_MENU = {
       priceCents: 1500,
       featured: true,
       badge: "MAIS PEDIDO",
-      imageUrl: "/tenants/central-da-pizza/coca.svg",
+      imageUrl: "/tenants/central-da-pizza/coca-cola-2l.jpg",
     },
     {
       name: "Coca-Cola Zero 2L",
@@ -41,7 +41,16 @@ export const CENTRAL_MENU = {
       priceCents: 1500,
       featured: false,
       badge: null,
-      imageUrl: "/tenants/central-da-pizza/coca-zero.svg",
+      imageUrl: "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
+    },
+    {
+      name: "Jarra de suco de laranja",
+      slug: "jarra-suco-laranja",
+      description: "Jarra de suco.",
+      priceCents: 1500,
+      featured: false,
+      badge: null,
+      imageUrl: "/tenants/central-da-pizza/suco-laranja.webp",
     },
   ],
 } as const;

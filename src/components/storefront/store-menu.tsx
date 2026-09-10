@@ -301,7 +301,7 @@ function ProductCard({
   }
 
   return (
-    <article className="relative flex min-h-[148px] overflow-hidden rounded-2xl bg-white p-4 shadow-sm">
+    <article className="relative flex min-h-[168px] overflow-hidden rounded-2xl bg-white p-4 shadow-sm">
       {badge ? (
         <span
           className={`absolute top-3 left-3 z-10 rounded px-2 py-0.5 text-[10px] font-bold tracking-wide ${
@@ -321,7 +321,7 @@ function ProductCard({
         <p className="mt-auto pt-4 text-sm font-medium">{pending ? "Adicionando..." : formatBRL(price)}</p>
       </button>
       <div
-        className="relative ml-3 size-[108px] shrink-0 cursor-pointer"
+        className="relative ml-3 size-[128px] shrink-0 cursor-pointer"
         onClick={isPizza ? onPizza : addDrink}
       >
         {isPizza ? (
@@ -342,7 +342,7 @@ function ProductCard({
         ) : null}
         {product.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.imageUrl} alt="" width={108} height={108} className="size-[108px] object-contain" />
+          <img src={product.imageUrl} alt={product.name} width={128} height={128} className="size-[128px] object-contain" />
         ) : null}
       </div>
     </article>
