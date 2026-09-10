@@ -48,29 +48,8 @@ export default async function CashierPage({
         </p>
       </div>
       <CashierFloor tables={tables} selected={selectedTable || undefined} />
-      <div className="grid gap-8 xl:grid-cols-[1fr_1fr]">
-        <div className="grid gap-4">
-          <h2 className="text-lg font-semibold">
-            {selectedTable ? `Lançar na mesa ${selectedTable}` : "Venda no balcão"}
-          </h2>
-          {selectedFloor?.status === "bill" ? (
-            <p className="rounded-lg border border-orange-400/40 bg-orange-500/10 px-3 py-2 text-sm">
-              Essa mesa já tem comanda em aberto. Receba no painel ao lado ou lance mais itens nela.
-            </p>
-          ) : null}
-          <StaffOrderForm
-            key={selectedTable || "balcao"}
-            mode="cashier"
-            products={catalog.products}
-            sizes={catalog.sizes}
-            flavors={catalog.flavors}
-            crusts={catalog.crusts}
-            tableNumber={selectedTable || undefined}
-            error={error ? decodeURIComponent(error) : undefined}
-            ok={ok}
-          />
-        </div>
-        <section className="grid gap-3">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(22rem,0.9fr)]">
+        <section className="grid gap-3 lg:col-start-2 lg:row-start-1 lg:sticky lg:top-4 lg:self-start">
           <h2 className="text-lg font-semibold">
             {selectedTable ? `Comanda da mesa ${selectedTable}` : "Abertas"}
           </h2>
@@ -84,8 +63,8 @@ export default async function CashierPage({
                 <li
                   key={order.id}
                   className={cn(
-                    "rounded-xl border bg-card p-4",
-                    selectedTable && order.tableNumber === selectedTable && "border-orange-400/60",
+                    "rounded-xl border bg-zinc-900 p-4",
+                    order.tableNumber ? "border-orange-400/50" : "border-zinc-800",
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">
@@ -111,7 +90,6 @@ export default async function CashierPage({
                     {order.paymentStatus !== "PAID" ? (
                       <form action={markOrderPaidAction} method="post">
                         <input type="hidden" name="orderId" value={order.id} />
-                        <input type="hidden" name="tableNumber" value={order.tableNumber ?? ""} />
                         <Button type="submit" size="sm">
                           Receber
                         </Button>
@@ -132,6 +110,27 @@ export default async function CashierPage({
             </ul>
           )}
         </section>
+        <div className="grid gap-4 lg:col-start-1 lg:row-start-1">
+          <h2 className="text-lg font-semibold">
+            {selectedTable ? `Lançar na mesa ${selectedTable}` : "Venda no balcão"}
+          </h2>
+          {selectedFloor?.status === "bill" ? (
+            <p className="rounded-lg border border-orange-400/40 bg-orange-500/10 px-3 py-2 text-sm">
+              Essa mesa já tem comanda em aberto. Receba no painel ao lado ou lance mais itens nela.
+            </p>
+          ) : null}
+          <StaffOrderForm
+            key={selectedTable || "balcao"}
+            mode="cashier"
+            products={catalog.products}
+            sizes={catalog.sizes}
+            flavors={catalog.flavors}
+            crusts={catalog.crusts}
+            tableNumber={selectedTable || undefined}
+            error={error ? decodeURIComponent(error) : undefined}
+            ok={ok}
+          />
+        </div>
       </div>
     </div>
   );
