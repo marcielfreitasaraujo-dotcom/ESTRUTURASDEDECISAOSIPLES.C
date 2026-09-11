@@ -1,12 +1,10 @@
 import Link from "next/link";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default function AjudaPage() {
   return (
     <div className="mx-auto grid max-w-2xl gap-4">
-      <div>
-        <h1 className="font-heading text-3xl">Ajuda</h1>
-        <p className="text-sm text-muted-foreground">Atalhos e caminhos rápidos do painel do estabelecimento.</p>
-      </div>
+      <PageHeader title="Ajuda" description="Atalhos e caminhos rápidos do painel do estabelecimento." />
       <ul className="grid gap-2 text-sm">
         <li>
           <kbd className="rounded bg-muted px-1.5 py-0.5">Ctrl</kbd> + <kbd className="rounded bg-muted px-1.5 py-0.5">K</kbd> busca global

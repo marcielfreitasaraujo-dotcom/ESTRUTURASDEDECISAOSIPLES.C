@@ -1,6 +1,8 @@
 import { updateOrderStatusFormAction } from "@/app/actions/orders";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/money";
+import { StatusPill } from "@/components/ds/data-table";
+import { cn } from "@/lib/utils";
 
 type Ticket = {
   id: string;
@@ -23,11 +25,16 @@ export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
         return (
           <article
             key={ticket.id}
-            className={`rounded-2xl border p-5 ${late ? "border-destructive bg-destructive/10" : "bg-card"}`}
+            className={cn(
+              "rounded-xl border p-5",
+              late ? "border-destructive bg-destructive/10" : "border-border bg-card",
+            )}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <h2 className="font-mono text-2xl">#{ticket.publicCode}</h2>
-              <span className="text-sm">{minutes} min</span>
+              <StatusPill tone={late ? "danger" : ticket.status === "PREPARING" ? "warning" : "info"}>
+                {minutes} min
+              </StatusPill>
             </div>
             {ticket.tableNumber ? <p className="mt-1 text-sm text-primary">Mesa {ticket.tableNumber}</p> : null}
             <ul className="mt-4 space-y-2 text-sm">

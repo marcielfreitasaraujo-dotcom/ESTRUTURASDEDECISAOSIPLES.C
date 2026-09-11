@@ -71,6 +71,23 @@ describe("navForUser", () => {
     ]);
   });
 
+  it("mostra o mesmo estilo de menu para o garçom, com comandas, mesas e pedidos", () => {
+    const links = navForUser({ platformRole: "USER", tenantRole: "WAITER", surface: "garcom" }).map(
+      (item) => item.href,
+    );
+    expect(links[0]).toBe("/garcom");
+    expect(links).toContain("/app/salao");
+    expect(links).toContain("/app/pedidos");
+    expect(links).toContain("/app/clientes");
+    expect(links).not.toContain("/caixa");
+    expect(mobileTabNav({ surface: "garcom", items: [] }).map((item) => item.href)).toEqual([
+      "/garcom",
+      "/app/salao",
+      "/app/pedidos",
+      "/app/clientes",
+    ]);
+  });
+
   it("mantém o motoboy na fila e nos pedidos sem sair do celular", () => {
     const links = navForUser({ platformRole: "USER", tenantRole: "DELIVERY", surface: "entrega" }).map(
       (item) => item.href,

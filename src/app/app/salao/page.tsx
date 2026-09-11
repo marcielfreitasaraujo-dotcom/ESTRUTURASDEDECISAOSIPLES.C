@@ -23,22 +23,16 @@ export default async function SalonPage() {
     .map((member) => ({ id: member.user.id, name: member.user.name }));
 
   return (
-    <div className="grid gap-4">
-      <div>
-        <h1 className="font-heading text-3xl">Mesas e salões</h1>
-        <p className="text-sm text-muted-foreground">O mesmo mapa do PDV, com visão completa da operação.</p>
-      </div>
-      <FloorMap
-        initial={snapshot}
-        catalog={{
-          products: catalog.products,
-          sizes: catalog.sizes,
-          flavors: catalog.flavors,
-          crusts: catalog.crusts,
-        }}
-        waiters={waiters}
-        canSettle={canSettle}
-      />
-    </div>
+    <FloorMap
+      initial={snapshot}
+      catalog={{
+        products: catalog.products,
+        sizes: catalog.sizes,
+        flavors: catalog.flavors,
+        crusts: catalog.crusts,
+      }}
+      waiters={waiters}
+      canSettle={canSettle}
+    />
   );
 }

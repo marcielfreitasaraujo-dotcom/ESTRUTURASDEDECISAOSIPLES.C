@@ -1,6 +1,7 @@
 import { getPlatformDashboard } from "@/server/services/dashboard";
 import { formatBRL } from "@/lib/money";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ds/page-header";
+import { StatCard } from "@/components/ds/surface";
 
 export default async function AdminHomePage() {
   const metrics = await getPlatformDashboard();
@@ -17,22 +18,13 @@ export default async function AdminHomePage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Painel da plataforma</h1>
-        <p className="text-sm text-muted-foreground">
-          Comanda IA: estabelecimentos, uso e receita. Ações sensíveis geram AuditLog.
-        </p>
-      </div>
+      <PageHeader
+        title="Painel da plataforma"
+        description="Comanda IA: estabelecimentos, uso e receita. Ações sensíveis geram auditoria."
+      />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(([label, value]) => (
-          <Card key={label}>
-            <CardHeader>
-              <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="font-heading text-2xl">{value}</p>
-            </CardContent>
-          </Card>
+          <StatCard key={label} label={label} value={value} />
         ))}
       </div>
     </div>

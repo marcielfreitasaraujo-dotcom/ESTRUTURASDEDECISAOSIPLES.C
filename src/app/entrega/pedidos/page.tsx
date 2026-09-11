@@ -3,19 +3,25 @@ import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listOrdersByStatus } from "@/server/services/orders";
 import { OrdersKanban } from "@/components/orders-kanban";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
+import { Surface } from "@/components/ds/surface";
 
 export default async function EntregaPedidosPage() {
   const ctx = await requirePage(PERMISSIONS.ORDER_READ);
   const orders = await listOrdersByStatus(ctx.tenantId);
 
   return (
-    <div className="grid gap-4">
-      <div>
-        <h1 className="text-2xl font-semibold md:text-3xl">Pedidos</h1>
-        <p className="text-sm text-muted-foreground">Deslize as colunas. Voltar no topo volta para a fila.</p>
-      </div>
+    <PageStack>
+      <PageHeader
+        title="Pedidos"
+        description="Deslize as colunas. Voltar no topo volta para a fila."
+        backHref="/entrega"
+        backLabel="Fila"
+      />
       {orders.length === 0 ? (
-        <EmptyState title="Nenhum pedido aberto" description="Os pedidos da loja aparecem aqui." />
+        <Surface>
+          <EmptyState title="Nenhum pedido aberto" description="Os pedidos da loja aparecem aqui." />
+        </Surface>
       ) : (
         <OrdersKanban
           orders={orders.map((order) => ({
@@ -30,6 +36,6 @@ export default async function EntregaPedidosPage() {
           }))}
         />
       )}
-    </div>
+    </PageStack>
   );
 }

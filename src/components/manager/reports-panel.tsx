@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { formatBRL } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ds/page-header";
 
 type Report = {
   from: string;
@@ -51,20 +52,20 @@ export function ReportsPanel({ report }: { report: Report }) {
 
   return (
     <div className="grid gap-6 print:text-black">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-3xl">Relatórios</h1>
-          <p className="text-sm text-muted-foreground">Vendas do mês atual, calculadas dos pedidos reais.</p>
-        </div>
-        <div className="flex gap-2 print:hidden">
-          <Button type="button" variant="outline" onClick={downloadCsv}>
-            Exportar CSV
-          </Button>
-          <Button type="button" variant="outline" onClick={printPdf}>
-            Exportar PDF
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Relatórios"
+        description="Vendas do mês atual, calculadas dos pedidos reais."
+        actions={
+          <div className="flex gap-2 print:hidden">
+            <Button type="button" variant="outline" onClick={downloadCsv}>
+              Exportar CSV
+            </Button>
+            <Button type="button" variant="outline" onClick={printPdf}>
+              Exportar PDF
+            </Button>
+          </div>
+        }
+      />
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>

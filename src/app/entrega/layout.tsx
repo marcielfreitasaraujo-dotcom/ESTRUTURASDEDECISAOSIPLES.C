@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireSession } from "@/server/context";
 import { postLoginPath } from "@/domain/rbac/home";
-import { footerNavForUser, groupedNavForUser, mobileTabNav, navForUser } from "@/domain/rbac/nav";
+import { footerNavForUser, groupedEntregaNavForUser, groupedNavForUser, mobileTabNav, navForUser } from "@/domain/rbac/nav";
 import { AppShell } from "@/components/app-shell";
 import { isPlatformAdmin, isStoreGerente } from "@/domain/rbac/roles";
 import { TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
@@ -19,7 +19,7 @@ export default async function EntregaLayout({ children }: { children: React.Reac
   }
 
   const tenant = session.tenantId
-    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true } })
+    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true, tradeName: true } })
     : null;
   const motoboy = session.tenantRole === "DELIVERY";
   const entregaItems = navForUser({
@@ -27,6 +27,7 @@ export default async function EntregaLayout({ children }: { children: React.Reac
     tenantRole: session.tenantRole,
     surface: "entrega",
   });
+  const entregaGroups = groupedEntregaNavForUser();
   const appItems = navForUser({
     platformRole: session.platformRole,
     tenantRole: session.tenantRole,
@@ -42,20 +43,20 @@ export default async function EntregaLayout({ children }: { children: React.Reac
     <AppShell
       title={motoboy ? "Entrega" : "Loja"}
       items={motoboy ? entregaItems : appItems}
-      groups={motoboy ? undefined : appGroups}
+      groups={motoboy ? entregaGroups : appGroups}
       footerItems={motoboy ? undefined : footerNavForUser(session.tenantRole)}
       tabs={
         motoboy
-          ? mobileTabNav({ surface: "entrega", items: entregaItems })
+          ? mobileTabNav({ surface: "entrega", items: entregaItems, groups: entregaGroups })
           : mobileTabNav({ surface: "app", items: appItems, groups: appGroups })
       }
       userName={session.name}
       roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : undefined}
-      storeName={tenant?.name}
+      storeName={tenant?.tradeName || tenant?.name}
       homeHref={motoboy ? "/entrega" : "/app"}
       enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >
-      <div className="mx-auto w-full max-w-xl">{children}</div>
+      {children}
     </AppShell>
   );
 }

@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { formatBRL, parseBRLToCents } from "@/lib/money";
 import { differenceCents, differenceLabel, expectedCashCents } from "@/domain/cash/math";
 import { formatClock, formatDay } from "@/domain/cash/labels";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
+import { Surface } from "@/components/ds/surface";
 
 export function CloseCashPanel({
   mode,
@@ -61,10 +63,10 @@ export function CloseCashPanel({
   const label = differenceLabel(diff);
   const banner =
     label.kind === "ok"
-      ? "rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300"
+      ? "rounded-xl border border-success/30 bg-success/10 p-3 text-sm text-success"
       : label.kind === "shortage"
-        ? "rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
-        : "rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200";
+        ? "rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+        : "rounded-xl border border-warning/30 bg-warning/10 p-3 text-sm text-warning";
   const bannerText =
     label.kind === "ok"
       ? `🟢 Caixa exato · ${formatBRL(0)}`
@@ -73,14 +75,13 @@ export function CloseCashPanel({
         : `🟡 Sobra ${formatBRL(diff)}`;
 
   return (
-    <div className="grid max-w-xl gap-5">
-      <div>
-        <h1 className="font-heading text-2xl">{mode === "count" ? "Contagem do caixa" : "Fechamento de caixa"}</h1>
-        <p className="text-sm text-zinc-400">
-          {operatorName} · aberto em {formatDay(openedAt)} às {formatClock(openedAt)}
-        </p>
-      </div>
-      <dl className="grid gap-2 rounded-xl border border-zinc-800 bg-card p-4 text-sm">
+    <PageStack className="max-w-2xl">
+      <PageHeader
+        title={mode === "count" ? "Contagem do caixa" : "Fechamento de caixa"}
+        description={`${operatorName} · aberto em ${formatDay(openedAt)} às ${formatClock(openedAt)}`}
+      />
+      <Surface>
+        <dl className="grid gap-2 text-sm">
         {[
           ["Saldo inicial", totals.openingCents],
           ["Vendas", totals.salesCents],
@@ -94,67 +95,70 @@ export function CloseCashPanel({
           ["Despesas", totals.expenseCents],
         ].map(([label, value]) => (
           <div key={String(label)} className="flex justify-between">
-            <dt className="text-zinc-400">{label}</dt>
+            <dt className="text-muted-foreground">{label}</dt>
             <dd>{formatBRL(Number(value))}</dd>
           </div>
         ))}
-        <div className="flex justify-between border-t border-zinc-800 pt-2 text-base font-medium">
+        <div className="flex justify-between border-t border-border pt-2 text-base font-medium">
           <dt>Saldo físico esperado</dt>
           <dd>{formatBRL(expected)}</dd>
         </div>
-      </dl>
-      <div className="grid gap-2">
-        <Label htmlFor="counted">Quanto existe fisicamente no caixa?</Label>
-        <Input id="counted" value={counted} onChange={(event) => setCounted(event.target.value)} className="h-12 text-lg" />
-      </div>
-      <div className={banner}>{bannerText}</div>
-      {mode === "close" ? (
-        <>
+        </dl>
+        <div className="mt-4 grid gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="note">Observação da diferença</Label>
-            <Textarea id="note" value={note} onChange={(event) => setNote(event.target.value)} />
+            <Label htmlFor="counted">Quanto existe fisicamente no caixa?</Label>
+            <Input id="counted" value={counted} onChange={(event) => setCounted(event.target.value)} />
           </div>
-          {confirm ? (
-            <div className="grid gap-2 rounded-xl border border-zinc-800 p-4">
-              <p className="font-medium">Tem certeza que deseja fechar o caixa?</p>
-              <p className="text-sm text-zinc-400">O fechamento não poderá ser alterado diretamente depois de concluído.</p>
-              <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={() => setConfirm(false)}>
-                  Cancelar
-                </Button>
-                <Button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => {
-                    const form = new FormData();
-                    form.set("counted", counted);
-                    form.set("note", note);
-                    form.set("confirm", "1");
-                    startTransition(async () => {
-                      const result = await closeCashSessionAction(form);
-                      if (!result.ok) {
-                        setError(result.error);
-                        return;
-                      }
-                      setDone("Caixa fechado com sucesso.");
-                      router.push("/caixa");
-                      router.refresh();
-                    });
-                  }}
-                >
-                  Confirmar fechamento
-                </Button>
+          <div className={banner}>{bannerText}</div>
+          {mode === "close" ? (
+            <>
+              <div className="grid gap-2">
+                <Label htmlFor="note">Observação da diferença</Label>
+                <Textarea id="note" value={note} onChange={(event) => setNote(event.target.value)} />
               </div>
-            </div>
-          ) : (
-            <Button type="button" className="h-12" onClick={() => setConfirm(true)}>
-              Fechar caixa
-            </Button>
-          )}
-        </>
-      ) : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
-      {done ? <p className="text-sm text-emerald-400">{done}</p> : null}
-    </div>
+              {confirm ? (
+                <div className="grid gap-2 rounded-xl border border-border p-4">
+                  <p className="font-medium">Tem certeza que deseja fechar o caixa?</p>
+                  <p className="text-sm text-muted-foreground">O fechamento não poderá ser alterado diretamente depois de concluído.</p>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setConfirm(false)}>
+                      Cancelar
+                    </Button>
+                    <Button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => {
+                        const form = new FormData();
+                        form.set("counted", counted);
+                        form.set("note", note);
+                        form.set("confirm", "1");
+                        startTransition(async () => {
+                          const result = await closeCashSessionAction(form);
+                          if (!result.ok) {
+                            setError(result.error);
+                            return;
+                          }
+                          setDone("Caixa fechado com sucesso.");
+                          router.push("/caixa");
+                          router.refresh();
+                        });
+                      }}
+                    >
+                      Confirmar fechamento
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button type="button" onClick={() => setConfirm(true)}>
+                  Fechar caixa
+                </Button>
+              )}
+            </>
+          ) : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {done ? <p className="text-sm text-success">{done}</p> : null}
+        </div>
+      </Surface>
+    </PageStack>
   );
 }

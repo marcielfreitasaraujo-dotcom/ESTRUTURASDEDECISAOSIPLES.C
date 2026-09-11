@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatBRL } from "@/lib/money";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function CuponsPage() {
   const ctx = await requirePage(PERMISSIONS.CATALOG_WRITE);
@@ -19,10 +20,7 @@ export default async function CuponsPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Cupons</h1>
-        <p className="text-sm text-muted-foreground">Códigos de desconto usados no checkout do cliente.</p>
-      </div>
+      <PageHeader title="Cupons" description="Códigos de desconto usados no checkout do cliente." />
       {canWrite ? (
         <Card>
           <CardHeader>
@@ -36,7 +34,7 @@ export default async function CuponsPage() {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="type">Tipo</Label>
-                <select id="type" name="type" className="h-8 rounded-lg border bg-background px-2 text-sm">
+                <select id="type" name="type" className="field-control">
                   <option value="PERCENTAGE">Percentual</option>
                   <option value="FIXED">Valor fixo (centavos no valor)</option>
                 </select>

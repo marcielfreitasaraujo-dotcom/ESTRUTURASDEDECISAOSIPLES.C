@@ -162,7 +162,10 @@ export function navForUser(input: {
     return uniqueNav(items);
   }
   if (input.surface === "garcom") {
-    return [{ href: "/garcom", label: "Comandas" }];
+    return uniqueNav([
+      { href: "/garcom", label: "Comandas" },
+      ...TENANT_NAV.filter((item) => input.tenantRole && allowed(input.tenantRole, item) && item.href !== "/garcom"),
+    ]);
   }
   if (input.surface === "entrega") {
     return [
@@ -196,7 +199,53 @@ export function groupedNavForUser(input: {
         : group,
     );
   }
+  if (role === "KITCHEN") {
+    const home: NavGroup = {
+      id: "inicio-cozinha",
+      label: "",
+      items: [{ href: "/app/cozinha", label: "Cozinha" }],
+    };
+    const rest = groups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => item.href !== "/app/cozinha"),
+      }))
+      .filter((group) => group.items.length > 0);
+    return [home, ...rest];
+  }
   return groups;
+}
+
+export function groupedGarcomNavForUser(input: {
+  platformRole: PlatformRole;
+  tenantRole: TenantRole | null;
+}): NavGroup[] {
+  const tenant = groupedNavForUser(input);
+  const home: NavGroup = {
+    id: "salao",
+    label: "",
+    items: [{ href: "/garcom", label: "Comandas" }],
+  };
+  const rest = tenant
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => item.href !== "/garcom"),
+    }))
+    .filter((group) => group.items.length > 0);
+  return [home, ...rest];
+}
+
+export function groupedEntregaNavForUser(): NavGroup[] {
+  return [
+    {
+      id: "rota",
+      label: "",
+      items: [
+        { href: "/entrega", label: "Fila" },
+        { href: "/entrega/pedidos", label: "Pedidos" },
+      ],
+    },
+  ];
 }
 
 export function groupedCaixaNavForUser(input: {
@@ -237,7 +286,12 @@ export function mobileTabNav(input: {
     ];
   }
   if (input.surface === "garcom") {
-    return [{ href: "/garcom", label: "Comandas" }];
+    return [
+      { href: "/garcom", label: "Comandas" },
+      { href: "/app/salao", label: "Mesas" },
+      { href: "/app/pedidos", label: "Pedidos" },
+      { href: "/app/clientes", label: "Clientes" },
+    ];
   }
   if (input.surface === "caixa") {
     return uniqueNav(input.groups?.[0]?.items ?? input.items).slice(0, 5);
@@ -247,9 +301,12 @@ export function mobileTabNav(input: {
   }
   const preferred = [
     { href: "/app", label: "Início" },
+    { href: "/app/cozinha", label: "Cozinha" },
     { href: "/app/pedidos", label: "Pedidos" },
     { href: "/app/salao", label: "Mesas" },
     { href: "/caixa", label: "PDV" },
+    { href: "/garcom", label: "Comandas" },
+    { href: "/entrega", label: "Entrega" },
     { href: "/app/equipe", label: "Equipe" },
   ];
   const flat = uniqueNav(input.groups?.flatMap((group) => group.items) ?? input.items);

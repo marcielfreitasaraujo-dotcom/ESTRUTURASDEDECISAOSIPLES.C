@@ -5,6 +5,7 @@ import { cashReports } from "@/server/services/cash-desk";
 import { formatBRL, formatSignedBRL } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/ds/page-header";
 import { nativeSelectClass } from "@/lib/field";
 
 export default async function RelatoriosCaixaPage({
@@ -27,16 +28,17 @@ export default async function RelatoriosCaixaPage({
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-3xl">Relatórios de caixa</h1>
-          <p className="text-sm text-zinc-400">Fechamento por operador, terminal, período, diferenças, sangrias, suprimentos e despesas.</p>
-        </div>
-        <Button asChild>
-          <Link href={`/app/caixas/export?${query}`}>Exportar CSV</Link>
-        </Button>
-      </div>
-      <form method="get" className="grid gap-3 rounded-2xl border border-zinc-800 bg-card p-4 sm:grid-cols-4">
+      <PageHeader
+        title="Relatórios de caixa"
+        description="Fechamento por operador, terminal, período, diferenças, sangrias, suprimentos e despesas."
+        backHref="/app/caixas"
+        actions={
+          <Button asChild>
+            <Link href={`/app/caixas/export?${query}`}>Exportar CSV</Link>
+          </Button>
+        }
+      />
+      <form method="get" className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-4">
         <select name="periodo" defaultValue={params.periodo || "month"} className={nativeSelectClass}>
           <option value="today">Hoje</option>
           <option value="last7">Últimos 7 dias</option>
@@ -95,9 +97,9 @@ export default async function RelatoriosCaixaPage({
 
 function SimpleTable({ headers, rows }: { headers: string[]; rows: string[][] }) {
   return (
-    <div className="mt-3 overflow-x-auto rounded-xl border border-zinc-800">
+    <div className="mt-3 overflow-x-auto rounded-xl border border-border">
       <table className="w-full min-w-[640px] text-left text-sm">
-        <thead className="bg-zinc-950 text-zinc-400">
+        <thead className="bg-background text-muted-foreground">
           <tr>
             {headers.map((head) => (
               <th key={head} className="px-3 py-2 font-medium">
@@ -109,13 +111,13 @@ function SimpleTable({ headers, rows }: { headers: string[]; rows: string[][] })
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={headers.length} className="px-3 py-6 text-zinc-500">
+              <td colSpan={headers.length} className="px-3 py-6 text-muted-foreground">
                 Sem dados neste período.
               </td>
             </tr>
           ) : (
             rows.map((row, index) => (
-              <tr key={index} className="border-t border-zinc-800">
+              <tr key={index} className="border-t border-border">
                 {row.map((cell, cellIndex) => (
                   <td key={cellIndex} className="px-3 py-2">
                     {cell}

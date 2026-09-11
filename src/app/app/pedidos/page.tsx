@@ -5,6 +5,7 @@ import { OrdersKanban } from "@/components/orders-kanban";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { PageHeader } from "@/components/ds/page-header";
 import { redirect } from "next/navigation";
 
 export default async function OrdersPage() {
@@ -14,23 +15,23 @@ export default async function OrdersPage() {
 
   return (
     <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-3xl">Pedidos</h1>
-          <p className="text-sm text-muted-foreground">Atualize o status com um toque. Cada mudança fica no histórico.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild>
-            <Link href="/garcom">Novo pedido</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/app/salao">Mesas</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/app/cozinha">Cozinha</Link>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Pedidos"
+        description="Atualize o status com um toque. Cada mudança fica no histórico."
+        actions={
+          <>
+            <Button asChild>
+              <Link href="/garcom">Novo pedido</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/app/salao">Mesas</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/app/cozinha">Cozinha</Link>
+            </Button>
+          </>
+        }
+      />
       {orders.length === 0 ? (
         <EmptyState title="Nenhum pedido aberto" description="Os pedidos do cardápio público aparecem aqui em tempo quase real após o checkout." />
       ) : (

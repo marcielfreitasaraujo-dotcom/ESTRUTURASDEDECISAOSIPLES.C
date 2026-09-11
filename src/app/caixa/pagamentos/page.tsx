@@ -2,6 +2,7 @@ import { requireOpenCashPage } from "@/server/cash-page";
 import { getReceivableOrder, listPendingPayments } from "@/server/services/cash";
 import { PendingPaymentsList, ReceivePaymentPanel } from "@/components/cashier/receive-panel";
 import { prisma } from "@/lib/db";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
 
 export default async function CaixaPagamentosPage({
   searchParams,
@@ -53,11 +54,11 @@ export default async function CaixaPagamentosPage({
   }
   const pending = await listPendingPayments(ctx.tenantId);
   return (
-    <div className="grid gap-4">
-      <div>
-        <h1 className="font-heading text-2xl">Pagamentos pendentes</h1>
-        <p className="text-sm text-zinc-400">Pedidos que precisam ser pagos neste turno.</p>
-      </div>
+    <PageStack>
+      <PageHeader
+        title="Pagamentos pendentes"
+        description="Pedidos que precisam ser pagos neste turno."
+      />
       <PendingPaymentsList
         orders={pending.map((order) => ({
           id: order.id,
@@ -67,6 +68,6 @@ export default async function CaixaPagamentosPage({
           totalCents: order.totalCents,
         }))}
       />
-    </div>
+    </PageStack>
   );
 }

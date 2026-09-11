@@ -1,6 +1,7 @@
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listTenantAuditLogs } from "@/server/services/dashboard";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function AuditoriaPage() {
   const ctx = await requirePage(PERMISSIONS.SETTINGS_READ);
@@ -8,10 +9,10 @@ export default async function AuditoriaPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="font-heading text-3xl">Auditoria</h1>
-        <p className="text-sm text-muted-foreground">Somente ações deste estabelecimento. O histórico da plataforma fica no admin.</p>
-      </div>
+      <PageHeader
+        title="Auditoria"
+        description="Somente ações deste estabelecimento. O histórico da plataforma fica no admin."
+      />
       <div className="overflow-x-auto rounded-xl border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ds/page-header";
 import { formatBRL } from "@/lib/money";
 
 export default async function CatalogPage() {
@@ -17,11 +18,11 @@ export default async function CatalogPage() {
     (ctx.tenantRole ? hasPermission(ctx.tenantRole, PERMISSIONS.CATALOG_WRITE) : false);
 
   return (
-    <div className="grid gap-8">
-      <div>
-        <h1 className="font-heading text-3xl">Cardápio</h1>
-        <p className="text-sm text-muted-foreground">Categorias e produtos reais do estabelecimento. Duplicar cria uma cópia inativa.</p>
-      </div>
+    <div className="grid gap-6">
+      <PageHeader
+        title="Cardápio"
+        description="Categorias e produtos reais do estabelecimento. Duplicar cria uma cópia inativa."
+      />
       {canWrite ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>

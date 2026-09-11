@@ -60,7 +60,7 @@ export default async function LoginPage({
             Depois de um deploy, o atalho do computador e do celular busca a versão nova sozinho. Abra de novo ou toque
             em Atualizar agora; não precisa apagar o ícone.
           </p>
-          <p className="text-center font-mono text-[11px] text-zinc-400">Versão {getAppBuildId().slice(0, 8)}</p>
+          <p className="text-center font-mono text-[11px] text-muted-foreground">Versão {getAppBuildId().slice(0, 8)}</p>
         </CardContent>
       </Card>
     </div>

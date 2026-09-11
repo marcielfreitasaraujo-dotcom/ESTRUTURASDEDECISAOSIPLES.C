@@ -3,7 +3,7 @@ import { requireSession } from "@/server/context";
 import { postLoginPath } from "@/domain/rbac/home";
 import { groupedCaixaNavForUser, CAIXA_FOOTER_NAV, mobileTabNav, navForUser } from "@/domain/rbac/nav";
 import { AppShell } from "@/components/app-shell";
-import { isPlatformAdmin } from "@/domain/rbac/roles";
+import { isPlatformAdmin, isStoreGerente } from "@/domain/rbac/roles";
 import { TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
 import { prisma } from "@/lib/db";
 import { CashierHotkeys } from "@/components/cashier/hotkeys";
@@ -36,6 +36,7 @@ export default async function CashierLayout({ children }: { children: React.Reac
       roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : "Caixa"}
       storeName={tenant?.tradeName || tenant?.name}
       homeHref="/caixa"
+      enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >
       <CashierHotkeys />
       {children}

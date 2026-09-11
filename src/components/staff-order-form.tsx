@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatBRL } from "@/lib/money";
+import { nativeSelectClass } from "@/lib/field";
 import { cn } from "@/lib/utils";
 
 type Product = { id: string; name: string; priceCents: number; promotionalPriceCents: number | null; kind: string; active?: boolean };
@@ -63,7 +64,7 @@ export function StaffOrderForm({
               name="tableNumber"
               required
               defaultValue={tableNumber ?? ""}
-              className="h-12 rounded-lg border bg-background px-3 text-lg"
+              className={nativeSelectClass}
             >
               <option value="" disabled>
                 Escolha a mesa
@@ -75,7 +76,7 @@ export function StaffOrderForm({
               ))}
             </select>
           ) : (
-            <Input id="tableNumber" name="tableNumber" inputMode="numeric" placeholder="7" required className="h-12 text-lg" />
+            <Input id="tableNumber" name="tableNumber" inputMode="numeric" placeholder="7" required />
           )}
         </div>
       ) : cashierSale === "new" ? (
@@ -87,7 +88,7 @@ export function StaffOrderForm({
                 <label
                   key={number}
                   className={cn(
-                    "relative grid min-h-16 cursor-pointer place-items-center rounded-xl border border-zinc-700 bg-zinc-900 text-lg font-heading has-[:checked]:border-orange-400 has-[:checked]:bg-orange-500/20 has-[:checked]:text-orange-100",
+                    "relative grid min-h-16 cursor-pointer place-items-center rounded-xl border border-border bg-muted/30 text-lg font-heading has-[:checked]:border-primary has-[:checked]:bg-primary/20 has-[:checked]:text-primary",
                   )}
                 >
                   <input
@@ -103,7 +104,7 @@ export function StaffOrderForm({
               ))}
             </div>
           ) : (
-            <p className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2 text-sm">
+            <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-warning">
               Não há mesa livre agora. Quite uma ocupada para abrir venda no salão, ou use o balcão.
             </p>
           )}
@@ -114,11 +115,11 @@ export function StaffOrderForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="customerName">Cliente</Label>
-            <Input id="customerName" name="customerName" placeholder="Balcão" className="h-12" />
+            <Input id="customerName" name="customerName" placeholder="Balcão" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="paymentMethod">Pagamento</Label>
-            <select id="paymentMethod" name="paymentMethod" className="h-12 rounded-lg border bg-background px-3">
+            <select id="paymentMethod" name="paymentMethod" className={nativeSelectClass}>
               <option value="CASH">Dinheiro</option>
               <option value="PIX">PIX</option>
               <option value="CARD">Cartão</option>
@@ -130,7 +131,7 @@ export function StaffOrderForm({
       {mode === "cashier" && cashierSale === "new" ? (
         <div className="grid gap-2">
           <Label htmlFor="paymentMethod">Pagamento</Label>
-          <select id="paymentMethod" name="paymentMethod" className="h-12 rounded-lg border bg-background px-3">
+          <select id="paymentMethod" name="paymentMethod" className={nativeSelectClass}>
             <option value="CASH">Dinheiro</option>
             <option value="PIX">PIX</option>
             <option value="CARD">Cartão</option>
@@ -154,16 +155,16 @@ export function StaffOrderForm({
                 type="number"
                 min={0}
                 defaultValue={0}
-                className="h-12 w-20 text-center text-lg"
+                className="w-20 text-center"
               />
             </label>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-3 rounded-2xl border bg-card p-4">
-        <h2 className="text-lg font-semibold">Pizza</h2>
-        <select name="sizeId" className="h-12 rounded-lg border bg-background px-3" defaultValue={sizes[0]?.id}>
+      <section className="grid gap-3 rounded-xl border border-border bg-muted/20 p-4">
+        <h2 className="text-sm font-semibold">Pizza</h2>
+        <select name="sizeId" className={nativeSelectClass} defaultValue={sizes[0]?.id}>
           {sizes.map((size) => (
             <option key={size.id} value={size.id}>
               {size.name} · até {size.maxFlavors} sabor(es)
@@ -179,25 +180,25 @@ export function StaffOrderForm({
             </label>
           ))}
         </fieldset>
-        <select name="crustId" className="h-12 rounded-lg border bg-background px-3" defaultValue={crusts[0]?.id}>
+        <select name="crustId" className={nativeSelectClass} defaultValue={crusts[0]?.id}>
           {crusts.map((crust) => (
             <option key={crust.id} value={crust.id}>
               {crust.name}
             </option>
           ))}
         </select>
-        <Input name="pizzaNotes" placeholder="Pouco queijo, sem cebola..." className="h-12" />
+        <Input name="pizzaNotes" placeholder="Pouco queijo, sem cebola..." />
       </section>
 
       <div className="grid gap-2">
         <Label htmlFor="notes">Observação da comanda</Label>
-        <Input id="notes" name="notes" className="h-12" />
+        <Input id="notes" name="notes" />
       </div>
 
       <Button
         type="submit"
         size="lg"
-        className="h-14 text-base"
+        className="text-base"
         disabled={cashierSale === "new" && (!availableTables || availableTables.length === 0)}
       >
         {submitLabel}
