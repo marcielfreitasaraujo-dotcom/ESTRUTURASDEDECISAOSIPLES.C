@@ -48,7 +48,7 @@ function parseMoney(value: string) {
   }
 }
 
-function methodLabel(line: Pick<Line, "method" | "cardKind">) {
+function methodLabel(line: { method: string; cardKind?: string | null }) {
   if (line.method === "CARD") return line.cardKind === "CREDIT" ? "Cartão de crédito" : "Cartão de débito";
   if (line.method === "CASH") return "Dinheiro";
   if (line.method === "PIX") return "PIX";
