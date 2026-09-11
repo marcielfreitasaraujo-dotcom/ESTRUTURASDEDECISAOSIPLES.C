@@ -33,7 +33,7 @@ export function StoreCartButton({
     <button
       type="button"
       onClick={onClick}
-      className="relative ml-auto inline-flex size-11 shrink-0 items-center justify-center rounded-full border bg-white text-zinc-800 shadow-sm hover:bg-zinc-50"
+      className="relative inline-flex size-11 shrink-0 items-center justify-center rounded-full border bg-white text-zinc-800 shadow-sm hover:bg-zinc-50"
       aria-label={itemCount === 0 ? "Abrir carrinho" : `Abrir carrinho, ${itemCount} ${itemCount === 1 ? "item" : "itens"}`}
     >
       <ShoppingBag className="size-5" />
@@ -51,6 +51,7 @@ export function StoreCartSheet({
   tableQuery,
   items,
   storeOpen,
+  onCheckout,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,6 +59,7 @@ export function StoreCartSheet({
   tableQuery: string;
   items: StoreCartItem[];
   storeOpen: boolean;
+  onCheckout?: () => void;
 }) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
@@ -101,6 +103,10 @@ export function StoreCartSheet({
           {storeOpen ? (
             itemCount === 0 ? (
               <Button type="button" disabled className="h-11">
+                Finalizar pedido
+              </Button>
+            ) : onCheckout ? (
+              <Button type="button" className="h-11" onClick={onCheckout}>
                 Finalizar pedido
               </Button>
             ) : (

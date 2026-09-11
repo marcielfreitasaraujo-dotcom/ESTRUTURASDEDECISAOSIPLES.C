@@ -12,6 +12,14 @@ export const signUpSchema = z.object({
   pizzeriaName: z.string().min(2, "Informe o nome da pizzaria."),
 });
 
+export const storeGuestSchema = z.object({
+  name: z.string().trim().min(2, "Informe seu nome.").max(80, "Nome muito longo."),
+  phone: z
+    .string()
+    .transform((value) => value.replace(/\D/g, ""))
+    .refine((digits) => digits.length === 10 || digits.length === 11, "Informe o telefone com DDD."),
+});
+
 export const checkoutSchema = z.object({
   customerName: z.string().min(2),
   customerPhone: z.string().min(8),

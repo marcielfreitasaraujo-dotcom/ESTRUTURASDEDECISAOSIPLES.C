@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { ChevronRight, Gift, MapPin, Ticket } from "lucide-react";
 import { addProductToCartAction, applyCartCouponAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,8 @@ import { PizzaCustomizeDialog, type StoreAddonGroup, type StoreFlavor, type Stor
 import { pizzaProductSlug } from "@/domain/catalog/central-menu";
 import { isSoldOut } from "@/domain/catalog/stock";
 import { StoreCartButton, StoreCartSheet } from "@/components/storefront/store-cart";
+import { StoreGuestDialog, StoreGuestTrigger } from "@/components/storefront/store-guest";
+import type { StoreGuest } from "@/lib/store-guest";
 
 type Product = {
   id: string;
@@ -64,6 +67,7 @@ export function StoreMenu({
   cartItems,
   couponCode,
   zones,
+  guest,
 }: {
   slug: string;
   tenantName: string;
@@ -80,13 +84,18 @@ export function StoreMenu({
   cartItems: CartItem[];
   couponCode: string | null;
   zones: Zone[];
+  guest: StoreGuest | null;
 }) {
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = useState(categories[0]?.slug ?? "pizzas");
   const [pizzaSize, setPizzaSize] = useState<StoreSize | null>(null);
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [couponOpen, setCouponOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [guestOpen, setGuestOpen] = useState(false);
+  const [pendingCheckout, setPendingCheckout] = useState(false);
   const query = tableNumber ? `?mesa=${encodeURIComponent(tableNumber)}` : "";
+  const checkoutHref = `/loja/${slug}/checkout${query}`;
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = cartItems.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
 
@@ -109,6 +118,17 @@ export function StoreMenu({
     if (size) setPizzaSize(size);
   }
 
+  function requestCheckout() {
+    if (itemCount === 0) return;
+    if (guest) {
+      router.push(checkoutHref);
+      return;
+    }
+    setCartOpen(false);
+    setPendingCheckout(true);
+    setGuestOpen(true);
+  }
+
   return (
     <div className="min-h-screen bg-[#eef1f4] text-zinc-900">
       <header className="sticky top-0 z-30 border-b bg-white">
@@ -122,7 +142,10 @@ export function StoreMenu({
             <h1 className="truncate font-heading text-lg leading-tight">{tenantName}</h1>
             {phone ? <p className="text-xs text-zinc-500">{phone}</p> : null}
           </div>
-          <StoreCartButton itemCount={itemCount} onClick={() => setCartOpen(true)} />
+          <div className="ml-auto flex min-w-0 items-center gap-3">
+            <StoreGuestTrigger guest={guest} onClick={() => setGuestOpen(true)} />
+            <StoreCartButton itemCount={itemCount} onClick={() => setCartOpen(true)} />
+          </div>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 pb-3">
           {visibleCategories.map((category) => (
@@ -216,7 +239,7 @@ export function StoreMenu({
               type="button"
               className="h-11 w-full"
               disabled={itemCount === 0}
-              onClick={() => setCartOpen(true)}
+              onClick={requestCheckout}
             >
               {itemCount === 0 ? "Carrinho vazio" : "Finalizar pedido"}
             </Button>
@@ -276,6 +299,21 @@ export function StoreMenu({
       </Dialog>
 
       <CouponDialog slug={slug} open={couponOpen} onOpenChange={setCouponOpen} current={couponCode} />
+      <StoreGuestDialog
+        open={guestOpen}
+        onOpenChange={(open) => {
+          setGuestOpen(open);
+          if (!open) setPendingCheckout(false);
+        }}
+        slug={slug}
+        guest={guest}
+        onIdentified={() => {
+          const goCheckout = pendingCheckout;
+          setPendingCheckout(false);
+          setGuestOpen(false);
+          if (goCheckout) router.push(checkoutHref);
+        }}
+      />
       <StoreCartSheet
         open={cartOpen}
         onOpenChange={setCartOpen}
@@ -283,6 +321,7 @@ export function StoreMenu({
         tableQuery={query}
         items={cartItems}
         storeOpen={storeOpen}
+        onCheckout={requestCheckout}
       />
     </div>
   );

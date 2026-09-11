@@ -3,8 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-import { checkoutSchema } from "@/server/validation";
-import { addPizzaToCart, addSimpleProductToCart, applyCartCoupon, placeOrder, updateCartItemQuantity } from "@/server/services/cart";
+import { checkoutSchema, storeGuestSchema } from "@/server/validation";
+import { addPizzaToCart, addSimpleProductToCart, applyCartCoupon, getCart, placeOrder, updateCartItemQuantity } from "@/server/services/cart";
+import { upsertCustomerByPhone } from "@/server/services/customers";
+import { clearStoreGuestCookie, setStoreGuestCookie } from "@/server/store-guest";
+import { parseStoreGuest } from "@/lib/store-guest";
 import { publicErrorMessage } from "@/lib/errors";
 
 async function tenantBySlug(slug: string) {
@@ -71,6 +74,44 @@ export async function updateCartItemAction(slug: string, itemId: string, quantit
   }
 }
 
+export async function identifyStoreGuestAction(slug: string, name: string, phone: string) {
+  const parsed = storeGuestSchema.safeParse({ name, phone });
+  if (!parsed.success) {
+    return { ok: false as const, error: parsed.error.issues[0]?.message ?? "Confira nome e telefone." };
+  }
+
+  try {
+    const tenant = await tenantBySlug(slug);
+    const customer = await upsertCustomerByPhone({
+      tenantId: tenant.id,
+      name: parsed.data.name,
+      phone: parsed.data.phone,
+    });
+    const cart = await getCart(tenant.id);
+    if (cart) {
+      await prisma.cart.update({
+        where: { id: cart.id },
+        data: { customerId: customer.id },
+      });
+    }
+    await setStoreGuestCookie({ name: parsed.data.name, phone: parsed.data.phone });
+    revalidatePath(`/loja/${slug}`);
+    revalidatePath(`/loja/${slug}/carrinho`);
+    revalidatePath(`/loja/${slug}/checkout`);
+    revalidatePath("/app/clientes");
+    return { ok: true as const, guest: { name: parsed.data.name, phone: parsed.data.phone } };
+  } catch (error) {
+    return { ok: false as const, error: publicErrorMessage(error).message };
+  }
+}
+
+export async function clearStoreGuestAction(slug: string) {
+  await clearStoreGuestCookie();
+  revalidatePath(`/loja/${slug}`);
+  revalidatePath(`/loja/${slug}/carrinho`);
+  revalidatePath(`/loja/${slug}/checkout`);
+}
+
 export async function checkoutFormAction(formData: FormData) {
   const slug = String(formData.get("slug") || "");
   const parsed = checkoutSchema.safeParse({
@@ -93,6 +134,16 @@ export async function checkoutFormAction(formData: FormData) {
   });
   if (!parsed.success) {
     redirect(`/loja/${slug}/checkout?error=invalid`);
+  }
+
+  const guest = parseStoreGuest(
+    JSON.stringify({
+      name: parsed.data.customerName,
+      phone: parsed.data.customerPhone,
+    }),
+  );
+  if (guest) {
+    await setStoreGuestCookie(guest);
   }
 
   let publicCode = "";

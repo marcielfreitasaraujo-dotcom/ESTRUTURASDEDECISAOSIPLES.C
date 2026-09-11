@@ -26,7 +26,7 @@ export default async function CustomersPage() {
     <div className="grid gap-6">
       <PageHeader
         title="Clientes"
-        description="CRM do estabelecimento. Pedido online e do caixa entram aqui pelo telefone."
+        description="CRM do estabelecimento. Quem se identifica na loja (nome e telefone) e os pedidos online ou do caixa entram aqui."
       />
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Novos" value={String(stats.newCount)} />

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { formatBrPhone } from "@/lib/phone";
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -18,12 +19,16 @@ export function CheckoutForm({
   idempotencyKey,
   tableNumber,
   couponCode,
+  guestName,
+  guestPhone,
 }: {
   slug: string;
   error?: string;
   idempotencyKey: string;
   tableNumber?: string;
   couponCode?: string | null;
+  guestName?: string;
+  guestPhone?: string;
 }) {
   return (
     <form action={checkoutFormAction} method="post" className="grid gap-4">
@@ -36,11 +41,20 @@ export function CheckoutForm({
       ) : null}
       <div className="grid gap-2">
         <Label htmlFor="customerName">Nome</Label>
-        <Input id="customerName" name="customerName" required />
+        <Input id="customerName" name="customerName" required defaultValue={guestName ?? ""} autoComplete="name" />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="customerPhone">Telefone</Label>
-        <Input id="customerPhone" name="customerPhone" required />
+        <Input
+          id="customerPhone"
+          name="customerPhone"
+          type="tel"
+          inputMode="numeric"
+          autoComplete="tel"
+          required
+          defaultValue={guestPhone ? formatBrPhone(guestPhone) : ""}
+        />
+        <p className="text-xs text-muted-foreground">A pizzaria usa nome e telefone para falar com você se precisar.</p>
       </div>
       <div className="grid gap-2">
         <Label htmlFor="fulfillment">Recebimento</Label>

@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCart } from "@/server/services/cart";
 import { getStoreStatus } from "@/domain/hours/store-status";
+import { getStoreGuest } from "@/server/store-guest";
 import { formatBRL } from "@/lib/money";
 import { updateCartItemAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
+import { StoreFinalizeButton, StoreGuestBar } from "@/components/storefront/store-guest";
 
 export default async function CartPage({
   params,
@@ -24,6 +26,7 @@ export default async function CartPage({
   });
   if (!tenant) notFound();
   const cart = await getCart(tenant.id);
+  const guest = await getStoreGuest();
   const items = cart?.items ?? [];
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
   const query = tableNumber ? `?mesa=${encodeURIComponent(tableNumber)}` : "";
@@ -37,9 +40,12 @@ export default async function CartPage({
             <p className="text-xs text-zinc-500">Carrinho</p>
             <h1 className="font-heading text-lg">{tenant.name}</h1>
           </div>
-          <Button variant="outline" asChild>
-            <Link href={`/loja/${slug}${query}`}>Continuar escolhendo</Link>
-          </Button>
+          <div className="flex items-center gap-3">
+            <StoreGuestBar slug={slug} guest={guest} />
+            <Button variant="outline" asChild>
+              <Link href={`/loja/${slug}${query}`}>Continuar escolhendo</Link>
+            </Button>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-3xl px-4 py-8">
@@ -68,9 +74,7 @@ export default async function CartPage({
         <p className="mt-6 text-lg">Subtotal {formatBRL(subtotal)}</p>
         <div className="mt-6 flex gap-3">
           {status.open && items.length > 0 ? (
-            <Button asChild>
-              <Link href={`/loja/${slug}/checkout${query}`}>Finalizar pedido</Link>
-            </Button>
+            <StoreFinalizeButton slug={slug} guest={guest} checkoutHref={`/loja/${slug}/checkout${query}`} />
           ) : (
             <Button type="button" disabled>
               {status.open ? "Finalizar pedido" : "Estabelecimento fechado"}

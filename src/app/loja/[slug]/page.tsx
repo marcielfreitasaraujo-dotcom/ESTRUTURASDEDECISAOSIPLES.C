@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { listCatalog } from "@/server/services/catalog";
 import { getCart } from "@/server/services/cart";
 import { getStoreStatus } from "@/domain/hours/store-status";
+import { getStoreGuest } from "@/server/store-guest";
 import { StoreMenu } from "@/components/storefront/store-menu";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ mesa?: string }> };
@@ -29,7 +30,11 @@ export default async function StorePage({ params, searchParams }: Props) {
   });
   if (!tenant || tenant.status === "SUSPENDED" || tenant.deletedAt) notFound();
 
-  const [catalog, cart] = await Promise.all([listCatalog(tenant.id), getCart(tenant.id)]);
+  const [catalog, cart, guest] = await Promise.all([
+    listCatalog(tenant.id),
+    getCart(tenant.id),
+    getStoreGuest(),
+  ]);
   const status = getStoreStatus(tenant.hours, new Date(), tenant.timezone);
 
   return (
@@ -101,6 +106,7 @@ export default async function StorePage({ params, searchParams }: Props) {
         unitPriceCents: item.unitPriceCents,
       }))}
       couponCode={cart?.couponCode ?? null}
+      guest={guest}
       zones={catalog.deliveryZones.map((zone) => ({
         id: zone.id,
         name: zone.name,
