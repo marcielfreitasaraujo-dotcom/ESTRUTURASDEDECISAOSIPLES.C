@@ -1,7 +1,8 @@
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listCatalog } from "@/server/services/catalog";
-import { listOpenFloorOrders } from "@/server/services/pos";
+import { getTenantTableCount, listOpenFloorOrders } from "@/server/services/pos";
+import { salonTableNumbers } from "@/domain/floor/tables";
 import { StaffOrderForm } from "@/components/staff-order-form";
 import { formatBRL } from "@/lib/money";
 
@@ -11,10 +12,11 @@ export default async function WaiterPage({
   searchParams: Promise<{ error?: string; ok?: string }>;
 }) {
   const ctx = await requirePage(PERMISSIONS.ORDER_CREATE);
-  const [{ error, ok }, catalog, open] = await Promise.all([
+  const [{ error, ok }, catalog, open, tableCount] = await Promise.all([
     searchParams,
     listCatalog(ctx.tenantId),
     listOpenFloorOrders(ctx.tenantId),
+    getTenantTableCount(ctx.tenantId),
   ]);
   const errorMessage =
     error === "table"
@@ -38,6 +40,7 @@ export default async function WaiterPage({
         crusts={catalog.crusts}
         error={errorMessage}
         ok={ok}
+        availableTables={salonTableNumbers(tableCount)}
       />
       <section className="grid gap-3">
         <h2 className="text-lg font-semibold">Abertas agora</h2>

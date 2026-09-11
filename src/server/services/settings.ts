@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/server/audit";
+import { normalizeTableCount } from "@/domain/floor/tables";
 import type { PaymentMethod } from "@prisma/client";
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -23,6 +24,7 @@ export async function saveStoreSettings(input: {
   state?: string;
   estimatedMinutes?: number;
   minimumOrderCents?: number;
+  tableCount?: number;
   hours: { weekday: number; opensAt: string; closesAt: string; closed: boolean }[];
   methods: PaymentMethod[];
 }) {
@@ -38,6 +40,7 @@ export async function saveStoreSettings(input: {
       state: input.state || null,
       estimatedMinutes: input.estimatedMinutes ?? 40,
       minimumOrderCents: input.minimumOrderCents ?? 0,
+      tableCount: normalizeTableCount(input.tableCount),
     },
   });
 

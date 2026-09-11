@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatBRL } from "@/lib/money";
+import { cn } from "@/lib/utils";
 
 type Product = { id: string; name: string; priceCents: number; promotionalPriceCents: number | null; kind: string; active?: boolean };
 type Size = { id: string; name: string; maxFlavors: number };
@@ -16,6 +17,8 @@ export function StaffOrderForm({
   flavors,
   crusts,
   tableNumber,
+  availableTables,
+  saleMode,
   error,
   ok,
 }: {
@@ -25,37 +28,91 @@ export function StaffOrderForm({
   flavors: Flavor[];
   crusts: Crust[];
   tableNumber?: string;
+  availableTables?: string[];
+  saleMode?: "new" | "add" | "counter";
   error?: string;
   ok?: string;
 }) {
   const action = mode === "waiter" ? createWaiterOrderAction : createCashierOrderAction;
   const simple = products.filter((product) => product.kind !== "PIZZA" && product.active !== false);
   const availableFlavors = flavors.filter((flavor) => flavor.active !== false);
+  const cashierSale = saleMode ?? (tableNumber ? "add" : "counter");
+  const submitLabel =
+    mode === "waiter"
+      ? "Enviar para a cozinha"
+      : cashierSale === "add"
+        ? "Lançar na mesa"
+        : cashierSale === "new"
+          ? "Abrir venda"
+          : "Lançar no balcão";
 
   return (
     <form action={action} method="post" className="grid gap-5">
       <input type="hidden" name="idempotencyKey" value={crypto.randomUUID()} />
       {error ? <p className="rounded-lg bg-destructive/15 px-3 py-2 text-sm text-destructive">{error}</p> : null}
-      {ok ? <p className="rounded-lg bg-primary/15 px-3 py-2 text-sm">Comanda #{ok} enviada.</p> : null}
+      {ok ? <p className="rounded-lg bg-primary/15 px-3 py-2 text-sm">Comanda #{ok} atualizada.</p> : null}
 
       {mode === "waiter" ? (
         <div className="grid gap-2">
           <Label htmlFor="tableNumber">Mesa</Label>
-          <Input id="tableNumber" name="tableNumber" inputMode="numeric" placeholder="7" required className="h-12 text-lg" />
+          {availableTables && availableTables.length > 0 ? (
+            <select
+              id="tableNumber"
+              name="tableNumber"
+              required
+              defaultValue={tableNumber ?? ""}
+              className="h-12 rounded-lg border bg-background px-3 text-lg"
+            >
+              <option value="" disabled>
+                Escolha a mesa
+              </option>
+              {availableTables.map((number) => (
+                <option key={number} value={number}>
+                  Mesa {number}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <Input id="tableNumber" name="tableNumber" inputMode="numeric" placeholder="7" required className="h-12 text-lg" />
+          )}
         </div>
+      ) : cashierSale === "new" ? (
+        <fieldset className="grid gap-3">
+          <legend className="text-sm font-medium">Mesa disponível para o cliente</legend>
+          {availableTables && availableTables.length > 0 ? (
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+              {availableTables.map((number) => (
+                <label
+                  key={number}
+                  className={cn(
+                    "relative grid min-h-16 cursor-pointer place-items-center rounded-xl border border-zinc-700 bg-zinc-900 text-lg font-heading has-[:checked]:border-orange-400 has-[:checked]:bg-orange-500/20 has-[:checked]:text-orange-100",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="tableNumber"
+                    value={number}
+                    defaultChecked={tableNumber === number}
+                    required
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                  />
+                  {number}
+                </label>
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-lg border border-orange-400/30 bg-orange-500/10 px-3 py-2 text-sm">
+              Não há mesa livre agora. Quite uma ocupada para abrir venda no salão, ou use o balcão.
+            </p>
+          )}
+        </fieldset>
+      ) : cashierSale === "add" ? (
+        <input type="hidden" name="tableNumber" value={tableNumber} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {tableNumber ? <input type="hidden" name="tableNumber" value={tableNumber} /> : null}
           <div className="grid gap-2">
-            <Label htmlFor="customerName">{tableNumber ? "Mesa" : "Cliente"}</Label>
-            <Input
-              id="customerName"
-              name="customerName"
-              placeholder={tableNumber ? `Mesa ${tableNumber}` : "Balcão"}
-              defaultValue={tableNumber ? `Mesa ${tableNumber}` : ""}
-              className="h-12"
-              readOnly={Boolean(tableNumber)}
-            />
+            <Label htmlFor="customerName">Cliente</Label>
+            <Input id="customerName" name="customerName" placeholder="Balcão" className="h-12" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="paymentMethod">Pagamento</Label>
@@ -68,8 +125,19 @@ export function StaffOrderForm({
         </div>
       )}
 
+      {mode === "cashier" && cashierSale === "new" ? (
+        <div className="grid gap-2">
+          <Label htmlFor="paymentMethod">Pagamento</Label>
+          <select id="paymentMethod" name="paymentMethod" className="h-12 rounded-lg border bg-background px-3">
+            <option value="CASH">Dinheiro</option>
+            <option value="PIX">PIX</option>
+            <option value="CARD">Cartão</option>
+          </select>
+        </div>
+      ) : null}
+
       <section className="grid gap-3">
-        <h2 className="text-lg font-semibold">Cardápio</h2>
+        <h2 className="text-lg font-semibold">{cashierSale === "add" ? "Lançar mais itens" : "Cardápio"}</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           {simple.map((product) => (
             <label key={product.id} className="flex items-center justify-between gap-3 rounded-xl border bg-card p-4">
@@ -124,8 +192,13 @@ export function StaffOrderForm({
         <Input id="notes" name="notes" className="h-12" />
       </div>
 
-      <Button type="submit" size="lg" className="h-14 text-base">
-        {mode === "waiter" ? "Enviar para a cozinha" : "Lançar no caixa"}
+      <Button
+        type="submit"
+        size="lg"
+        className="h-14 text-base"
+        disabled={cashierSale === "new" && (!availableTables || availableTables.length === 0)}
+      >
+        {submitLabel}
       </Button>
     </form>
   );

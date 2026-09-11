@@ -178,6 +178,7 @@ model Tenant {
   secondaryColor          String           @default("#1C1917")
   estimatedMinutes        Int              @default(40)
   minimumOrderCents       Int              @default(0)
+  tableCount              Int              @default(16)
   onboardingStep          Int              @default(1)
   onboardingCompletedAt   DateTime?
   customDomain            String?          @unique

@@ -10,6 +10,7 @@ export const CENTRAL_MENU = {
     neighborhood: "da Velha",
     estimatedMinutes: 40,
     minimumOrderCents: 0,
+    tableCount: 16,
     primaryColor: "#1a1a1a",
     logoUrl: "/tenants/central-da-pizza/logo.png",
   },

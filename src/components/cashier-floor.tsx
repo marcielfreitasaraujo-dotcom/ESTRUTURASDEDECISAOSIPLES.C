@@ -10,9 +10,11 @@ function Chair({ className }: { className: string }) {
 export function CashierFloor({
   tables,
   selected,
+  view,
 }: {
   tables: FloorTable[];
   selected?: string;
+  view?: "home" | "new-sale" | "open-table";
 }) {
   const free = tables.filter((table) => table.status === "free").length;
   const busy = tables.length - free;
@@ -24,27 +26,36 @@ export function CashierFloor({
           <p className="text-sm text-orange-400">Salão</p>
           <h2 className="font-heading text-2xl">Mesas</h2>
         </div>
-        <ul className="flex flex-wrap gap-3 text-xs text-zinc-400">
-          <li className="flex items-center gap-2">
-            <span className="size-2.5 rounded-full bg-zinc-600" />
-            Livre · {free}
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="size-2.5 rounded-full bg-orange-500" />
-            Ocupada · {busy}
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="size-2.5 rounded-full bg-orange-300" />
-            A receber
-          </li>
-        </ul>
+        <div className="flex flex-wrap items-center gap-3">
+          <ul className="flex flex-wrap gap-3 text-xs text-zinc-400">
+            <li className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-zinc-600" />
+              Livre · {free}
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full bg-orange-500" />
+              Ocupada · {busy}
+            </li>
+          </ul>
+          <Link
+            href="/caixa?venda=1"
+            className={cn(
+              "rounded-full border px-4 py-2 text-sm font-medium transition",
+              view === "new-sale"
+                ? "border-orange-400 bg-orange-500 text-zinc-950"
+                : "border-orange-500/40 bg-orange-500/10 text-orange-100 hover:bg-orange-500/20",
+            )}
+          >
+            Nova venda
+          </Link>
+        </div>
       </div>
       <div className="grid grid-cols-4 gap-3 sm:grid-cols-5 md:grid-cols-8">
         <Link
           href="/caixa"
           className={cn(
             "grid min-h-24 place-items-center rounded-2xl border text-sm font-medium transition",
-            selected
+            selected || view === "new-sale"
               ? "border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-500"
               : "border-orange-500/40 bg-orange-500/10 text-orange-200",
           )}
@@ -54,20 +65,16 @@ export function CashierFloor({
         {tables.map((table) => {
           const active = selected === table.number;
           const occupied = table.status !== "free";
-          const bill = table.status === "bill";
           return (
             <Link
               key={table.number}
-              href={`/caixa?mesa=${table.number}`}
+              href={occupied ? `/caixa?mesa=${table.number}` : `/caixa?venda=1&mesa=${table.number}`}
               aria-label={`Mesa ${table.number}${occupied ? ", ocupada" : ", livre"}`}
               className={cn(
                 "relative grid min-h-24 place-items-center rounded-2xl border transition",
                 occupied
-                  ? bill
-                    ? "border-orange-300 bg-orange-500/35 text-orange-100"
-                    : "border-orange-500 bg-orange-500/20 text-orange-300"
+                  ? "border-orange-500 bg-orange-500/30 text-orange-100 shadow-[0_0_22px_rgba(249,115,22,0.22)]"
                   : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-600",
-                occupied && "shadow-[0_0_22px_rgba(249,115,22,0.22)]",
                 active && "ring-2 ring-orange-200 ring-offset-2 ring-offset-zinc-950",
               )}
             >
@@ -80,7 +87,7 @@ export function CashierFloor({
               </span>
               {table.order ? (
                 <span className="absolute bottom-1.5 text-[10px] text-current/80">
-                  {bill ? "A receber" : formatBRL(table.order.totalCents)}
+                  {table.status === "bill" ? "A receber" : formatBRL(table.order.totalCents)}
                 </span>
               ) : null}
             </Link>

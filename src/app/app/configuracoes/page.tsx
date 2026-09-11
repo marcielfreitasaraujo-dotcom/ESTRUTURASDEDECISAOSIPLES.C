@@ -74,6 +74,19 @@ export default async function SettingsPage() {
               disabled={!canWrite}
             />
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="tableCount">Mesas no salão</Label>
+            <Input
+              id="tableCount"
+              name="tableCount"
+              type="number"
+              min={1}
+              max={80}
+              defaultValue={tenant.tableCount}
+              disabled={!canWrite}
+            />
+            <p className="text-xs text-muted-foreground">O caixa mostra essas mesas no PDV. Livre numa cor, ocupada em outra.</p>
+          </div>
         </div>
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium">Pagamentos aceitos</legend>

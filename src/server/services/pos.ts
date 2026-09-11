@@ -2,8 +2,9 @@ import { prisma } from "@/lib/db";
 import { ConflictError, NotFoundError } from "@/lib/errors";
 import { quotePizza } from "@/domain/catalog/pizza-pricing";
 import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
+import { assertSalonTableNumber, normalizeTableCount } from "@/domain/floor/tables";
 import { writeAudit } from "@/server/audit";
-import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
+import type { FulfillmentType, OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
 
 export type StaffOrderItemInput =
   | { kind: "PRODUCT"; productId: string; quantity: number; notes?: string }
@@ -17,38 +18,31 @@ export type StaffOrderItemInput =
       notes?: string;
     };
 
-export async function createStaffOrder(input: {
-  tenantId: string;
-  userId: string;
-  idempotencyKey: string;
-  tableNumber?: string;
-  customerName: string;
-  customerPhone?: string;
-  fulfillment: Extract<FulfillmentType, "DINE_IN" | "PICKUP">;
-  paymentMethod: PaymentMethod;
+type StaffOrderLine = {
+  productId: string | null;
+  name: string;
+  quantity: number;
+  unitPriceCents: number;
   notes?: string;
-  items: StaffOrderItemInput[];
-  confirmImmediately?: boolean;
-}) {
-  const existing = await prisma.order.findUnique({
-    where: { tenantId_idempotencyKey: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey } },
+  customization?: Prisma.InputJsonValue;
+};
+
+export async function getTenantTableCount(tenantId: string) {
+  const tenant = await prisma.tenant.findUniqueOrThrow({
+    where: { id: tenantId },
+    select: { tableCount: true },
   });
-  if (existing) return existing;
+  return normalizeTableCount(tenant.tableCount);
+}
 
-  const lines: {
-    productId: string | null;
-    name: string;
-    quantity: number;
-    unitPriceCents: number;
-    notes?: string;
-    customization?: Prisma.InputJsonValue;
-  }[] = [];
+async function buildStaffOrderLines(tenantId: string, items: StaffOrderItemInput[]): Promise<StaffOrderLine[]> {
+  const lines: StaffOrderLine[] = [];
 
-  for (const item of input.items) {
+  for (const item of items) {
     if (item.quantity < 1) continue;
     if (item.kind === "PRODUCT") {
       const product = await prisma.product.findFirst({
-        where: { id: item.productId, tenantId: input.tenantId, active: true, archived: false },
+        where: { id: item.productId, tenantId, active: true, archived: false },
       });
       if (!product) throw new NotFoundError("Produto não encontrado.");
       const unitPriceCents = product.promotionalPriceCents ?? product.priceCents;
@@ -63,20 +57,20 @@ export async function createStaffOrder(input: {
     }
 
     const size = await prisma.pizzaSize.findFirst({
-      where: { id: item.sizeId, tenantId: input.tenantId, active: true },
+      where: { id: item.sizeId, tenantId, active: true },
       include: { flavorPrices: true },
     });
     if (!size) throw new NotFoundError("Tamanho não encontrado.");
     const flavors = await prisma.pizzaFlavor.findMany({
-      where: { id: { in: item.flavorIds }, tenantId: input.tenantId, active: true },
+      where: { id: { in: item.flavorIds }, tenantId, active: true },
       include: { prices: true },
     });
     if (flavors.length === 0) throw new Error("Selecione ao menos um sabor.");
     const crust = item.crustId
-      ? await prisma.crust.findFirst({ where: { id: item.crustId, tenantId: input.tenantId, active: true } })
+      ? await prisma.crust.findFirst({ where: { id: item.crustId, tenantId, active: true } })
       : null;
     const addons = item.addonIds?.length
-      ? await prisma.addon.findMany({ where: { id: { in: item.addonIds }, tenantId: input.tenantId, active: true } })
+      ? await prisma.addon.findMany({ where: { id: { in: item.addonIds }, tenantId, active: true } })
       : [];
     const quote = quotePizza({
       sizeName: size.name,
@@ -102,6 +96,41 @@ export async function createStaffOrder(input: {
   }
 
   if (lines.length === 0) throw new Error("Inclua ao menos um item na comanda.");
+  return lines;
+}
+
+export async function findOpenTableOrder(tenantId: string, tableNumber: string) {
+  const open = await prisma.order.findMany({
+    where: {
+      tenantId,
+      tableNumber,
+      status: { notIn: ["DELIVERED", "CANCELLED"] },
+    },
+    include: { items: true, payments: true },
+    orderBy: { createdAt: "asc" },
+  });
+  return open.find((order) => order.paymentStatus !== "PAID") ?? open[0] ?? null;
+}
+
+export async function createStaffOrder(input: {
+  tenantId: string;
+  userId: string;
+  idempotencyKey: string;
+  tableNumber?: string;
+  customerName: string;
+  customerPhone?: string;
+  fulfillment: Extract<FulfillmentType, "DINE_IN" | "PICKUP">;
+  paymentMethod: PaymentMethod;
+  notes?: string;
+  items: StaffOrderItemInput[];
+  confirmImmediately?: boolean;
+}) {
+  const existing = await prisma.order.findUnique({
+    where: { tenantId_idempotencyKey: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey } },
+  });
+  if (existing) return existing;
+
+  const lines = await buildStaffOrderLines(input.tenantId, input.items);
 
   const totals = calculateCheckoutTotals({
     items: lines.map((line) => ({
@@ -197,6 +226,181 @@ export async function createStaffOrder(input: {
     metadata: { number: order.number, tableNumber: input.tableNumber, source: "staff" },
   });
   return order;
+}
+
+export async function addItemsToOpenOrder(input: {
+  tenantId: string;
+  userId: string;
+  orderId: string;
+  items: StaffOrderItemInput[];
+  notes?: string;
+}) {
+  const order = await prisma.order.findFirst({
+    where: { id: input.orderId, tenantId: input.tenantId, status: { notIn: ["DELIVERED", "CANCELLED"] } },
+    include: { items: true },
+  });
+  if (!order) throw new NotFoundError("Comanda da mesa não encontrada.");
+
+  const added = await buildStaffOrderLines(input.tenantId, input.items);
+  const mergedItems = [
+    ...order.items.map((item) => ({
+      name: item.name,
+      unitPriceCents: item.unitPriceCents,
+      quantity: item.quantity,
+    })),
+    ...added.map((line) => ({
+      name: line.name,
+      unitPriceCents: line.unitPriceCents,
+      quantity: line.quantity,
+    })),
+  ];
+  const totals = calculateCheckoutTotals({
+    items: mergedItems,
+    discountCents: order.discountCents,
+    deliveryFeeCents: order.deliveryFeeCents,
+  });
+
+  const reopenKitchen = order.status === "READY" || order.status === "OUT_FOR_DELIVERY";
+  const nextStatus: OrderStatus = reopenKitchen ? "CONFIRMED" : order.status;
+
+  const updated = await prisma.$transaction(async (tx) => {
+    await tx.orderItem.createMany({
+      data: added.map((line) => ({
+        tenantId: input.tenantId,
+        orderId: order.id,
+        productId: line.productId,
+        name: line.name,
+        quantity: line.quantity,
+        unitPriceCents: line.unitPriceCents,
+        totalCents: line.unitPriceCents * line.quantity,
+        notes: line.notes,
+        customization: line.customization,
+      })),
+    });
+    const next = await tx.order.update({
+      where: { id: order.id },
+      data: {
+        subtotalCents: totals.subtotalCents,
+        totalCents: totals.totalCents,
+        paymentStatus: "PENDING",
+        notes: [order.notes, input.notes].filter(Boolean).join(" · ") || order.notes,
+        status: nextStatus,
+        confirmedAt: order.confirmedAt ?? new Date(),
+      },
+    });
+    await tx.payment.updateMany({
+      where: { orderId: order.id, tenantId: input.tenantId },
+      data: { status: "PENDING", amountCents: totals.totalCents },
+    });
+    if (reopenKitchen) {
+      await tx.orderStatusHistory.create({
+        data: {
+          tenantId: input.tenantId,
+          orderId: order.id,
+          fromStatus: order.status,
+          toStatus: nextStatus,
+          changedById: input.userId,
+        },
+      });
+    }
+    return next;
+  });
+
+  await writeAudit({
+    action: "UPDATE",
+    entity: "Order",
+    entityId: order.id,
+    tenantId: input.tenantId,
+    userId: input.userId,
+    metadata: { addedItems: added.length, tableNumber: order.tableNumber, source: "staff-add" },
+  });
+  return updated;
+}
+
+export async function openOrAppendTableSale(input: {
+  tenantId: string;
+  userId: string;
+  idempotencyKey: string;
+  tableNumber: string;
+  customerName?: string;
+  customerPhone?: string;
+  paymentMethod: PaymentMethod;
+  notes?: string;
+  items: StaffOrderItemInput[];
+}) {
+  const tableCount = await getTenantTableCount(input.tenantId);
+  const tableNumber = assertSalonTableNumber(input.tableNumber, tableCount);
+  const open = await findOpenTableOrder(input.tenantId, tableNumber);
+  if (open) {
+    return addItemsToOpenOrder({
+      tenantId: input.tenantId,
+      userId: input.userId,
+      orderId: open.id,
+      items: input.items,
+      notes: input.notes,
+    });
+  }
+  return createStaffOrder({
+    tenantId: input.tenantId,
+    userId: input.userId,
+    idempotencyKey: input.idempotencyKey,
+    tableNumber,
+    customerName: input.customerName?.trim() || `Mesa ${tableNumber}`,
+    customerPhone: input.customerPhone,
+    fulfillment: "DINE_IN",
+    paymentMethod: input.paymentMethod,
+    notes: input.notes,
+    items: input.items,
+    confirmImmediately: true,
+  });
+}
+
+export async function settleTableOrders(input: { tenantId: string; userId: string; tableNumber: string }) {
+  const tableCount = await getTenantTableCount(input.tenantId);
+  const tableNumber = assertSalonTableNumber(input.tableNumber, tableCount);
+  const open = await prisma.order.findMany({
+    where: {
+      tenantId: input.tenantId,
+      tableNumber,
+      status: { notIn: ["DELIVERED", "CANCELLED"] },
+    },
+  });
+  if (open.length === 0) throw new ConflictError("Essa mesa já está livre.");
+
+  await prisma.$transaction(async (tx) => {
+    for (const order of open) {
+      await tx.order.update({
+        where: { id: order.id },
+        data: {
+          paymentStatus: "PAID",
+          status: "DELIVERED",
+          deliveredAt: new Date(),
+        },
+      });
+      await tx.payment.updateMany({
+        where: { orderId: order.id, tenantId: input.tenantId },
+        data: { status: "PAID" },
+      });
+      await tx.orderStatusHistory.create({
+        data: {
+          tenantId: input.tenantId,
+          orderId: order.id,
+          fromStatus: order.status,
+          toStatus: "DELIVERED",
+          changedById: input.userId,
+        },
+      });
+    }
+  });
+
+  await writeAudit({
+    action: "UPDATE",
+    entity: "Order",
+    tenantId: input.tenantId,
+    userId: input.userId,
+    metadata: { tableNumber, settled: open.length, source: "cashier-settle" },
+  });
+  return open.length;
 }
 
 export async function markOrderPaid(input: { tenantId: string; orderId: string; userId: string }) {

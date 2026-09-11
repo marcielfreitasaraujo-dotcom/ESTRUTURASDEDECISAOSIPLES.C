@@ -123,10 +123,13 @@ export async function saveStoreAction(formData: FormData) {
     state: String(formData.get("state") || "") || undefined,
     estimatedMinutes: Number(formData.get("estimatedMinutes") || 40),
     minimumOrderCents: Math.round(Number(formData.get("minimumOrder") || 0) * 100),
+    tableCount: Number(formData.get("tableCount") || 16),
     hours,
     methods,
   });
   revalidateOps();
+  revalidatePath("/caixa");
+  revalidatePath("/garcom");
 }
 
 export async function saveZoneAction(formData: FormData) {

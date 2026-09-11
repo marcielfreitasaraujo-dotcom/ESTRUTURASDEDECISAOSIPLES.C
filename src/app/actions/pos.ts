@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireTenantPermission } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
-import { createStaffOrder, markOrderPaid, closeCashRegister } from "@/server/services/pos";
+import { createStaffOrder, markOrderPaid, closeCashRegister, openOrAppendTableSale, settleTableOrders } from "@/server/services/pos";
 import { setProductStock } from "@/server/services/catalog";
 import { publicErrorMessage } from "@/lib/errors";
 import type { StaffOrderItemInput } from "@/server/services/pos";
@@ -40,17 +40,15 @@ export async function createWaiterOrderAction(formData: FormData) {
   let publicCode = "";
   try {
     const ctx = await requireTenantPermission(PERMISSIONS.ORDER_CREATE);
-    const order = await createStaffOrder({
+    const order = await openOrAppendTableSale({
       tenantId: ctx.tenantId,
       userId: ctx.userId,
       idempotencyKey: String(formData.get("idempotencyKey") || crypto.randomUUID()),
       tableNumber,
       customerName: `Mesa ${tableNumber}`,
-      fulfillment: "DINE_IN",
       paymentMethod: "CASH",
       notes: String(formData.get("notes") || "") || undefined,
       items: collectItems(formData),
-      confirmImmediately: true,
     });
     publicCode = order.publicCode;
     revalidatePath("/garcom");
@@ -71,19 +69,30 @@ export async function createCashierOrderAction(formData: FormData) {
   let publicCode = "";
   try {
     const ctx = await requireTenantPermission(PERMISSIONS.ORDER_CREATE);
-    const order = await createStaffOrder({
-      tenantId: ctx.tenantId,
-      userId: ctx.userId,
-      idempotencyKey: String(formData.get("idempotencyKey") || crypto.randomUUID()),
-      tableNumber: tableNumber || undefined,
-      customerName,
-      customerPhone: String(formData.get("customerPhone") || "00000000"),
-      fulfillment: tableNumber ? "DINE_IN" : "PICKUP",
-      paymentMethod: (String(formData.get("paymentMethod") || "CASH") as "PIX" | "CASH" | "CARD") || "CASH",
-      notes: String(formData.get("notes") || "") || undefined,
-      items: collectItems(formData),
-      confirmImmediately: true,
-    });
+    const order = tableNumber
+      ? await openOrAppendTableSale({
+          tenantId: ctx.tenantId,
+          userId: ctx.userId,
+          idempotencyKey: String(formData.get("idempotencyKey") || crypto.randomUUID()),
+          tableNumber,
+          customerName,
+          customerPhone: String(formData.get("customerPhone") || "00000000"),
+          paymentMethod: (String(formData.get("paymentMethod") || "CASH") as "PIX" | "CASH" | "CARD") || "CASH",
+          notes: String(formData.get("notes") || "") || undefined,
+          items: collectItems(formData),
+        })
+      : await createStaffOrder({
+          tenantId: ctx.tenantId,
+          userId: ctx.userId,
+          idempotencyKey: String(formData.get("idempotencyKey") || crypto.randomUUID()),
+          customerName,
+          customerPhone: String(formData.get("customerPhone") || "00000000"),
+          fulfillment: "PICKUP",
+          paymentMethod: (String(formData.get("paymentMethod") || "CASH") as "PIX" | "CASH" | "CARD") || "CASH",
+          notes: String(formData.get("notes") || "") || undefined,
+          items: collectItems(formData),
+          confirmImmediately: true,
+        });
     publicCode = order.publicCode;
     revalidatePath("/caixa");
     revalidatePath("/app/pedidos");
@@ -92,6 +101,23 @@ export async function createCashierOrderAction(formData: FormData) {
     redirect(`/caixa?error=${encodeURIComponent(publicErrorMessage(error).message)}${mesaQuery}`);
   }
   redirect(`/caixa?ok=${publicCode}${mesaQuery}`);
+}
+
+export async function settleTableAction(formData: FormData) {
+  const tableNumber = String(formData.get("tableNumber") || "").trim();
+  try {
+    const ctx = await requireTenantPermission(PERMISSIONS.ORDER_UPDATE);
+    await settleTableOrders({ tenantId: ctx.tenantId, userId: ctx.userId, tableNumber });
+    revalidatePath("/caixa");
+    revalidatePath("/garcom");
+    revalidatePath("/app/pedidos");
+    revalidatePath("/app/cozinha");
+  } catch (error) {
+    redirect(
+      `/caixa?error=${encodeURIComponent(publicErrorMessage(error).message)}&mesa=${encodeURIComponent(tableNumber)}`,
+    );
+  }
+  redirect("/caixa?ok=quitada");
 }
 
 export async function markOrderPaidAction(formData: FormData) {
