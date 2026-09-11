@@ -13,13 +13,25 @@ export function proxy(request: NextRequest) {
   if (needsAuth && !sessionCookie) {
     const login = NextResponse.redirect(new URL("/entrar", request.url));
     login.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+    login.headers.set("Pragma", "no-cache");
     return login;
   }
   const response = NextResponse.next();
   response.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+  response.headers.set("Pragma", "no-cache");
   return response;
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/admin/:path*", "/garcom/:path*", "/caixa/:path*", "/entrega/:path*"],
+  matcher: [
+    "/app/:path*",
+    "/admin/:path*",
+    "/garcom/:path*",
+    "/caixa/:path*",
+    "/entrega/:path*",
+    "/entrar",
+    "/loja/:path*",
+    "/sw.js",
+    "/api/version",
+  ],
 };
