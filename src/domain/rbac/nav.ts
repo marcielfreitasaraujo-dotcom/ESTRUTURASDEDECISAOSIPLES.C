@@ -242,9 +242,18 @@ export function mobileTabNav(input: {
   if (input.surface === "admin") {
     return uniqueNav(input.items).slice(0, 4);
   }
-  const preferred = ["/app", "/app/pedidos", "/app/salao", "/caixa", "/app/equipe"];
+  const preferred = [
+    { href: "/app", label: "Início" },
+    { href: "/app/pedidos", label: "Pedidos" },
+    { href: "/app/salao", label: "Mesas" },
+    { href: "/caixa", label: "PDV" },
+    { href: "/app/equipe", label: "Equipe" },
+  ];
   const flat = uniqueNav(input.groups?.flatMap((group) => group.items) ?? input.items);
   return preferred
-    .map((href) => flat.find((item) => item.href === href))
+    .map((tab) => {
+      const match = flat.find((item) => item.href === tab.href);
+      return match ? { ...match, label: tab.label } : null;
+    })
     .filter((item): item is NavItem => Boolean(item));
 }

@@ -12,7 +12,7 @@ export default async function EntregaPedidosPage() {
     <div className="grid gap-4">
       <div>
         <h1 className="text-2xl font-semibold md:text-3xl">Pedidos</h1>
-        <p className="text-sm text-muted-foreground">Acompanhe a fila sem sair da tela de entrega. Use Voltar no topo.</p>
+        <p className="text-sm text-muted-foreground">Deslize as colunas. Voltar no topo volta para a fila.</p>
       </div>
       {orders.length === 0 ? (
         <EmptyState title="Nenhum pedido aberto" description="Os pedidos da loja aparecem aqui." />

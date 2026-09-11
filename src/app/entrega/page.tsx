@@ -16,7 +16,7 @@ export default async function EntregaPage() {
       <div>
         <p className="text-sm text-primary">Entrega</p>
         <h1 className="text-2xl font-semibold md:text-3xl">Fila do motoboy</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Toque no pedido para ver o endereço. Voltar fica no topo.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Toque no pedido para ver o endereço e os itens.</p>
       </div>
       <section className="grid gap-3">
         <h2 className="text-lg font-semibold">Prontos para sair</h2>

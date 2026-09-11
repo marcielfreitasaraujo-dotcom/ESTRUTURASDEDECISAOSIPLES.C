@@ -166,9 +166,19 @@ export function AppShell({
             <div className="min-w-0 md:hidden">
               <Brand compact href={homeHref} />
             </div>
-            {enableOpsChrome ? <OpsSearch /> : <div className="min-w-0 flex-1" />}
+            {enableOpsChrome ? (
+              <div className="hidden min-w-0 flex-1 md:block">
+                <OpsSearch />
+              </div>
+            ) : (
+              <div className="min-w-0 flex-1" />
+            )}
             <div className="ml-auto flex min-w-0 items-center gap-1 text-sm sm:gap-2">
-              {enableOpsChrome ? <OpsNotifications /> : null}
+              {enableOpsChrome ? (
+                <div className="hidden sm:block">
+                  <OpsNotifications />
+                </div>
+              ) : null}
               <div className="hidden min-w-0 items-center gap-2 sm:flex">
                 <Avatar size="sm">
                   <AvatarFallback>{initials(userName)}</AvatarFallback>
