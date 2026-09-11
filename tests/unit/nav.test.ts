@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { navForUser } from "@/domain/rbac/nav";
+import { mobileTabNav, navForUser, navItemActive } from "@/domain/rbac/nav";
 
 function hrefs(role: Parameters<typeof navForUser>[0]["tenantRole"]) {
   return navForUser({ platformRole: "USER", tenantRole: role, surface: "app" }).map((item) => item.href);
@@ -69,5 +69,24 @@ describe("navForUser", () => {
       "/app",
       "/caixa",
     ]);
+  });
+
+  it("mantém o motoboy na fila e nos pedidos sem sair do celular", () => {
+    const links = navForUser({ platformRole: "USER", tenantRole: "DELIVERY", surface: "entrega" }).map(
+      (item) => item.href,
+    );
+    expect(links).toEqual(["/entrega", "/entrega/pedidos"]);
+    expect(mobileTabNav({ surface: "entrega", items: [] }).map((item) => item.href)).toEqual([
+      "/entrega",
+      "/entrega/pedidos",
+    ]);
+  });
+
+  it("marca só a rota certa como ativa", () => {
+    expect(navItemActive("/entrega", "/entrega")).toBe(true);
+    expect(navItemActive("/entrega/pedidos", "/entrega")).toBe(false);
+    expect(navItemActive("/caixa/pdv", "/caixa")).toBe(false);
+    expect(navItemActive("/caixa/pdv", "/caixa/pdv")).toBe(true);
+    expect(navItemActive("/app/pedidos", "/app")).toBe(false);
   });
 });

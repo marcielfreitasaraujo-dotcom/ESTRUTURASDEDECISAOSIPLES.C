@@ -25,9 +25,9 @@ const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
 
 export function OrdersKanban({ orders }: { orders: OrderCard[] }) {
   return (
-    <div className="grid gap-4 lg:grid-cols-3 xl:grid-cols-6">
+    <div className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-2 snap-x snap-mandatory md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-6">
       {KANBAN_COLUMNS.map((column) => (
-        <section key={column.key} className="rounded-xl bg-muted/40 p-3">
+        <section key={column.key} className="min-w-[16.5rem] snap-start rounded-xl bg-muted/40 p-3 md:min-w-0">
           <h2 className="mb-3 text-sm font-medium">{column.title}</h2>
           <div className="grid gap-3">
             {orders

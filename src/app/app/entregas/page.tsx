@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { hasPermission, isPlatformAdmin } from "@/domain/rbac/roles";
@@ -19,9 +20,14 @@ export default async function EntregasOpsPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Entregas</h1>
-        <p className="text-sm text-muted-foreground">Zonas de taxa e cadastro de motoboys da loja.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold md:text-3xl">Entregas</h1>
+          <p className="text-sm text-muted-foreground">Zonas de taxa e cadastro de motoboys da loja.</p>
+        </div>
+        <Button asChild>
+          <Link href="/entrega">Fila do motoboy</Link>
+        </Button>
       </div>
       {canWrite ? (
         <div className="grid gap-6 lg:grid-cols-2">

@@ -107,7 +107,7 @@ export function PwaRefresh() {
   if (!banner) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-[90] border-t border-orange-500/50 bg-zinc-950 px-4 py-3 text-center text-sm text-white shadow-2xl">
+    <div className="fixed inset-x-0 bottom-0 z-[90] border-t border-orange-500/50 bg-zinc-950 px-4 py-3 text-center text-sm text-white shadow-2xl" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
       <p className="font-medium">Nova versão do Comanda IA.</p>
       <p className="mt-1 text-zinc-400">Atualizando o atalho deste aparelho. Não precisa apagar o ícone.</p>
       <button

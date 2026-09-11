@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PLATFORM_ROLES, TENANT_ROLES } from "@/domain/rbac/roles";
 import { PLATFORM_ROLE_LABELS, TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
 import { STAFF_LOGINS } from "@/domain/auth/staff-logins";
+import { nativeSelectClass } from "@/lib/field";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -87,7 +88,7 @@ export default async function AdminUsersPage({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="new-user-platform-role">Papel na plataforma</Label>
-              <select id="new-user-platform-role" name="platformRole" defaultValue="USER" className="h-8 rounded-lg border bg-background px-2 text-sm">
+              <select id="new-user-platform-role" name="platformRole" defaultValue="USER" className={nativeSelectClass}>
                 {PLATFORM_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {PLATFORM_ROLE_LABELS[role] ?? role}
@@ -97,7 +98,7 @@ export default async function AdminUsersPage({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="new-user-tenant">Loja (opcional)</Label>
-              <select id="new-user-tenant" name="tenantId" className="h-8 rounded-lg border bg-background px-2 text-sm">
+              <select id="new-user-tenant" name="tenantId" className={nativeSelectClass}>
                 <option value="">Sem loja</option>
                 {tenants.map((tenant) => (
                   <option key={tenant.id} value={tenant.id}>
@@ -108,7 +109,7 @@ export default async function AdminUsersPage({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="new-user-tenant-role">Papel na loja</Label>
-              <select id="new-user-tenant-role" name="tenantRole" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
+              <select id="new-user-tenant-role" name="tenantRole" defaultValue="STAFF" className={nativeSelectClass}>
                 {TENANT_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {TENANT_ROLE_LABELS[role] ?? role}
@@ -132,13 +133,13 @@ export default async function AdminUsersPage({
                 {PLATFORM_ROLE_LABELS[user.platformRole] ?? user.platformRole}
               </Badge>
             </div>
-            <form action={updatePlatformUserAction} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+            <form action={updatePlatformUserAction} className="grid gap-3 sm:grid-cols-2">
               <input type="hidden" name="userId" value={user.id} />
               <Input name="name" defaultValue={user.name} required aria-label="Nome" />
               <Input name="email" type="email" defaultValue={user.email} required aria-label="E-mail" />
               <Input name="username" defaultValue={user.username ?? ""} placeholder="Usuário" aria-label="Usuário" />
               <Input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="Nova senha (opcional)" aria-label="Nova senha" />
-              <select name="platformRole" defaultValue={user.platformRole} className="h-8 rounded-lg border bg-background px-2 text-sm" aria-label="Papel na plataforma">
+              <select name="platformRole" defaultValue={user.platformRole} className={nativeSelectClass} aria-label="Papel na plataforma">
                 {PLATFORM_ROLES.map((role) => (
                   <option key={role} value={role}>
                     {PLATFORM_ROLE_LABELS[role] ?? role}
@@ -158,7 +159,7 @@ export default async function AdminUsersPage({
                   <form action={upsertUserMembershipAction} className="flex flex-wrap items-center gap-2">
                     <input type="hidden" name="userId" value={user.id} />
                     <input type="hidden" name="tenantId" value={membership.tenantId} />
-                    <select name="role" defaultValue={membership.role} className="h-8 rounded-lg border bg-background px-2 text-sm">
+                    <select name="role" defaultValue={membership.role} className={nativeSelectClass}>
                       {TENANT_ROLES.map((role) => (
                         <option key={role} value={role}>
                           {TENANT_ROLE_LABELS[role] ?? role}
@@ -177,16 +178,16 @@ export default async function AdminUsersPage({
                   </form>
                 </div>
               ))}
-              <form action={upsertUserMembershipAction} className="flex flex-wrap items-end gap-2">
+              <form action={upsertUserMembershipAction} className="grid gap-2 sm:grid-cols-2">
                 <input type="hidden" name="userId" value={user.id} />
-                <select name="tenantId" className="h-8 rounded-lg border bg-background px-2 text-sm" required>
+                <select name="tenantId" className={nativeSelectClass} required>
                   {tenants.map((tenant) => (
                     <option key={tenant.id} value={tenant.id}>
                       {tenant.name}
                     </option>
                   ))}
                 </select>
-                <select name="role" defaultValue="STAFF" className="h-8 rounded-lg border bg-background px-2 text-sm">
+                <select name="role" defaultValue="STAFF" className={nativeSelectClass}>
                   {TENANT_ROLES.map((role) => (
                     <option key={role} value={role}>
                       {TENANT_ROLE_LABELS[role] ?? role}

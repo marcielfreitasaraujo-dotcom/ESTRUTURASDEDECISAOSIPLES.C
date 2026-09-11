@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { nativeSelectClass } from "@/lib/field";
 
 export default async function TeamPage({
   searchParams,
@@ -65,7 +66,7 @@ export default async function TeamPage({
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="new-member-role">Papel</Label>
-                <select id="new-member-role" name="role" defaultValue="CASHIER" className="h-8 rounded-lg border bg-background px-2 text-sm">
+                <select id="new-member-role" name="role" defaultValue="CASHIER" className={nativeSelectClass}>
                   {roles.map((role) => (
                     <option key={role} value={role}>
                       {TENANT_ROLE_LABELS[role] ?? role}
@@ -97,13 +98,13 @@ export default async function TeamPage({
             <article key={member.id} className="rounded-xl border bg-card p-4">
               {canEditThis ? (
                 <div className="grid gap-3">
-                  <form action={updateTeamMemberAction} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+                  <form action={updateTeamMemberAction} className="grid gap-3 sm:grid-cols-2">
                     <input type="hidden" name="membershipId" value={member.id} />
                     <Input name="name" defaultValue={member.user.name} required aria-label="Nome" />
                     <Input name="email" type="email" defaultValue={member.user.email} required aria-label="E-mail" />
                     <Input name="username" defaultValue={member.user.username ?? ""} placeholder="Usuário" aria-label="Usuário" />
                     <Input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="Nova senha (opcional)" aria-label="Nova senha" />
-                    <select name="role" defaultValue={member.role} className="h-8 rounded-lg border bg-background px-2 text-sm" aria-label="Papel">
+                    <select name="role" defaultValue={member.role} className={nativeSelectClass} aria-label="Papel">
                       {roleOptions.map((role) => (
                         <option key={role} value={role}>
                           {TENANT_ROLE_LABELS[role] ?? role}

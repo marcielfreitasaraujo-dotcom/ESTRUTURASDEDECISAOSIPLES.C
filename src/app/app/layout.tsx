@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireSession } from "@/server/context";
-import { isPlatformAdmin } from "@/domain/rbac/roles";
-import { footerNavForUser, groupedNavForUser, navForUser } from "@/domain/rbac/nav";
+import { isPlatformAdmin, isStoreGerente } from "@/domain/rbac/roles";
+import { footerNavForUser, groupedNavForUser, mobileTabNav, navForUser } from "@/domain/rbac/nav";
 import { TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
 import { AppShell } from "@/components/app-shell";
 import { prisma } from "@/lib/db";
@@ -12,6 +12,7 @@ export default async function TenantLayout({ children }: { children: React.React
   const session = await requireSession().catch(() => null);
   if (!session) redirect("/entrar");
   if (isPlatformAdmin(session.platformRole) && !session.tenantId) redirect("/admin");
+  if (session.tenantRole === "DELIVERY") redirect("/entrega");
 
   const tenant = session.tenantId
     ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true } })
@@ -34,11 +35,12 @@ export default async function TenantLayout({ children }: { children: React.React
       items={items}
       groups={groups}
       footerItems={footerNavForUser(session.tenantRole)}
+      tabs={mobileTabNav({ surface: "app", items, groups })}
       userName={session.name}
       roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : undefined}
       storeName={tenant?.name}
       homeHref="/app"
-      enableOpsChrome={Boolean(session.tenantRole)}
+      enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >
       {children}
     </AppShell>

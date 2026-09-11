@@ -5,6 +5,14 @@ export type NavItem = { href: string; label: string; permission?: Permission };
 
 export type NavGroup = { id: string; label: string; items: NavItem[] };
 
+const NAV_ROOTS = ["/app", "/caixa", "/admin", "/garcom", "/entrega"];
+
+export function navItemActive(pathname: string, href: string) {
+  if (pathname === href) return true;
+  if (NAV_ROOTS.includes(href)) return false;
+  return pathname.startsWith(`${href}/`);
+}
+
 export const PLATFORM_NAV: NavItem[] = [
   { href: "/admin", label: "Visão geral" },
   { href: "/admin/tenants", label: "Estabelecimentos" },
@@ -156,8 +164,8 @@ export function navForUser(input: {
   }
   if (input.surface === "entrega") {
     return [
-      { href: "/entrega", label: "Entregas" },
-      { href: "/app/pedidos", label: "Pedidos" },
+      { href: "/entrega", label: "Fila" },
+      { href: "/entrega/pedidos", label: "Pedidos" },
     ];
   }
   if (!input.tenantRole) return [];
@@ -212,4 +220,31 @@ export function groupedCaixaNavForUser(input: {
 export function footerNavForUser(tenantRole: TenantRole | null): NavItem[] {
   if (!tenantRole) return [{ href: "/app/ajuda", label: "Ajuda" }];
   return TENANT_FOOTER_NAV.filter((item) => allowed(tenantRole, item));
+}
+
+export function mobileTabNav(input: {
+  surface?: "app" | "admin" | "caixa" | "garcom" | "entrega";
+  items: NavItem[];
+  groups?: NavGroup[];
+}): NavItem[] {
+  if (input.surface === "entrega") {
+    return [
+      { href: "/entrega", label: "Fila" },
+      { href: "/entrega/pedidos", label: "Pedidos" },
+    ];
+  }
+  if (input.surface === "garcom") {
+    return [{ href: "/garcom", label: "Comandas" }];
+  }
+  if (input.surface === "caixa") {
+    return uniqueNav(input.groups?.[0]?.items ?? input.items).slice(0, 5);
+  }
+  if (input.surface === "admin") {
+    return uniqueNav(input.items).slice(0, 4);
+  }
+  const preferred = ["/app", "/app/pedidos", "/app/salao", "/caixa", "/app/equipe"];
+  const flat = uniqueNav(input.groups?.flatMap((group) => group.items) ?? input.items);
+  return preferred
+    .map((href) => flat.find((item) => item.href === href))
+    .filter((item): item is NavItem => Boolean(item));
 }

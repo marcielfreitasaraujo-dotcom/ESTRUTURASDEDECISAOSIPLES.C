@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import { signOutAction } from "@/app/actions/auth";
 import { Brand } from "@/components/brand";
+import { MobileTabs } from "@/components/mobile-tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import type { NavGroup, NavItem } from "@/domain/rbac/nav";
+import { navItemActive, type NavGroup, type NavItem } from "@/domain/rbac/nav";
 import type { ControlAlert } from "@/domain/dashboard/control-center";
 
 function initials(name: string) {
@@ -57,14 +57,14 @@ function NavLinks({
               <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-500">{group.label}</p>
             ) : null}
             {group.items.map((item) => {
-              const active = pathname === item.href || (item.href !== "/app" && pathname.startsWith(`${item.href}/`));
+              const active = navItemActive(pathname, item.href);
               return (
                 <Link
                   key={`${group.id}-${item.href}`}
                   href={item.href}
                   onClick={onNavigate}
                   className={cn(
-                    "rounded-md px-3 py-2 text-sm hover:bg-muted",
+                    "min-h-11 rounded-md px-3 py-2.5 text-sm hover:bg-muted",
                     active && "bg-primary/15 text-primary",
                   )}
                 >
@@ -78,7 +78,7 @@ function NavLinks({
       {footerItems && footerItems.length > 0 ? (
         <div className="grid gap-0.5 border-t border-zinc-800 pt-3">
           {footerItems.map((item) => (
-            <Link key={item.href} href={item.href} onClick={onNavigate} className="rounded-md px-3 py-2 text-sm hover:bg-muted">
+            <Link key={item.href} href={item.href} onClick={onNavigate} className="min-h-11 rounded-md px-3 py-2.5 text-sm hover:bg-muted">
               {item.label}
             </Link>
           ))}
@@ -93,6 +93,7 @@ export function AppShell({
   items,
   groups,
   footerItems,
+  tabs,
   userName,
   roleLabel,
   storeName,
@@ -104,6 +105,7 @@ export function AppShell({
   items: NavItem[];
   groups?: NavGroup[];
   footerItems?: NavItem[];
+  tabs?: NavItem[];
   userName: string;
   roleLabel?: string;
   storeName?: string;
@@ -111,67 +113,89 @@ export function AppShell({
   enableOpsChrome?: boolean;
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const showBack = pathname !== homeHref;
+  const mobileTabs = tabs && tabs.length > 1 ? tabs : [];
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
-      <div className="flex min-h-screen">
+    <div className="dark min-h-dvh bg-background text-foreground">
+      <div className="flex min-h-dvh">
         <aside className="hidden w-60 shrink-0 border-r bg-card/40 p-3 pb-12 md:flex md:flex-col">
           <Brand href={homeHref} />
           <p className="mt-3 rounded-md bg-primary/15 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-primary">
             {storeName ? storeName : `PDV · ${title}`}
           </p>
-          <div className="mt-4 min-h-0 flex-1">
+          <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
             <NavLinks items={items} groups={groups} footerItems={footerItems} />
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex items-center gap-3 border-b bg-card/30 px-3 py-2">
+          <header
+            className="sticky top-0 z-30 flex items-center gap-2 border-b bg-card/90 px-3 py-2 backdrop-blur md:gap-3"
+            style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
+          >
             <div className="md:hidden">
               <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button type="button" variant="ghost" size="icon-sm" aria-label="Abrir menu">
+                  <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11" aria-label="Abrir menu">
                     <Menu className="size-4" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-72 bg-zinc-950 p-4">
-                  <SheetHeader>
+                <SheetContent side="left" className="flex w-[min(18rem,100%)] flex-col gap-0 bg-zinc-950 p-0">
+                  <SheetHeader className="shrink-0 px-4 pb-2 pt-4">
                     <SheetTitle className="text-left">
                       <Brand href={homeHref} />
                     </SheetTitle>
+                    {roleLabel ? <p className="text-left text-xs text-muted-foreground">{roleLabel}</p> : null}
                   </SheetHeader>
-                  <div className="mt-4 h-[calc(100vh-6rem)]">
+                  <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                     <NavLinks items={items} groups={groups} footerItems={footerItems} onNavigate={() => setMenuOpen(false)} />
                   </div>
                 </SheetContent>
               </Sheet>
             </div>
-            <div className="md:hidden">
+            {showBack ? (
+              <Button asChild variant="ghost" size="sm" className="min-h-11 shrink-0 gap-1 px-2">
+                <Link href={homeHref}>
+                  <ArrowLeft className="size-4" />
+                  Voltar
+                </Link>
+              </Button>
+            ) : null}
+            <div className="min-w-0 md:hidden">
               <Brand compact href={homeHref} />
             </div>
-            {enableOpsChrome ? <OpsSearch /> : <div className="flex-1" />}
-            <div className="ml-auto flex items-center gap-2 text-sm">
+            {enableOpsChrome ? <OpsSearch /> : <div className="min-w-0 flex-1" />}
+            <div className="ml-auto flex min-w-0 items-center gap-1 text-sm sm:gap-2">
               {enableOpsChrome ? <OpsNotifications /> : null}
-              <div className="hidden items-center gap-2 sm:flex">
+              <div className="hidden min-w-0 items-center gap-2 sm:flex">
                 <Avatar size="sm">
                   <AvatarFallback>{initials(userName)}</AvatarFallback>
                 </Avatar>
-                <div className="leading-tight">
-                  <p className="font-medium">{userName}</p>
-                  {roleLabel ? <p className="text-xs text-muted-foreground">{roleLabel}</p> : null}
+                <div className="min-w-0 leading-tight">
+                  <p className="truncate font-medium">{userName}</p>
+                  {roleLabel ? <p className="truncate text-xs text-muted-foreground">{roleLabel}</p> : null}
                 </div>
               </div>
               <form action={signOutAction}>
-                <Button type="submit" variant="ghost" size="sm">
+                <Button type="submit" variant="ghost" size="sm" className="min-h-11">
                   Sair
                 </Button>
               </form>
             </div>
           </header>
-          <Separator className="md:hidden" />
-          <main className="flex-1 p-3 md:p-5">{children}</main>
+          <main
+            className={cn(
+              "min-w-0 flex-1 overflow-x-hidden px-4 py-4 md:p-6",
+              mobileTabs.length > 0 && "pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-6",
+            )}
+          >
+            {children}
+          </main>
         </div>
       </div>
+      <MobileTabs items={mobileTabs} />
       {enableOpsChrome ? <OpsShortcuts /> : null}
     </div>
   );
@@ -220,11 +244,12 @@ function OpsSearch() {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Buscar pedido, cliente, produto, mesa…  Ctrl+K"
-        className="h-10 max-w-xl"
+        placeholder="Buscar…"
+        className="h-11 max-w-xl md:h-10"
+        aria-label="Buscar pedido, cliente, produto ou mesa"
       />
       {visibleResults ? (
-        <div className="absolute z-40 mt-1 max-h-80 w-full max-w-xl overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-sm shadow-xl">
+        <div className="absolute z-40 mt-1 max-h-72 w-full max-w-xl overflow-y-auto overflow-x-hidden rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-sm shadow-xl">
           <ResultGroup title="Pedidos" items={visibleResults.orders.map((item) => ({ href: "/app/pedidos", label: `#${item.publicCode} · ${item.customerName}` }))} onPick={() => setOpen(false)} />
           <ResultGroup title="Clientes" items={visibleResults.customers.map((item) => ({ href: "/app/clientes", label: `${item.name} · ${item.phone}` }))} onPick={() => setOpen(false)} />
           <ResultGroup title="Produtos" items={visibleResults.products.map((item) => ({ href: "/app/cardapio", label: item.name }))} onPick={() => setOpen(false)} />
@@ -280,7 +305,7 @@ function OpsNotifications() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="relative">
+        <Button type="button" variant="outline" size="sm" className="relative min-h-11">
           Alertas
           {items.length > 0 ? (
             <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-orange-500 text-[10px] text-black">
@@ -289,7 +314,7 @@ function OpsNotifications() {
           ) : null}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80">
+      <DropdownMenuContent align="end" className="w-[min(20rem,calc(100vw-1.5rem))]">
         <DropdownMenuLabel>Notificações da operação</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {items.length === 0 ? <DropdownMenuItem disabled>Nada pendente agora</DropdownMenuItem> : null}
