@@ -12,9 +12,6 @@ export default async function TenantLayout({ children }: { children: React.React
   const session = await requireSession().catch(() => null);
   if (!session) redirect("/entrar");
   if (isPlatformAdmin(session.platformRole) && !session.tenantId) redirect("/admin");
-  if (session.tenantRole === "CASHIER" && !isPlatformAdmin(session.platformRole)) {
-    redirect("/caixa");
-  }
 
   const tenant = session.tenantId
     ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true } })

@@ -9,9 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatBRL } from "@/lib/money";
+import { redirect } from "next/navigation";
 
 export default async function CustomersPage() {
   const ctx = await requirePage(PERMISSIONS.CUSTOMER_READ);
+  if (ctx.tenantRole === "CASHIER") redirect("/caixa/clientes");
   const customers = await listCustomers(ctx.tenantId);
   const canWrite =
     isPlatformAdmin(ctx.platformRole) ||

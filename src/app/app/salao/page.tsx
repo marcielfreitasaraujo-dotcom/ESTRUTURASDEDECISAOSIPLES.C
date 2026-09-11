@@ -5,9 +5,11 @@ import { listCatalog } from "@/server/services/catalog";
 import { getFloorSnapshot } from "@/server/services/floor";
 import { listTeam } from "@/server/services/team";
 import { FloorMap } from "@/components/floor/floor-map";
+import { redirect } from "next/navigation";
 
 export default async function SalonPage() {
   const ctx = await requirePage(PERMISSIONS.ORDER_CREATE);
+  if (ctx.tenantRole === "CASHIER") redirect("/caixa/mesas");
   const [catalog, snapshot, team] = await Promise.all([
     listCatalog(ctx.tenantId),
     getFloorSnapshot(ctx.tenantId),
