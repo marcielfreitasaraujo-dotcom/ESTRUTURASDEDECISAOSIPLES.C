@@ -3,6 +3,7 @@ import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { hasPermission, isPlatformAdmin } from "@/domain/rbac/roles";
 import { getStoreSettings } from "@/server/services/settings";
 import { saveStoreAction } from "@/app/actions/ops";
+import { createSalonSectorAction } from "@/app/actions/floor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -122,6 +123,28 @@ export default async function SettingsPage() {
         </div>
         {canWrite ? <Button type="submit">Salvar loja</Button> : null}
       </form>
+      <section className="grid max-w-3xl gap-3 rounded-2xl border p-4">
+        <h2 className="font-medium">Setores do salão</h2>
+        <ul className="text-sm text-muted-foreground">
+          {(tenant.salonSectors ?? []).map((sector) => (
+            <li key={sector.id}>{sector.name}</li>
+          ))}
+          {(tenant.salonSectors ?? []).length === 0 ? <li>O PDV cria o Salão automaticamente.</li> : null}
+        </ul>
+        {canWrite ? (
+          <form action={createSalonSectorAction} className="grid gap-3 sm:grid-cols-[1fr_8rem_auto] sm:items-end">
+            <div className="grid gap-2">
+              <Label htmlFor="sectorName">Novo setor</Label>
+              <Input id="sectorName" name="sectorName" placeholder="Varanda" required />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="sectorTableCount">Mesas</Label>
+              <Input id="sectorTableCount" name="sectorTableCount" type="number" min={1} max={80} defaultValue={4} />
+            </div>
+            <Button type="submit">Adicionar</Button>
+          </form>
+        ) : null}
+      </section>
     </div>
   );
 }

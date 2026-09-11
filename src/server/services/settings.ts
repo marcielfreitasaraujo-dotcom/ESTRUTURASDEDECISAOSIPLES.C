@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { writeAudit } from "@/server/audit";
 import { normalizeTableCount } from "@/domain/floor/tables";
+import { ensureSalonLayout } from "@/server/services/floor";
 import type { PaymentMethod } from "@prisma/client";
 
 const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
@@ -8,7 +9,7 @@ const WEEKDAYS = [0, 1, 2, 3, 4, 5, 6];
 export async function getStoreSettings(tenantId: string) {
   return prisma.tenant.findUniqueOrThrow({
     where: { id: tenantId },
-    include: { hours: { orderBy: { weekday: "asc" } }, paymentMethods: true },
+    include: { hours: { orderBy: { weekday: "asc" } }, paymentMethods: true, salonSectors: { orderBy: { sortOrder: "asc" } } },
   });
 }
 
@@ -74,5 +75,6 @@ export async function saveStoreSettings(input: {
     tenantId: input.tenantId,
     userId: input.userId,
   });
+  await ensureSalonLayout(input.tenantId);
   return tenant;
 }

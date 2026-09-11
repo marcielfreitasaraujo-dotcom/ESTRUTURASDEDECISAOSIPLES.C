@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { occupancyAlertLevel, occupancyMinutes, formatOccupancyDuration } from "@/domain/floor/occupancy";
+import { summarizeFloorStatus } from "@/domain/floor/status";
 import { buildFloorTables, normalizeTableCount, assertSalonTableNumber } from "@/domain/floor/tables";
 import { resolveCashierPosView } from "@/domain/floor/cashier-view";
 
@@ -66,6 +68,32 @@ describe("resolveCashierPosView", () => {
     expect(resolveCashierPosView({ mesa: "3", venda: "1", tables })).toMatchObject({
       kind: "new-sale",
       selectedTable: "3",
+    });
+  });
+});
+
+describe("ocupação da mesa", () => {
+  it("formata minutos e horas a partir do horário de abertura", () => {
+    const openedAt = new Date("2026-09-11T12:00:00.000Z");
+    expect(formatOccupancyDuration(openedAt, new Date("2026-09-11T12:37:00.000Z"))).toBe("37 min");
+    expect(formatOccupancyDuration(openedAt, new Date("2026-09-11T13:12:00.000Z"))).toBe("1h12min");
+    expect(occupancyMinutes(openedAt, new Date("2026-09-11T12:05:00.000Z"))).toBe(5);
+  });
+
+  it("marca alerta depois de 60 e 90 minutos", () => {
+    const openedAt = new Date("2026-09-11T10:00:00.000Z");
+    expect(occupancyAlertLevel(openedAt, new Date("2026-09-11T10:59:00.000Z"))).toBe("none");
+    expect(occupancyAlertLevel(openedAt, new Date("2026-09-11T11:01:00.000Z"))).toBe("warn");
+    expect(occupancyAlertLevel(openedAt, new Date("2026-09-11T11:31:00.000Z"))).toBe("alert");
+  });
+
+  it("conta status do mapa", () => {
+    expect(summarizeFloorStatus(["FREE", "OCCUPIED", "OCCUPIED", "RESERVED", "BLOCKED"])).toEqual({
+      total: 5,
+      free: 1,
+      occupied: 2,
+      reserved: 1,
+      blocked: 1,
     });
   });
 });

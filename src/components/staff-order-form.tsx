@@ -1,3 +1,5 @@
+"use client";
+
 import { createWaiterOrderAction, createCashierOrderAction } from "@/app/actions/pos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

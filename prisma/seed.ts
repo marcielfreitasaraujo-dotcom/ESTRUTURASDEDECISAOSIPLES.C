@@ -12,6 +12,7 @@ import {
   flavorExtraCents,
   pizzaProductSlug,
 } from "../src/domain/catalog/central-menu";
+import { ensureSalonLayout } from "../src/server/services/floor";
 
 const prisma = new PrismaClient();
 
@@ -148,6 +149,7 @@ async function seedCentral(ownerId: string) {
   });
 
   await seedHours(tenant.id);
+  await ensureSalonLayout(tenant.id);
 
   for (const method of ["PIX", "CASH", "CARD"] as const) {
     await prisma.tenantPaymentMethod.upsert({

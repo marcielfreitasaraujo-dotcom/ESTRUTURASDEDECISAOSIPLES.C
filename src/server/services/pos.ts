@@ -4,6 +4,7 @@ import { quotePizza } from "@/domain/catalog/pizza-pricing";
 import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
 import { assertSalonTableNumber, normalizeTableCount } from "@/domain/floor/tables";
 import { writeAudit } from "@/server/audit";
+import { occupyTableByNumber, freeTablesForOrder } from "@/server/services/floor";
 import type { FulfillmentType, OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
 
 export type StaffOrderItemInput =
@@ -124,6 +125,8 @@ export async function createStaffOrder(input: {
   notes?: string;
   items: StaffOrderItemInput[];
   confirmImmediately?: boolean;
+  partySize?: number;
+  waiterId?: string;
 }) {
   const existing = await prisma.order.findUnique({
     where: { tenantId_idempotencyKey: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey } },
@@ -174,6 +177,8 @@ export async function createStaffOrder(input: {
       tableNumber: input.tableNumber,
       customerName: input.customerName,
       customerPhone: input.customerPhone ?? "00000000",
+      partySize: input.partySize,
+      waiterId: input.waiterId,
       notes: input.notes,
       subtotalCents: totals.subtotalCents,
       discountCents: 0,
@@ -225,6 +230,16 @@ export async function createStaffOrder(input: {
     userId: input.userId,
     metadata: { number: order.number, tableNumber: input.tableNumber, source: "staff" },
   });
+  if (input.tableNumber) {
+    await occupyTableByNumber({
+      tenantId: input.tenantId,
+      tableNumber: input.tableNumber,
+      orderId: order.id,
+      customerName: input.customerName,
+      waiterId: input.waiterId,
+      partySize: input.partySize,
+    });
+  }
   return order;
 }
 
@@ -314,6 +329,14 @@ export async function addItemsToOpenOrder(input: {
     userId: input.userId,
     metadata: { addedItems: added.length, tableNumber: order.tableNumber, source: "staff-add" },
   });
+  if (order.tableNumber) {
+    await occupyTableByNumber({
+      tenantId: input.tenantId,
+      tableNumber: order.tableNumber,
+      orderId: updated.id,
+      customerName: updated.customerName,
+    });
+  }
   return updated;
 }
 
@@ -400,7 +423,37 @@ export async function settleTableOrders(input: { tenantId: string; userId: strin
     userId: input.userId,
     metadata: { tableNumber, settled: open.length, source: "cashier-settle" },
   });
+  for (const order of open) {
+    await freeTablesForOrder(input.tenantId, order.id);
+  }
   return open.length;
+}
+
+export async function settleOrderById(input: { tenantId: string; userId: string; orderId: string }) {
+  const order = await prisma.order.findFirst({
+    where: { id: input.orderId, tenantId: input.tenantId, status: { notIn: ["DELIVERED", "CANCELLED"] } },
+  });
+  if (!order) throw new ConflictError("Essa comanda já foi encerrada.");
+  await prisma.$transaction([
+    prisma.order.update({
+      where: { id: order.id },
+      data: { paymentStatus: "PAID", status: "DELIVERED", deliveredAt: new Date() },
+    }),
+    prisma.payment.updateMany({
+      where: { orderId: order.id, tenantId: input.tenantId },
+      data: { status: "PAID" },
+    }),
+    prisma.orderStatusHistory.create({
+      data: {
+        tenantId: input.tenantId,
+        orderId: order.id,
+        fromStatus: order.status,
+        toStatus: "DELIVERED",
+        changedById: input.userId,
+      },
+    }),
+  ]);
+  await freeTablesForOrder(input.tenantId, order.id);
 }
 
 export async function markOrderPaid(input: { tenantId: string; orderId: string; userId: string }) {
