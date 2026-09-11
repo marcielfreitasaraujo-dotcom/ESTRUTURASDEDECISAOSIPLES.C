@@ -293,6 +293,10 @@ export function FloorMap({
         busy={busy}
         onOpenChange={(open) => setDialog(open ? "reserve" : null)}
         onSubmit={(payload) => run(() => reserveSalonTableAction(payload), "Reserva registrada.")}
+        onOccupy={() => (selected ? run(() => occupyReservationAction(selected.id), "Mesa ocupada.") : Promise.resolve())}
+        onCancelReservation={() =>
+          selected ? run(() => cancelReservationAction(selected.id), "Reserva cancelada.") : Promise.resolve()
+        }
       />
       <OccupiedDialog
         open={dialog === "occupied"}
@@ -464,7 +468,7 @@ function OpenTableDialog({
             ))}
           </select>
           <Label htmlFor="open-name">Cliente</Label>
-          <Input id="open-name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="h-12" />
+          <Input id="open-name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="h-12" required />
           <Label htmlFor="open-people">Pessoas</Label>
           <Input id="open-people" type="number" min={1} value={partySize} onChange={(event) => setPartySize(event.target.value)} className="h-12" />
           <Label htmlFor="open-waiter">Garçom</Label>
@@ -477,7 +481,7 @@ function OpenTableDialog({
             ))}
           </select>
           <DialogFooter>
-            <Button type="submit" size="lg" className="h-12" disabled={busy || !tableId}>
+            <Button type="submit" size="lg" className="h-12" disabled={busy || !tableId || !customerName.trim()}>
               Criar comanda
             </Button>
           </DialogFooter>
@@ -494,6 +498,8 @@ function ReserveDialog({
   busy,
   onOpenChange,
   onSubmit,
+  onOccupy,
+  onCancelReservation,
 }: {
   open: boolean;
   tables: FloorTableSnapshot[];
@@ -507,6 +513,8 @@ function ReserveDialog({
     reservationPeople?: number;
     reservationNotes?: string;
   }) => Promise<void>;
+  onOccupy: () => Promise<void>;
+  onCancelReservation: () => Promise<void>;
 }) {
   const [tableId, setTableId] = useState(selected?.id ?? "");
   const [name, setName] = useState(selected?.reservationName ?? "");
@@ -559,7 +567,7 @@ function ReserveDialog({
             ))}
           </select>
           <Label htmlFor="res-name">Cliente</Label>
-          <Input id="res-name" value={name} onChange={(event) => setName(event.target.value)} className="h-12" />
+          <Input id="res-name" value={name} onChange={(event) => setName(event.target.value)} className="h-12" required />
           <Label htmlFor="res-when">Horário</Label>
           <Input id="res-when" type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className="h-12" />
           <Label htmlFor="res-people">Pessoas</Label>
@@ -567,9 +575,14 @@ function ReserveDialog({
           <Label htmlFor="res-notes">Observações</Label>
           <Input id="res-notes" value={notes} onChange={(event) => setNotes(event.target.value)} className="h-12" />
           {selected?.status === "RESERVED" ? (
-            <Button type="button" variant="outline" disabled={busy} onClick={() => void occupyReservationAction(selected.id).then(() => onOpenChange(false))}>
-              Ocupar mesa agora
-            </Button>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button type="button" disabled={busy} onClick={() => void onOccupy()}>
+                Ocupar mesa
+              </Button>
+              <Button type="button" variant="destructive" disabled={busy} onClick={() => void onCancelReservation()}>
+                Cancelar reserva
+              </Button>
+            </div>
           ) : null}
           <DialogFooter>
             <Button type="submit" size="lg" className="h-12" disabled={busy || !tableId}>
@@ -629,6 +642,7 @@ function OccupiedDialog({
             </p>
           ) : null}
           <p className="text-lg font-semibold">{table.order ? formatBRL(table.order.totalCents) : "R$ 0,00"}</p>
+          {table.order ? <p className="text-sm text-muted-foreground">Comanda #{table.order.publicCode}</p> : null}
           {table.partySize ? <p className="text-sm text-muted-foreground">{table.partySize} pessoas</p> : null}
           {table.order ? (
             <ul className="grid max-h-48 gap-1 overflow-y-auto text-sm">
@@ -646,6 +660,9 @@ function OccupiedDialog({
           )}
           <div className="grid grid-cols-2 gap-2">
             <Button type="button" className="h-11" onClick={onAdd}>
+              Abrir comanda
+            </Button>
+            <Button type="button" variant="outline" className="h-11" onClick={onAdd}>
               Adicionar itens
             </Button>
             <Button type="button" variant="outline" className="h-11" onClick={onGuest}>

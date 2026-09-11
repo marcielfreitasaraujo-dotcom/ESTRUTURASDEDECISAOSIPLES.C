@@ -276,7 +276,8 @@ export async function addItemsToOpenOrder(input: {
   });
 
   const reopenKitchen = order.status === "READY" || order.status === "OUT_FOR_DELIVERY";
-  const nextStatus: OrderStatus = reopenKitchen ? "CONFIRMED" : order.status;
+  const becameConfirmed = order.status === "PENDING";
+  const nextStatus: OrderStatus = reopenKitchen || becameConfirmed ? "CONFIRMED" : order.status;
 
   const updated = await prisma.$transaction(async (tx) => {
     await tx.orderItem.createMany({
@@ -307,7 +308,7 @@ export async function addItemsToOpenOrder(input: {
       where: { orderId: order.id, tenantId: input.tenantId },
       data: { status: "PENDING", amountCents: totals.totalCents },
     });
-    if (reopenKitchen) {
+    if (reopenKitchen || becameConfirmed) {
       await tx.orderStatusHistory.create({
         data: {
           tenantId: input.tenantId,

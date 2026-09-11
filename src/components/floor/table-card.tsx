@@ -31,12 +31,21 @@ export function TableCard({
   const alert = table.status === "OCCUPIED" && table.openedAt ? occupancyAlertLevel(table.openedAt) : "none";
   const customer = table.customerName || table.order?.customerName;
   const total = table.order?.totalCents ?? 0;
+  const statusLabel = TABLE_STATUS_LABEL[table.status];
+  const extraLabel =
+    table.status === "OCCUPIED" && customer
+      ? `, ${customer}`
+      : table.status === "RESERVED" && table.reservationName
+        ? `, ${table.reservationName}`
+        : "";
 
   return (
     <button
       type="button"
       onClick={() => onSelect(table)}
-      aria-label={`Mesa ${table.number}, ${TABLE_STATUS_LABEL[table.status]}`}
+      data-table-number={table.number}
+      data-table-status={table.status}
+      aria-label={`Mesa ${table.number}, ${statusLabel}${extraLabel}`}
       className={cn(
         "flex min-h-36 flex-col rounded-2xl border p-3 text-left shadow-sm transition duration-200 ease-out",
         CARD[table.status],
@@ -48,7 +57,7 @@ export function TableCard({
       <div className="flex items-start justify-between gap-2">
         <p className="font-heading text-lg tracking-wide">Mesa {table.number}</p>
         <span className="rounded-full border border-current/25 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide">
-          {TABLE_STATUS_LABEL[table.status]}
+          {statusLabel}
         </span>
       </div>
       {table.status === "OCCUPIED" ? (

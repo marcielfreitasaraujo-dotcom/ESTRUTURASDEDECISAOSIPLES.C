@@ -34,6 +34,59 @@ function clearOccupancy(): Prisma.SalonTableUncheckedUpdateInput {
   };
 }
 
+async function nextOrderNumber(tenantId: string) {
+  const last = await prisma.order.findFirst({
+    where: { tenantId },
+    orderBy: { number: "desc" },
+    select: { number: true },
+  });
+  return (last?.number ?? 1000) + 1;
+}
+
+async function createOpenTableOrder(input: {
+  tenantId: string;
+  userId: string;
+  tableNumber: string;
+  customerName: string;
+  partySize?: number | null;
+  waiterId?: string | null;
+}) {
+  const number = await nextOrderNumber(input.tenantId);
+  return prisma.order.create({
+    data: {
+      tenantId: input.tenantId,
+      number,
+      publicCode: number.toString().padStart(4, "0"),
+      status: "PENDING",
+      fulfillment: "DINE_IN",
+      tableNumber: input.tableNumber,
+      customerName: input.customerName,
+      customerPhone: "00000000",
+      partySize: input.partySize ?? null,
+      waiterId: input.waiterId ?? null,
+      subtotalCents: 0,
+      discountCents: 0,
+      deliveryFeeCents: 0,
+      totalCents: 0,
+      paymentMethod: "CASH",
+      paymentStatus: "PENDING",
+      idempotencyKey: crypto.randomUUID(),
+      statusHistory: {
+        create: { tenantId: input.tenantId, toStatus: "PENDING", changedById: input.userId },
+      },
+      payments: {
+        create: {
+          tenantId: input.tenantId,
+          provider: "manual",
+          method: "CASH",
+          status: "PENDING",
+          amountCents: 0,
+        },
+      },
+    },
+  });
+}
+
 async function defaultSector(tenantId: string) {
   return prisma.salonSector.upsert({
     where: { tenantId_slug: { tenantId, slug: DEFAULT_SECTOR.slug } },
@@ -257,14 +310,26 @@ export async function openSalonTable(input: {
 }) {
   const table = await getOwnedTable(input.tenantId, input.tableId);
   if (table.status !== "FREE") throw new ConflictError("Essa mesa não está livre.");
-  const name = input.customerName.trim() || `Mesa ${table.number}`;
+  const name = input.customerName.trim();
+  if (!name) throw new Error("Informe o nome do cliente.");
+  const partySize = input.partySize && input.partySize > 0 ? input.partySize : null;
+  const waiterId = input.waiterId || null;
+  const order = await createOpenTableOrder({
+    tenantId: input.tenantId,
+    userId: input.userId,
+    tableNumber: table.number,
+    customerName: name,
+    partySize,
+    waiterId,
+  });
   const updated = await prisma.salonTable.update({
     where: { id: table.id },
     data: {
       status: "OCCUPIED",
+      currentOrderId: order.id,
       customerName: name,
-      partySize: input.partySize && input.partySize > 0 ? input.partySize : null,
-      waiterId: input.waiterId || null,
+      partySize,
+      waiterId,
       openedAt: new Date(),
     },
   });
@@ -355,11 +420,21 @@ export async function occupyReservation(input: {
 }) {
   const table = await getOwnedTable(input.tenantId, input.tableId);
   if (table.status !== "RESERVED") throw new ConflictError("Essa mesa não está reservada.");
+  const name = table.reservationName?.trim() || `Mesa ${table.number}`;
+  const order = await createOpenTableOrder({
+    tenantId: input.tenantId,
+    userId: input.userId,
+    tableNumber: table.number,
+    customerName: name,
+    partySize: table.reservationPeople,
+    waiterId: table.waiterId,
+  });
   return prisma.salonTable.update({
     where: { id: table.id },
     data: {
       status: "OCCUPIED",
-      customerName: table.reservationName,
+      currentOrderId: order.id,
+      customerName: name,
       partySize: table.reservationPeople,
       openedAt: new Date(),
       reservedAt: null,
