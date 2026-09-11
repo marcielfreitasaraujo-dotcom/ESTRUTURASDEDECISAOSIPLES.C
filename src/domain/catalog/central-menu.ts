@@ -97,7 +97,17 @@ export const CENTRAL_MENU = {
       imageUrl: "/tenants/central-da-pizza/suco-maracuja.jpg",
     },
     {
-      name: "Jarra de suco de acerola",
+      name: "Jarra de suco de acerola 500ml",
+      slug: "suco-acerola-500ml",
+      description: "Suco natural de acerola.",
+      priceCents: 800,
+      featured: false,
+      badge: null,
+      categorySlug: "sucos",
+      imageUrl: "/tenants/central-da-pizza/suco-acerola.jpg",
+    },
+    {
+      name: "Jarra de suco de acerola 1L",
       slug: "jarra-suco-acerola",
       description: "Jarra de suco natural.",
       priceCents: 1500,
