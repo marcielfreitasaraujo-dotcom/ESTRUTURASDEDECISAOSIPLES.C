@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 
 export default async function TurnoPage() {
   const ctx = await requirePage(PERMISSIONS.CASH_READ);
-  const session = await getOpenSession(ctx.tenantId);
-  const data = await getCashierDashboard(ctx.tenantId);
+  const session = await getOpenSession(ctx.tenantId, { operatorId: ctx.userId });
+  const data = await getCashierDashboard(ctx.tenantId, ctx.userId);
   const totals = data.totals;
   return (
     <div className="grid max-w-lg gap-4">

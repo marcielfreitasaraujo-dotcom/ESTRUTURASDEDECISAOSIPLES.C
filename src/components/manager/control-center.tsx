@@ -65,7 +65,7 @@ export function ControlCenter({ initial }: { initial: ControlCenterSnapshot }) {
             <Link href="/app/financeiro">Registrar despesa</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/caixa/fechamento">Caixa</Link>
+            <Link href="/app/caixas">Caixa</Link>
           </Button>
         </div>
       </div>
@@ -182,7 +182,7 @@ export function ControlCenter({ initial }: { initial: ControlCenterSnapshot }) {
             />
             <Block
               title="Caixa"
-              href="/caixa/fechamento"
+              href="/app/caixas"
               lines={[data.cash.open ? "Aberto" : "Fechado", data.cash.operatorName ? `Operador: ${data.cash.operatorName}` : formatBRL(data.cash.balanceCents)]}
             />
           </CardContent>

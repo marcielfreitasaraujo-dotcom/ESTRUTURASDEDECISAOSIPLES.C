@@ -68,7 +68,8 @@ export const TENANT_NAV_GROUPS: NavGroup[] = [
     id: "financeiro",
     label: "Financeiro",
     items: [
-      { href: "/caixa/fechamento", label: "Caixa", permission: PERMISSIONS.FINANCE_READ },
+      { href: "/app/caixas", label: "Central de caixas", permission: PERMISSIONS.CASH_CONFER },
+      { href: "/app/caixas/relatorios", label: "Relatórios de caixa", permission: PERMISSIONS.CASH_CONFER },
       { href: "/app/financeiro", label: "Lançamentos", permission: PERMISSIONS.FINANCE_READ },
       { href: "/app/relatorios", label: "Relatórios", permission: PERMISSIONS.FINANCE_READ },
     ],
@@ -77,7 +78,8 @@ export const TENANT_NAV_GROUPS: NavGroup[] = [
     id: "gestao",
     label: "Gestão",
     items: [
-      { href: "/app/equipe", label: "Equipe", permission: PERMISSIONS.TEAM_READ },
+      { href: "/app/equipe", label: "Usuários e operadores", permission: PERMISSIONS.TEAM_READ },
+      { href: "/app/caixas/terminais", label: "Terminais", permission: PERMISSIONS.CASH_CONFER },
       { href: "/app/auditoria", label: "Auditoria", permission: PERMISSIONS.SETTINGS_READ },
       { href: "/app/configuracoes", label: "Loja", permission: PERMISSIONS.SETTINGS_READ },
     ],
@@ -207,6 +209,7 @@ export function groupedCaixaNavForUser(input: {
       id: "gestao",
       label: "Gestão",
       items: [
+        { href: "/app/caixas", label: "Central de conferência" },
         { href: "/caixa/estoque", label: "Estoque" },
         { href: "/app/equipe", label: "Equipe" },
         { href: "/app/cardapio", label: "Cardápio" },

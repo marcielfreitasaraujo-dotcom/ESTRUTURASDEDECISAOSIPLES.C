@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { SANGRIA_REASONS } from "@/domain/cash/labels";
+import { SANGRIA_REASONS, SUPPLY_REASONS, EXPENSE_CATEGORIES } from "@/domain/cash/labels";
 
 export function CashMovementForm({
   type,
@@ -64,10 +64,27 @@ export function CashMovementForm({
             ))}
           </select>
         </div>
-      ) : (
+      ) : type === "SUPPLY" ? (
         <div className="grid gap-2">
           <Label htmlFor="reason">Motivo</Label>
-          <Input id="reason" name="reason" placeholder="Compra de gelo" />
+          <select id="reason" name="reason" className="h-11 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm">
+            {SUPPLY_REASONS.map((reason) => (
+              <option key={reason.value} value={reason.value}>
+                {reason.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div className="grid gap-2">
+          <Label htmlFor="reason">Categoria</Label>
+          <select id="reason" name="reason" className="h-11 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm">
+            {EXPENSE_CATEGORIES.map((reason) => (
+              <option key={reason.value} value={reason.value}>
+                {reason.label}
+              </option>
+            ))}
+          </select>
         </div>
       )}
       <div className="grid gap-2">

@@ -17,7 +17,7 @@ export default async function HistoricoPage() {
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="bg-zinc-950 text-zinc-400">
             <tr>
-              {["Data", "Terminal", "Abertura", "Fechamento", "Vendas", "Dinheiro", "PIX", "Cartão", "Sangrias", "Diferença", "Status"].map((head) => (
+              {["Data", "Código", "Abertura", "Fechamento", "Vendas", "Dinheiro", "PIX", "Cartão", "Sangrias", "Diferença", "Status"].map((head) => (
                 <th key={head} className="px-3 py-2 font-medium">
                   {head}
                 </th>
@@ -28,7 +28,7 @@ export default async function HistoricoPage() {
             {rows.map((row) => (
               <tr key={row.id} className="border-t border-zinc-800">
                 <td className="px-3 py-2">{formatDay(row.openedAt)}</td>
-                <td className="px-3 py-2">{row.terminal.name}</td>
+                <td className="px-3 py-2">{row.publicCode ?? row.terminal.name}</td>
                 <td className="px-3 py-2">{formatClock(row.openedAt)}</td>
                 <td className="px-3 py-2">{row.closedAt ? formatClock(row.closedAt) : "—"}</td>
                 <td className="px-3 py-2">{formatBRL(row.salesCents)}</td>

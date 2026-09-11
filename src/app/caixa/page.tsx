@@ -4,6 +4,8 @@ import { getCashierDashboard } from "@/server/services/cash";
 import { CashierDashboard } from "@/components/cashier/dashboard";
 import { OpenCashForm } from "@/components/cashier/open-form";
 import { ClosedCashState } from "@/components/cashier/closed-state";
+import { operatorLabel } from "@/domain/cash/status";
+import { isStoreGerente } from "@/domain/rbac/roles";
 
 export default async function CaixaInicioPage({
   searchParams,
@@ -12,21 +14,12 @@ export default async function CaixaInicioPage({
 }) {
   const ctx = await requirePage(PERMISSIONS.CASH_OPERATE);
   const params = await searchParams;
-  const data = await getCashierDashboard(ctx.tenantId);
+  const data = await getCashierDashboard(ctx.tenantId, ctx.userId);
   const session = data.session;
-  const isOwnerOfOpen = session?.openedById === ctx.userId || ctx.tenantRole !== "CASHIER";
-
-  if (session && !isOwnerOfOpen) {
-    return (
-      <OpenCashForm
-        blocked={{
-          operatorName: session.openedBy.name,
-          openedAt: session.openedAt.toISOString(),
-          terminalName: session.terminal.name,
-        }}
-      />
-    );
-  }
+  const lockOperator = ctx.tenantRole === "CASHIER";
+  const operators = lockOperator
+    ? data.operators.filter((row) => row.id === ctx.userId)
+    : data.operators;
 
   if (!session && data.lastClosed && params.abrir !== "1") {
     const sales = data.lastClosed;
@@ -40,7 +33,14 @@ export default async function CaixaInicioPage({
   }
 
   if (!session) {
-    return <OpenCashForm />;
+    return (
+      <OpenCashForm
+        operators={operators.length ? operators : [{ id: ctx.userId, name: ctx.name }]}
+        terminals={data.terminals}
+        defaultOperatorId={ctx.userId}
+        lockOperator={lockOperator}
+      />
+    );
   }
 
   return (
@@ -48,13 +48,15 @@ export default async function CaixaInicioPage({
       data={{
         operatorName: ctx.name,
         tenantName: data.tenant.name,
-        terminalName: data.terminal.name,
+        terminalName: session.terminal.name,
+        sessionCode: session.publicCode,
         cashLimitCents: data.tenant.cashLimitCents,
         cashOverLimit: data.cashOverLimit,
+        canManage: isStoreGerente(ctx.tenantRole),
         session: {
           id: session.id,
           openedAt: session.openedAt.toISOString(),
-          operatorName: session.openedBy.name,
+          operatorName: operatorLabel(session.operator ?? session.openedBy),
           openingCents: session.openingCents,
         },
         lastClosed: null,
@@ -82,8 +84,14 @@ export default async function CaixaInicioPage({
         paymentSummary: {
           cashCents: data.totals.cashSalesCents,
           pixCents: data.totals.pixCents,
-          cardCents: data.totals.debitCents + data.totals.creditCents,
+          debitCents: data.totals.debitCents,
+          creditCents: data.totals.creditCents,
           otherCents: data.totals.otherCents,
+          cashCount: data.totals.cashCount,
+          pixCount: data.totals.pixCount,
+          debitCount: data.totals.debitCount,
+          creditCount: data.totals.creditCount,
+          otherCount: data.totals.otherCount,
         },
       }}
     />

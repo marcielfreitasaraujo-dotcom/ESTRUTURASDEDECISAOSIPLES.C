@@ -70,7 +70,7 @@ export async function createCashierOrderAction(formData: FormData) {
   try {
     const ctx = await requireTenantPermission(PERMISSIONS.ORDER_CREATE);
     const { requireOpenSession } = await import("@/server/services/cash");
-    await requireOpenSession(ctx.tenantId);
+    await requireOpenSession(ctx.tenantId, ctx.userId);
     const order = tableNumber
       ? await openOrAppendTableSale({
           tenantId: ctx.tenantId,

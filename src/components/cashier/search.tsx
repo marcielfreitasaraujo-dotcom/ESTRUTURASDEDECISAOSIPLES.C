@@ -16,7 +16,7 @@ export function CashierSearch() {
     <div className="relative">
       <Input
         value={query}
-        placeholder="Buscar pedido, cliente ou mesa (F3)"
+        placeholder="Buscar pedido, cliente, mesa, operador ou caixa"
         className="h-11"
         onChange={async (event) => {
           const value = event.target.value;
@@ -53,6 +53,28 @@ export function CashierSearch() {
                 {formatBRL(order.totalCents)} · {order.paymentStatus === "PAID" ? "Pago" : "Pagamento pendente"}
               </span>
             </button>
+          ))}
+          {results.sessions?.map((session) => (
+            <button
+              key={session.id}
+              type="button"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left hover:bg-muted"
+              onClick={() => {
+                setOpen(false);
+                router.push(`/app/caixas/${session.id}`);
+              }}
+            >
+              <span>
+                Caixa {session.publicCode} · {session.terminal.name}
+              </span>
+              <span className="text-zinc-500">{session.operator.displayName || session.operator.name}</span>
+            </button>
+          ))}
+          {results.operators?.map((operator) => (
+            <p key={operator.id} className="px-3 py-1 text-zinc-400">
+              Operador {operator.displayName || operator.name}
+              {operator.operatorCode ? ` · ${operator.operatorCode}` : ""}
+            </p>
           ))}
           {results.customers.map((customer) => (
             <p key={customer.id} className="px-3 py-1 text-zinc-400">

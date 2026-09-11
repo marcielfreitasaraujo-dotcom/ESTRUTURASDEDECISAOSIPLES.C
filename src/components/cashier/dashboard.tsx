@@ -12,8 +12,10 @@ export type CashierDashboardData = {
   operatorName: string;
   tenantName: string;
   terminalName: string;
+  sessionCode?: string;
   cashLimitCents: number;
   cashOverLimit: boolean;
+  canManage?: boolean;
   session: {
     id: string;
     openedAt: string;
@@ -32,6 +34,7 @@ export type CashierDashboardData = {
     pendingCents: number;
     sangriaCents: number;
     supplyCents: number;
+    expenseCents: number;
     expectedCashCents: number;
     movementCount: number;
   };
@@ -51,7 +54,18 @@ export type CashierDashboardData = {
     orderCode: string | null;
   }[];
   notifications: { id: string; title: string; body: string }[];
-  paymentSummary: { cashCents: number; pixCents: number; cardCents: number; otherCents: number };
+  paymentSummary: {
+    cashCents: number;
+    pixCents: number;
+    debitCents: number;
+    creditCents: number;
+    otherCents: number;
+    cashCount: number;
+    pixCount: number;
+    debitCount: number;
+    creditCount: number;
+    otherCount: number;
+  };
 };
 
 const MOVEMENT_LABEL: Record<string, string> = {
@@ -61,6 +75,8 @@ const MOVEMENT_LABEL: Record<string, string> = {
   SUPPLY: "Suprimento",
   EXPENSE: "Despesa",
   REFUND: "Estorno",
+  ADJUSTMENT: "Ajuste",
+  CLOSING: "Fechamento",
 };
 
 export function CashierDashboard({ data }: { data: CashierDashboardData }) {
@@ -81,6 +97,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
     { label: "Pendente", value: formatBRL(data.totals.pendingCents) },
     { label: "Sangrias", value: formatBRL(data.totals.sangriaCents) },
     { label: "Suprimentos", value: formatBRL(data.totals.supplyCents) },
+    { label: "Despesas", value: formatBRL(data.totals.expenseCents) },
     { label: "Movimentações", value: String(data.totals.movementCount) },
   ];
 
@@ -91,9 +108,10 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
           <div>
             <p className="text-sm text-zinc-400">Olá, {data.operatorName}</p>
             <h1 className="font-heading text-3xl">Turno em andamento</h1>
+            {data.sessionCode ? <p className="mt-1 text-sm text-zinc-500">Sessão {data.sessionCode}</p> : null}
           </div>
           <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-medium text-emerald-400">
-            Caixa aberto
+            🟢 Caixa aberto
           </span>
         </div>
         <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
@@ -106,16 +124,16 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
             <dd>{data.terminalName}</dd>
           </div>
           <div>
-            <dt className="text-zinc-500">Status</dt>
-            <dd className="text-emerald-400">Caixa aberto</dd>
+            <dt className="text-zinc-500">Operador</dt>
+            <dd>{data.session.operatorName}</dd>
           </div>
           <div>
             <dt className="text-zinc-500">Horário de abertura</dt>
             <dd>{formatClock(data.session.openedAt)}</dd>
           </div>
           <div>
-            <dt className="text-zinc-500">Responsável</dt>
-            <dd>{data.session.operatorName}</dd>
+            <dt className="text-zinc-500">Status</dt>
+            <dd className="text-emerald-400">Caixa aberto</dd>
           </div>
         </dl>
         <div className="mt-4">
@@ -141,32 +159,34 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
 
       <section className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4 md:grid-cols-[1.2fr_0.8fr]">
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-          <p className="text-xs uppercase tracking-wide text-emerald-400">Caixa aberto</p>
+          <p className="text-xs uppercase tracking-wide text-emerald-400">Saldo físico esperado</p>
+          <p className="mt-2 font-heading text-3xl">{formatBRL(data.totals.expectedCashCents)}</p>
           <dl className="mt-3 grid gap-2 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-zinc-400">Aberto em</dt>
               <dd>{formatClock(data.session.openedAt)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-zinc-400">Operador</dt>
-              <dd>{data.session.operatorName}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
               <dt className="text-zinc-400">Saldo inicial</dt>
               <dd>{formatBRL(data.session.openingCents)}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-zinc-400">Saldo esperado</dt>
-              <dd>{formatBRL(data.totals.expectedCashCents)}</dd>
+              <dt className="text-zinc-400">PIX e cartão</dt>
+              <dd className="text-zinc-500">não entram no físico</dd>
             </div>
           </dl>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button asChild className="h-11 min-w-36">
-              <Link href="/caixa/conferencia">Conferir caixa</Link>
-            </Button>
-            <Button asChild variant="outline" className="h-11 min-w-36">
               <Link href="/caixa/fechamento">Fechar caixa</Link>
             </Button>
+            <Button asChild variant="outline" className="h-11 min-w-36">
+              <Link href="/caixa/conferencia">Contagem</Link>
+            </Button>
+            {data.canManage ? (
+              <Button asChild variant="outline" className="h-11 min-w-36">
+                <Link href="/app/caixas">Central de conferência</Link>
+              </Button>
+            ) : null}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -176,7 +196,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
             { href: "/caixa/pedidos", label: "Buscar pedido", hint: "F3" },
             { href: "/caixa/sangria", label: "Sangria", hint: "F7" },
             { href: "/caixa/suprimento", label: "Suprimento", hint: "F8" },
-            { href: "/caixa/conferencia", label: "Conferir caixa", hint: "F9" },
+            { href: "/caixa/despesa", label: "Despesa", hint: "" },
           ].map((item) => (
             <Link
               key={item.href + item.label}
@@ -184,7 +204,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
               className="flex min-h-20 flex-col justify-center rounded-xl border border-zinc-800 bg-card px-3 py-2 text-sm font-medium hover:border-primary/50 hover:bg-primary/10"
             >
               {item.label}
-              <span className="text-[11px] font-normal text-zinc-500">{item.hint}</span>
+              {item.hint ? <span className="text-[11px] font-normal text-zinc-500">{item.hint}</span> : null}
             </Link>
           ))}
         </div>
@@ -235,7 +255,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
                   </span>
                   <span className={row.type === "SANGRIA" || row.type === "EXPENSE" || row.type === "REFUND" ? "text-red-400" : "text-emerald-400"}>
                     {row.type === "SANGRIA" || row.type === "EXPENSE" || row.type === "REFUND" ? "-" : "+"}
-                    {formatBRL(row.amountCents)}
+                    {formatBRL(Math.abs(row.amountCents))}
                   </span>
                 </li>
               ))
@@ -246,24 +266,23 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-zinc-800 bg-card p-4">
-          <h2 className="font-heading text-lg">Resumo de pagamentos</h2>
+          <h2 className="font-heading text-lg">Resumo financeiro</h2>
           <dl className="mt-3 grid gap-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-zinc-400">Dinheiro</dt>
-              <dd>{formatBRL(data.paymentSummary.cashCents)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-zinc-400">PIX</dt>
-              <dd>{formatBRL(data.paymentSummary.pixCents)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-zinc-400">Cartão</dt>
-              <dd>{formatBRL(data.paymentSummary.cardCents)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-zinc-400">Outros</dt>
-              <dd>{formatBRL(data.paymentSummary.otherCents)}</dd>
-            </div>
+            {[
+              ["Dinheiro", data.paymentSummary.cashCents, data.paymentSummary.cashCount],
+              ["PIX", data.paymentSummary.pixCents, data.paymentSummary.pixCount],
+              ["Débito", data.paymentSummary.debitCents, data.paymentSummary.debitCount],
+              ["Crédito", data.paymentSummary.creditCents, data.paymentSummary.creditCount],
+              ["Outros", data.paymentSummary.otherCents, data.paymentSummary.otherCount],
+            ].map(([label, cents, count]) => (
+              <div key={String(label)} className="flex justify-between">
+                <dt className="text-zinc-400">
+                  {label}
+                  <span className="ml-2 text-xs text-zinc-600">{count} transações</span>
+                </dt>
+                <dd>{formatBRL(Number(cents))}</dd>
+              </div>
+            ))}
           </dl>
         </div>
         <div className="rounded-2xl border border-zinc-800 bg-card p-4">

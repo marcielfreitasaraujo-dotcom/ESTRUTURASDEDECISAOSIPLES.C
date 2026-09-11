@@ -15,35 +15,93 @@ import {
   type CashTenderInput,
 } from "@/domain/cash/math";
 import { getPrintProvider } from "@/server/providers/print";
+import { actorManagesCash, assertCanOperateOpenSession } from "@/server/services/cash-access";
+import { operatorLabel } from "@/domain/cash/status";
 
-export async function ensureDefaultTerminal(tenantId: string) {
-  const existing = await prisma.cashTerminal.findFirst({
-    where: { tenantId, active: true },
+const DEFAULT_TERMINALS = [
+  { name: "Caixa 01", slug: "caixa-01", code: "CX01", sortOrder: 0 },
+  { name: "Caixa 02", slug: "caixa-02", code: "CX02", sortOrder: 1 },
+  { name: "Caixa 03", slug: "caixa-03", code: "CX03", sortOrder: 2 },
+];
+
+export async function ensureDefaultTerminals(tenantId: string) {
+  const existing = await prisma.cashTerminal.findMany({
+    where: { tenantId },
     orderBy: { sortOrder: "asc" },
   });
-  if (existing) return existing;
-  return prisma.cashTerminal.create({
-    data: { tenantId, name: "Caixa 01", slug: "caixa-01", sortOrder: 0 },
-  });
+  if (existing.length === 0) {
+    await prisma.cashTerminal.createMany({
+      data: DEFAULT_TERMINALS.map((row) => ({ ...row, tenantId })),
+    });
+    return prisma.cashTerminal.findMany({ where: { tenantId }, orderBy: { sortOrder: "asc" } });
+  }
+  const missing = DEFAULT_TERMINALS.filter((row) => !existing.some((item) => item.slug === row.slug));
+  if (missing.length) {
+    await prisma.cashTerminal.createMany({
+      data: missing.map((row) => ({ ...row, tenantId })),
+    });
+  }
+  return prisma.cashTerminal.findMany({ where: { tenantId }, orderBy: { sortOrder: "asc" } });
 }
 
-export async function getOpenSession(tenantId: string, terminalId?: string) {
+export async function ensureDefaultTerminal(tenantId: string) {
+  const terminals = await ensureDefaultTerminals(tenantId);
+  return terminals.find((row) => row.active) ?? terminals[0];
+}
+
+export type OpenSessionLookup = { terminalId?: string; operatorId?: string };
+
+export async function getOpenSession(tenantId: string, terminalIdOrLookup?: string | OpenSessionLookup) {
+  const lookup: OpenSessionLookup =
+    typeof terminalIdOrLookup === "string" ? { terminalId: terminalIdOrLookup } : (terminalIdOrLookup ?? {});
   return prisma.cashSession.findFirst({
-    where: { tenantId, status: "OPEN", ...(terminalId ? { terminalId } : {}) },
+    where: {
+      tenantId,
+      status: "OPEN",
+      ...(lookup.terminalId ? { terminalId: lookup.terminalId } : {}),
+      ...(lookup.operatorId ? { operatorId: lookup.operatorId } : {}),
+    },
     include: {
       terminal: true,
-      openedBy: { select: { id: true, name: true } },
+      openedBy: { select: { id: true, name: true, displayName: true } },
+      operator: { select: { id: true, name: true, displayName: true, operatorCode: true } },
     },
     orderBy: { openedAt: "desc" },
   });
 }
 
-export async function requireOpenSession(tenantId: string) {
-  const session = await getOpenSession(tenantId);
+export async function requireOpenSession(tenantId: string, userId?: string) {
+  const session = userId
+    ? (await getOpenSession(tenantId, { operatorId: userId })) ??
+      (await prisma.cashSession.findFirst({
+        where: { tenantId, status: "OPEN", openedById: userId },
+        include: {
+          terminal: true,
+          openedBy: { select: { id: true, name: true, displayName: true } },
+          operator: { select: { id: true, name: true, displayName: true, operatorCode: true } },
+        },
+      }))
+    : await getOpenSession(tenantId);
   if (!session) {
     throw new ConflictError("Abra seu caixa para começar.");
   }
   return session;
+}
+
+async function nextPublicCode(
+  tx: Prisma.TransactionClient,
+  tenantId: string,
+  terminalSortOrder: number,
+) {
+  const count = await tx.cashSession.count({ where: { tenantId } });
+  let seq = count + 1;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const publicCode = `${seq}-${terminalSortOrder + 1}`;
+    const taken = await tx.cashSession.findFirst({ where: { tenantId, publicCode }, select: { id: true } });
+    if (!taken) return publicCode;
+    seq += 1;
+  }
+  return `${Date.now().toString().slice(-6)}-${terminalSortOrder + 1}`;
 }
 
 export async function openCashSession(input: {
@@ -51,24 +109,53 @@ export async function openCashSession(input: {
   userId: string;
   openingCents: number;
   note?: string;
+  terminalId?: string;
+  operatorId?: string;
 }) {
   if (!Number.isInteger(input.openingCents) || input.openingCents < 0) {
     throw new AppError("INVALID_OPENING", "Informe um valor inicial válido.");
   }
-  const terminal = await ensureDefaultTerminal(input.tenantId);
-  const open = await getOpenSession(input.tenantId, terminal.id);
-  if (open) {
-    throw new ConflictError("Existe um caixa aberto.");
+  const manages = await actorManagesCash(input.tenantId, input.userId);
+  const operatorId = input.operatorId || input.userId;
+  if (!manages && operatorId !== input.userId) {
+    throw new ForbiddenError("Você só pode abrir o caixa no seu operador.");
+  }
+  const membership = await prisma.tenantMembership.findFirst({
+    where: { tenantId: input.tenantId, userId: operatorId },
+  });
+  if (membership && membership.active === false) {
+    throw new ForbiddenError("Este operador está inativo.");
+  }
+
+  const terminals = await ensureDefaultTerminals(input.tenantId);
+  const terminal = input.terminalId
+    ? terminals.find((row) => row.id === input.terminalId)
+    : terminals.find((row) => row.active) ?? terminals[0];
+  if (!terminal || !terminal.active) {
+    throw new NotFoundError("Terminal não encontrado.");
+  }
+
+  const terminalOpen = await getOpenSession(input.tenantId, { terminalId: terminal.id });
+  if (terminalOpen) {
+    throw new ConflictError("Este terminal já possui um caixa aberto.");
+  }
+  const operatorOpen = await getOpenSession(input.tenantId, { operatorId });
+  if (operatorOpen) {
+    throw new ConflictError("Este operador já possui um caixa aberto.");
   }
 
   const session = await prisma.$transaction(async (tx) => {
+    const publicCode = await nextPublicCode(tx, input.tenantId, terminal.sortOrder);
     const created = await tx.cashSession.create({
       data: {
         tenantId: input.tenantId,
         terminalId: terminal.id,
+        publicCode,
+        operatorId,
         openedById: input.userId,
         openingCents: input.openingCents,
         openingNote: input.note?.trim() || null,
+        conferenceStatus: "NONE",
       },
     });
     await tx.cashMovement.create({
@@ -78,7 +165,7 @@ export async function openCashSession(input: {
         type: "OPENING",
         amountCents: input.openingCents,
         method: "CASH",
-        operatorId: input.userId,
+        operatorId,
         notes: input.note?.trim() || null,
         idempotencyKey: `open-${created.id}`,
       },
@@ -92,13 +179,18 @@ export async function openCashSession(input: {
     entityId: session.id,
     tenantId: input.tenantId,
     userId: input.userId,
-    metadata: { openingCents: input.openingCents, terminalId: terminal.id },
+    metadata: {
+      openingCents: input.openingCents,
+      terminalId: terminal.id,
+      operatorId,
+      publicCode: session.publicCode,
+    },
   });
-  await notifyCash(input.tenantId, "Caixa aberto", `Turno iniciado com saldo inicial.`);
+  await notifyCash(input.tenantId, "Caixa aberto", `Turno ${session.publicCode} iniciado com saldo inicial.`);
   return session;
 }
 
-export async function getCashierDashboard(tenantId: string) {
+export async function getCashierDashboard(tenantId: string, userId?: string) {
   const tenant = await prisma.tenant.findUniqueOrThrow({
     where: { id: tenantId },
     select: {
@@ -109,13 +201,32 @@ export async function getCashierDashboard(tenantId: string) {
       cashierCanRegisterExpense: true,
     },
   });
-  const terminal = await ensureDefaultTerminal(tenantId);
-  const session = await getOpenSession(tenantId, terminal.id);
+  const terminals = await ensureDefaultTerminals(tenantId);
+  const terminal = terminals.find((row) => row.active) ?? terminals[0];
+  const session = userId
+    ? ((await getOpenSession(tenantId, { operatorId: userId })) ??
+      (await prisma.cashSession.findFirst({
+        where: { tenantId, status: "OPEN", openedById: userId },
+        include: {
+          terminal: true,
+          openedBy: { select: { id: true, name: true, displayName: true } },
+          operator: { select: { id: true, name: true, displayName: true, operatorCode: true } },
+        },
+      })))
+    : await getOpenSession(tenantId, terminal.id);
   const lastClosed = session
     ? null
     : await prisma.cashSession.findFirst({
-        where: { tenantId, status: "CLOSED" },
-        include: { openedBy: { select: { name: true } }, terminal: true },
+        where: {
+          tenantId,
+          status: "CLOSED",
+          ...(userId ? { OR: [{ operatorId: userId }, { openedById: userId }] } : {}),
+        },
+        include: {
+          openedBy: { select: { name: true, displayName: true } },
+          operator: { select: { name: true, displayName: true } },
+          terminal: true,
+        },
         orderBy: { closedAt: "desc" },
       });
   const lastClosedSales = lastClosed
@@ -130,9 +241,9 @@ export async function getCashierDashboard(tenantId: string) {
   const movements = session
     ? await prisma.cashMovement.findMany({
         where: { tenantId, sessionId: session.id, status: "ACTIVE" },
-        include: { operator: { select: { name: true } }, order: { select: { publicCode: true } } },
+        include: { operator: { select: { name: true, displayName: true } }, order: { select: { publicCode: true } } },
         orderBy: { createdAt: "desc" },
-        take: 8,
+        take: 12,
       })
     : [];
   const notifications = await prisma.notification.findMany({
@@ -140,12 +251,24 @@ export async function getCashierDashboard(tenantId: string) {
     orderBy: { createdAt: "desc" },
     take: 8,
   });
-
+  const operators = await listCashOperators(tenantId);
   const cashOverLimit = Boolean(session && totals.expectedCashCents > tenant.cashLimitCents);
 
   return {
-    tenant: { name: tenant.tradeName || tenant.name, cashLimitCents: tenant.cashLimitCents, maxCashierDiscountPercent: tenant.maxCashierDiscountPercent, cashierCanRegisterExpense: tenant.cashierCanRegisterExpense },
-    terminal: { id: terminal.id, name: terminal.name },
+    tenant: {
+      name: tenant.tradeName || tenant.name,
+      cashLimitCents: tenant.cashLimitCents,
+      maxCashierDiscountPercent: tenant.maxCashierDiscountPercent,
+      cashierCanRegisterExpense: tenant.cashierCanRegisterExpense,
+    },
+    terminal: { id: terminal.id, name: terminal.name, code: terminal.code },
+    terminals: terminals.map((row) => ({
+      id: row.id,
+      name: row.name,
+      code: row.code,
+      active: row.active,
+    })),
+    operators,
     session,
     lastClosed: lastClosed
       ? { ...lastClosed, salesCents: lastClosedSales?._sum.amountCents ?? 0 }
@@ -156,6 +279,23 @@ export async function getCashierDashboard(tenantId: string) {
     notifications,
     cashOverLimit,
   };
+}
+
+export async function listCashOperators(tenantId: string) {
+  const members = await prisma.tenantMembership.findMany({
+    where: { tenantId, role: { in: ["CASHIER", "OWNER", "MANAGER"] } },
+    include: { user: { select: { id: true, name: true, displayName: true, operatorCode: true, username: true, bannedAt: true } } },
+    orderBy: { createdAt: "asc" },
+  });
+  return members
+    .filter((row) => row.active && !row.user.bannedAt)
+    .map((row) => ({
+      id: row.user.id,
+      name: operatorLabel(row.user),
+      operatorCode: row.user.operatorCode,
+      username: row.user.username,
+      role: row.role,
+    }));
 }
 
 function emptyTotals() {
@@ -175,10 +315,17 @@ function emptyTotals() {
     expectedCashCents: 0,
     movementCount: 0,
     paidCount: 0,
+    debitCount: 0,
+    creditCount: 0,
+    pixCount: 0,
+    cashCount: 0,
+    otherCount: 0,
+    adjustmentCents: 0,
+    refundCashCents: 0,
   };
 }
 
-async function sessionTotals(sessionId: string, tenantId: string) {
+export async function sessionTotals(sessionId: string, tenantId: string) {
   const session = await prisma.cashSession.findFirst({ where: { id: sessionId, tenantId } });
   if (!session) return emptyTotals();
   const movements = await prisma.cashMovement.findMany({
@@ -204,8 +351,16 @@ async function sessionTotals(sessionId: string, tenantId: string) {
   const supplyCents = sumType("SUPPLY");
   const expenseCents = sumType("EXPENSE");
   const refundCashCents = movements
-    .filter((row) => row.type === "REFUND" && row.method === "CASH")
+    .filter((row) => row.type === "REFUND" && (row.method === "CASH" || !row.method))
     .reduce((sum, row) => sum + row.amountCents, 0);
+  const adjustmentCents = movements
+    .filter((row) => row.type === "ADJUSTMENT")
+    .reduce((sum, row) => sum + row.amountCents, 0);
+  const debitPayments = payments.filter((row) => row.method === "CARD" && row.cardKind !== "CREDIT");
+  const creditPayments = payments.filter((row) => row.method === "CARD" && row.cardKind === "CREDIT");
+  const pixPayments = payments.filter((row) => row.method === "PIX");
+  const cashPayments = payments.filter((row) => row.method === "CASH");
+  const otherPayments = payments.filter((row) => row.method === "OTHER" || row.method === "ONLINE");
 
   return {
     openingCents: session.openingCents,
@@ -217,7 +372,7 @@ async function sessionTotals(sessionId: string, tenantId: string) {
     expenseCents,
     cashSalesCents,
     pixCents: byMethod("PIX"),
-    debitCents: payments.filter((row) => row.method === "CARD" && row.cardKind !== "CREDIT").reduce((sum, row) => sum + row.amountCents, 0),
+    debitCents: debitPayments.reduce((sum, row) => sum + row.amountCents, 0),
     creditCents: byMethod("CARD", "CREDIT"),
     otherCents: byMethod("OTHER") + byMethod("ONLINE"),
     expectedCashCents: expectedCashCents({
@@ -227,9 +382,17 @@ async function sessionTotals(sessionId: string, tenantId: string) {
       sangriaCents,
       expenseCents,
       refundCashCents,
+      adjustmentCents,
     }),
     movementCount: movements.length,
     paidCount: new Set(payments.map((row) => row.orderId)).size,
+    debitCount: debitPayments.length,
+    creditCount: creditPayments.length,
+    pixCount: pixPayments.length,
+    cashCount: cashPayments.length,
+    otherCount: otherPayments.length,
+    adjustmentCents,
+    refundCashCents,
   };
 }
 
@@ -261,10 +424,10 @@ export async function getReceivableOrder(tenantId: string, orderId: string) {
   return { order, methods };
 }
 
-export async function searchCashier(tenantId: string, query: string) {
+export async function searchCashier(tenantId: string, query: string, options?: { includeSessions?: boolean }) {
   const q = query.trim();
-  if (q.length < 1) return { orders: [], customers: [], tables: [] };
-  const [orders, customers, tables] = await Promise.all([
+  if (q.length < 1) return { orders: [], customers: [], tables: [], operators: [], sessions: [] };
+  const [orders, customers, tables, operators, sessions] = await Promise.all([
     prisma.order.findMany({
       where: {
         tenantId,
@@ -272,6 +435,7 @@ export async function searchCashier(tenantId: string, query: string) {
           { publicCode: { contains: q, mode: "insensitive" } },
           { customerName: { contains: q, mode: "insensitive" } },
           { tableNumber: { contains: q, mode: "insensitive" } },
+          { customerPhone: { contains: q } },
         ],
       },
       orderBy: { createdAt: "desc" },
@@ -296,8 +460,38 @@ export async function searchCashier(tenantId: string, query: string) {
       take: 6,
       select: { id: true, number: true, status: true, customerName: true },
     }),
+    options?.includeSessions
+      ? prisma.user.findMany({
+          where: {
+            memberships: { some: { tenantId } },
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { displayName: { contains: q, mode: "insensitive" } },
+              { username: { contains: q, mode: "insensitive" } },
+              { operatorCode: { contains: q, mode: "insensitive" } },
+            ],
+          },
+          take: 6,
+          select: { id: true, name: true, displayName: true, operatorCode: true },
+        })
+      : Promise.resolve([]),
+    options?.includeSessions
+      ? prisma.cashSession.findMany({
+          where: {
+            tenantId,
+            OR: [
+              { publicCode: { contains: q, mode: "insensitive" } },
+              { terminal: { name: { contains: q, mode: "insensitive" } } },
+              { operator: { name: { contains: q, mode: "insensitive" } } },
+            ],
+          },
+          include: { terminal: true, operator: { select: { name: true, displayName: true } } },
+          orderBy: { openedAt: "desc" },
+          take: 8,
+        })
+      : Promise.resolve([]),
   ]);
-  return { orders, customers, tables };
+  return { orders, customers, tables, operators, sessions };
 }
 
 export async function receiveOrderPayment(input: {
@@ -311,7 +505,8 @@ export async function receiveOrderPayment(input: {
   authorizationId?: string;
   idempotencyKey: string;
 }) {
-  const session = await requireOpenSession(input.tenantId);
+  const session = await requireOpenSession(input.tenantId, input.userId);
+  await assertCanOperateOpenSession({ tenantId: input.tenantId, userId: input.userId, session });
   const existing = await prisma.payment.findFirst({
     where: { tenantId: input.tenantId, idempotencyKey: input.idempotencyKey },
   });
@@ -420,17 +615,18 @@ export async function receiveOrderPayment(input: {
         },
       });
       payments.push(payment);
-      if (status === "PAID" && tender.method === "CASH") {
+      if (status === "PAID") {
         await tx.cashMovement.create({
           data: {
             tenantId: input.tenantId,
             sessionId: session.id,
             type: "SALE",
             amountCents: tender.amountCents,
-            method: "CASH",
-            operatorId: input.userId,
+            method: tender.method,
+            operatorId: session.operatorId,
             orderId: order.id,
             paymentId: payment.id,
+            notes: tender.method === "CASH" && change ? `Troco ${change}` : tender.notes?.trim() || null,
             idempotencyKey: `sale-${payment.id}`,
           },
         });
@@ -478,7 +674,8 @@ export async function receiveOrderPayment(input: {
 }
 
 export async function confirmPixPayment(input: { tenantId: string; userId: string; paymentId: string }) {
-  const session = await requireOpenSession(input.tenantId);
+  const session = await requireOpenSession(input.tenantId, input.userId);
+  await assertCanOperateOpenSession({ tenantId: input.tenantId, userId: input.userId, session });
   const payment = await prisma.payment.findFirst({ where: { id: input.paymentId, tenantId: input.tenantId } });
   if (!payment) throw new NotFoundError("Pagamento não encontrado.");
   if (payment.method !== "PIX") throw new AppError("NOT_PIX", "Este pagamento não é PIX.");
@@ -487,6 +684,25 @@ export async function confirmPixPayment(input: { tenantId: string; userId: strin
     where: { id: payment.id },
     data: { status: "PAID", confirmedAt: new Date(), operatorId: input.userId, sessionId: session.id },
   });
+  const saleKey = `sale-${payment.id}`;
+  const existingSale = await prisma.cashMovement.findFirst({
+    where: { tenantId: input.tenantId, idempotencyKey: saleKey },
+  });
+  if (!existingSale) {
+    await prisma.cashMovement.create({
+      data: {
+        tenantId: input.tenantId,
+        sessionId: session.id,
+        type: "SALE",
+        amountCents: payment.amountCents,
+        method: "PIX",
+        operatorId: session.operatorId,
+        orderId: payment.orderId,
+        paymentId: payment.id,
+        idempotencyKey: saleKey,
+      },
+    });
+  }
   await maybeCompleteOrder(input.tenantId, payment.orderId, input.userId);
   await writeAudit({
     action: "UPDATE",
@@ -538,7 +754,8 @@ export async function registerCashMovement(input: {
   authorizationId?: string;
   idempotencyKey: string;
 }) {
-  const session = await requireOpenSession(input.tenantId);
+  const session = await requireOpenSession(input.tenantId, input.userId);
+  await assertCanOperateOpenSession({ tenantId: input.tenantId, userId: input.userId, session });
   if (!Number.isInteger(input.amountCents) || input.amountCents <= 0) {
     throw new AppError("INVALID_AMOUNT", "Informe um valor válido.");
   }
@@ -567,6 +784,24 @@ export async function registerCashMovement(input: {
     }
   }
 
+  if (input.type === "SANGRIA") {
+    const totals = await sessionTotals(session.id, input.tenantId);
+    if (input.amountCents > totals.expectedCashCents) {
+      throw new AppError("SANGRIA_EXCEEDS_CASH", "A sangria não pode ser maior que o saldo físico esperado.");
+    }
+    const tenant = await prisma.tenant.findUniqueOrThrow({
+      where: { id: input.tenantId },
+      select: { cashLimitCents: true },
+    });
+    if (tenant.cashLimitCents > 0 && input.amountCents > tenant.cashLimitCents) {
+      await notifyCash(
+        input.tenantId,
+        "Sangria acima do limite",
+        `Sangria de valor elevado no caixa ${session.publicCode}.`,
+      );
+    }
+  }
+
   const movement = await prisma.cashMovement.create({
     data: {
       tenantId: input.tenantId,
@@ -576,7 +811,7 @@ export async function registerCashMovement(input: {
       method: "CASH",
       reason: input.reason?.trim() || null,
       notes: input.notes?.trim() || null,
-      operatorId: input.userId,
+      operatorId: session.operatorId,
       idempotencyKey: input.idempotencyKey,
     },
   });
@@ -603,8 +838,8 @@ export async function listSessionMovements(tenantId: string, sessionId?: string)
   });
 }
 
-export async function previewCashCount(tenantId: string) {
-  const session = await requireOpenSession(tenantId);
+export async function previewCashCount(tenantId: string, userId?: string) {
+  const session = await requireOpenSession(tenantId, userId);
   const totals = await sessionTotals(session.id, tenantId);
   return { session, totals };
 }
@@ -617,24 +852,44 @@ export async function closeCashSession(input: {
   confirm: boolean;
 }) {
   if (!input.confirm) throw new AppError("CONFIRM_REQUIRED", "Confirme o fechamento do caixa.");
-  const session = await requireOpenSession(input.tenantId);
+  const session = await requireOpenSession(input.tenantId, input.userId);
+  await assertCanOperateOpenSession({ tenantId: input.tenantId, userId: input.userId, session });
+  if (session.status !== "OPEN") {
+    throw new ConflictError("Este caixa já foi fechado.");
+  }
   if (!Number.isInteger(input.countedCents) || input.countedCents < 0) {
     throw new AppError("INVALID_COUNT", "Informe o dinheiro contado.");
   }
   const totals = await sessionTotals(session.id, input.tenantId);
   const expected = totals.expectedCashCents;
   const difference = differenceCents(expected, input.countedCents);
-  const closed = await prisma.cashSession.update({
-    where: { id: session.id },
-    data: {
-      status: "CLOSED",
-      closedById: input.userId,
-      closedAt: new Date(),
-      countedCents: input.countedCents,
-      expectedCents: expected,
-      differenceCents: difference,
-      closingNote: input.note?.trim() || null,
-    },
+  const closed = await prisma.$transaction(async (tx) => {
+    const updated = await tx.cashSession.update({
+      where: { id: session.id },
+      data: {
+        status: "CLOSED",
+        closedById: input.userId,
+        closedAt: new Date(),
+        countedCents: input.countedCents,
+        expectedCents: expected,
+        differenceCents: difference,
+        closingNote: input.note?.trim() || null,
+        conferenceStatus: "PENDING",
+      },
+    });
+    await tx.cashMovement.create({
+      data: {
+        tenantId: input.tenantId,
+        sessionId: session.id,
+        type: "CLOSING",
+        amountCents: input.countedCents,
+        method: "CASH",
+        operatorId: session.operatorId,
+        notes: input.note?.trim() || null,
+        idempotencyKey: `close-${session.id}`,
+      },
+    });
+    return updated;
   });
   await writeAudit({
     action: "UPDATE",
@@ -647,6 +902,7 @@ export async function closeCashSession(input: {
       expectedCents: expected,
       differenceCents: difference,
       salesCents: totals.salesCents,
+      conferenceStatus: "PENDING",
     },
   });
   printSafe({ type: "RECEIPT", tenantId: input.tenantId, payload: { sessionId: session.id, kind: "close" } });
@@ -655,7 +911,7 @@ export async function closeCashSession(input: {
 
 export async function listOwnClosings(tenantId: string, userId: string) {
   const rows = await prisma.cashSession.findMany({
-    where: { tenantId, openedById: userId, status: "CLOSED" },
+    where: { tenantId, OR: [{ operatorId: userId }, { openedById: userId }], status: "CLOSED" },
     include: { terminal: true, payments: true, movements: true },
     orderBy: { closedAt: "desc" },
     take: 40,
@@ -785,10 +1041,23 @@ export async function cancelPayment(input: {
         cancelReason: input.reason.trim(),
       },
     });
-    await tx.cashMovement.updateMany({
-      where: { paymentId: payment.id, tenantId: input.tenantId, status: "ACTIVE" },
-      data: { status: "CANCELLED", cancelledAt: new Date(), cancelReason: input.reason.trim() },
-    });
+    const sessionId = payment.sessionId;
+    if (sessionId) {
+      await tx.cashMovement.create({
+        data: {
+          tenantId: input.tenantId,
+          sessionId,
+          type: "REFUND",
+          amountCents: payment.amountCents,
+          method: payment.method,
+          operatorId: input.userId,
+          orderId: payment.orderId,
+          paymentId: payment.id,
+          notes: input.reason.trim(),
+          idempotencyKey: `cancel-${payment.id}`,
+        },
+      });
+    }
     await tx.order.update({
       where: { id: payment.orderId },
       data: { paymentStatus: "PENDING" },
@@ -819,20 +1088,22 @@ export async function requestRefund(input: {
     kind: "REFUND",
     orderId: payment.orderId,
   });
-  const session = await getOpenSession(input.tenantId);
+  const session = payment.sessionId
+    ? await prisma.cashSession.findFirst({ where: { id: payment.sessionId, tenantId: input.tenantId } })
+    : await getOpenSession(input.tenantId, { operatorId: input.userId });
   await prisma.$transaction(async (tx) => {
     await tx.payment.update({
       where: { id: payment.id },
       data: { status: "REFUNDED", cancelReason: input.reason.trim(), cancelledAt: new Date() },
     });
-    if (session && payment.method === "CASH") {
+    if (session) {
       await tx.cashMovement.create({
         data: {
           tenantId: input.tenantId,
           sessionId: session.id,
           type: "REFUND",
           amountCents: payment.amountCents,
-          method: "CASH",
+          method: payment.method,
           operatorId: input.userId,
           orderId: payment.orderId,
           paymentId: payment.id,

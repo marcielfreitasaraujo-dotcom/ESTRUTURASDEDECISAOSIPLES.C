@@ -19,11 +19,19 @@ export function CashierHotkeys() {
   const router = useRouter();
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const typing =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
       if (event.key === "Escape") {
         const dialog = document.querySelector("[data-slot=dialog-close], [data-slot=sheet-close]");
         if (dialog instanceof HTMLElement) dialog.click();
         return;
       }
+      if (typing) return;
       const href = ROUTES[event.key];
       if (!href && event.key !== "F5") return;
       event.preventDefault();

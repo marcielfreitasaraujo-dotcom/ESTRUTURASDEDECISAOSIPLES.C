@@ -14,6 +14,8 @@ describe("RBAC", () => {
     expect(hasPermission("CASHIER", PERMISSIONS.FINANCE_READ)).toBe(false);
     expect(hasPermission("CASHIER", PERMISSIONS.TEAM_READ)).toBe(false);
     expect(hasPermission("CASHIER", PERMISSIONS.CASH_OPERATE)).toBe(true);
+    expect(hasPermission("CASHIER", PERMISSIONS.CASH_CONFER)).toBe(false);
+    expect(hasPermission("MANAGER", PERMISSIONS.CASH_CONFER)).toBe(true);
     expect(hasPermission("CASHIER", PERMISSIONS.CASH_EXPENSE)).toBe(false);
     expect(hasPermission("CASHIER", PERMISSIONS.INVENTORY_WRITE)).toBe(false);
     expect(hasPermission("WAITER", PERMISSIONS.ORDER_CREATE)).toBe(true);

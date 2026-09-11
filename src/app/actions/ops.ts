@@ -56,6 +56,9 @@ export async function addTeamMemberAction(formData: FormData) {
       username: String(formData.get("username") || "") || undefined,
       password: String(formData.get("password") || ""),
       role: String(formData.get("role") || "STAFF") as TenantRole,
+      displayName: String(formData.get("displayName") || "") || undefined,
+      operatorCode: String(formData.get("operatorCode") || "") || undefined,
+      phone: String(formData.get("phone") || "") || undefined,
     });
   } catch (error) {
     redirect(`/app/equipe?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
@@ -78,6 +81,10 @@ export async function updateTeamMemberAction(formData: FormData) {
       username: String(formData.get("username") || "") || undefined,
       password: String(formData.get("newPassword") || formData.get("password") || "") || undefined,
       role: String(formData.get("role") || "STAFF") as TenantRole,
+      displayName: String(formData.get("displayName") || "") || undefined,
+      operatorCode: String(formData.get("operatorCode") || "") || undefined,
+      phone: String(formData.get("phone") || "") || undefined,
+      active: String(formData.get("active") || "1") !== "0",
     });
   } catch (error) {
     redirect(`/app/equipe?error=${encodeURIComponent(publicErrorMessage(error).message)}`);

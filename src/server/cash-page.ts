@@ -5,7 +5,7 @@ import { getOpenSession } from "@/server/services/cash";
 
 export async function requireOpenCashPage() {
   const ctx = await requirePage(PERMISSIONS.CASH_OPERATE);
-  const session = await getOpenSession(ctx.tenantId);
+  const session = await getOpenSession(ctx.tenantId, { operatorId: ctx.userId });
   if (!session) redirect("/caixa");
   return { ...ctx, session };
 }

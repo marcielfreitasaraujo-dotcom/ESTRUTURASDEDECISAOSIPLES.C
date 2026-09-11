@@ -34,9 +34,9 @@ export default async function TeamPage({
   return (
     <div className="grid gap-6">
       <div>
-        <h1 className="text-3xl font-semibold">Equipe</h1>
+        <h1 className="text-3xl font-semibold">Usuários e operadores</h1>
         <p className="text-sm text-muted-foreground">
-          O gerente e o proprietário administram a equipe da loja. Não é possível criar ou alterar o admin da plataforma.
+          Cadastre operadores do caixa, gerentes e a equipe da loja. O Caixa Geral pode ser usado quando não houver um operador identificado.
         </p>
       </div>
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">{error}</p> : null}
@@ -49,20 +49,32 @@ export default async function TeamPage({
           <CardContent>
             <form action={addTeamMemberAction} autoComplete="off" className="grid gap-3 sm:grid-cols-2">
               <div className="grid gap-2">
-                <Label htmlFor="new-member-name">Nome</Label>
+                <Label htmlFor="new-member-name">Nome completo</Label>
                 <Input id="new-member-name" name="name" required />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="new-member-display">Nome de exibição</Label>
+                <Input id="new-member-display" name="displayName" placeholder="Maria" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="new-member-email">E-mail</Label>
                 <Input id="new-member-email" name="email" type="email" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="new-member-username">Usuário (PDV)</Label>
-                <Input id="new-member-username" name="username" placeholder="caixa" />
+                <Label htmlFor="new-member-username">Login</Label>
+                <Input id="new-member-username" name="username" placeholder="maria" />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="new-member-password">Senha</Label>
+                <Label htmlFor="new-member-password">Senha ou PIN</Label>
                 <Input id="new-member-password" name="password" type="password" minLength={8} autoComplete="new-password" required />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="new-member-phone">Telefone</Label>
+                <Input id="new-member-phone" name="phone" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="new-member-code">Código do operador</Label>
+                <Input id="new-member-code" name="operatorCode" placeholder="OP01" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="new-member-role">Papel</Label>
@@ -100,9 +112,12 @@ export default async function TeamPage({
                 <div className="grid gap-3">
                   <form action={updateTeamMemberAction} className="grid gap-3 sm:grid-cols-2">
                     <input type="hidden" name="membershipId" value={member.id} />
-                    <Input name="name" defaultValue={member.user.name} required aria-label="Nome" />
+                    <Input name="name" defaultValue={member.user.name} required aria-label="Nome completo" />
+                    <Input name="displayName" defaultValue={member.user.displayName ?? ""} placeholder="Nome de exibição" aria-label="Nome de exibição" />
                     <Input name="email" type="email" defaultValue={member.user.email} required aria-label="E-mail" />
-                    <Input name="username" defaultValue={member.user.username ?? ""} placeholder="Usuário" aria-label="Usuário" />
+                    <Input name="username" defaultValue={member.user.username ?? ""} placeholder="Login" aria-label="Login" />
+                    <Input name="operatorCode" defaultValue={member.user.operatorCode ?? ""} placeholder="Código" aria-label="Código do operador" />
+                    <Input name="phone" defaultValue={member.user.phone ?? ""} placeholder="Telefone" aria-label="Telefone" />
                     <Input name="newPassword" type="password" minLength={8} autoComplete="new-password" placeholder="Nova senha (opcional)" aria-label="Nova senha" />
                     <select name="role" defaultValue={member.role} className={nativeSelectClass} aria-label="Papel">
                       {roleOptions.map((role) => (
@@ -110,6 +125,10 @@ export default async function TeamPage({
                           {TENANT_ROLE_LABELS[role] ?? role}
                         </option>
                       ))}
+                    </select>
+                    <select name="active" defaultValue={member.active ? "1" : "0"} className={nativeSelectClass} aria-label="Status">
+                      <option value="1">Ativo</option>
+                      <option value="0">Inativo</option>
                     </select>
                     <Button type="submit">Salvar</Button>
                   </form>

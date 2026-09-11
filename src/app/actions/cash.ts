@@ -32,6 +32,7 @@ function revalidateCash() {
   revalidatePath("/caixa/historico");
   revalidatePath("/caixa/mesas");
   revalidatePath("/app/pedidos");
+  revalidatePath("/app/caixas");
 }
 
 function money(formData: FormData, key: string) {
@@ -52,6 +53,8 @@ export async function openCashSessionAction(formData: FormData) {
       userId: ctx.userId,
       openingCents: money(formData, "opening"),
       note: String(formData.get("note") || "") || undefined,
+      terminalId: String(formData.get("terminalId") || "") || undefined,
+      operatorId: String(formData.get("operatorId") || "") || undefined,
     });
     revalidateCash();
     return { ok: true as const };
@@ -187,7 +190,8 @@ export async function refundPaymentAction(input: { paymentId: string; reason: st
 
 export async function searchCashierAction(query: string) {
   const ctx = await requireTenantPermission(PERMISSIONS.CASH_READ);
-  return searchCashier(ctx.tenantId, query);
+  const includeSessions = ctx.tenantRole !== "CASHIER";
+  return searchCashier(ctx.tenantId, query, { includeSessions });
 }
 
 export async function printReceiptAction(payload: unknown) {

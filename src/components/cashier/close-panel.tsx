@@ -59,11 +59,23 @@ export function CloseCashPanel({
   });
   const diff = differenceCents(expected, countedCents);
   const label = differenceLabel(diff);
+  const banner =
+    label.kind === "ok"
+      ? "rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300"
+      : label.kind === "shortage"
+        ? "rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+        : "rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200";
+  const bannerText =
+    label.kind === "ok"
+      ? `🟢 Caixa exato · ${formatBRL(0)}`
+      : label.kind === "shortage"
+        ? `🔴 Falta ${formatBRL(Math.abs(diff))}`
+        : `🟡 Sobra ${formatBRL(diff)}`;
 
   return (
     <div className="grid max-w-xl gap-5">
       <div>
-        <h1 className="font-heading text-2xl">{mode === "count" ? "Conferir caixa" : "Fechar caixa"}</h1>
+        <h1 className="font-heading text-2xl">{mode === "count" ? "Contagem do caixa" : "Fechamento de caixa"}</h1>
         <p className="text-sm text-zinc-400">
           {operatorName} · aberto em {formatDay(openedAt)} às {formatClock(openedAt)}
         </p>
@@ -71,7 +83,8 @@ export function CloseCashPanel({
       <dl className="grid gap-2 rounded-xl border border-zinc-800 bg-card p-4 text-sm">
         {[
           ["Saldo inicial", totals.openingCents],
-          ["Vendas em dinheiro", totals.cashSalesCents],
+          ["Vendas", totals.salesCents],
+          ["Dinheiro", totals.cashSalesCents],
           ["PIX", totals.pixCents],
           ["Débito", totals.debitCents],
           ["Crédito", totals.creditCents],
@@ -86,23 +99,15 @@ export function CloseCashPanel({
           </div>
         ))}
         <div className="flex justify-between border-t border-zinc-800 pt-2 text-base font-medium">
-          <dt>Dinheiro esperado</dt>
+          <dt>Saldo físico esperado</dt>
           <dd>{formatBRL(expected)}</dd>
         </div>
       </dl>
       <div className="grid gap-2">
-        <Label htmlFor="counted">Dinheiro contado</Label>
+        <Label htmlFor="counted">Quanto existe fisicamente no caixa?</Label>
         <Input id="counted" value={counted} onChange={(event) => setCounted(event.target.value)} className="h-12 text-lg" />
       </div>
-      <div
-        className={
-          label.kind === "ok"
-            ? "rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300"
-            : "rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-200"
-        }
-      >
-        {label.label}: {formatBRL(Math.abs(diff))}
-      </div>
+      <div className={banner}>{bannerText}</div>
       {mode === "close" ? (
         <>
           <div className="grid gap-2">

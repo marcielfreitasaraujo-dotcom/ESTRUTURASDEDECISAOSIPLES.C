@@ -83,7 +83,7 @@ export async function getStoreControlCenter(
   const seriesStart = rangeStart(range, now);
   const lookback = new Date(Math.min(seriesStart.getTime(), monthStart.getTime(), yesterdayStart.getTime()));
 
-  const [tenant, orders, openOrders, customers, floor, inventory, products, cashClose, kitchenReady] =
+  const [tenant, orders, openOrders, customers, floor, inventory, products, openCashSessions, pendingCash, kitchenReady] =
     await Promise.all([
       prisma.tenant.findUniqueOrThrow({ where: { id: tenantId }, select: { name: true, slug: true } }),
       prisma.order.findMany({
@@ -116,11 +116,12 @@ export async function getStoreControlCenter(
         where: { tenantId, deletedAt: null, trackInventory: true },
         select: { id: true, name: true, stockQuantity: true, available: true },
       }),
-      prisma.auditLog.findFirst({
-        where: { tenantId, entity: "CashRegister" },
-        orderBy: { createdAt: "desc" },
-        include: { user: { select: { name: true } } },
+      prisma.cashSession.findMany({
+        where: { tenantId, status: "OPEN" },
+        include: { operator: { select: { name: true, displayName: true } }, terminal: true },
+        orderBy: { openedAt: "asc" },
       }),
+      prisma.cashSession.count({ where: { tenantId, status: "CLOSED", conferenceStatus: "PENDING" } }),
       prisma.order.count({
         where: { tenantId, status: "READY", createdAt: { gte: todayStart } },
       }),
@@ -158,12 +159,11 @@ export async function getStoreControlCenter(
   }
   const topProducts = [...productMap.values()].sort((a, b) => b.cents - a.cents).slice(0, 5);
 
-  const cashClosedToday = Boolean(cashClose && cashClose.createdAt >= todayStart);
   const cash = {
-    open: !cashClosedToday,
-    balanceCents: todayOrders.filter((order) => order.status === "DELIVERED").reduce((acc, order) => acc + order.totalCents, 0) || todaySales,
-    openedAt: cashClosedToday ? null : todayStart.toISOString(),
-    operatorName: cashClose?.user?.name ?? null,
+    open: openCashSessions.length > 0,
+    balanceCents: todaySales,
+    openedAt: openCashSessions[0]?.openedAt.toISOString() ?? null,
+    operatorName: openCashSessions.map((row) => row.operator.displayName || row.operator.name).join(", ") || null,
   };
 
   const alerts: ControlAlert[] = [];
@@ -215,13 +215,13 @@ export async function getStoreControlCenter(
       href: "/app/salao",
     });
   }
-  if (cashClosedToday) {
+  if (pendingCash > 0) {
     alerts.push({
-      id: "cash-closed",
-      tone: "info",
-      title: "Caixa fechado",
-      detail: cashClose?.user?.name ? `Fechado por ${cashClose.user.name}` : "Fechamento registrado hoje",
-      href: "/caixa/fechamento",
+      id: "cash-pending",
+      tone: "warn",
+      title: "Caixa aguardando conferência",
+      detail: `${pendingCash} turno(s) fechado(s) sem conferência do gerente`,
+      href: "/app/caixas?status=pending",
     });
   }
 

@@ -56,6 +56,7 @@ export function expectedCashCents(input: {
   sangriaCents: Cents;
   expenseCents: Cents;
   refundCashCents?: Cents;
+  adjustmentCents?: number;
 }): Cents {
   const opening = assertCents(input.openingCents, "saldo inicial");
   const sales = assertCents(input.cashSalesCents, "vendas em dinheiro");
@@ -63,7 +64,11 @@ export function expectedCashCents(input: {
   const sangria = assertCents(input.sangriaCents, "sangrias");
   const expense = assertCents(input.expenseCents, "despesas");
   const refunds = assertCents(input.refundCashCents ?? 0, "estornos");
-  const expected = opening + sales + supply - sangria - expense - refunds;
+  const adjustments = input.adjustmentCents ?? 0;
+  if (!Number.isInteger(adjustments)) {
+    throw new AppError("INVALID_AMOUNT", "Ajuste inválido.");
+  }
+  const expected = opening + sales + supply - sangria - expense - refunds + adjustments;
   if (expected < 0) return 0;
   return expected;
 }
@@ -73,7 +78,7 @@ export function differenceCents(expectedCents: Cents, countedCents: Cents): numb
 }
 
 export function differenceLabel(difference: number) {
-  if (difference === 0) return { kind: "ok" as const, label: "Caixa conferido" };
+  if (difference === 0) return { kind: "ok" as const, label: "Caixa exato" };
   if (difference < 0) return { kind: "shortage" as const, label: "Falta de caixa" };
   return { kind: "overage" as const, label: "Sobra de caixa" };
 }

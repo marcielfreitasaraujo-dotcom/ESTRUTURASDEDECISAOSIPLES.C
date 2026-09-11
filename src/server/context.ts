@@ -31,7 +31,7 @@ export async function getAuthContext(): Promise<AuthContext | null> {
     const membership = await prisma.tenantMembership.findUnique({
       where: { tenantId_userId: { tenantId: activeTenantId, userId: session.user.id } },
     });
-    tenantRole = membership?.role ?? null;
+    tenantRole = membership && membership.active !== false ? membership.role : null;
   }
 
   return {

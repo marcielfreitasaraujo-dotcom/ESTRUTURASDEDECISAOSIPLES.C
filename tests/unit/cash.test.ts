@@ -35,7 +35,7 @@ describe("caixa: dinheiro e conferência", () => {
     });
     expect(expected).toBe(85000);
     expect(differenceCents(85000, 85000)).toBe(0);
-    expect(differenceLabel(0).kind).toBe("ok");
+    expect(differenceLabel(0).label).toBe("Caixa exato");
     expect(differenceLabel(-2000).kind).toBe("shortage");
     expect(differenceLabel(2000).kind).toBe("overage");
   });

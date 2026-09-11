@@ -35,6 +35,9 @@ export async function addTeamMember(input: {
   username?: string;
   password: string;
   role: TenantRole;
+  displayName?: string;
+  operatorCode?: string;
+  phone?: string;
 }) {
   if (!TENANT_ROLES.includes(input.role)) throw new Error("Papel inválido.");
   if (!canAssignTenantRole(input.actorRole, input.role, input.actorPlatformRole)) {
@@ -64,11 +67,23 @@ export async function addTeamMember(input: {
         username,
         emailVerified: true,
         platformRole: "USER",
+        displayName: input.displayName?.trim() || name,
+        operatorCode: input.operatorCode?.trim() || null,
+        phone: input.phone?.trim() || null,
       },
     });
     await setCredentialPassword(user.id, input.password);
   } else {
-    await prisma.user.update({ where: { id: user.id }, data: { name, username: username ?? user.username } });
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        name,
+        username: username ?? user.username,
+        displayName: input.displayName?.trim() || name,
+        operatorCode: input.operatorCode?.trim() || user.operatorCode,
+        phone: input.phone?.trim() || user.phone,
+      },
+    });
     if (input.password.trim()) await setCredentialPassword(user.id, input.password);
   }
 
@@ -99,6 +114,10 @@ export async function updateTeamMember(input: {
   username?: string;
   password?: string;
   role: TenantRole;
+  displayName?: string;
+  operatorCode?: string;
+  phone?: string;
+  active?: boolean;
 }) {
   const membership = await prisma.tenantMembership.findFirst({
     where: { id: input.membershipId, tenantId: input.tenantId },
@@ -140,7 +159,14 @@ export async function updateTeamMember(input: {
 
   await prisma.user.update({
     where: { id: membership.userId },
-    data: { name, email, username },
+    data: {
+      name,
+      email,
+      username,
+      displayName: input.displayName?.trim() || name,
+      operatorCode: input.operatorCode?.trim() || null,
+      phone: input.phone?.trim() || null,
+    },
   });
   if (input.password?.trim()) {
     await setCredentialPassword(membership.userId, input.password);
@@ -152,12 +178,13 @@ export async function updateTeamMember(input: {
       userId: input.actorUserId,
     });
   }
-  if (membership.role !== input.role) {
-    await prisma.tenantMembership.update({
-      where: { id: membership.id },
-      data: { role: input.role },
-    });
-  }
+  await prisma.tenantMembership.update({
+    where: { id: membership.id },
+    data: {
+      ...(membership.role !== input.role ? { role: input.role } : {}),
+      ...(typeof input.active === "boolean" ? { active: input.active } : {}),
+    },
+  });
   await writeAudit({
     action: "UPDATE",
     entity: "User",

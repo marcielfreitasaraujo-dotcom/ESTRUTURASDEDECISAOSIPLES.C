@@ -7,48 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { formatClock, formatDay } from "@/domain/cash/labels";
+import { nativeSelectClass } from "@/lib/field";
 
 export function OpenCashForm({
-  blocked,
+  operators,
+  terminals,
+  defaultOperatorId,
+  lockOperator,
+  errorMessage,
 }: {
-  blocked?: {
-    operatorName: string;
-    openedAt: string;
-    terminalName: string;
-  } | null;
+  operators: { id: string; name: string }[];
+  terminals: { id: string; name: string; active: boolean }[];
+  defaultOperatorId?: string;
+  lockOperator?: boolean;
+  errorMessage?: string | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(errorMessage ?? null);
   const [ok, setOk] = useState(false);
-
-  if (blocked) {
-    return (
-      <div className="mx-auto grid max-w-lg gap-4 rounded-2xl border border-amber-500/30 bg-card p-6">
-        <p className="text-sm font-medium text-amber-300">Existe um caixa aberto.</p>
-        <h1 className="font-heading text-2xl">Este terminal já está em uso</h1>
-        <dl className="grid gap-2 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-zinc-400">Operador</dt>
-            <dd>{blocked.operatorName}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-zinc-400">Data</dt>
-            <dd>{formatDay(blocked.openedAt)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-zinc-400">Horário</dt>
-            <dd>{formatClock(blocked.openedAt)}</dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-zinc-400">Terminal</dt>
-            <dd>{blocked.terminalName}</dd>
-          </div>
-        </dl>
-      </div>
-    );
-  }
+  const activeTerminals = terminals.filter((row) => row.active);
 
   return (
     <form
@@ -69,12 +47,40 @@ export function OpenCashForm({
       }}
     >
       <div>
-        <h1 className="font-heading text-2xl">Abra seu caixa para começar</h1>
-        <p className="mt-1 text-sm text-zinc-400">Informe o valor inicial / troco do turno.</p>
+        <h1 className="font-heading text-2xl">Abrir caixa</h1>
+        <p className="mt-1 text-sm text-zinc-400">Selecione o operador, o terminal e o repasse inicial do turno.</p>
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="opening">Valor inicial</Label>
-        <Input id="opening" name="opening" inputMode="decimal" placeholder="R$ 200,00" required className="h-12 text-lg" />
+        <Label htmlFor="operatorId">Operador</Label>
+        <select
+          id="operatorId"
+          name="operatorId"
+          defaultValue={defaultOperatorId}
+          disabled={lockOperator}
+          className={nativeSelectClass}
+          required
+        >
+          {operators.map((operator) => (
+            <option key={operator.id} value={operator.id}>
+              {operator.name}
+            </option>
+          ))}
+        </select>
+        {lockOperator ? <input type="hidden" name="operatorId" value={defaultOperatorId} /> : null}
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="terminalId">Terminal</Label>
+        <select id="terminalId" name="terminalId" className={nativeSelectClass} required>
+          {activeTerminals.map((terminal) => (
+            <option key={terminal.id} value={terminal.id}>
+              {terminal.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="opening">Repasse inicial / saldo inicial</Label>
+        <Input id="opening" name="opening" inputMode="decimal" placeholder="R$ 500,00" required className="h-12 text-lg" />
       </div>
       <div className="grid gap-2">
         <Label htmlFor="note">Observação (opcional)</Label>

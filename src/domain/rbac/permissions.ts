@@ -24,6 +24,8 @@ export const PERMISSIONS = {
   CASH_OPERATE: "cash.operate",
   CASH_EXPENSE: "cash.expense",
   CASH_DISCOUNT: "cash.discount",
+  CASH_CONFER: "cash.confer",
+  CASH_ADJUST: "cash.adjust",
   PLATFORM_ADMIN: "platform.admin",
 } as const;
 

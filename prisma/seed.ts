@@ -583,7 +583,23 @@ async function seedCentral(ownerId: string) {
     });
   }
 
+  await seedCashTerminals(tenant.id);
   return tenant;
+}
+
+async function seedCashTerminals(tenantId: string) {
+  const defaults = [
+    { name: "Caixa 01", slug: "caixa-01", code: "CX01", sortOrder: 0 },
+    { name: "Caixa 02", slug: "caixa-02", code: "CX02", sortOrder: 1 },
+    { name: "Caixa 03", slug: "caixa-03", code: "CX03", sortOrder: 2 },
+  ];
+  for (const row of defaults) {
+    await prisma.cashTerminal.upsert({
+      where: { tenantId_slug: { tenantId, slug: row.slug } },
+      update: { name: row.name, code: row.code, active: true },
+      create: { tenantId, ...row },
+    });
+  }
 }
 
 async function seedSecondTenant(ownerId: string) {
@@ -643,11 +659,26 @@ async function main() {
     platformRole: "USER",
   });
   const cashier = await upsertUser({
-    name: "Caixa Central",
+    name: "Caixa Geral",
     email: "marco.r@example.org",
     username: "caixa",
     password: "Caixa!2026",
     platformRole: "USER",
+  });
+  await prisma.user.update({
+    where: { id: cashier.id },
+    data: { displayName: "Caixa Geral", operatorCode: "GERAL" },
+  });
+  const maria = await upsertUser({
+    name: "Maria Silva",
+    email: "maria.caixa@comandaia.test",
+    username: "maria",
+    password: "Maria!2026",
+    platformRole: "USER",
+  });
+  await prisma.user.update({
+    where: { id: maria.id },
+    data: { displayName: "Maria", operatorCode: "MARIA" },
   });
   const waiter = await upsertUser({
     name: "Garçom Central",
@@ -717,6 +748,7 @@ async function main() {
   await prisma.tenantMembership.deleteMany({ where: { userId: legacyOwner.id, tenantId: central.id } });
   const memberships: { userId: string; role: "CASHIER" | "WAITER" | "KITCHEN" | "DELIVERY" | "STAFF" }[] = [
     { userId: cashier.id, role: "CASHIER" },
+    { userId: maria.id, role: "CASHIER" },
     { userId: waiter.id, role: "WAITER" },
     { userId: kitchen.id, role: "KITCHEN" },
     { userId: driverUser.id, role: "DELIVERY" },
