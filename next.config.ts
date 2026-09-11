@@ -1,8 +1,15 @@
 import type { NextConfig } from "next";
+import { resolveDeployBuildId } from "./src/lib/app-build";
+
+const buildId = resolveDeployBuildId();
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  generateBuildId: async () => buildId,
+  env: {
+    NEXT_PUBLIC_APP_BUILD: buildId,
+  },
   async headers() {
     const noStore = [{ key: "Cache-Control", value: "no-store, max-age=0, must-revalidate" }];
     return [
@@ -18,6 +25,9 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      { source: "/", headers: noStore },
+      { source: "/loja/:path*", headers: noStore },
+      { source: "/sw.js", headers: noStore },
       { source: "/manifest.webmanifest", headers: noStore },
       { source: "/entrar", headers: noStore },
       { source: "/app", headers: noStore },

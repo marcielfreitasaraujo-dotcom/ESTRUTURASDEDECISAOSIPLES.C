@@ -1,7 +1,13 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getAppBuildId } from "@/lib/app-build";
+import { getAppBuildId, isStaleClientBuild, resolveDeployBuildId } from "@/lib/app-build";
 
-const keys = ["RAILWAY_GIT_COMMIT_SHA", "COMMIT_REF", "VERCEL_GIT_COMMIT_SHA", "APP_VERSION"] as const;
+const keys = [
+  "NEXT_PUBLIC_APP_BUILD",
+  "RAILWAY_GIT_COMMIT_SHA",
+  "COMMIT_REF",
+  "VERCEL_GIT_COMMIT_SHA",
+  "APP_VERSION",
+] as const;
 const original = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
 
 afterEach(() => {
@@ -12,17 +18,40 @@ afterEach(() => {
   }
 });
 
-describe("getAppBuildId", () => {
+describe("resolveDeployBuildId", () => {
   it("usa o commit do Railway quando existe", () => {
+    delete process.env.NEXT_PUBLIC_APP_BUILD;
+    process.env.RAILWAY_GIT_COMMIT_SHA = "abc123def";
+    expect(resolveDeployBuildId()).toBe("abc123def");
+  });
+});
+
+describe("getAppBuildId", () => {
+  it("usa o build injetado no deploy", () => {
+    process.env.NEXT_PUBLIC_APP_BUILD = "deploy-sha";
+    process.env.RAILWAY_GIT_COMMIT_SHA = "other";
+    expect(getAppBuildId()).toBe("deploy-sha");
+  });
+
+  it("usa o commit do Railway quando existe", () => {
+    delete process.env.NEXT_PUBLIC_APP_BUILD;
     process.env.RAILWAY_GIT_COMMIT_SHA = "abc123def";
     expect(getAppBuildId()).toBe("abc123def");
   });
 
   it("cai na versão do app se não houver commit", () => {
+    delete process.env.NEXT_PUBLIC_APP_BUILD;
     delete process.env.RAILWAY_GIT_COMMIT_SHA;
     delete process.env.COMMIT_REF;
     delete process.env.VERCEL_GIT_COMMIT_SHA;
     process.env.APP_VERSION = "0.2.0";
     expect(getAppBuildId()).toBe("0.2.0");
+  });
+});
+
+describe("isStaleClientBuild", () => {
+  it("detecta atalho com HTML antigo", () => {
+    expect(isStaleClientBuild({ live: "novo", html: "antigo" })).toBe(true);
+    expect(isStaleClientBuild({ live: "igual", html: "igual", baked: "igual", previous: "igual" })).toBe(false);
   });
 });

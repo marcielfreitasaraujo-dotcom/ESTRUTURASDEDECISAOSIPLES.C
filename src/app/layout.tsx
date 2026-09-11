@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaRefresh } from "@/components/pwa-refresh";
+import { getAppBuildId } from "@/lib/app-build";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,9 +44,15 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const build = getAppBuildId();
   return (
     <html lang="pt-BR" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <meta name="comanda-build" content={build} />
+      </head>
       <body className="flex min-h-full flex-col font-sans">
         <TooltipProvider>
           <PwaRefresh />

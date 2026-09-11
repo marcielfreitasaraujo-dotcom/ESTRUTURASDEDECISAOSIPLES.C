@@ -56,8 +56,8 @@ export default async function LoginPage({
             </Link>
           </p>
           <p className="text-center text-xs text-muted-foreground">
-            Ícone da tela inicial: feche o app e abra de novo para puxar a versão nova. Se continuar antigo, remova o
-            atalho e adicione outra vez.
+            O atalho da tela inicial no computador e no celular atualiza sozinho quando o sistema muda. Basta abrir de
+            novo; não precisa apagar o ícone.
           </p>
         </CardContent>
       </Card>
