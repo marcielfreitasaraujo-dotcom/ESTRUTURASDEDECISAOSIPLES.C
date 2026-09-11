@@ -26,6 +26,7 @@ describe("navForUser", () => {
     expect(hrefs("CASHIER")).not.toContain("/app/equipe");
     expect(hrefs("CASHIER")).not.toContain("/app/cardapio");
     expect(hrefs("CASHIER")).not.toContain("/app");
+    expect(hrefs("CASHIER")).not.toContain("/app/auditoria");
     expect(hrefs("KITCHEN")).toEqual(["/app/pedidos", "/app/cozinha"]);
     expect(hrefs("DELIVERY")).toContain("/entrega");
     expect(hrefs("DELIVERY")).not.toContain("/caixa");
@@ -33,15 +34,21 @@ describe("navForUser", () => {
     expect(hrefs("WAITER")).not.toContain("/caixa");
   });
 
-  it("mostra estoque na nav do caixa e fechamento só para o gerente", () => {
+  it("mostra o menu operacional do caixa, sem estoque nem gestão", () => {
     const caixa = navForUser({ platformRole: "USER", tenantRole: "CASHIER", surface: "caixa" }).map(
       (item) => item.href,
     );
-    expect(caixa).toEqual(["/caixa", "/caixa/estoque", "/app/pedidos", "/app/clientes"]);
+    expect(caixa).toContain("/caixa");
+    expect(caixa).toContain("/caixa/pdv");
+    expect(caixa).toContain("/caixa/pagamentos");
+    expect(caixa).toContain("/caixa/fechamento");
+    expect(caixa).not.toContain("/caixa/estoque");
+    expect(caixa).not.toContain("/app/equipe");
+    expect(caixa).not.toContain("/app/cardapio");
     const gerente = navForUser({ platformRole: "USER", tenantRole: "OWNER", surface: "caixa" }).map(
       (item) => item.href,
     );
-    expect(gerente).toContain("/caixa/fechamento");
+    expect(gerente).toContain("/caixa/estoque");
     expect(gerente).toContain("/app/equipe");
     expect(gerente).toContain("/app/cardapio");
   });

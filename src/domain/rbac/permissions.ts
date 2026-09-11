@@ -20,6 +20,10 @@ export const PERMISSIONS = {
   FINANCE_WRITE: "finance.write",
   INVENTORY_READ: "inventory.read",
   INVENTORY_WRITE: "inventory.write",
+  CASH_READ: "cash.read",
+  CASH_OPERATE: "cash.operate",
+  CASH_EXPENSE: "cash.expense",
+  CASH_DISCOUNT: "cash.discount",
   PLATFORM_ADMIN: "platform.admin",
 } as const;
 

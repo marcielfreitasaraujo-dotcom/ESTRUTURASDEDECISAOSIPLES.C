@@ -86,6 +86,7 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+  CANCELLED
 }
 
 enum CouponType {
@@ -144,6 +145,43 @@ enum NotificationType {
   SUBSCRIPTION
   SYSTEM
   SECURITY
+  CASH
+}
+
+enum CashSessionStatus {
+  OPEN
+  CLOSED
+}
+
+enum CashMovementType {
+  OPENING
+  SALE
+  CHANGE
+  SANGRIA
+  SUPPLY
+  EXPENSE
+  REFUND
+  ADJUSTMENT
+}
+
+enum CashMovementStatus {
+  ACTIVE
+  CANCELLED
+}
+
+enum CashAuthorizationKind {
+  DISCOUNT
+  PAYMENT_CANCEL
+  REFUND
+  EXPENSE
+  CLOSE_OVERRIDE
+}
+
+enum CashAuthorizationStatus {
+  PENDING
+  APPROVED
+  DENIED
+  USED
 }
 
 model Organization {
@@ -186,6 +224,9 @@ model Tenant {
   estimatedMinutes        Int              @default(40)
   minimumOrderCents       Int              @default(0)
   tableCount              Int              @default(16)
+  cashLimitCents          Int              @default(100000)
+  maxCashierDiscountPercent Int            @default(0)
+  cashierCanRegisterExpense Boolean        @default(false)
   onboardingStep          Int              @default(1)
   onboardingCompletedAt   DateTime?
   customDomain            String?          @unique
@@ -223,6 +264,10 @@ model Tenant {
   recipes                 Recipe[]
   salonSectors            SalonSector[]
   salonTables             SalonTable[]
+  cashTerminals           CashTerminal[]
+  cashSessions            CashSession[]
+  cashMovements           CashMovement[]
+  cashAuthorizations      CashAuthorization[]
 
   @@index([status])
   @@index([organizationId])
@@ -247,6 +292,12 @@ model User {
   orderStatusChanges OrderStatusHistory[]
   waiterOrders    Order[]      @relation("OrderWaiter")
   assignedTables  SalonTable[] @relation("TableWaiter")
+  openedCashSessions CashSession[] @relation("CashOpenedBy")
+  closedCashSessions CashSession[] @relation("CashClosedBy")
+  cashMovements   CashMovement[] @relation("CashOperator")
+  cashAuthRequested CashAuthorization[] @relation("CashAuthRequested")
+  cashAuthGranted CashAuthorization[] @relation("CashAuthGranted")
+  operatedPayments Payment[] @relation("PaymentOperator")
 
   @@unique([email])
   @@unique([username])
@@ -682,6 +733,8 @@ model Order {
   delivery           Delivery?
   stockMovements     StockMovement[]
   floorTables        SalonTable[]    @relation("TableCurrentOrder")
+  cashMovements      CashMovement[]
+  cashAuthorizations CashAuthorization[]
 
   @@unique([tenantId, number])
   @@unique([tenantId, publicCode])
@@ -787,11 +840,29 @@ model Payment {
   method          PaymentMethod
   status          PaymentStatus @default(PENDING)
   amountCents     Int
+  receivedCents   Int?
+  changeCents     Int?
+  installments    Int?
+  brand           String?
+  cardKind        String?
+  notes           String?
+  operatorId      String?
+  operator        User?         @relation("PaymentOperator", fields: [operatorId], references: [id])
+  sessionId       String?
+  session         CashSession?  @relation(fields: [sessionId], references: [id])
+  authorizedById  String?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  confirmedAt     DateTime?
+  idempotencyKey  String?
   providerRef     String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+  cashMovements   CashMovement[]
 
+  @@unique([tenantId, idempotencyKey])
   @@index([tenantId, orderId])
+  @@index([sessionId])
   @@map("payments")
 }
 
@@ -1108,4 +1179,106 @@ model AnalyticsEvent {
 
   @@index([tenantId, name, createdAt])
   @@map("analytics_events")
+}
+
+model CashTerminal {
+  id        String        @id @default(cuid())
+  tenantId  String
+  tenant    Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  slug      String
+  sortOrder Int           @default(0)
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  sessions  CashSession[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, active, sortOrder])
+  @@map("cash_terminals")
+}
+
+model CashSession {
+  id              String            @id @default(cuid())
+  tenantId        String
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  terminalId      String
+  terminal        CashTerminal      @relation(fields: [terminalId], references: [id], onDelete: Restrict)
+  openedById      String
+  openedBy        User              @relation("CashOpenedBy", fields: [openedById], references: [id])
+  closedById      String?
+  closedBy        User?             @relation("CashClosedBy", fields: [closedById], references: [id])
+  status          CashSessionStatus @default(OPEN)
+  openingCents    Int
+  openingNote     String?
+  countedCents    Int?
+  expectedCents   Int?
+  differenceCents Int?
+  closingNote     String?
+  openedAt        DateTime          @default(now())
+  closedAt        DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  movements       CashMovement[]
+  payments        Payment[]
+  authorizations  CashAuthorization[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, terminalId, status])
+  @@index([openedById, openedAt])
+  @@map("cash_sessions")
+}
+
+model CashMovement {
+  id             String             @id @default(cuid())
+  tenantId       String
+  tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessionId      String
+  session        CashSession        @relation(fields: [sessionId], references: [id], onDelete: Restrict)
+  type           CashMovementType
+  status         CashMovementStatus @default(ACTIVE)
+  amountCents    Int
+  method         PaymentMethod?
+  reason         String?
+  notes          String?
+  operatorId     String
+  operator       User               @relation("CashOperator", fields: [operatorId], references: [id])
+  authorizedById String?
+  orderId        String?
+  order          Order?             @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  paymentId      String?
+  payment        Payment?           @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  cancelledAt    DateTime?
+  cancelReason   String?
+  idempotencyKey String?
+  createdAt      DateTime           @default(now())
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([tenantId, sessionId, createdAt])
+  @@index([orderId])
+  @@map("cash_movements")
+}
+
+model CashAuthorization {
+  id             String                  @id @default(cuid())
+  tenantId       String
+  tenant         Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessionId      String?
+  session        CashSession?            @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  kind           CashAuthorizationKind
+  status         CashAuthorizationStatus @default(PENDING)
+  requestedById  String
+  requestedBy    User                    @relation("CashAuthRequested", fields: [requestedById], references: [id])
+  authorizedById String?
+  authorizedBy   User?                   @relation("CashAuthGranted", fields: [authorizedById], references: [id])
+  reason         String
+  amountCents    Int?
+  orderId        String?
+  order          Order?                  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  metadata       Json?
+  createdAt      DateTime                @default(now())
+  resolvedAt     DateTime?
+
+  @@index([tenantId, status, createdAt])
+  @@map("cash_authorizations")
 }

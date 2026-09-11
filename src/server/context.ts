@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { forbidden, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { ForbiddenError, UnauthorizedError } from "@/lib/errors";
@@ -100,7 +100,8 @@ export async function requirePage(permission: Permission) {
   if (!session) redirect("/entrar");
   try {
     return await requireTenantPermission(permission);
-  } catch {
+  } catch (error) {
+    if (error instanceof ForbiddenError) forbidden();
     redirect(postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole }));
   }
 }

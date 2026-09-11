@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { FloorSnapshot, FloorTableSnapshot, FloorWaiterOption } from "@/domain/floor/snapshot";
 import { TABLE_STATUS_LABEL, actionsForTableStatus } from "@/domain/floor/status";
@@ -96,6 +97,7 @@ export function FloorMap({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogKind | null>(null);
   const [busy, setBusy] = useState(false);
+  const router = useRouter();
 
   const reload = useCallback(async () => {
     const response = await fetch("/api/caixa/mapa", { cache: "no-store" });
@@ -162,7 +164,13 @@ export function FloorMap({
     if (action === "reserve" || action === "edit-reservation") return openDialog("reserve", table);
     if (action === "block") return run(() => blockSalonTableAction(table.id, true), "Mesa bloqueada.");
     if (action === "unblock") return run(() => blockSalonTableAction(table.id, false), "Mesa liberada.");
-    if (action === "close") return run(() => closeSalonTableAction(table.id), "Mesa fechada.");
+    if (action === "close") {
+      if (table.order?.id) {
+        router.push(`/caixa/pagamentos?pedido=${table.order.id}`);
+        return;
+      }
+      return run(() => closeSalonTableAction(table.id), "Mesa fechada.");
+    }
     if (action === "vacate") return openDialog("vacate", table);
     if (action === "occupy-reservation") return run(() => occupyReservationAction(table.id), "Mesa ocupada.");
     if (action === "cancel-reservation") return run(() => cancelReservationAction(table.id), "Reserva cancelada.");
@@ -305,7 +313,13 @@ export function FloorMap({
         busy={busy}
         onOpenChange={(open) => setDialog(open ? "occupied" : null)}
         onAdd={() => setDialog("add")}
-        onClose={() => selected && run(() => closeSalonTableAction(selected.id), "Mesa fechada.")}
+        onClose={() => {
+          if (selected?.order?.id) {
+            router.push(`/caixa/pagamentos?pedido=${selected.order.id}`);
+            return;
+          }
+          if (selected) void run(() => closeSalonTableAction(selected.id), "Mesa fechada.");
+        }}
         onVacate={() => setDialog("vacate")}
         onTransfer={() => setDialog("transfer")}
         onJoin={() => setDialog("join")}

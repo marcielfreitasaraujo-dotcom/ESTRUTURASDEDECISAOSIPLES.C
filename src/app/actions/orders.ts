@@ -29,7 +29,7 @@ export async function updateOrderStatusFormAction(formData: FormData) {
       : toStatus === "OUT_FOR_DELIVERY" || toStatus === "DELIVERED"
         ? [PERMISSIONS.DELIVERY_UPDATE, PERMISSIONS.ORDER_UPDATE]
         : toStatus === "CANCELLED"
-          ? [PERMISSIONS.ORDER_CANCEL, PERMISSIONS.ORDER_UPDATE]
+          ? [PERMISSIONS.ORDER_CANCEL]
           : [PERMISSIONS.ORDER_UPDATE];
   try {
     const ctx = await requireAnyPermission(permission);
