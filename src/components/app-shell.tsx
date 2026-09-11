@@ -179,9 +179,10 @@ export function AppShell({
                 </SheetContent>
               </Sheet>
             </div>
-            <div className="min-w-0 flex-1">
+            <div className="hidden min-w-0 flex-1 sm:block">
               <OpsSearch />
             </div>
+            <div className="min-w-0 flex-1 sm:hidden" />
             <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
               {enableOpsChrome ? <OpsNotifications /> : null}
               <div className="hidden min-w-0 items-center gap-2 sm:flex">

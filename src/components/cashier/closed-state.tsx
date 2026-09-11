@@ -13,12 +13,12 @@ export function ClosedCashState({
   differenceCents: number;
 }) {
   return (
-    <div className="mx-auto grid max-w-lg gap-4 rounded-2xl border border-border bg-card p-6 text-center">
+    <div className="mx-auto grid max-w-lg gap-4 rounded-xl border border-border bg-card p-6 text-center">
       <p className="text-sm font-medium text-muted-foreground">Caixa fechado</p>
       <h1 className="font-heading text-3xl">Turno encerrado</h1>
       <p className="text-sm text-muted-foreground">Horário: {formatClock(closedAt)}</p>
       <p className="text-lg">Total vendido: {formatBRL(salesCents)}</p>
-      <p className={differenceCents === 0 ? "text-emerald-400" : "text-amber-300"}>
+      <p className={differenceCents === 0 ? "text-success" : "text-warning"}>
         Diferença: {formatBRL(Math.abs(differenceCents))}
       </p>
       <div className="flex flex-wrap justify-center gap-2">
