@@ -41,6 +41,9 @@ describe("navForUser", () => {
     expect(caixa).toContain("/caixa");
     expect(caixa).toContain("/caixa/pdv");
     expect(caixa).toContain("/caixa/pagamentos");
+    expect(caixa).toContain("/caixa/clientes");
+    expect(caixa).toContain("/caixa/despesa");
+    expect(caixa).not.toContain("/app/clientes");
     expect(caixa).toContain("/caixa/fechamento");
     expect(caixa).not.toContain("/caixa/estoque");
     expect(caixa).not.toContain("/app/equipe");

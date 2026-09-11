@@ -11,14 +11,18 @@ export default async function CaixaPagamentosPage({
   const ctx = await requireOpenCashPage();
   const params = await searchParams;
   if (params.pedido) {
-    const { order } = await getReceivableOrder(ctx.tenantId, params.pedido);
+    const { order, methods } = await getReceivableOrder(ctx.tenantId, params.pedido);
     const tenant = await prisma.tenant.findUniqueOrThrow({
       where: { id: ctx.tenantId },
       select: { maxCashierDiscountPercent: true },
     });
+    const paidCents = order.payments
+      .filter((row) => row.status === "PAID")
+      .reduce((sum, row) => sum + row.amountCents, 0);
     return (
       <ReceivePaymentPanel
         maxDiscountPercent={tenant.maxCashierDiscountPercent}
+        enabledMethods={methods.map((row) => row.method)}
         order={{
           id: order.id,
           publicCode: order.publicCode,
@@ -28,11 +32,20 @@ export default async function CaixaPagamentosPage({
           deliveryFeeCents: order.deliveryFeeCents,
           discountCents: order.discountCents,
           totalCents: order.totalCents,
+          paidCents,
+          paymentStatus: order.paymentStatus,
           items: order.items.map((item) => ({
             id: item.id,
             name: item.name,
             quantity: item.quantity,
             totalCents: item.totalCents,
+          })),
+          payments: order.payments.map((payment) => ({
+            id: payment.id,
+            method: payment.method,
+            amountCents: payment.amountCents,
+            status: payment.status,
+            cardKind: payment.cardKind,
           })),
         }}
       />

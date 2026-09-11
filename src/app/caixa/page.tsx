@@ -74,7 +74,17 @@ export default async function CaixaInicioPage({
           notes: row.notes,
           orderCode: row.order?.publicCode ?? null,
         })),
-        notifications: data.notifications,
+        notifications: data.notifications.map((row) => ({
+          id: row.id,
+          title: row.title,
+          body: row.body,
+        })),
+        paymentSummary: {
+          cashCents: data.totals.cashSalesCents,
+          pixCents: data.totals.pixCents,
+          cardCents: data.totals.debitCents + data.totals.creditCents,
+          otherCents: data.totals.otherCents,
+        },
       }}
     />
   );

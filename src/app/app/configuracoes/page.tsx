@@ -104,6 +104,47 @@ export default async function SettingsPage() {
             </label>
           ))}
         </fieldset>
+        <div className="grid gap-3 rounded-xl border p-4">
+          <h2 className="font-medium">Regras do caixa</h2>
+          <p className="text-sm text-muted-foreground">
+            O caixa opera o turno. Estas regras limitam desconto, dinheiro em gaveta e despesa operacional.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="cashLimit">Limite de dinheiro no caixa (R$)</Label>
+              <Input
+                id="cashLimit"
+                name="cashLimit"
+                type="number"
+                step="0.01"
+                min={0}
+                defaultValue={(tenant.cashLimitCents / 100).toFixed(2)}
+                disabled={!canWrite}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="maxCashierDiscountPercent">Desconto máximo do caixa (%)</Label>
+              <Input
+                id="maxCashierDiscountPercent"
+                name="maxCashierDiscountPercent"
+                type="number"
+                min={0}
+                max={100}
+                defaultValue={tenant.maxCashierDiscountPercent}
+                disabled={!canWrite}
+              />
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="cashierCanRegisterExpense"
+              defaultChecked={tenant.cashierCanRegisterExpense}
+              disabled={!canWrite}
+            />
+            Permitir o caixa registrar pequenas despesas operacionais
+          </label>
+        </div>
         <div className="grid gap-3">
           <h2 className="font-medium">Horários</h2>
           {DAYS.map((label, weekday) => {

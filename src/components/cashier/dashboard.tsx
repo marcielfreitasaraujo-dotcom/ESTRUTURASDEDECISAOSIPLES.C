@@ -51,6 +51,7 @@ export type CashierDashboardData = {
     orderCode: string | null;
   }[];
   notifications: { id: string; title: string; body: string }[];
+  paymentSummary: { cashCents: number; pixCents: number; cardCents: number; otherCents: number };
 };
 
 const MOVEMENT_LABEL: Record<string, string> = {
@@ -90,14 +91,33 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
           <div>
             <p className="text-sm text-zinc-400">Olá, {data.operatorName}</p>
             <h1 className="font-heading text-3xl">Turno em andamento</h1>
-            <p className="mt-1 text-sm text-zinc-400">
-              {data.tenantName} · Terminal {data.terminalName} · Aberto às {formatClock(data.session.openedAt)}
-            </p>
           </div>
           <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-medium text-emerald-400">
             Caixa aberto
           </span>
         </div>
+        <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <dt className="text-zinc-500">Estabelecimento</dt>
+            <dd>{data.tenantName}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Terminal</dt>
+            <dd>{data.terminalName}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Status</dt>
+            <dd className="text-emerald-400">Caixa aberto</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Horário de abertura</dt>
+            <dd>{formatClock(data.session.openedAt)}</dd>
+          </div>
+          <div>
+            <dt className="text-zinc-500">Responsável</dt>
+            <dd>{data.session.operatorName}</dd>
+          </div>
+        </dl>
         <div className="mt-4">
           <CashierSearch />
         </div>
@@ -217,6 +237,45 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
                     {row.type === "SANGRIA" || row.type === "EXPENSE" || row.type === "REFUND" ? "-" : "+"}
                     {formatBRL(row.amountCents)}
                   </span>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-zinc-800 bg-card p-4">
+          <h2 className="font-heading text-lg">Resumo de pagamentos</h2>
+          <dl className="mt-3 grid gap-2 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-zinc-400">Dinheiro</dt>
+              <dd>{formatBRL(data.paymentSummary.cashCents)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-zinc-400">PIX</dt>
+              <dd>{formatBRL(data.paymentSummary.pixCents)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-zinc-400">Cartão</dt>
+              <dd>{formatBRL(data.paymentSummary.cardCents)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-zinc-400">Outros</dt>
+              <dd>{formatBRL(data.paymentSummary.otherCents)}</dd>
+            </div>
+          </dl>
+        </div>
+        <div className="rounded-2xl border border-zinc-800 bg-card p-4">
+          <h2 className="font-heading text-lg">Avisos</h2>
+          <ul className="mt-3 grid gap-2 text-sm">
+            {data.notifications.length === 0 ? (
+              <li className="text-zinc-500">Nenhum aviso no momento.</li>
+            ) : (
+              data.notifications.map((item) => (
+                <li key={item.id} className="rounded-lg border border-zinc-800 px-3 py-2">
+                  <p className="font-medium">{item.title}</p>
+                  <p className="text-xs text-zinc-500">{item.body}</p>
                 </li>
               ))
             )}

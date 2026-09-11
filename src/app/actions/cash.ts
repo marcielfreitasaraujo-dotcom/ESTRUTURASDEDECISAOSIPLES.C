@@ -79,7 +79,14 @@ export async function receivePaymentAction(input: {
     revalidateCash();
     return { ok: true as const, ...result };
   } catch (error) {
-    return { ok: false as const, error: publicErrorMessage(error).message };
+    const pub = publicErrorMessage(error);
+    return {
+      ok: false as const,
+      error:
+        pub.status >= 500
+          ? "Não foi possível finalizar o pagamento. Verifique a conexão e tente novamente."
+          : pub.message,
+    };
   }
 }
 

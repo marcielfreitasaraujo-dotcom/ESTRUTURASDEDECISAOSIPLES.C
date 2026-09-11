@@ -7,7 +7,6 @@ import { assertTenantId } from "@/server/tenancy";
 import { freeTablesForOrder } from "@/server/services/floor";
 import { evaluateCoupon } from "@/domain/coupons/evaluate";
 import {
-  assertTendersCoverTotal,
   changeCents,
   differenceCents,
   differenceLabel,
@@ -327,7 +326,12 @@ export async function receiveOrderPayment(input: {
   });
   if (!order) throw new NotFoundError("Pedido não encontrado.");
   assertTenantId(order.tenantId, input.tenantId);
-  if (order.paymentStatus === "PAID") throw new ConflictError("Este pedido já está pago.");
+  const alreadyPaid = order.payments
+    .filter((row) => row.status === "PAID")
+    .reduce((sum, row) => sum + row.amountCents, 0);
+  if (order.paymentStatus === "PAID" || alreadyPaid >= order.totalCents) {
+    throw new ConflictError("Este pedido já está pago.");
+  }
 
   const tenant = await prisma.tenant.findUniqueOrThrow({
     where: { id: input.tenantId },
@@ -335,6 +339,9 @@ export async function receiveOrderPayment(input: {
   });
 
   let discountCents = Math.max(0, input.discountCents ?? 0);
+  if (alreadyPaid > 0) {
+    discountCents = order.discountCents;
+  }
   if (input.couponCode?.trim()) {
     const coupon = await prisma.coupon.findFirst({
       where: { tenantId: input.tenantId, code: input.couponCode.trim().toUpperCase() },
@@ -362,8 +369,15 @@ export async function receiveOrderPayment(input: {
     });
   }
 
-  const dueCents = Math.max(0, order.subtotalCents + order.deliveryFeeCents - discountCents);
-  assertTendersCoverTotal(input.tenders, dueCents);
+  const dueCents = Math.max(0, order.subtotalCents + order.deliveryFeeCents - discountCents - alreadyPaid);
+  if (dueCents <= 0) throw new ConflictError("Este pedido já está pago.");
+  const allocated = input.tenders.reduce((sum, tender) => sum + tender.amountCents, 0);
+  if (allocated <= 0) {
+    throw new AppError("EMPTY_TENDER", "Informe ao menos uma forma de pagamento.");
+  }
+  if (allocated > dueCents) {
+    throw new AppError("TENDER_OVERFLOW", "O valor informado é maior que o restante do pedido.");
+  }
 
   const created = await prisma.$transaction(async (tx) => {
     await tx.order.update({
@@ -423,7 +437,10 @@ export async function receiveOrderPayment(input: {
       }
     }
 
-    const allPaid = payments.every((row) => row.status === "PAID");
+    const newPaid = payments.filter((row) => row.status === "PAID").reduce((sum, row) => sum + row.amountCents, 0);
+    const covered = alreadyPaid + newPaid;
+    const totalDue = order.subtotalCents + order.deliveryFeeCents - discountCents;
+    const allPaid = covered >= totalDue && payments.every((row) => row.status === "PAID");
     const dominant = dominantMethod(input.tenders);
     if (allPaid) {
       await tx.order.update({
@@ -535,7 +552,10 @@ export async function registerCashMovement(input: {
       where: { id: input.tenantId },
       select: { cashierCanRegisterExpense: true },
     });
-    if (!tenant.cashierCanRegisterExpense) {
+    const manager = await prisma.tenantMembership.findFirst({
+      where: { tenantId: input.tenantId, userId: input.userId, role: { in: ["OWNER", "MANAGER"] } },
+    });
+    if (!tenant.cashierCanRegisterExpense && !manager) {
       if (!input.authorizationId) {
         throw new ForbiddenError("Você não possui permissão para registrar despesas.");
       }
@@ -634,11 +654,28 @@ export async function closeCashSession(input: {
 }
 
 export async function listOwnClosings(tenantId: string, userId: string) {
-  return prisma.cashSession.findMany({
+  const rows = await prisma.cashSession.findMany({
     where: { tenantId, openedById: userId, status: "CLOSED" },
-    include: { terminal: true },
+    include: { terminal: true, payments: true, movements: true },
     orderBy: { closedAt: "desc" },
     take: 40,
+  });
+  return rows.map((row) => {
+    const paid = row.payments.filter((item) => item.status === "PAID");
+    const sum = (method: string, cardKind?: string) =>
+      paid
+        .filter((item) => item.method === method && (cardKind ? item.cardKind === cardKind : true))
+        .reduce((total, item) => total + item.amountCents, 0);
+    return {
+      ...row,
+      salesCents: paid.reduce((total, item) => total + item.amountCents, 0),
+      cashCents: sum("CASH"),
+      pixCents: sum("PIX"),
+      cardCents: paid.filter((item) => item.method === "CARD").reduce((total, item) => total + item.amountCents, 0),
+      sangriaCents: row.movements
+        .filter((item) => item.type === "SANGRIA" && item.status === "ACTIVE")
+        .reduce((total, item) => total + item.amountCents, 0),
+    };
   });
 }
 

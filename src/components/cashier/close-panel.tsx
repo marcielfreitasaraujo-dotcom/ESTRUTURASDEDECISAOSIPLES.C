@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { closeCashSessionAction } from "@/app/actions/cash";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ export function CloseCashPanel({
   const [confirm, setConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  const router = useRouter();
 
   const countedCents = useMemo(() => {
     try {
@@ -130,6 +132,8 @@ export function CloseCashPanel({
                         return;
                       }
                       setDone("Caixa fechado com sucesso.");
+                      router.push("/caixa");
+                      router.refresh();
                     });
                   }}
                 >

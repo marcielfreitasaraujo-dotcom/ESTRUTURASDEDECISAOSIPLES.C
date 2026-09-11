@@ -91,7 +91,7 @@ export const CAIXA_NAV_GROUPS: NavGroup[] = [
       { href: "/caixa/pedidos", label: "Pedidos" },
       { href: "/caixa/pagamentos", label: "Pagamentos" },
       { href: "/caixa/mesas", label: "Mesas" },
-      { href: "/app/clientes", label: "Clientes" },
+      { href: "/caixa/clientes", label: "Clientes" },
     ],
   },
   {
@@ -101,6 +101,7 @@ export const CAIXA_NAV_GROUPS: NavGroup[] = [
       { href: "/caixa/movimentacoes", label: "Movimentações" },
       { href: "/caixa/sangria", label: "Sangria" },
       { href: "/caixa/suprimento", label: "Suprimento" },
+      { href: "/caixa/despesa", label: "Despesa" },
       { href: "/caixa/conferencia", label: "Conferência" },
       { href: "/caixa/fechamento", label: "Fechamento" },
     ],

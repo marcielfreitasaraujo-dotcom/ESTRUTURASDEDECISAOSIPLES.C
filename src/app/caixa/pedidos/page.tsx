@@ -14,6 +14,8 @@ export default async function CaixaPedidosPage({
   const { filtro } = await searchParams;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const week = new Date(today);
+  week.setDate(week.getDate() - 7);
   const where =
     filtro === "pagos"
       ? { paymentStatus: "PAID" as const }
@@ -21,7 +23,9 @@ export default async function CaixaPedidosPage({
         ? { status: "CANCELLED" as const }
         : filtro === "hoje"
           ? { createdAt: { gte: today } }
-          : { paymentStatus: { not: "PAID" as const }, status: { not: "CANCELLED" as const } };
+          : filtro === "periodo"
+            ? { createdAt: { gte: week } }
+            : { paymentStatus: { not: "PAID" as const }, status: { not: "CANCELLED" as const } };
 
   const orders = await prisma.order.findMany({
     where: { tenantId: ctx.tenantId, ...where },
@@ -42,6 +46,7 @@ export default async function CaixaPedidosPage({
           ["pagos", "Pagos"],
           ["cancelados", "Cancelados"],
           ["hoje", "Hoje"],
+          ["periodo", "Últimos 7 dias"],
         ].map(([key, label]) => (
           <Link
             key={key}

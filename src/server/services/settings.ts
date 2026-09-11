@@ -28,6 +28,9 @@ export async function saveStoreSettings(input: {
   tableCount?: number;
   hours: { weekday: number; opensAt: string; closesAt: string; closed: boolean }[];
   methods: PaymentMethod[];
+  cashLimitCents?: number;
+  maxCashierDiscountPercent?: number;
+  cashierCanRegisterExpense?: boolean;
 }) {
   const tenant = await prisma.tenant.update({
     where: { id: input.tenantId },
@@ -42,6 +45,9 @@ export async function saveStoreSettings(input: {
       estimatedMinutes: input.estimatedMinutes ?? 40,
       minimumOrderCents: input.minimumOrderCents ?? 0,
       tableCount: normalizeTableCount(input.tableCount),
+      cashLimitCents: input.cashLimitCents ?? undefined,
+      maxCashierDiscountPercent: input.maxCashierDiscountPercent ?? undefined,
+      cashierCanRegisterExpense: input.cashierCanRegisterExpense ?? undefined,
     },
   });
 

@@ -21,6 +21,7 @@ function revalidateOps() {
   revalidatePath("/app/cupons");
   revalidatePath("/app/estoque");
   revalidatePath("/app/financeiro");
+  revalidatePath("/caixa/clientes");
   revalidatePath("/entrega");
 }
 
@@ -126,6 +127,9 @@ export async function saveStoreAction(formData: FormData) {
     tableCount: Number(formData.get("tableCount") || 16),
     hours,
     methods,
+    cashLimitCents: Math.round(Number(formData.get("cashLimit") || 1000) * 100),
+    maxCashierDiscountPercent: Math.max(0, Number(formData.get("maxCashierDiscountPercent") || 0)),
+    cashierCanRegisterExpense: formData.get("cashierCanRegisterExpense") === "on",
   });
   revalidateOps();
   revalidatePath("/caixa");

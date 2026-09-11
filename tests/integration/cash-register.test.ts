@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PrismaClient } from "@prisma/client";
-import { ConflictError } from "@/lib/errors";
+import { ConflictError, ForbiddenError } from "@/lib/errors";
 import {
   closeCashSession,
   openCashSession,
@@ -99,6 +99,89 @@ describe("turno do caixa", () => {
     expect(hasPermission("CASHIER", PERMISSIONS.FINANCE_READ)).toBe(false);
     expect(hasPermission("CASHIER", PERMISSIONS.INVENTORY_WRITE)).toBe(false);
     expect(hasPermission("CASHIER", PERMISSIONS.TEAM_READ)).toBe(false);
+  });
+
+  it("não marca PIX como pago sem confirmação e recusa desconto acima do limite", async () => {
+    await prisma.cashSession.updateMany({ where: { tenantId, status: "OPEN" }, data: { status: "CLOSED", closedAt: new Date() } });
+    await openCashSession({ tenantId, userId, openingCents: 10000 });
+    const order = await prisma.order.create({
+      data: {
+        tenantId,
+        number: 800000 + Math.floor(Math.random() * 999),
+        publicCode: `P${Date.now().toString().slice(-6)}`,
+        status: "CONFIRMED",
+        fulfillment: "PICKUP",
+        customerName: "PIX Caixa",
+        customerPhone: "00000000",
+        subtotalCents: 5000,
+        totalCents: 5000,
+        paymentMethod: "PIX",
+        paymentStatus: "PENDING",
+        idempotencyKey: `pix-${Date.now()}`,
+      },
+    });
+    const pendingPix = await receiveOrderPayment({
+      tenantId,
+      userId,
+      orderId: order.id,
+      tenders: [{ method: "PIX", amountCents: 5000, confirmPix: false }],
+      idempotencyKey: `pix-pay-${order.id}`,
+    });
+    expect(pendingPix.allPaid).toBe(false);
+    const stored = await prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+    expect(stored.paymentStatus).toBe("PENDING");
+
+    await expect(
+      receiveOrderPayment({
+        tenantId,
+        userId,
+        orderId: order.id,
+        tenders: [{ method: "CASH", amountCents: 4500, receivedCents: 4500 }],
+        discountCents: 500,
+        idempotencyKey: `disc-${order.id}`,
+      }),
+    ).rejects.toThrow(/Desconto acima do limite permitido/);
+  });
+
+  it("recusa despesa do caixa sem permissão e isola estabelecimento", async () => {
+    await expect(
+      registerCashMovement({
+        tenantId,
+        userId,
+        type: "EXPENSE",
+        amountCents: 3500,
+        reason: "gelo",
+        idempotencyKey: `exp-${Date.now()}`,
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenError);
+
+    if (otherTenantId !== tenantId) {
+      const foreign = await prisma.order.create({
+        data: {
+          tenantId: otherTenantId,
+          number: 700000 + Math.floor(Math.random() * 999),
+          publicCode: `X${Date.now().toString().slice(-6)}`,
+          status: "CONFIRMED",
+          fulfillment: "PICKUP",
+          customerName: "Outra Loja",
+          customerPhone: "00000000",
+          subtotalCents: 1000,
+          totalCents: 1000,
+          paymentMethod: "CASH",
+          paymentStatus: "PENDING",
+          idempotencyKey: `iso-${Date.now()}`,
+        },
+      });
+      await expect(
+        receiveOrderPayment({
+          tenantId,
+          userId,
+          orderId: foreign.id,
+          tenders: [{ method: "CASH", amountCents: 1000, receivedCents: 1000 }],
+          idempotencyKey: `iso-pay-${foreign.id}`,
+        }),
+      ).rejects.toThrow(/Pedido não encontrado/);
+    }
   });
 
   it("sessão fica isolada no estabelecimento", async () => {
