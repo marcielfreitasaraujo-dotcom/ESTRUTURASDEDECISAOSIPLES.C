@@ -3,6 +3,8 @@ import { hasPermission, isPlatformAdmin, isStoreGerente, type PlatformRole, type
 
 export type NavItem = { href: string; label: string; permission?: Permission };
 
+export type NavGroup = { id: string; label: string; items: NavItem[] };
+
 export const PLATFORM_NAV: NavItem[] = [
   { href: "/admin", label: "Visão geral" },
   { href: "/admin/tenants", label: "Estabelecimentos" },
@@ -13,22 +15,86 @@ export const PLATFORM_NAV: NavItem[] = [
   { href: "/caixa", label: "Caixa" },
 ];
 
-const TENANT_NAV: NavItem[] = [
-  { href: "/app", label: "Painel", permission: PERMISSIONS.DASHBOARD_READ },
-  { href: "/app/pedidos", label: "Pedidos", permission: PERMISSIONS.ORDER_READ },
-  { href: "/app/cozinha", label: "Cozinha", permission: PERMISSIONS.KITCHEN_READ },
-  { href: "/app/cardapio", label: "Cardápio", permission: PERMISSIONS.CATALOG_WRITE },
-  { href: "/app/clientes", label: "Clientes", permission: PERMISSIONS.CUSTOMER_READ },
-  { href: "/app/entregas", label: "Entregas", permission: PERMISSIONS.DELIVERY_READ },
-  { href: "/app/cupons", label: "Cupons", permission: PERMISSIONS.CATALOG_WRITE },
-  { href: "/app/estoque", label: "Estoque", permission: PERMISSIONS.INVENTORY_READ },
-  { href: "/app/financeiro", label: "Financeiro", permission: PERMISSIONS.FINANCE_READ },
-  { href: "/app/equipe", label: "Equipe", permission: PERMISSIONS.TEAM_READ },
-  { href: "/app/configuracoes", label: "Loja", permission: PERMISSIONS.SETTINGS_READ },
-  { href: "/caixa", label: "Caixa", permission: PERMISSIONS.ORDER_UPDATE },
-  { href: "/garcom", label: "Garçom", permission: PERMISSIONS.ORDER_CREATE },
-  { href: "/entrega", label: "Motoboy", permission: PERMISSIONS.DELIVERY_UPDATE },
+export const TENANT_NAV_GROUPS: NavGroup[] = [
+  {
+    id: "inicio",
+    label: "",
+    items: [
+      { href: "/app", label: "Dashboard", permission: PERMISSIONS.DASHBOARD_READ },
+      { href: "/caixa", label: "PDV", permission: PERMISSIONS.ORDER_UPDATE },
+    ],
+  },
+  {
+    id: "operacao",
+    label: "Operação",
+    items: [
+      { href: "/app/pedidos", label: "Pedidos", permission: PERMISSIONS.ORDER_READ },
+      { href: "/app/salao", label: "Mesas", permission: PERMISSIONS.ORDER_CREATE },
+      { href: "/app/cozinha", label: "Cozinha", permission: PERMISSIONS.KITCHEN_READ },
+      { href: "/app/entregas", label: "Entregas", permission: PERMISSIONS.DELIVERY_READ },
+      { href: "/entrega", label: "Motoboy", permission: PERMISSIONS.DELIVERY_UPDATE },
+    ],
+  },
+  {
+    id: "vendas",
+    label: "Vendas",
+    items: [
+      { href: "/garcom", label: "Novo pedido", permission: PERMISSIONS.ORDER_CREATE },
+      { href: "/app/clientes", label: "Clientes", permission: PERMISSIONS.CUSTOMER_READ },
+      { href: "/app/cupons", label: "Cupons", permission: PERMISSIONS.CATALOG_WRITE },
+    ],
+  },
+  {
+    id: "cardapio",
+    label: "Cardápio",
+    items: [
+      { href: "/app/cardapio", label: "Produtos", permission: PERMISSIONS.CATALOG_WRITE },
+    ],
+  },
+  {
+    id: "estoque",
+    label: "Estoque",
+    items: [{ href: "/app/estoque", label: "Estoque", permission: PERMISSIONS.INVENTORY_READ }],
+  },
+  {
+    id: "financeiro",
+    label: "Financeiro",
+    items: [
+      { href: "/caixa/fechamento", label: "Caixa", permission: PERMISSIONS.FINANCE_READ },
+      { href: "/app/financeiro", label: "Lançamentos", permission: PERMISSIONS.FINANCE_READ },
+      { href: "/app/relatorios", label: "Relatórios", permission: PERMISSIONS.FINANCE_READ },
+    ],
+  },
+  {
+    id: "gestao",
+    label: "Gestão",
+    items: [
+      { href: "/app/equipe", label: "Equipe", permission: PERMISSIONS.TEAM_READ },
+      { href: "/app/auditoria", label: "Auditoria", permission: PERMISSIONS.SETTINGS_READ },
+      { href: "/app/configuracoes", label: "Loja", permission: PERMISSIONS.SETTINGS_READ },
+    ],
+  },
 ];
+
+export const TENANT_FOOTER_NAV: NavItem[] = [
+  { href: "/app/configuracoes", label: "Configurações", permission: PERMISSIONS.SETTINGS_READ },
+  { href: "/app/ajuda", label: "Ajuda" },
+];
+
+const TENANT_NAV: NavItem[] = uniqueNav(TENANT_NAV_GROUPS.flatMap((group) => group.items));
+
+function uniqueNav(items: NavItem[]): NavItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (seen.has(item.href)) return false;
+    seen.add(item.href);
+    return true;
+  });
+}
+
+function allowed(role: TenantRole, item: NavItem) {
+  return !item.permission || hasPermission(role, item.permission);
+}
 
 export function navForUser(input: {
   platformRole: PlatformRole;
@@ -49,6 +115,7 @@ export function navForUser(input: {
       items.push({ href: "/caixa/fechamento", label: "Fechar caixa" });
       items.push({ href: "/app/equipe", label: "Equipe" });
       items.push({ href: "/app/cardapio", label: "Cardápio" });
+      items.push({ href: "/app", label: "Painel" });
     }
     return items;
   }
@@ -62,5 +129,35 @@ export function navForUser(input: {
     ];
   }
   if (!input.tenantRole) return [];
-  return TENANT_NAV.filter((item) => !item.permission || hasPermission(input.tenantRole!, item.permission));
+  return TENANT_NAV.filter((item) => allowed(input.tenantRole!, item));
+}
+
+export function groupedNavForUser(input: {
+  platformRole: PlatformRole;
+  tenantRole: TenantRole | null;
+  storefrontHref?: string;
+}): NavGroup[] {
+  if (!input.tenantRole && !isPlatformAdmin(input.platformRole)) return [];
+  const role = input.tenantRole;
+  const groups = TENANT_NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => (role ? allowed(role, item) : true)),
+  })).filter((group) => group.items.length > 0);
+
+  if (input.storefrontHref && role && hasPermission(role, PERMISSIONS.CATALOG_WRITE)) {
+    return groups.map((group) =>
+      group.id === "cardapio"
+        ? {
+            ...group,
+            items: [...group.items, { href: input.storefrontHref!, label: "Cardápio digital" }],
+          }
+        : group,
+    );
+  }
+  return groups;
+}
+
+export function footerNavForUser(tenantRole: TenantRole | null): NavItem[] {
+  if (!tenantRole) return [{ href: "/app/ajuda", label: "Ajuda" }];
+  return TENANT_FOOTER_NAV.filter((item) => allowed(tenantRole, item));
 }

@@ -56,7 +56,14 @@ export function isPlatformAdmin(role: PlatformRole): boolean {
 
 export const EMPLOYEE_ROLES: TenantRole[] = ["MANAGER", "CASHIER", "WAITER", "KITCHEN", "DELIVERY", "STAFF"];
 
-export const ROLES_GERENTE_CAN_ASSIGN: TenantRole[] = ["CASHIER", "WAITER", "KITCHEN", "DELIVERY", "STAFF"];
+export const ROLES_GERENTE_CAN_ASSIGN: TenantRole[] = [
+  "MANAGER",
+  "CASHIER",
+  "WAITER",
+  "KITCHEN",
+  "DELIVERY",
+  "STAFF",
+];
 
 export const ROLES_MANAGER_CAN_ASSIGN = ROLES_GERENTE_CAN_ASSIGN;
 

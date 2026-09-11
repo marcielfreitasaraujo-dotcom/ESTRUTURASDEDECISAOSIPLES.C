@@ -24,7 +24,15 @@ export default async function FinanceiroPage() {
     <div className="grid gap-6">
       <div>
         <h1 className="text-3xl font-semibold">Financeiro</h1>
-        <p className="text-sm text-muted-foreground">Despesas, receitas extras e total dos pedidos.</p>
+        <p className="text-sm text-muted-foreground">Despesas, receitas extras, caixa do dia e relatórios.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <a className="rounded-lg border px-3 py-2 text-sm hover:bg-muted" href="/caixa/fechamento">
+            Caixa do dia
+          </a>
+          <a className="rounded-lg border px-3 py-2 text-sm hover:bg-muted" href="/app/relatorios">
+            Relatórios
+          </a>
+        </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>

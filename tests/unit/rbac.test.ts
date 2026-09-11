@@ -19,10 +19,12 @@ describe("RBAC", () => {
     expect(hasPermission("DELIVERY", PERMISSIONS.DELIVERY_UPDATE)).toBe(true);
   });
 
-  it("gerente mexe em caixa, garçom e motoboy, mas não no admin nem em outro gerente", () => {
+  it("proprietário e gerente têm o mesmo acesso da loja, sem criar admin", () => {
+    expect(hasPermission("OWNER", PERMISSIONS.FINANCE_WRITE)).toBe(true);
+    expect(hasPermission("MANAGER", PERMISSIONS.FINANCE_WRITE)).toBe(true);
     expect(canAssignTenantRole("OWNER", "CASHIER")).toBe(true);
-    expect(canAssignTenantRole("OWNER", "WAITER")).toBe(true);
-    expect(canAssignTenantRole("OWNER", "DELIVERY")).toBe(true);
+    expect(canAssignTenantRole("OWNER", "MANAGER")).toBe(true);
+    expect(canAssignTenantRole("MANAGER", "CASHIER")).toBe(true);
     expect(canAssignTenantRole("OWNER", "OWNER")).toBe(false);
     expect(canManageTenantMember("OWNER", "CASHIER")).toBe(true);
     expect(canManageTenantMember("OWNER", "OWNER")).toBe(false);

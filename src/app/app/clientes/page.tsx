@@ -16,12 +16,45 @@ export default async function CustomersPage() {
   const canWrite =
     isPlatformAdmin(ctx.platformRole) ||
     (ctx.tenantRole ? hasPermission(ctx.tenantRole, PERMISSIONS.CUSTOMER_WRITE) : false);
+  const now = Date.now();
+  const newCount = customers.filter((customer) => now - customer.updatedAt.getTime() < 30 * 86_400_000 && customer._count.orders <= 1).length;
+  const recurring = customers.filter((customer) => customer._count.orders >= 2).length;
+  const inactive = customers.filter((customer) => {
+    const last = customer.orders[0]?.createdAt;
+    return !last || now - last.getTime() > 45 * 86_400_000;
+  }).length;
 
   return (
     <div className="grid gap-6">
       <div>
         <h1 className="text-3xl font-semibold">Clientes</h1>
         <p className="text-sm text-muted-foreground">CRM do estabelecimento. Pedido online e do caixa entram aqui pelo telefone.</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Novos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="font-heading text-2xl">{newCount}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Recorrentes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="font-heading text-2xl">{recurring}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Inativos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="font-heading text-2xl">{inactive}</p>
+          </CardContent>
+        </Card>
       </div>
       {canWrite ? (
       <Card>
@@ -58,6 +91,8 @@ export default async function CustomersPage() {
                 <th className="p-3">Telefone</th>
                 <th className="p-3">Pedidos</th>
                 <th className="p-3">Total gasto</th>
+                <th className="p-3">Ticket médio</th>
+                <th className="p-3">Último pedido</th>
               </tr>
             </thead>
             <tbody>
@@ -67,6 +102,14 @@ export default async function CustomersPage() {
                   <td className="p-3 font-mono">{customer.phone}</td>
                   <td className="p-3">{customer._count.orders}</td>
                   <td className="p-3">{formatBRL(customer.orders.reduce((sum, order) => sum + order.totalCents, 0))}</td>
+                  <td className="p-3">
+                    {customer._count.orders
+                      ? formatBRL(Math.round(customer.orders.reduce((sum, order) => sum + order.totalCents, 0) / customer._count.orders))
+                      : "—"}
+                  </td>
+                  <td className="p-3">
+                    {customer.orders[0]?.createdAt.toLocaleDateString("pt-BR") ?? "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

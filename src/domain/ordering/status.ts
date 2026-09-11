@@ -30,6 +30,30 @@ export function assertTransition(from: OrderStatus, to: OrderStatus) {
   }
 }
 
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING: "Novo",
+  CONFIRMED: "Confirmado",
+  PREPARING: "Em preparo",
+  READY: "Pronto",
+  OUT_FOR_DELIVERY: "Em rota",
+  DELIVERED: "Entregue",
+  CANCELLED: "Cancelado",
+};
+
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  PIX: "PIX",
+  CASH: "Dinheiro",
+  CARD: "Cartão",
+  ONLINE: "Online",
+  OTHER: "Outros",
+};
+
+export const FULFILLMENT_LABELS: Record<string, string> = {
+  DINE_IN: "Salão",
+  DELIVERY: "Delivery",
+  PICKUP: "Balcão",
+};
+
 export const KANBAN_COLUMNS: { key: OrderStatus; title: string }[] = [
   { key: "PENDING", title: "Novos" },
   { key: "CONFIRMED", title: "Confirmados" },

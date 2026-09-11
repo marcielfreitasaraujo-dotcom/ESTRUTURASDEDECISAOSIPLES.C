@@ -1,5 +1,5 @@
 export const TENANT_ROLE_LABELS: Record<string, string> = {
-  OWNER: "Gerente",
+  OWNER: "Proprietário",
   MANAGER: "Gerente",
   CASHIER: "Caixa",
   WAITER: "Garçom",

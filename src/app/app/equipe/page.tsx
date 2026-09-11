@@ -35,8 +35,7 @@ export default async function TeamPage({
       <div>
         <h1 className="text-3xl font-semibold">Equipe</h1>
         <p className="text-sm text-muted-foreground">
-          O gerente cria e altera caixa, garçom e motoboy. O admin não aparece nesta lista e ninguém, além dele mesmo,
-          altera esse login.
+          O gerente e o proprietário administram a equipe da loja. Não é possível criar ou alterar o admin da plataforma.
         </p>
       </div>
       {error ? <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm">{error}</p> : null}

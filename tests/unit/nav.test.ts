@@ -12,6 +12,9 @@ describe("navForUser", () => {
       expect(links).toContain("/app/financeiro");
       expect(links).toContain("/app/equipe");
       expect(links).toContain("/app/configuracoes");
+      expect(links).toContain("/app/salao");
+      expect(links).toContain("/app/relatorios");
+      expect(links).toContain("/app/auditoria");
       expect(links).toContain("/caixa");
       expect(links).toContain("/entrega");
     }
