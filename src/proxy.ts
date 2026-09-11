@@ -11,9 +11,13 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/caixa") ||
     pathname.startsWith("/entrega");
   if (needsAuth && !sessionCookie) {
-    return NextResponse.redirect(new URL("/entrar", request.url));
+    const login = NextResponse.redirect(new URL("/entrar", request.url));
+    login.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+    return login;
   }
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+  return response;
 }
 
 export const config = {
