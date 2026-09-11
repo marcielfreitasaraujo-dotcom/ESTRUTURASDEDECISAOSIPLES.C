@@ -116,7 +116,7 @@ export function AppShell({
   return (
     <div className="dark min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        <aside className="hidden w-60 shrink-0 border-r bg-card/40 p-3 md:flex md:flex-col">
+        <aside className="hidden w-60 shrink-0 border-r bg-card/40 p-3 pb-12 md:flex md:flex-col">
           <Brand href={homeHref} />
           <p className="mt-3 rounded-md bg-primary/15 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-primary">
             {storeName ? storeName : `PDV · ${title}`}
