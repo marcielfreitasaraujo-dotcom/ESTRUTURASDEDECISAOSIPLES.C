@@ -19,7 +19,7 @@ export default async function EntregaLayout({ children }: { children: React.Reac
   }
 
   const tenant = session.tenantId
-    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true } })
+    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true, tradeName: true } })
     : null;
   const motoboy = session.tenantRole === "DELIVERY";
   const entregaItems = navForUser({
@@ -52,7 +52,7 @@ export default async function EntregaLayout({ children }: { children: React.Reac
       }
       userName={session.name}
       roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : undefined}
-      storeName={tenant?.name}
+      storeName={tenant?.tradeName || tenant?.name}
       homeHref={motoboy ? "/entrega" : "/app"}
       enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >

@@ -16,7 +16,7 @@ export default async function TenantLayout({ children }: { children: React.React
   if (session.tenantRole === "DELIVERY") redirect("/entrega");
 
   const tenant = session.tenantId
-    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true } })
+    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true, tradeName: true } })
     : null;
 
   const waiter = session.tenantRole === "WAITER" || session.tenantRole === "STAFF";
@@ -45,7 +45,7 @@ export default async function TenantLayout({ children }: { children: React.React
       tabs={mobileTabNav({ surface: waiter ? "garcom" : "app", items, groups })}
       userName={session.name}
       roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : undefined}
-      storeName={tenant?.name}
+      storeName={tenant?.tradeName || tenant?.name}
       homeHref={postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole })}
       enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >
