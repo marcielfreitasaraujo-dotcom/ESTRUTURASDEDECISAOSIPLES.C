@@ -5,6 +5,7 @@ import { upsertCashTerminalAction } from "@/app/actions/cash-desk";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ds/page-header";
 import { nativeSelectClass } from "@/lib/field";
 
 export default async function TerminaisPage() {
@@ -12,11 +13,12 @@ export default async function TerminaisPage() {
   const terminals = await listCashTerminals(ctx.tenantId);
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="font-heading text-3xl">Terminais</h1>
-        <p className="text-sm text-zinc-400">O terminal é o equipamento. O operador é a pessoa. Um terminal só pode ter um caixa aberto.</p>
-      </div>
-      <form action={upsertCashTerminalAction} className="grid gap-3 rounded-2xl border border-zinc-800 bg-card p-4 sm:grid-cols-2">
+      <PageHeader
+        title="Terminais"
+        description="O terminal é o equipamento. O operador é a pessoa. Um terminal só pode ter um caixa aberto."
+        backHref="/app/caixas"
+      />
+      <form action={upsertCashTerminalAction} className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2">
         <div className="grid gap-2 sm:col-span-2">
           <Label htmlFor="name">Novo terminal</Label>
           <Input id="name" name="name" required placeholder="Caixa 04" />
@@ -35,7 +37,7 @@ export default async function TerminaisPage() {
       </form>
       <div className="grid gap-3">
         {terminals.map((terminal) => (
-          <form key={terminal.id} action={upsertCashTerminalAction} className="grid gap-3 rounded-xl border border-zinc-800 p-4 sm:grid-cols-4">
+          <form key={terminal.id} action={upsertCashTerminalAction} className="grid gap-3 rounded-xl border border-border p-4 sm:grid-cols-4">
             <input type="hidden" name="id" value={terminal.id} />
             <Input name="name" defaultValue={terminal.name} aria-label="Nome" />
             <Input name="code" defaultValue={terminal.code ?? ""} aria-label="Código" />

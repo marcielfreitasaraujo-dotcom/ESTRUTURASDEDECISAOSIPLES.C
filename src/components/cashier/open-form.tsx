@@ -30,7 +30,7 @@ export function OpenCashForm({
 
   return (
     <form
-      className="mx-auto grid max-w-lg gap-4 rounded-2xl border border-zinc-800 bg-card p-6"
+      className="mx-auto grid max-w-lg gap-4 rounded-2xl border border-border bg-card p-6"
       onSubmit={(event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
@@ -48,7 +48,7 @@ export function OpenCashForm({
     >
       <div>
         <h1 className="font-heading text-2xl">Abrir caixa</h1>
-        <p className="mt-1 text-sm text-zinc-400">Selecione o operador, o terminal e o repasse inicial do turno.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Selecione o operador, o terminal e o repasse inicial do turno.</p>
       </div>
       <div className="grid gap-2">
         <Label htmlFor="operatorId">Operador</Label>

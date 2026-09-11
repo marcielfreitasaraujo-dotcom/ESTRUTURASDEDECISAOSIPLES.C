@@ -7,6 +7,7 @@ import { createSalonSectorAction } from "@/app/actions/floor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/ds/page-header";
 
 const DAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const METHODS = [
@@ -24,10 +25,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Loja</h1>
-        <p className="text-sm text-muted-foreground">Dados que o cardápio público e o caixa usam.</p>
-      </div>
+      <PageHeader title="Loja" description="Dados que o cardápio público e o caixa usam." />
       <form action={saveStoreAction} className="grid max-w-3xl gap-4">
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="grid gap-2">

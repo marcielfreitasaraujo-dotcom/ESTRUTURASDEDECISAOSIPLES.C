@@ -76,11 +76,11 @@ export function CloseCashPanel({
     <div className="grid max-w-xl gap-5">
       <div>
         <h1 className="font-heading text-2xl">{mode === "count" ? "Contagem do caixa" : "Fechamento de caixa"}</h1>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-muted-foreground">
           {operatorName} · aberto em {formatDay(openedAt)} às {formatClock(openedAt)}
         </p>
       </div>
-      <dl className="grid gap-2 rounded-xl border border-zinc-800 bg-card p-4 text-sm">
+      <dl className="grid gap-2 rounded-xl border border-border bg-card p-4 text-sm">
         {[
           ["Saldo inicial", totals.openingCents],
           ["Vendas", totals.salesCents],
@@ -94,11 +94,11 @@ export function CloseCashPanel({
           ["Despesas", totals.expenseCents],
         ].map(([label, value]) => (
           <div key={String(label)} className="flex justify-between">
-            <dt className="text-zinc-400">{label}</dt>
+            <dt className="text-muted-foreground">{label}</dt>
             <dd>{formatBRL(Number(value))}</dd>
           </div>
         ))}
-        <div className="flex justify-between border-t border-zinc-800 pt-2 text-base font-medium">
+        <div className="flex justify-between border-t border-border pt-2 text-base font-medium">
           <dt>Saldo físico esperado</dt>
           <dd>{formatBRL(expected)}</dd>
         </div>
@@ -115,9 +115,9 @@ export function CloseCashPanel({
             <Textarea id="note" value={note} onChange={(event) => setNote(event.target.value)} />
           </div>
           {confirm ? (
-            <div className="grid gap-2 rounded-xl border border-zinc-800 p-4">
+            <div className="grid gap-2 rounded-xl border border-border p-4">
               <p className="font-medium">Tem certeza que deseja fechar o caixa?</p>
-              <p className="text-sm text-zinc-400">O fechamento não poderá ser alterado diretamente depois de concluído.</p>
+              <p className="text-sm text-muted-foreground">O fechamento não poderá ser alterado diretamente depois de concluído.</p>
               <div className="flex gap-2">
                 <Button type="button" variant="outline" onClick={() => setConfirm(false)}>
                   Cancelar

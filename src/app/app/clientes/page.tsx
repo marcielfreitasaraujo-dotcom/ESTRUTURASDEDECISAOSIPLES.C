@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatBRL } from "@/lib/money";
+import { PageHeader } from "@/components/ds/page-header";
+import { StatCard } from "@/components/ds/surface";
 import { redirect } from "next/navigation";
 
 export default async function CustomersPage() {
@@ -22,35 +24,14 @@ export default async function CustomersPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Clientes</h1>
-        <p className="text-sm text-muted-foreground">CRM do estabelecimento. Pedido online e do caixa entram aqui pelo telefone.</p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Novos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-2xl">{stats.newCount}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Recorrentes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-2xl">{stats.recurring}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Inativos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-2xl">{stats.inactive}</p>
-          </CardContent>
-        </Card>
+      <PageHeader
+        title="Clientes"
+        description="CRM do estabelecimento. Pedido online e do caixa entram aqui pelo telefone."
+      />
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Novos" value={String(stats.newCount)} />
+        <StatCard label="Recorrentes" value={String(stats.recurring)} />
+        <StatCard label="Inativos" value={String(stats.inactive)} />
       </div>
       {canWrite ? (
       <Card>

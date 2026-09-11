@@ -14,9 +14,9 @@ export default async function TurnoPage() {
     <div className="grid max-w-lg gap-4">
       <div>
         <h1 className="font-heading text-2xl">Meu turno</h1>
-        <p className="text-sm text-zinc-400">Resumo operacional. Relatórios gerenciais ficam com o gerente.</p>
+        <p className="text-sm text-muted-foreground">Resumo operacional. Relatórios gerenciais ficam com o gerente.</p>
       </div>
-      <dl className="grid gap-2 rounded-xl border border-zinc-800 bg-card p-4 text-sm">
+      <dl className="grid gap-2 rounded-xl border border-border bg-card p-4 text-sm">
         <div className="flex justify-between">
           <dt>Pedidos pagos</dt>
           <dd>{totals.paidCount}</dd>

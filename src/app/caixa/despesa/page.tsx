@@ -14,7 +14,7 @@ export default async function DespesaPage() {
       <div className="mx-auto max-w-lg rounded-2xl border border-amber-500/30 bg-card p-6">
         <h1 className="font-heading text-2xl">Despesa</h1>
         <p className="mt-2 text-sm text-amber-200">Você não possui permissão para registrar despesas.</p>
-        <p className="mt-2 text-sm text-zinc-400">Peça ao gerente para autorizar esta operação nas configurações da loja.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Peça ao gerente para autorizar esta operação nas configurações da loja.</p>
       </div>
     );
   }

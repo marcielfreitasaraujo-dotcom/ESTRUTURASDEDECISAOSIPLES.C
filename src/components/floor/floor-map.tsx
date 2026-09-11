@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatBRL } from "@/lib/money";
+import { PageHeader } from "@/components/ds/page-header";
 
 type Catalog = {
   products: { id: string; name: string; priceCents: number; promotionalPriceCents: number | null; kind: string; active?: boolean }[];
@@ -177,29 +178,28 @@ export function FloorMap({
   }
 
   return (
-    <div className="grid gap-5">
-      <header className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-4 md:p-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-sm text-zinc-400">Atendimento</p>
-            <h1 className="font-heading text-3xl">Mapa de Mesas</h1>
-            <p className="mt-1 text-sm text-zinc-400">Total: {snapshot.counts.total} mesas</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button type="button" size="lg" className="h-11" onClick={() => openDialog("open", freeTables[0])}>
-              Abrir mesa
-            </Button>
-            <Button type="button" size="lg" variant="outline" className="h-11" onClick={() => openDialog("reserve", freeTables[0])}>
-              Nova reserva
-            </Button>
-            <Button type="button" size="lg" variant="outline" className="h-11" onClick={() => openDialog("counter")}>
-              Balcão
-            </Button>
-            <Button type="button" size="lg" variant="ghost" className="h-11" onClick={() => void reload()}>
-              Atualizar
-            </Button>
-          </div>
-        </div>
+    <div className="grid gap-6">
+      <header className="grid gap-4 rounded-xl border border-border bg-card p-4 md:p-5">
+        <PageHeader
+          title="Mapa de mesas"
+          description={`Atendimento · ${snapshot.counts.total} mesas`}
+          actions={
+            <>
+              <Button type="button" onClick={() => openDialog("open", freeTables[0])}>
+                Abrir mesa
+              </Button>
+              <Button type="button" variant="outline" onClick={() => openDialog("reserve", freeTables[0])}>
+                Nova reserva
+              </Button>
+              <Button type="button" variant="outline" onClick={() => openDialog("counter")}>
+                Balcão
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => void reload()}>
+                Atualizar
+              </Button>
+            </>
+          }
+        />
         <ul className="flex flex-wrap gap-2 text-sm">
           <li className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-100">
             Livres: {snapshot.counts.free}
@@ -210,7 +210,7 @@ export function FloorMap({
           <li className="rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-amber-100">
             Reservadas: {snapshot.counts.reserved}
           </li>
-          <li className="rounded-full border border-zinc-600 bg-zinc-800 px-3 py-1 text-zinc-300">
+          <li className="rounded-full border border-border bg-muted px-3 py-1 text-foreground/80">
             Indisponíveis: {snapshot.counts.blocked}
           </li>
         </ul>

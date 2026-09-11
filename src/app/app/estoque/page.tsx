@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatBRL } from "@/lib/money";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function EstoquePage() {
   const ctx = await requirePage(PERMISSIONS.INVENTORY_READ);
@@ -19,10 +20,7 @@ export default async function EstoquePage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Estoque</h1>
-        <p className="text-sm text-muted-foreground">Insumos com alerta quando a quantidade chega no mínimo.</p>
-      </div>
+      <PageHeader title="Estoque" description="Insumos com alerta quando a quantidade chega no mínimo." />
       {canWrite ? (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>

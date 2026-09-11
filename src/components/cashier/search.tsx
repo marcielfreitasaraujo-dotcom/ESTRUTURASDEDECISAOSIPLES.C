@@ -33,7 +33,7 @@ export function CashierSearch() {
         onFocus={() => results && setOpen(true)}
       />
       {open && results ? (
-        <div className="absolute z-20 mt-1 w-full rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-sm shadow-xl">
+        <div className="absolute z-20 mt-1 w-full rounded-xl border border-border bg-background p-2 text-sm shadow-xl">
           {results.orders.map((order) => (
             <button
               key={order.id}
@@ -67,17 +67,17 @@ export function CashierSearch() {
               <span>
                 Caixa {session.publicCode} · {session.terminal.name}
               </span>
-              <span className="text-zinc-500">{session.operator.displayName || session.operator.name}</span>
+              <span className="text-muted-foreground">{session.operator.displayName || session.operator.name}</span>
             </button>
           ))}
           {results.operators?.map((operator) => (
-            <p key={operator.id} className="px-3 py-1 text-zinc-400">
+            <p key={operator.id} className="px-3 py-1 text-muted-foreground">
               Operador {operator.displayName || operator.name}
               {operator.operatorCode ? ` · ${operator.operatorCode}` : ""}
             </p>
           ))}
           {results.customers.map((customer) => (
-            <p key={customer.id} className="px-3 py-1 text-zinc-400">
+            <p key={customer.id} className="px-3 py-1 text-muted-foreground">
               Cliente {customer.name} · {customer.phone}
             </p>
           ))}

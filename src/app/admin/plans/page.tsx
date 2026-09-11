@@ -1,16 +1,14 @@
 import { listPlansWithSubs } from "@/server/services/tenants";
 import { formatBRL } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function AdminPlansPage() {
   const plans = await listPlansWithSubs();
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="font-heading text-3xl">Planos</h1>
-        <p className="text-sm text-muted-foreground">Assinaturas ativas por plano comercial.</p>
-      </div>
+      <PageHeader title="Planos" description="Assinaturas ativas por plano comercial." />
       <div className="grid gap-4 md:grid-cols-2">
         {plans.map((plan) => (
           <article key={plan.id} className="rounded-xl border bg-card p-5">

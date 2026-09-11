@@ -46,7 +46,7 @@ export function CashMovementForm({
     >
       <div>
         <h1 className="font-heading text-2xl">{title}</h1>
-        <p className="mt-1 text-sm text-zinc-400">{description}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
       </div>
       <input type="hidden" name="idempotencyKey" value={key} />
       <div className="grid gap-2">
@@ -56,7 +56,7 @@ export function CashMovementForm({
       {type === "SANGRIA" ? (
         <div className="grid gap-2">
           <Label htmlFor="reason">Motivo</Label>
-          <select id="reason" name="reason" className="h-11 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm">
+          <select id="reason" name="reason" className="h-11 rounded-lg border border-border bg-background px-3 text-sm">
             {SANGRIA_REASONS.map((reason) => (
               <option key={reason.value} value={reason.value}>
                 {reason.label}
@@ -67,7 +67,7 @@ export function CashMovementForm({
       ) : type === "SUPPLY" ? (
         <div className="grid gap-2">
           <Label htmlFor="reason">Motivo</Label>
-          <select id="reason" name="reason" className="h-11 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm">
+          <select id="reason" name="reason" className="h-11 rounded-lg border border-border bg-background px-3 text-sm">
             {SUPPLY_REASONS.map((reason) => (
               <option key={reason.value} value={reason.value}>
                 {reason.label}
@@ -78,7 +78,7 @@ export function CashMovementForm({
       ) : (
         <div className="grid gap-2">
           <Label htmlFor="reason">Categoria</Label>
-          <select id="reason" name="reason" className="h-11 rounded-lg border border-zinc-800 bg-zinc-950 px-3 text-sm">
+          <select id="reason" name="reason" className="h-11 rounded-lg border border-border bg-background px-3 text-sm">
             {EXPENSE_CATEGORIES.map((reason) => (
               <option key={reason.value} value={reason.value}>
                 {reason.label}

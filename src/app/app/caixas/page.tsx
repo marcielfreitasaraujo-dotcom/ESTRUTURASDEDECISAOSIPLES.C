@@ -8,6 +8,9 @@ import { formatClock, formatDay } from "@/domain/cash/labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClass } from "@/lib/field";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
+import { StatCard } from "@/components/ds/surface";
+import { DataTable, StatusPill } from "@/components/ds/data-table";
 
 const PERIODS = [
   { value: "today", label: "Hoje" },
@@ -20,12 +23,12 @@ const PERIODS = [
   { value: "all", label: "Todo o histórico" },
 ];
 
-function statusClass(tone: string) {
-  if (tone === "success") return "text-emerald-400";
-  if (tone === "warning") return "text-amber-300";
-  if (tone === "danger") return "text-red-400";
-  if (tone === "info") return "text-sky-400";
-  return "text-zinc-400";
+function statusTone(tone: string): "success" | "warning" | "danger" | "info" | "neutral" {
+  if (tone === "success") return "success";
+  if (tone === "warning") return "warning";
+  if (tone === "danger") return "danger";
+  if (tone === "info") return "info";
+  return "neutral";
 }
 
 export default async function CaixasPage({
@@ -72,48 +75,63 @@ export default async function CaixasPage({
   }).toString();
 
   return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-3xl">Central de conferência</h1>
-          <p className="text-sm text-zinc-400">Todos os caixas da loja, inclusive turnos antigos. Nada é apagado depois do fechamento.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
-            <Link href="/app/caixas/terminais">Terminais</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/app/caixas/relatorios">Relatórios</Link>
-          </Button>
-          <Button asChild>
-            <Link href={`/app/caixas/export?${exportQuery}`}>Exportar CSV</Link>
-          </Button>
-        </div>
-      </div>
+    <PageStack>
+      <PageHeader
+        title="Central de conferência"
+        description="Todos os caixas da loja, inclusive turnos antigos. Nada é apagado depois do fechamento."
+        actions={
+          <>
+            <Button asChild variant="outline">
+              <Link href="/app/caixas/terminais">Terminais</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/app/caixas/relatorios">Relatórios</Link>
+            </Button>
+            <Button asChild>
+              <Link href={`/app/caixas/export?${exportQuery}`}>Exportar CSV</Link>
+            </Button>
+          </>
+        }
+      />
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <Kpi label="Caixas abertos" value={String(snapshot.openCount)} />
-        <Kpi label="Fechados hoje" value={String(snapshot.closedToday)} />
-        <Kpi label="Aguardando conferência" value={String(snapshot.pendingConference)} tone="warn" />
-        <Kpi label="Com diferença" value={String(snapshot.withDifference)} tone="alert" />
-        <Kpi label="Vendas hoje" value={formatBRL(snapshot.salesTodayCents)} />
-        <Kpi label="Dinheiro nos caixas" value={formatBRL(snapshot.cashInDrawersCents)} />
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <StatCard label="Caixas abertos" value={String(snapshot.openCount)} />
+        <StatCard label="Fechados hoje" value={String(snapshot.closedToday)} />
+        <StatCard label="Aguardando conferência" value={String(snapshot.pendingConference)} tone="warning" />
+        <StatCard label="Com diferença" value={String(snapshot.withDifference)} tone="danger" />
+        <StatCard label="Vendas hoje" value={formatBRL(snapshot.salesTodayCents)} />
+        <StatCard label="Dinheiro nos caixas" value={formatBRL(snapshot.cashInDrawersCents)} />
       </section>
 
       {snapshot.openSessions.length ? (
-        <section className="grid gap-3 md:grid-cols-2">
+        <section className="grid gap-4 md:grid-cols-2">
           {snapshot.openSessions.map((row) => (
-            <Link key={row.id} href={`/app/caixas/${row.id}`} className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+            <Link key={row.id} href={`/app/caixas/${row.id}`} className="rounded-xl border border-success/20 bg-success/5 p-4">
               <div className="flex items-center justify-between gap-2">
-                <h2 className="font-heading text-xl">{row.terminalName}</h2>
-                <span className="text-sm text-emerald-400">🟢 Em operação</span>
+                <h2 className="text-lg font-semibold">{row.terminalName}</h2>
+                <StatusPill tone="success">Aberto</StatusPill>
               </div>
               <dl className="mt-3 grid gap-1 text-sm">
-                <div className="flex justify-between"><dt className="text-zinc-500">Operador</dt><dd>{row.operatorName}</dd></div>
-                <div className="flex justify-between"><dt className="text-zinc-500">Aberto às</dt><dd>{formatClock(row.openedAt)}</dd></div>
-                <div className="flex justify-between"><dt className="text-zinc-500">Saldo inicial</dt><dd>{formatBRL(row.openingCents)}</dd></div>
-                <div className="flex justify-between"><dt className="text-zinc-500">Vendas</dt><dd>{formatBRL(row.salesCents)}</dd></div>
-                <div className="flex justify-between"><dt className="text-zinc-500">Saldo esperado</dt><dd>{formatBRL(row.expectedCashCents)}</dd></div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Operador</dt>
+                  <dd>{row.operatorName}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Aberto às</dt>
+                  <dd>{formatClock(row.openedAt)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Saldo inicial</dt>
+                  <dd>{formatBRL(row.openingCents)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Vendas</dt>
+                  <dd>{formatBRL(row.salesCents)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted-foreground">Saldo esperado</dt>
+                  <dd>{formatBRL(row.expectedCashCents)}</dd>
+                </div>
               </dl>
             </Link>
           ))}
@@ -123,14 +141,14 @@ export default async function CaixasPage({
       {snapshot.alerts.length ? (
         <section className="grid gap-2">
           {snapshot.alerts.map((alert) => (
-            <Link key={alert.id} href={alert.href} className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+            <Link key={alert.id} href={alert.href} className="rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
               <strong>{alert.title}.</strong> {alert.detail}
             </Link>
           ))}
         </section>
       ) : null}
 
-      <form method="get" className="grid gap-3 rounded-2xl border border-zinc-800 bg-card p-4 md:grid-cols-4">
+      <form method="get" className="grid gap-3 rounded-xl border border-border bg-card p-4 md:grid-cols-4">
         <select name="periodo" defaultValue={params.periodo || "last30"} className={nativeSelectClass} aria-label="Período">
           {PERIODS.map((item) => (
             <option key={item.value} value={item.value}>
@@ -176,91 +194,47 @@ export default async function CaixasPage({
         </Button>
       </form>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-800">
-        <table className="w-full min-w-[1200px] text-left text-sm">
-          <thead className="bg-zinc-950 text-zinc-400">
-            <tr>
-              {[
-                "Código",
-                "Abertura",
-                "Fechamento",
-                "Situação",
-                "Conferido",
-                "Operador",
-                "Terminal",
-                "Saldo inicial",
-                "Vendas",
-                "Dinheiro",
-                "PIX",
-                "Cartões",
-                "Sangrias",
-                "Suprimentos",
-                "Despesas",
-                "Esperado",
-                "Contado",
-                "Diferença",
-              ].map((head) => (
-                <th key={head} className="px-3 py-2 font-medium">
-                  {head}
-                </th>
-              ))}
+      <DataTable
+        minWidth="1100px"
+        headers={["Código", "Data", "Operador", "Terminal", "Abertura", "Fechamento", "Status", "Vendas", "Esperado", "Contado", "Diferença", "Ações"]}
+      >
+        {rows.length === 0 ? (
+          <tr>
+            <td colSpan={12} className="px-3 py-8 text-center text-muted-foreground">
+              Nenhum caixa encontrado neste filtro. Amplie o período ou pesquise o código da sessão.
+            </td>
+          </tr>
+        ) : (
+          rows.map((row) => (
+            <tr key={row.id} className="hover:bg-muted/40">
+              <td className="px-3 py-2.5">
+                <Link href={`/app/caixas/${row.id}`} className="font-medium text-primary">
+                  {row.publicCode}
+                </Link>
+              </td>
+              <td className="whitespace-nowrap px-3 py-2.5">{formatDay(row.openedAt)}</td>
+              <td className="whitespace-nowrap px-3 py-2.5">{row.operatorName}</td>
+              <td className="whitespace-nowrap px-3 py-2.5">{row.terminalName}</td>
+              <td className="whitespace-nowrap px-3 py-2.5">{formatClock(row.openedAt)}</td>
+              <td className="whitespace-nowrap px-3 py-2.5">{row.closedAt ? formatClock(row.closedAt) : "—"}</td>
+              <td className="px-3 py-2.5">
+                <StatusPill tone={statusTone(row.ui.tone)}>{row.ui.label}</StatusPill>
+              </td>
+              <td className="px-3 py-2.5 tabular-nums">{formatBRL(row.salesCents)}</td>
+              <td className="px-3 py-2.5 tabular-nums">{formatBRL(row.expectedCashCents)}</td>
+              <td className="px-3 py-2.5 tabular-nums">{row.countedCents == null ? "—" : formatBRL(row.countedCents)}</td>
+              <td className={`px-3 py-2.5 tabular-nums ${(row.differenceCents ?? 0) === 0 ? "text-success" : "text-destructive"}`}>
+                {row.differenceCents == null ? "—" : formatSignedBRL(row.differenceCents)}
+              </td>
+              <td className="px-3 py-2.5">
+                <Button asChild size="sm" variant="outline">
+                  <Link href={`/app/caixas/${row.id}`}>Detalhes</Link>
+                </Button>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 ? (
-              <tr>
-                <td colSpan={18} className="px-3 py-8 text-center text-zinc-500">
-                  Nenhum caixa encontrado neste filtro. Amplie o período ou pesquise o código da sessão.
-                </td>
-              </tr>
-            ) : (
-              rows.map((row) => (
-                <tr key={row.id} className="border-t border-zinc-800 hover:bg-zinc-900/60">
-                  <td className="px-3 py-2">
-                    <Link href={`/app/caixas/${row.id}`} className="text-primary underline">
-                      {row.publicCode}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
-                    {formatDay(row.openedAt)} {formatClock(row.openedAt)}
-                  </td>
-                  <td className="px-3 py-2 whitespace-nowrap">
-                    {row.closedAt ? `${formatDay(row.closedAt)} ${formatClock(row.closedAt)}` : "—"}
-                  </td>
-                  <td className={`px-3 py-2 ${statusClass(row.ui.tone)}`}>{row.ui.label}</td>
-                  <td className="px-3 py-2">{row.conferred ? "Sim" : "Não"}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.operatorName}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{row.terminalName}</td>
-                  <td className="px-3 py-2">{formatBRL(row.openingCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.salesCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.cashCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.pixCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.cardCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.sangriaCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.supplyCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.expenseCents)}</td>
-                  <td className="px-3 py-2">{formatBRL(row.expectedCashCents)}</td>
-                  <td className="px-3 py-2">{row.countedCents == null ? "—" : formatBRL(row.countedCents)}</td>
-                  <td className={`px-3 py-2 ${(row.differenceCents ?? 0) === 0 ? "text-emerald-400" : "text-red-400"}`}>
-                    {row.differenceCents == null ? "—" : formatSignedBRL(row.differenceCents)}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function Kpi({ label, value, tone }: { label: string; value: string; tone?: "warn" | "alert" }) {
-  return (
-    <div className="rounded-xl border border-zinc-800 bg-card p-4">
-      <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
-      <p className={`mt-1 font-heading text-2xl ${tone === "alert" ? "text-red-400" : tone === "warn" ? "text-amber-300" : ""}`}>
-        {value}
-      </p>
-    </div>
+          ))
+        )}
+      </DataTable>
+    </PageStack>
   );
 }

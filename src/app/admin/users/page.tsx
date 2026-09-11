@@ -14,6 +14,7 @@ import { PLATFORM_ROLES, TENANT_ROLES } from "@/domain/rbac/roles";
 import { PLATFORM_ROLE_LABELS, TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
 import { STAFF_LOGINS } from "@/domain/auth/staff-logins";
 import { nativeSelectClass } from "@/lib/field";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -34,13 +35,10 @@ export default async function AdminUsersPage({
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="font-heading text-3xl">Usuários</h1>
-        <p className="text-sm text-muted-foreground">
-          Só o admin altera este painel. O gerente gerencia caixa, garçom e motoboy na Equipe da loja, sem mexer no
-          admin.
-        </p>
-      </div>
+      <PageHeader
+        title="Usuários"
+        description="Só o admin altera este painel. O gerente gerencia caixa, garçom e motoboy na Equipe da loja."
+      />
       <Card>
         <CardHeader>
           <CardTitle>Acessos da equipe</CardTitle>

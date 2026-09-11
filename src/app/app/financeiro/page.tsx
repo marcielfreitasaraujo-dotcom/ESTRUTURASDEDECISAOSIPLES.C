@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/ds/page-header";
+import { StatCard } from "@/components/ds/surface";
 import { formatBRL } from "@/lib/money";
 
 function todayInput() {
@@ -22,43 +24,24 @@ export default async function FinanceiroPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Financeiro</h1>
-        <p className="text-sm text-muted-foreground">Despesas, receitas extras, caixa do dia e relatórios.</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <a className="rounded-lg border px-3 py-2 text-sm hover:bg-muted" href="/caixa/fechamento">
-            Caixa do dia
-          </a>
-          <a className="rounded-lg border px-3 py-2 text-sm hover:bg-muted" href="/app/relatorios">
-            Relatórios
-          </a>
-        </div>
-      </div>
+      <PageHeader
+        title="Financeiro"
+        description="Despesas, receitas extras, caixa do dia e relatórios."
+        actions={
+          <>
+            <Button asChild variant="outline">
+              <a href="/caixa/fechamento">Caixa do dia</a>
+            </Button>
+            <Button asChild variant="outline">
+              <a href="/app/relatorios">Relatórios</a>
+            </Button>
+          </>
+        }
+      />
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Pedidos (não cancelados)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-2xl">{formatBRL(finance.salesTotal)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Receitas extras</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-2xl">{formatBRL(finance.revenueTotal - finance.salesTotal)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Despesas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-heading text-2xl text-destructive">{formatBRL(finance.expenseTotal)}</p>
-          </CardContent>
-        </Card>
+        <StatCard label="Pedidos (não cancelados)" value={formatBRL(finance.salesTotal)} />
+        <StatCard label="Receitas extras" value={formatBRL(finance.revenueTotal - finance.salesTotal)} />
+        <StatCard label="Despesas" value={formatBRL(finance.expenseTotal)} tone="danger" />
       </div>
       {canWrite ? (
         <div className="grid gap-6 lg:grid-cols-2">

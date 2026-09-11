@@ -11,7 +11,7 @@ const CARD: Record<FloorTableSnapshot["status"], string> = {
   FREE: "border-emerald-400/45 bg-emerald-500/12 text-emerald-50 hover:border-emerald-300",
   OCCUPIED: "border-red-400/50 bg-red-500/18 text-red-50 hover:border-red-300",
   RESERVED: "border-amber-400/50 bg-amber-400/18 text-amber-50 hover:border-amber-300",
-  BLOCKED: "border-zinc-600 bg-zinc-800/90 text-zinc-400 hover:border-zinc-500",
+  BLOCKED: "border-zinc-600 bg-muted/90 text-muted-foreground hover:border-zinc-500",
 };
 
 function reservationClock(value: string | null) {

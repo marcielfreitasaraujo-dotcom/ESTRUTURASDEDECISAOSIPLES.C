@@ -14,7 +14,7 @@ export function AdjustCashForm({ sessionId }: { sessionId: string }) {
 
   return (
     <form
-      className="rounded-2xl border border-zinc-800 bg-card p-4"
+      className="rounded-2xl border border-border bg-card p-4"
       onSubmit={(event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
@@ -29,7 +29,7 @@ export function AdjustCashForm({ sessionId }: { sessionId: string }) {
       }}
     >
       <h2 className="font-heading text-lg">Ajuste autorizado</h2>
-      <p className="mt-1 text-sm text-zinc-400">Não apaga o histórico. Cria uma movimentação de ajuste com auditoria.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Não apaga o histórico. Cria uma movimentação de ajuste com auditoria.</p>
       <input type="hidden" name="sessionId" value={sessionId} />
       <div className="mt-3 grid gap-3">
         <div className="grid gap-2">

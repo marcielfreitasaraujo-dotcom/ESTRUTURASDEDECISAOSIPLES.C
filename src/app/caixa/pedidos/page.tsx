@@ -37,7 +37,7 @@ export default async function CaixaPedidosPage({
     <div className="grid gap-4">
       <div>
         <h1 className="font-heading text-2xl">Pedidos</h1>
-        <p className="text-sm text-zinc-400">Consulta operacional. Preços e cardápio não podem ser alterados aqui.</p>
+        <p className="text-sm text-muted-foreground">Consulta operacional. Preços e cardápio não podem ser alterados aqui.</p>
       </div>
       <CashierSearch />
       <div className="flex flex-wrap gap-2 text-sm">
@@ -51,7 +51,7 @@ export default async function CaixaPedidosPage({
           <Link
             key={key}
             href={`/caixa/pedidos?filtro=${key}`}
-            className="rounded-full border border-zinc-800 px-3 py-1 hover:border-primary/50"
+            className="rounded-full border border-border px-3 py-1 hover:border-primary/50"
           >
             {label}
           </Link>
@@ -59,10 +59,10 @@ export default async function CaixaPedidosPage({
       </div>
       <ul className="grid gap-2">
         {orders.map((order) => (
-          <li key={order.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-800 bg-card px-4 py-3">
+          <li key={order.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3">
             <div>
               <p className="font-medium">#{order.publicCode} · {order.customerName}</p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 {order.tableNumber ? `Mesa ${order.tableNumber}` : FULFILLMENT_LABELS[order.fulfillment] ?? order.fulfillment} · {order.paymentStatus}
               </p>
             </div>

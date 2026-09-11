@@ -112,11 +112,11 @@ export function ReceivePaymentPanel({
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
-      <section className="grid gap-4 rounded-2xl border border-zinc-800 bg-card p-4">
+      <section className="grid gap-4 rounded-2xl border border-border bg-card p-4">
         <div>
-          <p className="text-sm text-zinc-400">Receber pagamento</p>
+          <p className="text-sm text-muted-foreground">Receber pagamento</p>
           <h1 className="font-heading text-2xl">Pedido #{order.publicCode}</h1>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-muted-foreground">
             Cliente: {order.customerName}
             {order.tableNumber ? ` · Mesa: ${order.tableNumber}` : ""}
           </p>
@@ -131,7 +131,7 @@ export function ReceivePaymentPanel({
             </li>
           ))}
         </ul>
-        <dl className="grid gap-1 border-t border-zinc-800 pt-3 text-sm">
+        <dl className="grid gap-1 border-t border-border pt-3 text-sm">
           <div className="flex justify-between">
             <dt>Subtotal</dt>
             <dd>{formatBRL(order.subtotalCents)}</dd>
@@ -154,10 +154,10 @@ export function ReceivePaymentPanel({
           </div>
         </dl>
         {order.payments.length > 0 ? (
-          <div className="grid gap-2 border-t border-zinc-800 pt-3">
+          <div className="grid gap-2 border-t border-border pt-3">
             <p className="text-sm font-medium">Pagamentos deste pedido</p>
             {order.payments.map((payment) => (
-              <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-zinc-800 px-3 py-2 text-sm">
+              <div key={payment.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border px-3 py-2 text-sm">
                 <span>
                   {methodLabel(payment)} · {formatBRL(payment.amountCents)} · {payment.status}
                 </span>
@@ -177,7 +177,7 @@ export function ReceivePaymentPanel({
         ) : null}
       </section>
 
-      <section className="grid gap-3 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+      <section className="grid gap-3 rounded-2xl border border-border bg-background p-4">
         {alreadyPaid ? (
           <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
             Pedido pago. Cancelamento ou estorno exige autorização do gerente.
@@ -191,7 +191,7 @@ export function ReceivePaymentPanel({
             <div className="grid gap-2">
               <Label>Desconto (R$)</Label>
               <Input value={discountInput} onChange={(event) => setDiscountInput(event.target.value)} disabled={order.paidCents > 0} />
-              <p className="text-xs text-zinc-500">Limite do caixa: {maxDiscountPercent}%</p>
+              <p className="text-xs text-muted-foreground">Limite do caixa: {maxDiscountPercent}%</p>
             </div>
             <div className="grid gap-2">
               <Label>Dividir por pessoas</Label>
@@ -233,10 +233,10 @@ export function ReceivePaymentPanel({
 
             <ul className="grid gap-3">
               {lines.map((line) => (
-                <li key={line.id} className="grid gap-2 rounded-xl border border-zinc-800 p-3">
+                <li key={line.id} className="grid gap-2 rounded-xl border border-border p-3">
                   <div className="flex items-center justify-between text-sm font-medium">
                     <span>{methodLabel(line)}</span>
-                    <button type="button" className="text-xs text-zinc-500" onClick={() => setLines((current) => current.filter((row) => row.id !== line.id))}>
+                    <button type="button" className="text-xs text-muted-foreground" onClick={() => setLines((current) => current.filter((row) => row.id !== line.id))}>
                       Remover
                     </button>
                   </div>
@@ -455,10 +455,10 @@ export function PendingPaymentsList({
       <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar pedido, mesa ou cliente" className="h-12" />
       <ul className="grid gap-2">
         {hits.map((order) => (
-          <li key={order.id} className="flex items-center justify-between rounded-xl border border-zinc-800 bg-card px-4 py-3">
+          <li key={order.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
             <div>
               <p className="font-medium">Pedido #{order.publicCode}</p>
-              <p className="text-xs text-zinc-500">
+              <p className="text-xs text-muted-foreground">
                 {order.tableNumber ? `Mesa ${order.tableNumber}` : "Balcão"} · {order.customerName}
               </p>
               <p className="text-xs text-amber-300">Aguardando pagamento</p>

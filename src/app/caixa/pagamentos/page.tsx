@@ -56,7 +56,7 @@ export default async function CaixaPagamentosPage({
     <div className="grid gap-4">
       <div>
         <h1 className="font-heading text-2xl">Pagamentos pendentes</h1>
-        <p className="text-sm text-zinc-400">Pedidos que precisam ser pagos neste turno.</p>
+        <p className="text-sm text-muted-foreground">Pedidos que precisam ser pagos neste turno.</p>
       </div>
       <PendingPaymentsList
         orders={pending.map((order) => ({

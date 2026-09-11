@@ -18,7 +18,7 @@ export default async function ContaPage() {
       <form action={saveProfile} className="grid gap-4">
         <div>
           <h1 className="font-heading text-2xl">Minha conta</h1>
-          <p className="text-sm text-zinc-400">Configurações pessoais. Dados da loja ficam com o gerente.</p>
+          <p className="text-sm text-muted-foreground">Configurações pessoais. Dados da loja ficam com o gerente.</p>
         </div>
         <div className="grid gap-2">
           <Label htmlFor="name">Nome</Label>
@@ -32,9 +32,9 @@ export default async function ContaPage() {
           Salvar
         </Button>
       </form>
-      <section className="grid gap-3 rounded-2xl border border-zinc-800 bg-card p-4">
+      <section className="grid gap-3 rounded-2xl border border-border bg-card p-4">
         <h2 className="font-heading text-lg">Trocar operador</h2>
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-muted-foreground">
           Encerre sua sessão para outro caixa entrar. O próximo operador precisa autenticar com o próprio usuário. As
           movimentações continuam vinculadas a quem operou.
         </p>

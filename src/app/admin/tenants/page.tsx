@@ -2,16 +2,14 @@ import { listTenants } from "@/server/services/tenants";
 import { toggleTenantStatusAction } from "@/app/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function TenantsPage() {
   const tenants = await listTenants();
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="font-heading text-3xl">Estabelecimentos</h1>
-        <p className="text-sm text-muted-foreground">Suspender impede operação. A ação é auditada.</p>
-      </div>
+      <PageHeader title="Estabelecimentos" description="Suspender impede operação. A ação é auditada." />
       <div className="overflow-x-auto rounded-xl border">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-left">

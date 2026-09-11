@@ -3,6 +3,7 @@ import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { getKitchenQueue } from "@/server/services/orders";
 import { KitchenBoard } from "@/components/kitchen-board";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/ds/page-header";
 
 export default async function KitchenPage() {
   const ctx = await requirePage(PERMISSIONS.KITCHEN_READ);
@@ -10,10 +11,7 @@ export default async function KitchenPage() {
 
   return (
     <div className="grid gap-6">
-      <div>
-        <h1 className="font-heading text-3xl">Cozinha</h1>
-        <p className="text-sm text-muted-foreground">Tela pensada para tablet. Pedidos com mais de 30 minutos ficam em destaque.</p>
-      </div>
+      <PageHeader title="Cozinha" description="Tela pensada para tablet. Pedidos com mais de 30 minutos ficam em destaque." />
       {tickets.length === 0 ? (
         <EmptyState title="Fila vazia" description="Quando um pedido for confirmado, ele aparece aqui com timer e botões grandes." />
       ) : (

@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Menu } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 import { signOutAction } from "@/app/actions/auth";
-import { Brand } from "@/components/brand";
+import { BrandWordmark } from "@/components/brand";
 import { MobileTabs } from "@/components/mobile-tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,17 +20,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { initials } from "@/lib/initials";
+import { navIcon } from "@/components/ds/nav-icon";
 import { navItemActive, type NavGroup, type NavItem } from "@/domain/rbac/nav";
 import type { ControlAlert } from "@/domain/dashboard/control-center";
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
 
 function NavLinks({
   items,
@@ -44,31 +37,35 @@ function NavLinks({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const sections = groups?.length
-    ? groups
-    : [{ id: "main", label: "", items }];
+  const sections = groups?.length ? groups : [{ id: "main", label: "", items }];
 
   return (
     <div className="flex h-full flex-col">
-      <nav className="grid flex-1 gap-4 overflow-y-auto pb-4" aria-label="Principal">
+      <nav className="flex-1 space-y-5 overflow-y-auto pb-4" aria-label="Principal">
         {sections.map((group) => (
           <div key={group.id} className="grid gap-0.5">
             {group.label ? (
-              <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-500">{group.label}</p>
+              <p className="px-3 pb-1 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                {group.label}
+              </p>
             ) : null}
             {group.items.map((item) => {
               const active = navItemActive(pathname, item.href);
+              const Icon = navIcon(item.href);
               return (
                 <Link
                   key={`${group.id}-${item.href}`}
                   href={item.href}
                   onClick={onNavigate}
                   className={cn(
-                    "min-h-11 rounded-md px-3 py-2.5 text-sm text-foreground hover:bg-muted",
-                    active && "bg-primary/15 text-primary",
+                    "flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm transition-colors",
+                    active
+                      ? "bg-primary font-medium text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
-                  {item.label}
+                  <Icon className="size-4 shrink-0 opacity-90" />
+                  <span className="truncate">{item.label}</span>
                 </Link>
               );
             })}
@@ -76,14 +73,40 @@ function NavLinks({
         ))}
       </nav>
       {footerItems && footerItems.length > 0 ? (
-        <div className="grid gap-0.5 border-t border-zinc-800 pt-3">
-          {footerItems.map((item) => (
-            <Link key={item.href} href={item.href} onClick={onNavigate} className="min-h-11 rounded-md px-3 py-2.5 text-sm hover:bg-muted">
-              {item.label}
-            </Link>
-          ))}
+        <div className="grid gap-0.5 border-t border-sidebar-border pt-3">
+          {footerItems.map((item) => {
+            const Icon = navIcon(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onNavigate}
+                className="flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <Icon className="size-4 shrink-0" />
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       ) : null}
+    </div>
+  );
+}
+
+function SidebarBrand({ homeHref, storeName, title }: { homeHref: string; storeName?: string; title: string }) {
+  return (
+    <div className="grid gap-3">
+      <Link href={homeHref} className="flex items-center gap-2 px-1">
+        <span className="grid size-8 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">
+          IA
+        </span>
+        <BrandWordmark className="text-base" />
+      </Link>
+      <div className="rounded-xl border border-border bg-card px-3 py-2.5">
+        <p className="truncate text-sm font-medium text-foreground">{storeName || title}</p>
+        <p className="text-[11px] text-muted-foreground">{storeName ? "Estabelecimento" : "Comanda IA"}</p>
+      </div>
     </div>
   );
 }
@@ -115,39 +138,40 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const showBack = pathname !== homeHref;
   const mobileTabs = tabs && tabs.length > 1 ? tabs : [];
+  const operational =
+    pathname.startsWith("/caixa") ||
+    pathname.startsWith("/garcom") ||
+    pathname.startsWith("/entrega") ||
+    pathname.startsWith("/app/salao") ||
+    pathname.startsWith("/app/pedidos");
 
   return (
-    <div className="dark min-h-dvh bg-background text-foreground">
+    <div className="min-h-dvh bg-background text-foreground">
       <div className="flex min-h-dvh">
-        <aside className="hidden w-60 shrink-0 border-r bg-card/40 p-3 pb-12 md:flex md:flex-col">
-          <Brand href={homeHref} />
-          <p className="mt-3 rounded-md bg-primary/15 px-2 py-1 text-[11px] font-medium uppercase tracking-wide text-primary">
-            {storeName ? storeName : `PDV · ${title}`}
-          </p>
-          <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
+        <aside className="hidden w-[var(--width-sidebar)] shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-3 md:flex">
+          <SidebarBrand homeHref={homeHref} storeName={storeName} title={title} />
+          <div className="mt-5 min-h-0 flex-1 overflow-y-auto">
             <NavLinks items={items} groups={groups} footerItems={footerItems} />
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
           <header
-            className="sticky top-0 z-30 flex items-center gap-2 border-b bg-card/90 px-3 py-2 backdrop-blur md:gap-3"
-            style={{ paddingTop: "max(0.5rem, env(safe-area-inset-top))" }}
+            className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-border bg-background/90 px-3 backdrop-blur md:gap-3 md:px-6"
+            style={{ paddingTop: "env(safe-area-inset-top)" }}
           >
             <div className="md:hidden">
               <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button type="button" variant="ghost" size="icon" className="min-h-11 min-w-11" aria-label="Abrir menu">
+                  <Button type="button" variant="ghost" size="icon" aria-label="Abrir menu">
                     <Menu className="size-4" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="flex w-[min(18rem,100%)] flex-col gap-0 bg-zinc-950 p-0">
-                  <SheetHeader className="shrink-0 px-4 pb-2 pt-4">
+                <SheetContent side="left" className="flex w-[min(18rem,100%)] flex-col gap-0 bg-sidebar p-0">
+                  <SheetHeader className="shrink-0 px-3 pb-2 pt-4">
                     <SheetTitle className="text-left">
-                      <Brand href={homeHref} />
+                      <SidebarBrand homeHref={homeHref} storeName={storeName} title={title} />
                     </SheetTitle>
-                    {roleLabel ? <p className="text-left text-xs text-muted-foreground">{roleLabel}</p> : null}
                   </SheetHeader>
                   <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                     <NavLinks items={items} groups={groups} footerItems={footerItems} onNavigate={() => setMenuOpen(false)} />
@@ -155,41 +179,22 @@ export function AppShell({
                 </SheetContent>
               </Sheet>
             </div>
-            {showBack ? (
-              <Button asChild variant="ghost" size="sm" className="min-h-11 shrink-0 gap-1 px-2">
-                <Link href={homeHref}>
-                  <ArrowLeft className="size-4" />
-                  Voltar
-                </Link>
-              </Button>
-            ) : null}
-            <div className="min-w-0 md:hidden">
-              <Brand compact href={homeHref} />
+            <div className="min-w-0 flex-1">
+              <OpsSearch />
             </div>
-            {enableOpsChrome ? (
-              <div className="hidden min-w-0 flex-1 md:block">
-                <OpsSearch />
-              </div>
-            ) : (
-              <div className="min-w-0 flex-1" />
-            )}
-            <div className="ml-auto flex min-w-0 items-center gap-1 text-sm sm:gap-2">
-              {enableOpsChrome ? (
-                <div className="hidden sm:block">
-                  <OpsNotifications />
-                </div>
-              ) : null}
+            <div className="ml-auto flex min-w-0 items-center gap-1 sm:gap-2">
+              {enableOpsChrome ? <OpsNotifications /> : null}
               <div className="hidden min-w-0 items-center gap-2 sm:flex">
                 <Avatar size="sm">
                   <AvatarFallback>{initials(userName)}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0 leading-tight">
-                  <p className="truncate font-medium">{userName}</p>
-                  {roleLabel ? <p className="truncate text-xs text-muted-foreground">{roleLabel}</p> : null}
+                  <p className="truncate text-sm font-medium">{userName}</p>
+                  {roleLabel ? <p className="truncate text-[11px] text-muted-foreground">{roleLabel}</p> : null}
                 </div>
               </div>
               <form action={signOutAction}>
-                <Button type="submit" variant="ghost" size="sm" className="min-h-11">
+                <Button type="submit" variant="ghost" size="sm">
                   Sair
                 </Button>
               </form>
@@ -197,8 +202,9 @@ export function AppShell({
           </header>
           <main
             className={cn(
-              "min-w-0 flex-1 overflow-x-hidden px-4 py-4 md:p-6",
-              mobileTabs.length > 0 && "pb-[calc(5.25rem+env(safe-area-inset-bottom))] md:pb-6",
+              "min-w-0 flex-1 overflow-x-hidden px-4 py-5 md:px-8 md:py-6",
+              !operational && "mx-auto w-full max-w-[1500px]",
+              mobileTabs.length > 0 && "pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-6",
             )}
           >
             {children}
@@ -247,6 +253,7 @@ function OpsSearch() {
 
   return (
     <div className="relative min-w-0 flex-1">
+      <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         value={query}
         onChange={(event) => {
@@ -254,12 +261,15 @@ function OpsSearch() {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Buscar…"
-        className="h-11 max-w-xl md:h-10"
-        aria-label="Buscar pedido, cliente, produto ou mesa"
+        placeholder="Buscar pedido, cliente, mesa, operador ou caixa…"
+        className="h-10 max-w-3xl pl-9"
+        aria-label="Buscar pedido, cliente, mesa, operador ou caixa"
       />
+      <span className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground md:inline">
+        F3
+      </span>
       {visibleResults ? (
-        <div className="absolute z-40 mt-1 max-h-72 w-full max-w-xl overflow-y-auto overflow-x-hidden rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-sm shadow-xl">
+        <div className="absolute z-40 mt-1 max-h-72 w-full max-w-3xl overflow-y-auto overflow-x-hidden rounded-xl border border-border bg-popover p-2 text-sm shadow-none">
           <ResultGroup title="Pedidos" items={visibleResults.orders.map((item) => ({ href: "/app/pedidos", label: `#${item.publicCode} · ${item.customerName}` }))} onPick={() => setOpen(false)} />
           <ResultGroup title="Clientes" items={visibleResults.customers.map((item) => ({ href: "/app/clientes", label: `${item.name} · ${item.phone}` }))} onPick={() => setOpen(false)} />
           <ResultGroup title="Produtos" items={visibleResults.products.map((item) => ({ href: "/app/cardapio", label: item.name }))} onPick={() => setOpen(false)} />
@@ -283,7 +293,7 @@ function ResultGroup({
   if (items.length === 0) return null;
   return (
     <div className="grid gap-1 p-1">
-      <p className="px-2 text-[11px] uppercase tracking-wide text-zinc-500">{title}</p>
+      <p className="px-2 text-[11px] uppercase tracking-wide text-muted-foreground">{title}</p>
       {items.map((item) => (
         <Link key={item.label} href={item.href} className="rounded-md px-2 py-1.5 hover:bg-muted" onClick={onPick}>
           {item.label}
@@ -315,10 +325,10 @@ function OpsNotifications() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="relative min-h-11">
-          Alertas
+        <Button type="button" variant="ghost" size="icon" className="relative" aria-label="Alertas">
+          <Bell className="size-4" />
           {items.length > 0 ? (
-            <span className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-orange-500 text-[10px] text-black">
+            <span className="absolute -right-0.5 -top-0.5 grid size-4 place-items-center rounded-full bg-primary text-[10px] font-medium text-primary-foreground">
               {Math.min(items.length, 9)}
             </span>
           ) : null}

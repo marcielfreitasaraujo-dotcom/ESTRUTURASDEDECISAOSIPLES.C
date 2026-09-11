@@ -8,6 +8,9 @@ import { CASH_MOVEMENT_LABELS, EXPENSE_CATEGORIES, formatClock, formatDay } from
 import { operatorLabel } from "@/domain/cash/status";
 import { ConferCashForm } from "@/components/cash-desk/confer-form";
 import { AdjustCashForm } from "@/components/cash-desk/adjust-form";
+import { PageHeader } from "@/components/ds/page-header";
+import { StatCard } from "@/components/ds/surface";
+import { StatusPill } from "@/components/ds/data-table";
 
 const TABS = [
   { id: "resumo", label: "Resumo" },
@@ -65,37 +68,30 @@ export default async function CaixaDetalhePage({
   ] as const;
 
   return (
-    <div className="grid gap-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-sm text-zinc-500">
-            <Link href="/app/caixas" className="underline">
-              Central de conferência
-            </Link>
-          </p>
-          <h1 className="font-heading text-3xl">Sessão {session.publicCode}</h1>
-          <p className="text-sm text-zinc-400">
-            {operatorLabel(session.operator)} · {session.terminal.name} · {detail.tenantName}
-          </p>
-        </div>
-        <span className="rounded-full border border-zinc-700 px-3 py-1 text-sm">{ui.label}</span>
-      </div>
+    <div className="grid gap-6">
+      <PageHeader
+        title={`Sessão ${session.publicCode}`}
+        description={`${operatorLabel(session.operator)} · ${session.terminal.name} · ${detail.tenantName}`}
+        backHref="/app/caixas"
+        backLabel="Central de conferência"
+        actions={<StatusPill tone={ui.tone === "success" ? "success" : ui.tone === "warning" ? "warning" : ui.tone === "danger" ? "danger" : ui.tone === "info" ? "info" : "neutral"}>{ui.label}</StatusPill>}
+      />
 
       <dl className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <dt className="text-zinc-500">Abertura</dt>
+          <dt className="text-muted-foreground">Abertura</dt>
           <dd>
             {formatDay(session.openedAt)} {formatClock(session.openedAt)}
           </dd>
         </div>
         <div>
-          <dt className="text-zinc-500">Fechamento</dt>
+          <dt className="text-muted-foreground">Fechamento</dt>
           <dd>
             {session.closedAt ? `${formatDay(session.closedAt)} ${formatClock(session.closedAt)}` : "Em andamento"}
           </dd>
         </div>
         <div>
-          <dt className="text-zinc-500">Conferência</dt>
+          <dt className="text-muted-foreground">Conferência</dt>
           <dd>
             {session.conferredAt
               ? `${operatorLabel(session.conferredBy)} · ${formatDay(session.conferredAt)} ${formatClock(session.conferredAt)}`
@@ -104,12 +100,22 @@ export default async function CaixaDetalhePage({
         </div>
       </dl>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map(([label, value]) => (
-          <div key={label} className="rounded-xl border border-zinc-800 bg-card p-4">
-            <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
-            <p className="mt-1 font-heading text-2xl">{label === "Diferença" ? formatSignedBRL(value) : formatBRL(value)}</p>
-          </div>
+          <StatCard
+            key={label}
+            label={label}
+            value={label === "Diferença" ? formatSignedBRL(value) : formatBRL(value)}
+            tone={
+              label === "Diferença"
+                ? value < 0
+                  ? "danger"
+                  : value > 0
+                    ? "warning"
+                    : "success"
+                : undefined
+            }
+          />
         ))}
       </section>
 
@@ -121,7 +127,7 @@ export default async function CaixaDetalhePage({
             className={
               tab === item.id
                 ? "rounded-full bg-primary px-3 py-1 text-sm text-primary-foreground"
-                : "rounded-full border border-zinc-800 px-3 py-1 text-sm"
+                : "rounded-full border border-border px-3 py-1 text-sm"
             }
           >
             {item.label}
@@ -130,7 +136,7 @@ export default async function CaixaDetalhePage({
       </nav>
 
       {tab === "resumo" ? (
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-muted-foreground">
           PIX e cartão não entram no saldo físico. O esperado usa saldo inicial + dinheiro + suprimentos − sangrias −
           despesas ± ajustes.
         </p>
@@ -220,7 +226,7 @@ export default async function CaixaDetalhePage({
 
       {tab === "conferencia" ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-2xl border border-zinc-800 bg-card p-4">
+          <div className="rounded-2xl border border-border bg-card p-4">
             <h2 className="font-heading text-lg">Conferir caixa</h2>
             <dl className="mt-3 grid gap-2 text-sm">
               <div className="flex justify-between">
@@ -239,7 +245,7 @@ export default async function CaixaDetalhePage({
             {session.status === "CLOSED" && session.conferenceStatus === "PENDING" ? (
               <ConferCashForm sessionId={session.id} />
             ) : (
-              <p className="mt-3 text-sm text-zinc-400">
+              <p className="mt-3 text-sm text-muted-foreground">
                 {session.conferenceNote || "Conferência já registrada ou o caixa ainda está aberto."}
               </p>
             )}
@@ -251,14 +257,14 @@ export default async function CaixaDetalhePage({
       {tab === "auditoria" ? (
         <ul className="grid gap-2">
           {detail.audit.length === 0 ? (
-            <li className="text-sm text-zinc-500">Nenhum evento de auditoria encontrado para esta sessão.</li>
+            <li className="text-sm text-muted-foreground">Nenhum evento de auditoria encontrado para esta sessão.</li>
           ) : (
             detail.audit.map((row) => (
-              <li key={row.id} className="rounded-xl border border-zinc-800 px-4 py-3 text-sm">
+              <li key={row.id} className="rounded-xl border border-border px-4 py-3 text-sm">
                 <p className="font-medium">
                   {formatDay(row.createdAt)} {formatClock(row.createdAt)} · {row.action} · {row.entity}
                 </p>
-                <p className="text-zinc-400">
+                <p className="text-muted-foreground">
                   {operatorLabel(row.user)} {row.metadata ? `· ${JSON.stringify(row.metadata)}` : ""}
                 </p>
               </li>
@@ -272,12 +278,12 @@ export default async function CaixaDetalhePage({
 
 function Table({ headers, rows }: { headers: string[]; rows: string[][] }) {
   if (rows.length === 0) {
-    return <p className="text-sm text-zinc-500">Nenhum registro nesta aba.</p>;
+    return <p className="text-sm text-muted-foreground">Nenhum registro nesta aba.</p>;
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-800">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <table className="w-full min-w-[640px] text-left text-sm">
-        <thead className="bg-zinc-950 text-zinc-400">
+        <thead className="bg-background text-muted-foreground">
           <tr>
             {headers.map((head) => (
               <th key={head} className="px-3 py-2 font-medium">
@@ -288,7 +294,7 @@ function Table({ headers, rows }: { headers: string[]; rows: string[][] }) {
         </thead>
         <tbody>
           {rows.map((row, index) => (
-            <tr key={index} className="border-t border-zinc-800">
+            <tr key={index} className="border-t border-border">
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex} className="px-3 py-2">
                   {cell}

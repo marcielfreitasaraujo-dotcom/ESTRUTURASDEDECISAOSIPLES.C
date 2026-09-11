@@ -20,14 +20,14 @@ export function CashierFloor({
   const busy = tables.length - free;
 
   return (
-    <section className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4 md:p-5">
+    <section className="grid gap-4 rounded-2xl border border-border bg-background p-4 md:p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm text-orange-400">Salão</p>
           <h2 className="font-heading text-2xl">Mesas</h2>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <ul className="flex flex-wrap gap-3 text-xs text-zinc-400">
+          <ul className="flex flex-wrap gap-3 text-xs text-muted-foreground">
             <li className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-zinc-600" />
               Livre · {free}
@@ -56,7 +56,7 @@ export function CashierFloor({
           className={cn(
             "grid min-h-24 place-items-center rounded-2xl border text-sm font-medium transition",
             selected || view === "new-sale"
-              ? "border-zinc-700 bg-zinc-900 text-zinc-400 hover:border-zinc-500"
+              ? "border-zinc-700 bg-zinc-900 text-muted-foreground hover:border-zinc-500"
               : "border-orange-500/40 bg-orange-500/10 text-orange-200",
           )}
         >
@@ -74,7 +74,7 @@ export function CashierFloor({
                 "relative grid min-h-24 place-items-center rounded-2xl border transition",
                 occupied
                   ? "border-orange-500 bg-orange-500/30 text-orange-100 shadow-[0_0_22px_rgba(249,115,22,0.22)]"
-                  : "border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-600",
+                  : "border-border bg-zinc-900 text-muted-foreground hover:border-zinc-600",
                 active && "ring-2 ring-orange-200 ring-offset-2 ring-offset-zinc-950",
               )}
             >
