@@ -208,7 +208,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <div className="flex items-center justify-between gap-2">
             <h2 className="font-heading text-lg">Pagamentos pendentes</h2>
             <Link href="/caixa/pagamentos" className="text-sm text-primary underline">
@@ -238,7 +238,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
             )}
           </ul>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="font-heading text-lg">Últimas movimentações</h2>
           <ul className="mt-3 grid gap-2 text-sm">
             {data.movements.length === 0 ? (
@@ -250,7 +250,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
                     {formatClock(row.createdAt)} · {MOVEMENT_LABEL[row.type] ?? row.type}
                     {row.orderCode ? ` #${row.orderCode}` : ""}
                   </span>
-                  <span className={row.type === "SANGRIA" || row.type === "EXPENSE" || row.type === "REFUND" ? "text-red-400" : "text-emerald-400"}>
+                  <span className={row.type === "SANGRIA" || row.type === "EXPENSE" || row.type === "REFUND" ? "text-destructive" : "text-success"}>
                     {row.type === "SANGRIA" || row.type === "EXPENSE" || row.type === "REFUND" ? "-" : "+"}
                     {formatBRL(Math.abs(row.amountCents))}
                   </span>
@@ -262,7 +262,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="font-heading text-lg">Resumo financeiro</h2>
           <dl className="mt-3 grid gap-2 text-sm">
             {[
@@ -282,7 +282,7 @@ export function CashierDashboard({ data }: { data: CashierDashboardData }) {
             ))}
           </dl>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="rounded-xl border border-border bg-card p-4">
           <h2 className="font-heading text-lg">Avisos</h2>
           <ul className="mt-3 grid gap-2 text-sm">
             {data.notifications.length === 0 ? (

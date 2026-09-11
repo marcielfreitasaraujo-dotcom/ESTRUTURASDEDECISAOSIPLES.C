@@ -4,6 +4,11 @@ import { prisma } from "@/lib/db";
 import { formatBRL } from "@/lib/money";
 import { CashierSearch } from "@/components/cashier/search";
 import { FULFILLMENT_LABELS } from "@/domain/ordering/status";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
+import { StatusPill } from "@/components/ds/data-table";
+import { EmptyState } from "@/components/empty-state";
+import { Surface } from "@/components/ds/surface";
+import { cn } from "@/lib/utils";
 
 export default async function CaixaPedidosPage({
   searchParams,
@@ -32,13 +37,14 @@ export default async function CaixaPedidosPage({
     orderBy: { createdAt: "desc" },
     take: 80,
   });
+  const activeFilter = filtro ?? "pendentes";
 
   return (
-    <div className="grid gap-4">
-      <div>
-        <h1 className="font-heading text-2xl">Pedidos</h1>
-        <p className="text-sm text-muted-foreground">Consulta operacional. Preços e cardápio não podem ser alterados aqui.</p>
-      </div>
+    <PageStack>
+      <PageHeader
+        title="Pedidos"
+        description="Consulta operacional. Preços e cardápio não podem ser alterados aqui."
+      />
       <CashierSearch />
       <div className="flex flex-wrap gap-2 text-sm">
         {[
@@ -51,32 +57,48 @@ export default async function CaixaPedidosPage({
           <Link
             key={key}
             href={`/caixa/pedidos?filtro=${key}`}
-            className="rounded-full border border-border px-3 py-1 hover:border-primary/50"
+            className={cn(
+              "rounded-full border px-3 py-1",
+              activeFilter === key
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border hover:border-primary/50",
+            )}
           >
             {label}
           </Link>
         ))}
       </div>
-      <ul className="grid gap-2">
-        {orders.map((order) => (
-          <li key={order.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3">
-            <div>
-              <p className="font-medium">#{order.publicCode} · {order.customerName}</p>
-              <p className="text-xs text-muted-foreground">
-                {order.tableNumber ? `Mesa ${order.tableNumber}` : FULFILLMENT_LABELS[order.fulfillment] ?? order.fulfillment} · {order.paymentStatus}
-              </p>
-            </div>
-            <div className="text-right">
-              <p>{formatBRL(order.totalCents)}</p>
-              {order.paymentStatus !== "PAID" && order.status !== "CANCELLED" ? (
-                <Link href={`/caixa/pagamentos?pedido=${order.id}`} className="text-sm text-primary underline">
-                  Receber
-                </Link>
-              ) : null}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+      {orders.length === 0 ? (
+        <Surface>
+          <EmptyState title="Nenhum pedido neste filtro" description="Troque o filtro ou lance um pedido no PDV." />
+        </Surface>
+      ) : (
+        <ul className="grid gap-2">
+          {orders.map((order) => (
+            <li key={order.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-card px-4 py-3">
+              <div>
+                <p className="font-medium">#{order.publicCode} · {order.customerName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {order.tableNumber ? `Mesa ${order.tableNumber}` : FULFILLMENT_LABELS[order.fulfillment] ?? order.fulfillment}
+                </p>
+              </div>
+              <div className="text-right">
+                <p>{formatBRL(order.totalCents)}</p>
+                <StatusPill tone={order.paymentStatus === "PAID" ? "success" : order.status === "CANCELLED" ? "danger" : "warning"}>
+                  {order.paymentStatus}
+                </StatusPill>
+                {order.paymentStatus !== "PAID" && order.status !== "CANCELLED" ? (
+                  <p>
+                    <Link href={`/caixa/pagamentos?pedido=${order.id}`} className="text-sm text-primary underline">
+                      Receber
+                    </Link>
+                  </p>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </PageStack>
   );
 }

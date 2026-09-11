@@ -2,6 +2,7 @@ import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listCatalog } from "@/server/services/catalog";
 import { CashierStockPanel } from "@/components/cashier-stock-panel";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
 
 export default async function CaixaEstoquePage() {
   const ctx = await requirePage(PERMISSIONS.INVENTORY_WRITE);
@@ -20,15 +21,12 @@ export default async function CaixaEstoquePage() {
     }));
 
   return (
-    <div className="grid gap-6">
-      <div>
-        <p className="text-sm text-primary">Cardápio</p>
-        <h1 className="text-3xl font-semibold">Estoque</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Quando zerar um item aqui, ele aparece como Esgotado na loja do cliente.
-        </p>
-      </div>
+    <PageStack>
+      <PageHeader
+        title="Estoque"
+        description="Quando zerar um item aqui, ele aparece como Esgotado na loja do cliente."
+      />
       <CashierStockPanel products={products} />
-    </div>
+    </PageStack>
   );
 }

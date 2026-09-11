@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { requireSession } from "@/server/context";
 import { isPlatformAdmin, isStoreGerente } from "@/domain/rbac/roles";
-import { footerNavForUser, groupedNavForUser, mobileTabNav, navForUser } from "@/domain/rbac/nav";
+import { postLoginPath } from "@/domain/rbac/home";
+import { footerNavForUser, groupedGarcomNavForUser, groupedNavForUser, mobileTabNav, navForUser } from "@/domain/rbac/nav";
 import { TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
 import { AppShell } from "@/components/app-shell";
 import { prisma } from "@/lib/db";
@@ -18,28 +19,34 @@ export default async function TenantLayout({ children }: { children: React.React
     ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, slug: true } })
     : null;
 
+  const waiter = session.tenantRole === "WAITER" || session.tenantRole === "STAFF";
   const items = navForUser({
     platformRole: session.platformRole,
     tenantRole: session.tenantRole,
-    surface: "app",
+    surface: waiter ? "garcom" : "app",
   });
-  const groups = groupedNavForUser({
-    platformRole: session.platformRole,
-    tenantRole: session.tenantRole,
-    storefrontHref: tenant?.slug ? `/loja/${tenant.slug}` : undefined,
-  });
+  const groups = waiter
+    ? groupedGarcomNavForUser({
+        platformRole: session.platformRole,
+        tenantRole: session.tenantRole,
+      })
+    : groupedNavForUser({
+        platformRole: session.platformRole,
+        tenantRole: session.tenantRole,
+        storefrontHref: tenant?.slug ? `/loja/${tenant.slug}` : undefined,
+      });
 
   return (
     <AppShell
-      title="Loja"
+      title={waiter ? "Salão" : "Loja"}
       items={items}
       groups={groups}
       footerItems={footerNavForUser(session.tenantRole)}
-      tabs={mobileTabNav({ surface: "app", items, groups })}
+      tabs={mobileTabNav({ surface: waiter ? "garcom" : "app", items, groups })}
       userName={session.name}
       roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : undefined}
       storeName={tenant?.name}
-      homeHref="/app"
+      homeHref={postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole })}
       enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >
       {children}

@@ -112,10 +112,10 @@ export function ReceivePaymentPanel({
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
-      <section className="grid gap-4 rounded-2xl border border-border bg-card p-4">
+      <section className="grid gap-4 rounded-xl border border-border bg-card p-4">
         <div>
           <p className="text-sm text-muted-foreground">Receber pagamento</p>
-          <h1 className="font-heading text-2xl">Pedido #{order.publicCode}</h1>
+          <h1 className="font-heading text-[1.75rem] font-semibold tracking-tight">Pedido #{order.publicCode}</h1>
           <p className="text-sm text-muted-foreground">
             Cliente: {order.customerName}
             {order.tableNumber ? ` · Mesa: ${order.tableNumber}` : ""}
@@ -177,9 +177,9 @@ export function ReceivePaymentPanel({
         ) : null}
       </section>
 
-      <section className="grid gap-3 rounded-2xl border border-border bg-background p-4">
+      <section className="grid gap-3 rounded-xl border border-border bg-card p-4">
         {alreadyPaid ? (
-          <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-300">
+          <p className="rounded-xl border border-success/30 bg-success/10 p-3 text-sm text-success">
             Pedido pago. Cancelamento ou estorno exige autorização do gerente.
           </p>
         ) : (
@@ -262,7 +262,7 @@ export function ReceivePaymentPanel({
                           )
                         }
                       />
-                      <p className="text-sm text-emerald-400">Troco: {formatBRL(cashChange)}</p>
+                      <p className="text-sm text-success">Troco: {formatBRL(cashChange)}</p>
                     </>
                   ) : null}
                   {line.method === "PIX" ? (
@@ -320,7 +320,7 @@ export function ReceivePaymentPanel({
                 </li>
               ))}
             </ul>
-            <p className={remaining === 0 ? "text-sm text-emerald-400" : "text-sm text-amber-300"}>
+            <p className={remaining === 0 ? "text-sm text-success" : "text-sm text-warning"}>
               Restante: {formatBRL(Math.max(0, remaining))}
             </p>
           </>
@@ -461,7 +461,7 @@ export function PendingPaymentsList({
               <p className="text-xs text-muted-foreground">
                 {order.tableNumber ? `Mesa ${order.tableNumber}` : "Balcão"} · {order.customerName}
               </p>
-              <p className="text-xs text-amber-300">Aguardando pagamento</p>
+              <p className="text-xs text-warning">Aguardando pagamento</p>
             </div>
             <div className="text-right">
               <p>{formatBRL(order.totalCents)}</p>

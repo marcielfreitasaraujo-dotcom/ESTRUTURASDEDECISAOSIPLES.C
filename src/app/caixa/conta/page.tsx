@@ -5,6 +5,8 @@ import { signOutAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PageHeader, PageStack } from "@/components/ds/page-header";
+import { Surface, SurfaceHeader } from "@/components/ds/surface";
 
 async function saveProfile(formData: FormData) {
   "use server";
@@ -14,36 +16,36 @@ async function saveProfile(formData: FormData) {
 export default async function ContaPage() {
   const ctx = await requirePage(PERMISSIONS.CASH_READ);
   return (
-    <div className="grid max-w-lg gap-8">
-      <form action={saveProfile} className="grid gap-4">
-        <div>
-          <h1 className="font-heading text-2xl">Minha conta</h1>
-          <p className="text-sm text-muted-foreground">Configurações pessoais. Dados da loja ficam com o gerente.</p>
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="name">Nome</Label>
-          <Input id="name" name="name" defaultValue={ctx.name} className="h-11" />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="password">Nova senha</Label>
-          <Input id="password" name="password" type="password" className="h-11" />
-        </div>
-        <Button type="submit" className="h-11">
-          Salvar
-        </Button>
-      </form>
-      <section className="grid gap-3 rounded-2xl border border-border bg-card p-4">
-        <h2 className="font-heading text-lg">Trocar operador</h2>
-        <p className="text-sm text-muted-foreground">
-          Encerre sua sessão para outro caixa entrar. O próximo operador precisa autenticar com o próprio usuário. As
-          movimentações continuam vinculadas a quem operou.
-        </p>
+    <PageStack className="max-w-2xl">
+      <PageHeader
+        title="Minha conta"
+        description="Configurações pessoais. Dados da loja ficam com o gerente."
+      />
+      <Surface>
+        <SurfaceHeader title="Dados do operador" />
+        <form action={saveProfile} className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="name">Nome</Label>
+            <Input id="name" name="name" defaultValue={ctx.name} />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password">Nova senha</Label>
+            <Input id="password" name="password" type="password" />
+          </div>
+          <Button type="submit">Salvar</Button>
+        </form>
+      </Surface>
+      <Surface>
+        <SurfaceHeader
+          title="Trocar operador"
+          description="Encerre sua sessão para outro caixa entrar. O próximo operador precisa autenticar com o próprio usuário."
+        />
         <form action={signOutAction}>
-          <Button type="submit" variant="outline" className="h-11">
+          <Button type="submit" variant="outline">
             Sair da conta
           </Button>
         </form>
-      </section>
-    </div>
+      </Surface>
+    </PageStack>
   );
 }

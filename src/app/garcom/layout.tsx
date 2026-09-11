@@ -5,6 +5,7 @@ import {
   CAIXA_FOOTER_NAV,
   footerNavForUser,
   groupedCaixaNavForUser,
+  groupedGarcomNavForUser,
   groupedNavForUser,
   mobileTabNav,
   navForUser,
@@ -55,14 +56,18 @@ export default async function WaiterLayout({ children }: { children: React.React
     storefrontHref: tenant?.slug ? `/loja/${tenant.slug}` : undefined,
   });
 
+  const waiterGroups = groupedGarcomNavForUser({
+    platformRole: session.platformRole,
+    tenantRole: session.tenantRole,
+  });
   const shell = waiterOnly
     ? {
         title: "Salão",
         items: garcomItems,
-        tabs: mobileTabNav({ surface: "garcom", items: garcomItems }),
+        groups: waiterGroups,
+        footerItems: footerNavForUser(session.tenantRole),
+        tabs: mobileTabNav({ surface: "garcom", items: garcomItems, groups: waiterGroups }),
         homeHref: "/garcom",
-        groups: undefined as undefined,
-        footerItems: undefined as undefined,
       }
     : cashier
       ? {
@@ -95,9 +100,9 @@ export default async function WaiterLayout({ children }: { children: React.React
       homeHref={shell.homeHref}
       enableOpsChrome={isStoreGerente(session.tenantRole) || isPlatformAdmin(session.platformRole)}
     >
-      <div className="mx-auto w-full max-w-xl">{children}</div>
+      {children}
       {waiterOnly ? (
-        <p className="mx-auto mt-8 max-w-xl px-1 text-center text-xs text-muted-foreground">
+        <p className="mt-8 text-center text-xs text-muted-foreground">
           No celular: menu do navegador → <strong>Adicionar à tela inicial</strong>. O ícone atualiza sozinho.
         </p>
       ) : null}

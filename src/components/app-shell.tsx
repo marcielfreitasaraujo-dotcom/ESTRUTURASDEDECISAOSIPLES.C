@@ -144,7 +144,9 @@ export function AppShell({
     pathname.startsWith("/garcom") ||
     pathname.startsWith("/entrega") ||
     pathname.startsWith("/app/salao") ||
-    pathname.startsWith("/app/pedidos");
+    pathname.startsWith("/app/pedidos") ||
+    pathname.startsWith("/app/cozinha") ||
+    pathname.startsWith("/app/entregas");
 
   return (
     <div className="min-h-dvh bg-background text-foreground">

@@ -14,7 +14,7 @@ export function AdjustCashForm({ sessionId }: { sessionId: string }) {
 
   return (
     <form
-      className="rounded-2xl border border-border bg-card p-4"
+      className="rounded-xl border border-border bg-card p-4"
       onSubmit={(event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
