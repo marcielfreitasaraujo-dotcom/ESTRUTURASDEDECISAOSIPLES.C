@@ -60,6 +60,10 @@ describe("cardápio da Central da Pizza", () => {
       "/tenants/central-da-pizza/suco-maracuja.jpg",
       "/tenants/central-da-pizza/suco-acerola.jpg",
       "/tenants/central-da-pizza/suco-acerola.jpg",
+      "/tenants/central-da-pizza/coca-cola-1l.jpg",
+      "/tenants/central-da-pizza/coca-cola-zero-1l.jpg",
+      "/tenants/central-da-pizza/guarana-antarctica-1l.jpg",
+      "/tenants/central-da-pizza/fanta-laranja-1l.jpg",
       "/tenants/central-da-pizza/coca-cola-2l.jpg",
       "/tenants/central-da-pizza/coca-cola-zero-2l.jpg",
       "/tenants/central-da-pizza/guarana-antarctica-2l.jpg",
@@ -92,6 +96,10 @@ describe("cardápio da Central da Pizza", () => {
         "jarra-suco-acerola",
       ],
       refrigerantes: [
+        "coca-cola-1l",
+        "coca-cola-zero-1l",
+        "guarana-antarctica-1l",
+        "fanta-laranja-1l",
         "coca-cola-2l",
         "coca-cola-zero-2l",
         "guarana-antarctica-2l",
@@ -116,6 +124,10 @@ describe("cardápio da Central da Pizza", () => {
       "Jarra de suco de maracujá 1L",
       "Jarra de suco de acerola 500ml",
       "Jarra de suco de acerola 1L",
+      "Coca-Cola 1L",
+      "Coca-Cola Zero 1L",
+      "Guaraná Antarctica 1L",
+      "Fanta Laranja 1L",
       "Coca-Cola 2L",
       "Coca-Cola Zero 2L",
       "Guaraná Antarctica 2L",
@@ -141,6 +153,16 @@ describe("cardápio da Central da Pizza", () => {
     expect(
       CENTRAL_MENU.drinks
         .filter((drink) => drink.categorySlug === "sucos" && drink.slug.endsWith("-1l"))
+        .every((drink) => drink.priceCents === 1500),
+    ).toBe(true);
+    expect(
+      CENTRAL_MENU.drinks
+        .filter((drink) => drink.categorySlug === "refrigerantes" && drink.slug.endsWith("-1l"))
+        .every((drink) => drink.priceCents === 800),
+    ).toBe(true);
+    expect(
+      CENTRAL_MENU.drinks
+        .filter((drink) => drink.categorySlug === "refrigerantes" && drink.slug.endsWith("-2l"))
         .every((drink) => drink.priceCents === 1500),
     ).toBe(true);
     expect(
