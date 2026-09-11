@@ -47,7 +47,7 @@ export function StaffOrderForm({
           : "Lançar no balcão";
 
   return (
-    <form action={action} method="post" className="grid gap-5">
+    <form action={action} className="grid gap-5">
       <input type="hidden" name="idempotencyKey" value={crypto.randomUUID()} />
       {error ? <p className="rounded-lg bg-destructive/15 px-3 py-2 text-sm text-destructive">{error}</p> : null}
       {ok ? <p className="rounded-lg bg-primary/15 px-3 py-2 text-sm">Comanda #{ok} atualizada.</p> : null}

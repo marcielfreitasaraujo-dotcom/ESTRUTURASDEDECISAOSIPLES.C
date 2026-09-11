@@ -147,7 +147,7 @@ export default async function CashierPage({
                     <p className="text-xs text-muted-foreground">
                       {order.paymentMethod} · {order.paymentStatus === "PAID" ? "Pago" : "A receber"}
                     </p>
-                    <form action={settleTableAction} method="post" className="mt-4">
+                    <form action={settleTableAction} className="mt-4">
                       <input type="hidden" name="tableNumber" value={view.selectedTable} />
                       <Button type="submit" size="lg" className="h-12 w-full">
                         Quitar mesa {view.selectedTable}
