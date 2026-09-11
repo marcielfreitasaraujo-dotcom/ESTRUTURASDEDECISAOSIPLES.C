@@ -286,6 +286,7 @@ export function FloorMap({
       {visible.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma mesa neste filtro.</p> : null}
 
       <OpenTableDialog
+        key={dialog === "open" ? selected?.id ?? "open" : "open-idle"}
         open={dialog === "open"}
         tables={freeTables}
         selected={selected}
@@ -295,6 +296,7 @@ export function FloorMap({
         onSubmit={(payload) => run(() => openSalonTableAction(payload), "Mesa ocupada.")}
       />
       <ReserveDialog
+        key={dialog === "reserve" ? selected?.id ?? "reserve" : "reserve-idle"}
         open={dialog === "reserve"}
         tables={snapshot.tables.filter((table) => table.status === "FREE" || table.status === "RESERVED")}
         selected={selected}
@@ -362,6 +364,7 @@ export function FloorMap({
         </DialogContent>
       </Dialog>
       <GuestDialog
+        key={dialog === "guest" ? selected?.id ?? "guest" : "guest-idle"}
         open={dialog === "guest"}
         table={selected}
         waiters={waiters}
@@ -370,6 +373,7 @@ export function FloorMap({
         onSubmit={(payload) => run(() => updateSalonTableGuestAction(payload), "Cliente atualizado.")}
       />
       <PickTableDialog
+        key={dialog === "transfer" ? selected?.id ?? "transfer" : "transfer-idle"}
         open={dialog === "transfer"}
         title="Transferir mesa"
         description="A comanda passa para a mesa livre escolhida."
@@ -381,6 +385,7 @@ export function FloorMap({
         }
       />
       <PickTableDialog
+        key={dialog === "join" ? selected?.id ?? "join" : "join-idle"}
         open={dialog === "join"}
         title="Juntar mesas"
         description="A mesa livre fica ligada a esta comanda."
@@ -392,6 +397,7 @@ export function FloorMap({
         }
       />
       <SplitDialog
+        key={dialog === "split" ? selected?.id ?? "split" : "split-idle"}
         open={dialog === "split"}
         table={selected}
         freeTables={freeTables}
@@ -426,6 +432,12 @@ export function FloorMap({
   );
 }
 
+function toDatetimeLocal(value?: string | Date | null) {
+  const date = value ? new Date(value) : new Date();
+  if (!value) date.setHours(date.getHours() + 2, 0, 0, 0);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
 function OpenTableDialog({
   open,
   tables,
@@ -443,17 +455,10 @@ function OpenTableDialog({
   onOpenChange: (open: boolean) => void;
   onSubmit: (input: { tableId: string; customerName: string; partySize?: number; waiterId?: string }) => Promise<void>;
 }) {
-  const [tableId, setTableId] = useState(selected?.id ?? "");
+  const [tableId, setTableId] = useState(selected?.id ?? tables[0]?.id ?? "");
   const [customerName, setCustomerName] = useState(selected?.customerName ?? "");
   const [partySize, setPartySize] = useState("2");
   const [waiterId, setWaiterId] = useState("");
-  useEffect(() => {
-    if (!open) return;
-    setTableId(selected?.id ?? tables[0]?.id ?? "");
-    setCustomerName(selected?.customerName ?? "");
-    setPartySize("2");
-    setWaiterId("");
-  }, [open, selected?.id, tables]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -530,28 +535,11 @@ function ReserveDialog({
   onOccupy: () => Promise<void>;
   onCancelReservation: () => Promise<void>;
 }) {
-  const [tableId, setTableId] = useState(selected?.id ?? "");
+  const [tableId, setTableId] = useState(selected?.id ?? tables[0]?.id ?? "");
   const [name, setName] = useState(selected?.reservationName ?? "");
-  const [when, setWhen] = useState("");
+  const [when, setWhen] = useState(toDatetimeLocal(selected?.reservedAt));
   const [people, setPeople] = useState(selected?.reservationPeople ? String(selected.reservationPeople) : "2");
   const [notes, setNotes] = useState(selected?.reservationNotes ?? "");
-  useEffect(() => {
-    if (!open) return;
-    setTableId(selected?.id ?? tables[0]?.id ?? "");
-    setName(selected?.reservationName ?? "");
-    setNotes(selected?.reservationNotes ?? "");
-    setPeople(selected?.reservationPeople ? String(selected.reservationPeople) : "2");
-    if (selected?.reservedAt) {
-      const date = new Date(selected.reservedAt);
-      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      setWhen(local);
-    } else {
-      const soon = new Date();
-      soon.setHours(soon.getHours() + 2, 0, 0, 0);
-      const local = new Date(soon.getTime() - soon.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-      setWhen(local);
-    }
-  }, [open, selected?.id]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -723,15 +711,9 @@ function GuestDialog({
   onOpenChange: (open: boolean) => void;
   onSubmit: (input: { tableId: string; customerName: string; partySize?: number; waiterId?: string }) => Promise<void>;
 }) {
-  const [name, setName] = useState("");
-  const [people, setPeople] = useState("2");
-  const [waiterId, setWaiterId] = useState("");
-  useEffect(() => {
-    if (!open) return;
-    setName(table?.customerName ?? "");
-    setPeople(table?.partySize ? String(table.partySize) : "2");
-    setWaiterId(table?.waiterId ?? "");
-  }, [open, table?.id]);
+  const [name, setName] = useState(table?.customerName ?? "");
+  const [people, setPeople] = useState(table?.partySize ? String(table.partySize) : "2");
+  const [waiterId, setWaiterId] = useState(table?.waiterId ?? "");
   if (!table) return null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -783,10 +765,6 @@ function PickTableDialog({
   onSubmit: (destinationTableId: string) => Promise<void>;
 }) {
   const [destination, setDestination] = useState(tables[0]?.id ?? "");
-  useEffect(() => {
-    if (!open) return;
-    setDestination(tables[0]?.id ?? "");
-  }, [open, tables[0]?.id]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -834,11 +812,6 @@ function SplitDialog({
 }) {
   const [destination, setDestination] = useState(freeTables[0]?.id ?? "");
   const [itemIds, setItemIds] = useState<string[]>([]);
-  useEffect(() => {
-    if (!open) return;
-    setDestination(freeTables[0]?.id ?? "");
-    setItemIds([]);
-  }, [open, table?.id, freeTables[0]?.id]);
   if (!table) return null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

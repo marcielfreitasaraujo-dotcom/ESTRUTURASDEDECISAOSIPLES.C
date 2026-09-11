@@ -388,7 +388,16 @@ export function ReceivePaymentPanel({
               startTransition(async () => {
                 const result = await receivePaymentAction({
                   orderId: order.id,
-                  tenders: lines.map(({ id: _id, ...tender }) => tender),
+                  tenders: lines.map((line) => ({
+                    method: line.method,
+                    amountCents: line.amountCents,
+                    receivedCents: line.receivedCents,
+                    cardKind: line.cardKind,
+                    installments: line.installments,
+                    brand: line.brand,
+                    notes: line.notes,
+                    confirmPix: line.confirmPix,
+                  })),
                   discountCents,
                   couponCode: coupon || undefined,
                   authorizationId: auth.id || undefined,

@@ -201,16 +201,15 @@ function OpsSearch() {
   }, []);
 
   useEffect(() => {
-    if (!open || query.trim().length < 2) {
-      setResults(null);
-      return;
-    }
+    if (!open || query.trim().length < 2) return;
     const timer = window.setTimeout(async () => {
       const response = await fetch(`/api/app/busca?q=${encodeURIComponent(query)}`, { cache: "no-store" });
       if (response.ok) setResults(await response.json());
     }, 200);
     return () => window.clearTimeout(timer);
   }, [open, query]);
+
+  const visibleResults = open && query.trim().length >= 2 ? results : null;
 
   return (
     <div className="relative min-w-0 flex-1">
@@ -224,13 +223,13 @@ function OpsSearch() {
         placeholder="Buscar pedido, cliente, produto, mesa…  Ctrl+K"
         className="h-10 max-w-xl"
       />
-      {open && results ? (
+      {visibleResults ? (
         <div className="absolute z-40 mt-1 max-h-80 w-full max-w-xl overflow-y-auto rounded-xl border border-zinc-800 bg-zinc-950 p-2 text-sm shadow-xl">
-          <ResultGroup title="Pedidos" items={results.orders.map((item) => ({ href: "/app/pedidos", label: `#${item.publicCode} · ${item.customerName}` }))} onPick={() => setOpen(false)} />
-          <ResultGroup title="Clientes" items={results.customers.map((item) => ({ href: "/app/clientes", label: `${item.name} · ${item.phone}` }))} onPick={() => setOpen(false)} />
-          <ResultGroup title="Produtos" items={results.products.map((item) => ({ href: "/app/cardapio", label: item.name }))} onPick={() => setOpen(false)} />
-          <ResultGroup title="Mesas" items={results.tables.map((item) => ({ href: "/app/salao", label: `Mesa ${item.number}${item.customerName ? ` · ${item.customerName}` : ""}` }))} onPick={() => setOpen(false)} />
-          <ResultGroup title="Equipe" items={results.staff.map((item) => ({ href: "/app/equipe", label: item.user.name }))} onPick={() => setOpen(false)} />
+          <ResultGroup title="Pedidos" items={visibleResults.orders.map((item) => ({ href: "/app/pedidos", label: `#${item.publicCode} · ${item.customerName}` }))} onPick={() => setOpen(false)} />
+          <ResultGroup title="Clientes" items={visibleResults.customers.map((item) => ({ href: "/app/clientes", label: `${item.name} · ${item.phone}` }))} onPick={() => setOpen(false)} />
+          <ResultGroup title="Produtos" items={visibleResults.products.map((item) => ({ href: "/app/cardapio", label: item.name }))} onPick={() => setOpen(false)} />
+          <ResultGroup title="Mesas" items={visibleResults.tables.map((item) => ({ href: "/app/salao", label: `Mesa ${item.number}${item.customerName ? ` · ${item.customerName}` : ""}` }))} onPick={() => setOpen(false)} />
+          <ResultGroup title="Equipe" items={visibleResults.staff.map((item) => ({ href: "/app/equipe", label: item.user.name }))} onPick={() => setOpen(false)} />
         </div>
       ) : null}
     </div>
