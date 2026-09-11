@@ -26,7 +26,8 @@ export default async function WaiterLayout({ children }: { children: React.React
     >
       <div className="mx-auto max-w-xl">{children}</div>
       <p className="mx-auto mt-8 max-w-xl text-center text-xs text-muted-foreground">
-        No celular: menu do navegador → <strong>Adicionar à tela inicial</strong>. É o mesmo sistema na nuvem.{" "}
+        No celular: menu do navegador → <strong>Adicionar à tela inicial</strong>. É o mesmo sistema na nuvem. Ao
+        reabrir o ícone, o app busca a versão publicada.{" "}
         <Link className="underline" href="/caixa">
           Abrir caixa
         </Link>

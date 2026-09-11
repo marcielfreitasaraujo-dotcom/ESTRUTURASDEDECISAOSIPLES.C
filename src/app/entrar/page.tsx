@@ -55,6 +55,10 @@ export default async function LoginPage({
               Abrir cardápio
             </Link>
           </p>
+          <p className="text-center text-xs text-muted-foreground">
+            Ícone da tela inicial: feche o app e abra de novo para puxar a versão nova. Se continuar antigo, remova o
+            atalho e adicione outra vez.
+          </p>
         </CardContent>
       </Card>
     </div>
