@@ -13,6 +13,10 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(keys.filter((key) => key !== STATIC_CACHE).map((key) => caches.delete(key)));
       await self.clients.claim();
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of windows) {
+        client.postMessage({ type: "COMANDA_UPDATED", build: BUILD });
+      }
     })(),
   );
 });

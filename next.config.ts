@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
+import { execSync } from "node:child_process";
 import { resolveDeployBuildId } from "./src/lib/app-build";
 
-const buildId = resolveDeployBuildId();
+function commitFromGit() {
+  try {
+    return execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
+  } catch {
+    return "dev";
+  }
+}
+
+const buildId = resolveDeployBuildId() || commitFromGit();
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,

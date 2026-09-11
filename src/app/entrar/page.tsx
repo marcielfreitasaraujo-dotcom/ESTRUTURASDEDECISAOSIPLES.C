@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/auth-forms";
 import { STAFF_LOGINS } from "@/domain/auth/staff-logins";
 import { missingRuntimeSecrets } from "@/lib/env";
+import { getAppBuildId } from "@/lib/app-build";
 
 export const dynamic = "force-dynamic";
 
@@ -56,9 +57,10 @@ export default async function LoginPage({
             </Link>
           </p>
           <p className="text-center text-xs text-muted-foreground">
-            O atalho da tela inicial no computador e no celular atualiza sozinho quando o sistema muda. Basta abrir de
-            novo; não precisa apagar o ícone.
+            Depois de um deploy, o atalho do computador e do celular busca a versão nova sozinho. Abra de novo ou toque
+            em Atualizar agora; não precisa apagar o ícone.
           </p>
+          <p className="text-center text-[11px] text-zinc-600">Versão {getAppBuildId().slice(0, 8)}</p>
         </CardContent>
       </Card>
     </div>

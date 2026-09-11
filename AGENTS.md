@@ -35,3 +35,4 @@ Comanda IA is a multi-tenant SaaS for restaurants (Next.js 16 + PostgreSQL + Pri
 - Money is integer cents.
 - Prisma 6 on purpose (Better Auth). See `docs/decisions/002-orm.md`.
 - PostgreSQL must be running locally (`docker compose up -d` or system cluster).
+- Production Railway tracks `cursor/forno-saas-foundation-658e`. Merge there so every cashier/waiter shortcut picks up the new build via `/api/version`.

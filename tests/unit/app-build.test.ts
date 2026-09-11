@@ -24,6 +24,14 @@ describe("resolveDeployBuildId", () => {
     process.env.RAILWAY_GIT_COMMIT_SHA = "abc123def";
     expect(resolveDeployBuildId()).toBe("abc123def");
   });
+
+  it("fica vazio quando o ambiente de build não tem commit", () => {
+    delete process.env.RAILWAY_GIT_COMMIT_SHA;
+    delete process.env.COMMIT_REF;
+    delete process.env.VERCEL_GIT_COMMIT_SHA;
+    delete process.env.APP_VERSION;
+    expect(resolveDeployBuildId()).toBe("");
+  });
 });
 
 describe("getAppBuildId", () => {

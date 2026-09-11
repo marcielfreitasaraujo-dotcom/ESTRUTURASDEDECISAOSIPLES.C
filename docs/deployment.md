@@ -41,6 +41,18 @@ O `npm start` em produção roda `prisma migrate deploy` e o seed (upsert do car
 
 Login: usuário `admin`, senha `Maciel.2004`. Health: `GET /api/health`.
 
+## Publicar atualização para todo mundo
+
+O Railway publica o branch `cursor/forno-saas-foundation-658e`. Os atalhos (PC e celular) leem `GET /api/version` e recarregam sozinhos.
+
+1. Termine a feature no branch de trabalho.
+2. Junte esse branch em `cursor/forno-saas-foundation-658e` e faça push.
+3. Espere o Railway terminar o deploy (health `/api/health` ok).
+4. Abra o atalho de novo, ou toque em **Atualizar agora** se a faixa aparecer.
+5. Confira o código curto de versão em `/entrar`. Se mudou, todos os aparelhos já podem puxar a tela nova.
+
+Não apague o ícone. Não precisa reinstalar o atalho. Sem esse merge no branch do Railway, o atalho continua na versão antiga.
+
 ## Netlify
 
 `netlify.toml` na raiz fixa o comando de build (`npm run build`) e o Node 22. Não definir diretório de publicação — o runtime Next.js do Netlify detecta o app.
