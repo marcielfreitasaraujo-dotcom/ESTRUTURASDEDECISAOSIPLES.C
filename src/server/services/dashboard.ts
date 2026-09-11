@@ -44,16 +44,8 @@ function buildSeries(orders: { createdAt: Date; totalCents: number }[], range: S
       buckets[hour].salesCents += order.totalCents;
       buckets[hour].orders += 1;
     }
-    const first = buckets.findIndex((row) => row.orders > 0);
-    let last = -1;
-    for (let index = buckets.length - 1; index >= 0; index -= 1) {
-      if (buckets[index].orders > 0) {
-        last = index;
-        break;
-      }
-    }
-    if (first === -1) return buckets.slice(11, 23);
-    return buckets.slice(Math.min(first, 11), Math.max(last + 1, 23));
+    const active = buckets.filter((row) => row.orders > 0);
+    return active.length ? active : buckets.slice(11, 23);
   }
   const start = rangeStart(range, now);
   const days = Math.max(1, Math.ceil((now.getTime() - start.getTime()) / 86_400_000) + 1);
