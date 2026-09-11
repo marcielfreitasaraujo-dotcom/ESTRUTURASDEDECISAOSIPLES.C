@@ -131,6 +131,7 @@ export function StoreGuestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
+        overlayClassName="bg-black/50"
         className="gap-5 bg-white p-6 text-zinc-900 shadow-2xl ring-1 ring-zinc-200 sm:max-w-[420px]"
       >
         <DialogClose asChild>
@@ -154,7 +155,10 @@ export function StoreGuestDialog({
             label="Nome"
             autoComplete="name"
             value={name}
-            onChange={setName}
+            onChange={(value) => {
+              setError(null);
+              setName(value);
+            }}
           />
           <FloatingField
             id="store-guest-phone"
@@ -163,7 +167,10 @@ export function StoreGuestDialog({
             autoComplete="tel"
             inputMode="numeric"
             value={phone}
-            onChange={(value) => setPhone(formatBrPhone(value))}
+            onChange={(value) => {
+              setError(null);
+              setPhone(formatBrPhone(value));
+            }}
           />
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
           <Button

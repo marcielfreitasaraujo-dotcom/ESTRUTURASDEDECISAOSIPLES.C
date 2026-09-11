@@ -12,8 +12,8 @@ test("landing e cardápio piloto carregam", async ({ page }) => {
 
   await page.getByRole("button", { name: /entrar\/cadastrar/i }).click();
   await expect(page.getByRole("heading", { name: /informe seu nome e telefone/i })).toBeVisible();
-  await page.getByLabel("Nome").fill("Marciel Teste");
-  await page.getByLabel("Telefone").fill("91991515550");
+  await page.getByRole("textbox", { name: "Nome" }).fill("Marciel Teste");
+  await page.getByRole("textbox", { name: "Telefone" }).fill("91991515550");
   await page.getByRole("button", { name: /^confirmar$/i }).click();
   await expect(page.getByRole("button", { name: /olá, marciel/i })).toBeVisible();
 });

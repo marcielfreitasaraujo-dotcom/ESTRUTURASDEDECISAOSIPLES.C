@@ -33,11 +33,11 @@ export default async function CheckoutPage({
             : undefined;
 
   return (
-    <div className="mx-auto grid min-h-screen max-w-3xl gap-8 bg-[oklch(0.985_0.01_70)] px-4 py-8">
+    <div className="mx-auto grid min-h-screen max-w-3xl gap-8 bg-[oklch(0.985_0.01_70)] px-4 py-8 text-zinc-900">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-heading text-3xl">Checkout</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-zinc-600">
             {tableNumber
               ? `Pedido da mesa ${tableNumber}. A cozinha recebe na hora.`
               : "Retirada, entrega em casa ou mesa. O servidor recalcula o preço."}
