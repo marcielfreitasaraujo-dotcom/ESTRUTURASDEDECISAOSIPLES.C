@@ -64,7 +64,7 @@ function NavLinks({
                   href={item.href}
                   onClick={onNavigate}
                   className={cn(
-                    "min-h-11 rounded-md px-3 py-2.5 text-sm hover:bg-muted",
+                    "min-h-11 rounded-md px-3 py-2.5 text-sm text-foreground hover:bg-muted",
                     active && "bg-primary/15 text-primary",
                   )}
                 >

@@ -12,7 +12,7 @@ type OrderCard = {
   tableNumber?: string | null;
   totalCents: number;
   notes: string | null;
-  items: { name: string; quantity: number }[];
+  items: { id?: string; name: string; quantity: number }[];
 };
 
 const NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
@@ -44,8 +44,8 @@ export function OrdersKanban({ orders }: { orders: OrderCard[] }) {
                     {order.tableNumber ? ` · Mesa ${order.tableNumber}` : ""}
                   </p>
                   <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    {order.items.map((item) => (
-                      <li key={item.name}>
+                    {order.items.map((item, index) => (
+                      <li key={item.id ?? `${item.name}-${index}`}>
                         {item.quantity}× {item.name}
                       </li>
                     ))}
@@ -53,7 +53,7 @@ export function OrdersKanban({ orders }: { orders: OrderCard[] }) {
                   {order.notes ? <p className="mt-2 text-xs">Obs.: {order.notes}</p> : null}
                   <p className="mt-2 text-sm font-medium">{formatBRL(order.totalCents)}</p>
                   {NEXT[order.status] ? (
-                    <form action={updateOrderStatusFormAction} method="post">
+                    <form action={updateOrderStatusFormAction}>
                       <input type="hidden" name="orderId" value={order.id} />
                       <input type="hidden" name="toStatus" value={NEXT[order.status]} />
                       <Button className="mt-3 w-full" size="sm" type="submit">
