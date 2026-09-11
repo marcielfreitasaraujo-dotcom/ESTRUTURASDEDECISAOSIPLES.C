@@ -11,7 +11,12 @@ const port = String(process.env.PORT || "3000");
 process.env.HOSTNAME = "0.0.0.0";
 process.env.PORT = port;
 
-console.log(`Comanda IA: migrate + seed + start em 0.0.0.0:${port}`);
+const build =
+  process.env.RAILWAY_GIT_COMMIT_SHA ||
+  process.env.NEXT_PUBLIC_APP_BUILD ||
+  process.env.COMMIT_REF ||
+  "dev";
+console.log(`Comanda IA: migrate + seed + start em 0.0.0.0:${port} (build ${build.slice(0, 12)})`);
 
 await migrateWithRetry();
 

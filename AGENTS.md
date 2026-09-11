@@ -35,4 +35,5 @@ Comanda IA is a multi-tenant SaaS for restaurants (Next.js 16 + PostgreSQL + Pri
 - Money is integer cents.
 - Prisma 6 on purpose (Better Auth). See `docs/decisions/002-orm.md`.
 - PostgreSQL must be running locally (`docker compose up -d` or system cluster).
-- Production Railway tracks `cursor/forno-saas-foundation-658e`. Merge there so every cashier/waiter shortcut picks up the new build via `/api/version`.
+- Production Railway tracks `cursor/forno-saas-foundation-658e`, not `main`. When the user asks to publish, atualizar geral, or ship a cashier/waiter/store change to the pizzeria, merge that work into this branch and push. Shortcuts poll `GET /api/version` and reload themselves. Playbook: `docs/atualizar-geral.md`. Script: `npm run publish:railway`.
+- `/api/version` must return the git commit SHA (baked at build). Never use `APP_VERSION` (`0.1.0`) as the deploy id — it does not change between deploys, so PWAs would never refresh.

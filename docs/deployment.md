@@ -43,13 +43,22 @@ Login: usuário `admin`, senha `Maciel.2004`. Health: `GET /api/health`.
 
 ## Publicar atualização para todo mundo
 
+Passo a passo completo (equipe + publicação): [docs/atualizar-geral.md](./atualizar-geral.md).
+
 O Railway publica o branch `cursor/forno-saas-foundation-658e`. Os atalhos (PC e celular) leem `GET /api/version` e recarregam sozinhos.
+
+```bash
+npm run publish:railway
+```
+
+Ou, à mão:
 
 1. Termine a feature no branch de trabalho.
 2. Junte esse branch em `cursor/forno-saas-foundation-658e` e faça push.
 3. Espere o Railway terminar o deploy (health `/api/health` ok).
-4. Abra o atalho de novo, ou toque em **Atualizar agora** se a faixa aparecer.
-5. Confira o código curto de versão em `/entrar`. Se mudou, todos os aparelhos já podem puxar a tela nova.
+4. Confira `GET /api/version` — o `build` tem que ser o commit novo, não `0.1.0` nem `dev`.
+5. Abra o atalho de novo, ou toque em **Atualizar agora** se a faixa aparecer.
+6. Confira o código curto de versão em `/entrar`. Se mudou, todos os aparelhos já podem puxar a tela nova.
 
 Não apague o ícone. Não precisa reinstalar o atalho. Sem esse merge no branch do Railway, o atalho continua na versão antiga.
 

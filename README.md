@@ -67,6 +67,8 @@ Hospedagem igual ao FinUP (Railway + Postgres). Projeto **novo** — não reutil
 
 O primeiro start cria as tabelas e o usuário `admin`. Login: `admin` / `Maciel.2004`.
 
+Para mandar uma atualização para o caixa, o garçom e o celular de todo mundo: [docs/atualizar-geral.md](./docs/atualizar-geral.md) (`npm run publish:railway`).
+
 ## Segurança
 
 Nunca commite `.env`. Segredos só em variáveis de ambiente. Ver [docs/security.md](./docs/security.md).

@@ -47,13 +47,13 @@ describe("getAppBuildId", () => {
     expect(getAppBuildId()).toBe("abc123def");
   });
 
-  it("cai na versão do app se não houver commit", () => {
+  it("não usa APP_VERSION: 0.1.0 nunca muda entre deploys", () => {
     delete process.env.NEXT_PUBLIC_APP_BUILD;
     delete process.env.RAILWAY_GIT_COMMIT_SHA;
     delete process.env.COMMIT_REF;
     delete process.env.VERCEL_GIT_COMMIT_SHA;
-    process.env.APP_VERSION = "0.2.0";
-    expect(getAppBuildId()).toBe("0.2.0");
+    process.env.APP_VERSION = "0.1.0";
+    expect(getAppBuildId()).toBe("dev");
   });
 });
 
@@ -61,5 +61,9 @@ describe("isStaleClientBuild", () => {
   it("detecta atalho com HTML antigo", () => {
     expect(isStaleClientBuild({ live: "novo", html: "antigo" })).toBe(true);
     expect(isStaleClientBuild({ live: "igual", html: "igual", baked: "igual", previous: "igual" })).toBe(false);
+  });
+
+  it("recarrega quando o atalho ainda guarda 0.1.0 e o servidor já tem o commit", () => {
+    expect(isStaleClientBuild({ live: "4497159abc", previous: "0.1.0" })).toBe(true);
   });
 });
