@@ -87,8 +87,12 @@ def config_pagamento():
 @assinatura_bp.route("/assinatura/pagar-cartao", methods=["POST"])
 @login_required
 def pagar_cartao():
+    from app.services.pagamento_assinatura import cartao_habilitado
+
     if current_user.eh_admin or current_user.eh_familia:
         return jsonify({"erro": "Conta isenta."}), 400
+    if not cartao_habilitado():
+        return jsonify({"erro": "Pagamento com cartão está temporariamente desativado. Use PIX."}), 400
     if usuario_tem_acesso(current_user):
         return jsonify({"redirect": url_for("dashboard.index")})
     dados = request.get_json(silent=True) or {}

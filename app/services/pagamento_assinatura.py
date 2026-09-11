@@ -170,6 +170,8 @@ def _criar_cobranca_pix(usuario: Usuario) -> CobrancaAssinatura:
 def processar_pagamento_cartao(usuario: Usuario, dados: dict) -> dict:
     from app.services import mercadopago as mp
 
+    if not cartao_habilitado():
+        raise PagamentoAssinaturaErro("Pagamento com cartão está temporariamente desativado. Use PIX.")
     if not pagamento_automatico_disponivel():
         raise PagamentoAssinaturaErro("Pagamento automático indisponível.")
 
@@ -354,6 +356,14 @@ def simular_pagamento_mock(cobranca_id: int, usuario_id: int) -> bool:
     return True
 
 
+def cartao_habilitado() -> bool:
+    """Cartão fica desligado até ASSINATURA_CARTAO_HABILITADO=1 (plano barato = só PIX)."""
+    if not current_app.config.get("ASSINATURA_CARTAO_HABILITADO"):
+        return False
+    public_key = (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip()
+    return bool(public_key) or _usar_mock()
+
+
 def config_pagamento_frontend() -> dict:
     from app.services.hotmart import checkout_url as hotmart_checkout_url
 
@@ -367,7 +377,7 @@ def config_pagamento_frontend() -> dict:
         "public_key": public_key,
         "valor": str(plano["valor"]),
         "max_parcelas": max(1, min(12, max_parcelas)),
-        "cartao_habilitado": bool(public_key) or _usar_mock(),
+        "cartao_habilitado": cartao_habilitado(),
         "provedor": "Mercado Pago",
         "hotmart_checkout_url": checkout,
         "hotmart_habilitado": bool(checkout),

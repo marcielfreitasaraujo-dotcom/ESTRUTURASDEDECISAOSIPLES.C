@@ -451,7 +451,39 @@ def test_teste_gratis_libera_acesso_por_1_mes(admin_client, client, app):
             liberar_teste_gratis(u)
 
 
+def test_cartao_desligado_por_padrao(admin_client, client, app):
+    with app.app_context():
+        definir_bloqueio_assinatura(True)
+        salvar_plano_assinatura(
+            nome="Mensal",
+            valor="9.90",
+            dias=30,
+            instrucoes="Pague",
+            pix_chave="pix@finup.app",
+        )
+        criar_membro_familia(
+            "Cliente So Pix",
+            "cliente_so_pix",
+            "senha123",
+            eh_familia=False,
+            assinatura_ativa=False,
+        )
+        db.session.commit()
+
+    _login(client, "cliente_so_pix", "senha123")
+    html = client.get("/assinatura/bloqueado", follow_redirects=True).get_data(as_text=True)
+    assert "Cartão parcelado" not in html
+    assert "PIX" in html
+    resp = client.post(
+        "/assinatura/pagar-cartao",
+        json={"token": "mock", "payment_method_id": "visa", "installments": 3},
+    )
+    assert resp.status_code == 400
+    assert "PIX" in resp.get_json()["erro"]
+
+
 def test_cartao_mock_libera_acesso(admin_client, client, app):
+    app.config["ASSINATURA_CARTAO_HABILITADO"] = True
     with app.app_context():
         definir_bloqueio_assinatura(True)
         salvar_plano_assinatura(

@@ -149,12 +149,12 @@
             <strong>{{ plano.valor | moeda }}</strong> na sua conta.
           </p>
 
+          {% if pagamento_cfg.cartao_habilitado %}
           <div class="pagamento-tabs" role="tablist">
             <button type="button" class="pagamento-tab ativo" data-alvo="painel-pix" role="tab">PIX</button>
-            {% if pagamento_cfg.cartao_habilitado %}
-              <button type="button" class="pagamento-tab" data-alvo="painel-cartao" role="tab">Cartão parcelado</button>
-            {% endif %}
+            <button type="button" class="pagamento-tab" data-alvo="painel-cartao" role="tab">Cartão parcelado</button>
           </div>
+          {% endif %}
 
           <div id="painel-pix" class="pagamento-painel ativo" role="tabpanel">
             {% if pix %}
