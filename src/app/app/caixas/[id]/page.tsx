@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { getCashSessionDetail } from "@/server/services/cash-desk";
-import { formatBRL } from "@/lib/money";
+import { formatBRL, formatSignedBRL } from "@/lib/money";
 import { CASH_MOVEMENT_LABELS, EXPENSE_CATEGORIES, formatClock, formatDay } from "@/domain/cash/labels";
 import { operatorLabel } from "@/domain/cash/status";
 import { ConferCashForm } from "@/components/cash-desk/confer-form";
@@ -108,7 +108,7 @@ export default async function CaixaDetalhePage({
         {cards.map(([label, value]) => (
           <div key={label} className="rounded-xl border border-zinc-800 bg-card p-4">
             <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
-            <p className="mt-1 font-heading text-2xl">{formatBRL(value)}</p>
+            <p className="mt-1 font-heading text-2xl">{label === "Diferença" ? formatSignedBRL(value) : formatBRL(value)}</p>
           </div>
         ))}
       </section>
@@ -233,7 +233,7 @@ export default async function CaixaDetalhePage({
               </div>
               <div className="flex justify-between">
                 <dt>Diferença</dt>
-                <dd>{session.differenceCents == null ? "—" : formatBRL(session.differenceCents)}</dd>
+                <dd>{session.differenceCents == null ? "—" : formatSignedBRL(session.differenceCents)}</dd>
               </div>
             </dl>
             {session.status === "CLOSED" && session.conferenceStatus === "PENDING" ? (

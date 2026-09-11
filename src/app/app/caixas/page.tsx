@@ -3,7 +3,7 @@ import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { getCashDeskSnapshot, listCashDeskSessions, listCashTerminals } from "@/server/services/cash-desk";
 import { listCashOperators } from "@/server/services/cash";
-import { formatBRL } from "@/lib/money";
+import { formatBRL, formatSignedBRL } from "@/lib/money";
 import { formatClock, formatDay } from "@/domain/cash/labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -229,8 +229,8 @@ export default async function CaixasPage({
                   </td>
                   <td className={`px-3 py-2 ${statusClass(row.ui.tone)}`}>{row.ui.label}</td>
                   <td className="px-3 py-2">{row.conferred ? "Sim" : "Não"}</td>
-                  <td className="px-3 py-2">{row.operatorName}</td>
-                  <td className="px-3 py-2">{row.terminalName}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{row.operatorName}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{row.terminalName}</td>
                   <td className="px-3 py-2">{formatBRL(row.openingCents)}</td>
                   <td className="px-3 py-2">{formatBRL(row.salesCents)}</td>
                   <td className="px-3 py-2">{formatBRL(row.cashCents)}</td>
@@ -242,7 +242,7 @@ export default async function CaixasPage({
                   <td className="px-3 py-2">{formatBRL(row.expectedCashCents)}</td>
                   <td className="px-3 py-2">{row.countedCents == null ? "—" : formatBRL(row.countedCents)}</td>
                   <td className={`px-3 py-2 ${(row.differenceCents ?? 0) === 0 ? "text-emerald-400" : "text-red-400"}`}>
-                    {row.differenceCents == null ? "—" : formatBRL(row.differenceCents)}
+                    {row.differenceCents == null ? "—" : formatSignedBRL(row.differenceCents)}
                   </td>
                 </tr>
               ))

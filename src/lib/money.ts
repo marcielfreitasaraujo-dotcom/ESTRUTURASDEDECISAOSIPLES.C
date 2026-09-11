@@ -26,6 +26,17 @@ export function formatBRL(cents: Cents): string {
   }).format(assertCents(cents) / 100);
 }
 
+export function formatSignedBRL(cents: number): string {
+  if (!Number.isInteger(cents)) {
+    throw new Error("valor deve ser um inteiro em centavos.");
+  }
+  const formatted = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(Math.abs(cents) / 100);
+  return cents < 0 ? `-${formatted}` : formatted;
+}
+
 export function parseBRLToCents(input: string): Cents {
   const normalized = input.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
   const value = Number.parseFloat(normalized);

@@ -8,6 +8,7 @@ import {
   expectedCashCents,
   splitEqually,
 } from "@/domain/cash/math";
+import { formatSignedBRL } from "@/lib/money";
 
 describe("caixa: dinheiro e conferência", () => {
   it("calcula o troco e recusa valor menor que o total", () => {
@@ -38,6 +39,7 @@ describe("caixa: dinheiro e conferência", () => {
     expect(differenceLabel(0).label).toBe("Caixa exato");
     expect(differenceLabel(-2000).kind).toBe("shortage");
     expect(differenceLabel(2000).kind).toBe("overage");
+    expect(formatSignedBRL(-1000)).toBe("-R$ 10,00");
   });
 
   it("respeita o limite de desconto do caixa", () => {

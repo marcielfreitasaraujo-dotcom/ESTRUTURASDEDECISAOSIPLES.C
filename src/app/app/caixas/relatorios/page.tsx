@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { cashReports } from "@/server/services/cash-desk";
-import { formatBRL } from "@/lib/money";
+import { formatBRL, formatSignedBRL } from "@/lib/money";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClass } from "@/lib/field";
@@ -65,7 +65,7 @@ export default async function RelatoriosCaixaPage({
             formatBRL(row.sangriaCents),
             formatBRL(row.supplyCents),
             formatBRL(row.expenseCents),
-            formatBRL(row.differenceCents),
+            formatSignedBRL(row.differenceCents),
           ])}
         />
       </section>
@@ -73,7 +73,7 @@ export default async function RelatoriosCaixaPage({
         <h2 className="font-heading text-xl">Por terminal</h2>
         <SimpleTable
           headers={["Terminal", "Caixas", "Vendas", "Diferenças"]}
-          rows={report.byTerminal.map((row) => [row.terminalName, String(row.sessions), formatBRL(row.salesCents), formatBRL(row.differenceCents)])}
+          rows={report.byTerminal.map((row) => [row.terminalName, String(row.sessions), formatBRL(row.salesCents), formatSignedBRL(row.differenceCents)])}
         />
       </section>
       <section>
@@ -85,7 +85,7 @@ export default async function RelatoriosCaixaPage({
             row.operatorName,
             formatBRL(row.expectedCashCents),
             row.countedCents == null ? "—" : formatBRL(row.countedCents),
-            formatBRL(row.differenceCents ?? 0),
+            formatSignedBRL(row.differenceCents ?? 0),
           ])}
         />
       </section>
