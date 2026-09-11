@@ -105,11 +105,12 @@ export function FloorMap({
   }, []);
 
   useEffect(() => {
+    if (dialog) return;
     const timer = window.setInterval(() => {
       void reload();
     }, 4000);
     return () => window.clearInterval(timer);
-  }, [reload]);
+  }, [reload, dialog]);
 
   useEffect(() => {
     if (orderFeedback?.error) toast.error(orderFeedback.error);
@@ -429,9 +430,12 @@ function OpenTableDialog({
   const [partySize, setPartySize] = useState("2");
   const [waiterId, setWaiterId] = useState("");
   useEffect(() => {
+    if (!open) return;
     setTableId(selected?.id ?? tables[0]?.id ?? "");
     setCustomerName(selected?.customerName ?? "");
-  }, [selected, tables, open]);
+    setPartySize("2");
+    setWaiterId("");
+  }, [open, selected?.id, tables]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -460,7 +464,7 @@ function OpenTableDialog({
             ))}
           </select>
           <Label htmlFor="open-name">Cliente</Label>
-          <Input id="open-name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} required className="h-12" />
+          <Input id="open-name" value={customerName} onChange={(event) => setCustomerName(event.target.value)} className="h-12" />
           <Label htmlFor="open-people">Pessoas</Label>
           <Input id="open-people" type="number" min={1} value={partySize} onChange={(event) => setPartySize(event.target.value)} className="h-12" />
           <Label htmlFor="open-waiter">Garçom</Label>
@@ -510,6 +514,7 @@ function ReserveDialog({
   const [people, setPeople] = useState(selected?.reservationPeople ? String(selected.reservationPeople) : "2");
   const [notes, setNotes] = useState(selected?.reservationNotes ?? "");
   useEffect(() => {
+    if (!open) return;
     setTableId(selected?.id ?? tables[0]?.id ?? "");
     setName(selected?.reservationName ?? "");
     setNotes(selected?.reservationNotes ?? "");
@@ -518,8 +523,13 @@ function ReserveDialog({
       const date = new Date(selected.reservedAt);
       const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
       setWhen(local);
+    } else {
+      const soon = new Date();
+      soon.setHours(soon.getHours() + 2, 0, 0, 0);
+      const local = new Date(soon.getTime() - soon.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+      setWhen(local);
     }
-  }, [selected, tables, open]);
+  }, [open, selected?.id]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -549,9 +559,9 @@ function ReserveDialog({
             ))}
           </select>
           <Label htmlFor="res-name">Cliente</Label>
-          <Input id="res-name" value={name} onChange={(event) => setName(event.target.value)} required className="h-12" />
+          <Input id="res-name" value={name} onChange={(event) => setName(event.target.value)} className="h-12" />
           <Label htmlFor="res-when">Horário</Label>
-          <Input id="res-when" type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} required className="h-12" />
+          <Input id="res-when" type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className="h-12" />
           <Label htmlFor="res-people">Pessoas</Label>
           <Input id="res-people" type="number" min={1} value={people} onChange={(event) => setPeople(event.target.value)} className="h-12" />
           <Label htmlFor="res-notes">Observações</Label>
@@ -686,10 +696,11 @@ function GuestDialog({
   const [people, setPeople] = useState("2");
   const [waiterId, setWaiterId] = useState("");
   useEffect(() => {
+    if (!open) return;
     setName(table?.customerName ?? "");
     setPeople(table?.partySize ? String(table.partySize) : "2");
     setWaiterId(table?.waiterId ?? "");
-  }, [table, open]);
+  }, [open, table?.id]);
   if (!table) return null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -704,7 +715,7 @@ function GuestDialog({
             void onSubmit({ tableId: table.id, customerName: name, partySize: Number(people) || undefined, waiterId: waiterId || undefined });
           }}
         >
-          <Input value={name} onChange={(event) => setName(event.target.value)} required className="h-12" placeholder="Nome" />
+          <Input value={name} onChange={(event) => setName(event.target.value)} className="h-12" placeholder="Nome" />
           <Input type="number" min={1} value={people} onChange={(event) => setPeople(event.target.value)} className="h-12" />
           <select className="h-12 rounded-lg border bg-background px-3" value={waiterId} onChange={(event) => setWaiterId(event.target.value)}>
             <option value="">Garçom</option>
@@ -741,7 +752,10 @@ function PickTableDialog({
   onSubmit: (destinationTableId: string) => Promise<void>;
 }) {
   const [destination, setDestination] = useState(tables[0]?.id ?? "");
-  useEffect(() => setDestination(tables[0]?.id ?? ""), [tables, open]);
+  useEffect(() => {
+    if (!open) return;
+    setDestination(tables[0]?.id ?? "");
+  }, [open, tables[0]?.id]);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -790,9 +804,10 @@ function SplitDialog({
   const [destination, setDestination] = useState(freeTables[0]?.id ?? "");
   const [itemIds, setItemIds] = useState<string[]>([]);
   useEffect(() => {
+    if (!open) return;
     setDestination(freeTables[0]?.id ?? "");
     setItemIds([]);
-  }, [freeTables, table, open]);
+  }, [open, table?.id, freeTables[0]?.id]);
   if (!table) return null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
