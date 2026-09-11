@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
 import { requireSession } from "@/server/context";
 import { postLoginPath } from "@/domain/rbac/home";
-import { navForUser } from "@/domain/rbac/nav";
+import { groupedCaixaNavForUser, CAIXA_FOOTER_NAV, navForUser } from "@/domain/rbac/nav";
 import { AppShell } from "@/components/app-shell";
 import { isPlatformAdmin } from "@/domain/rbac/roles";
+import { TENANT_ROLE_LABELS } from "@/domain/rbac/labels";
+import { prisma } from "@/lib/db";
+import { CashierHotkeys } from "@/components/cashier/hotkeys";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +18,22 @@ export default async function CashierLayout({ children }: { children: React.Reac
   if (session.tenantRole && !allowed.includes(session.tenantRole) && !isPlatformAdmin(session.platformRole)) {
     redirect(postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole }));
   }
+  const tenant = session.tenantId
+    ? await prisma.tenant.findUnique({ where: { id: session.tenantId }, select: { name: true, tradeName: true } })
+    : null;
+
   return (
     <AppShell
       title="Caixa"
       items={navForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole, surface: "caixa" })}
+      groups={groupedCaixaNavForUser({ platformRole: session.platformRole, tenantRole: session.tenantRole })}
+      footerItems={CAIXA_FOOTER_NAV}
       userName={session.name}
+      roleLabel={session.tenantRole ? TENANT_ROLE_LABELS[session.tenantRole] : "Caixa"}
+      storeName={tenant?.tradeName || tenant?.name}
       homeHref="/caixa"
     >
+      <CashierHotkeys />
       {children}
     </AppShell>
   );

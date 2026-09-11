@@ -81,6 +81,43 @@ export const TENANT_FOOTER_NAV: NavItem[] = [
   { href: "/app/ajuda", label: "Ajuda" },
 ];
 
+export const CAIXA_NAV_GROUPS: NavGroup[] = [
+  {
+    id: "main",
+    label: "",
+    items: [
+      { href: "/caixa", label: "Início" },
+      { href: "/caixa/pdv", label: "PDV" },
+      { href: "/caixa/pedidos", label: "Pedidos" },
+      { href: "/caixa/pagamentos", label: "Pagamentos" },
+      { href: "/caixa/mesas", label: "Mesas" },
+      { href: "/caixa/clientes", label: "Clientes" },
+    ],
+  },
+  {
+    id: "meu-caixa",
+    label: "Meu caixa",
+    items: [
+      { href: "/caixa/movimentacoes", label: "Movimentações" },
+      { href: "/caixa/sangria", label: "Sangria" },
+      { href: "/caixa/suprimento", label: "Suprimento" },
+      { href: "/caixa/despesa", label: "Despesa" },
+      { href: "/caixa/conferencia", label: "Conferência" },
+      { href: "/caixa/fechamento", label: "Fechamento" },
+    ],
+  },
+  {
+    id: "resumo",
+    label: "Resumo",
+    items: [
+      { href: "/caixa/turno", label: "Meu turno" },
+      { href: "/caixa/historico", label: "Histórico" },
+    ],
+  },
+];
+
+export const CAIXA_FOOTER_NAV: NavItem[] = [{ href: "/caixa/conta", label: "Minha conta" }];
+
 const TENANT_NAV: NavItem[] = uniqueNav(TENANT_NAV_GROUPS.flatMap((group) => group.items));
 
 function uniqueNav(items: NavItem[]): NavItem[] {
@@ -105,19 +142,14 @@ export function navForUser(input: {
     if (input.surface === "admin" || !input.tenantRole) return PLATFORM_NAV;
   }
   if (input.surface === "caixa") {
-    const items: NavItem[] = [
-      { href: "/caixa", label: "PDV" },
-      { href: "/caixa/estoque", label: "Estoque" },
-      { href: "/app/pedidos", label: "Fila" },
-      { href: "/app/clientes", label: "Clientes" },
-    ];
+    const items = CAIXA_NAV_GROUPS.flatMap((group) => group.items);
     if (isStoreGerente(input.tenantRole) || isPlatformAdmin(input.platformRole)) {
-      items.push({ href: "/caixa/fechamento", label: "Fechar caixa" });
+      items.push({ href: "/caixa/estoque", label: "Estoque" });
       items.push({ href: "/app/equipe", label: "Equipe" });
       items.push({ href: "/app/cardapio", label: "Cardápio" });
       items.push({ href: "/app", label: "Painel" });
     }
-    return items;
+    return uniqueNav(items);
   }
   if (input.surface === "garcom") {
     return [{ href: "/garcom", label: "Comandas" }];
@@ -153,6 +185,26 @@ export function groupedNavForUser(input: {
           }
         : group,
     );
+  }
+  return groups;
+}
+
+export function groupedCaixaNavForUser(input: {
+  platformRole: PlatformRole;
+  tenantRole: TenantRole | null;
+}): NavGroup[] {
+  const groups = CAIXA_NAV_GROUPS.map((group) => ({ ...group, items: [...group.items] }));
+  if (isStoreGerente(input.tenantRole) || isPlatformAdmin(input.platformRole)) {
+    groups.push({
+      id: "gestao",
+      label: "Gestão",
+      items: [
+        { href: "/caixa/estoque", label: "Estoque" },
+        { href: "/app/equipe", label: "Equipe" },
+        { href: "/app/cardapio", label: "Cardápio" },
+        { href: "/app", label: "Painel" },
+      ],
+    });
   }
   return groups;
 }

@@ -4,7 +4,7 @@ import { listCatalog } from "@/server/services/catalog";
 import { CashierStockPanel } from "@/components/cashier-stock-panel";
 
 export default async function CaixaEstoquePage() {
-  const ctx = await requirePage(PERMISSIONS.ORDER_UPDATE);
+  const ctx = await requirePage(PERMISSIONS.INVENTORY_WRITE);
   const catalog = await listCatalog(ctx.tenantId);
   const products = catalog.products
     .filter((product) => product.active)

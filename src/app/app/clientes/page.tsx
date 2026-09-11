@@ -1,7 +1,7 @@
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { hasPermission, isPlatformAdmin } from "@/domain/rbac/roles";
-import { listCustomers } from "@/server/services/customers";
+import { listCustomers, customerCrmStats } from "@/server/services/customers";
 import { saveCustomerAction } from "@/app/actions/ops";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,20 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/empty-state";
 import { formatBRL } from "@/lib/money";
+import { redirect } from "next/navigation";
 
 export default async function CustomersPage() {
   const ctx = await requirePage(PERMISSIONS.CUSTOMER_READ);
+  if (ctx.tenantRole === "CASHIER") redirect("/caixa/clientes");
   const customers = await listCustomers(ctx.tenantId);
   const canWrite =
     isPlatformAdmin(ctx.platformRole) ||
     (ctx.tenantRole ? hasPermission(ctx.tenantRole, PERMISSIONS.CUSTOMER_WRITE) : false);
-  const now = Date.now();
-  const newCount = customers.filter((customer) => now - customer.updatedAt.getTime() < 30 * 86_400_000 && customer._count.orders <= 1).length;
-  const recurring = customers.filter((customer) => customer._count.orders >= 2).length;
-  const inactive = customers.filter((customer) => {
-    const last = customer.orders[0]?.createdAt;
-    return !last || now - last.getTime() > 45 * 86_400_000;
-  }).length;
+  const stats = customerCrmStats(customers);
 
   return (
     <div className="grid gap-6">
@@ -36,7 +32,7 @@ export default async function CustomersPage() {
             <CardTitle className="text-sm text-muted-foreground">Novos</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-heading text-2xl">{newCount}</p>
+            <p className="font-heading text-2xl">{stats.newCount}</p>
           </CardContent>
         </Card>
         <Card>
@@ -44,7 +40,7 @@ export default async function CustomersPage() {
             <CardTitle className="text-sm text-muted-foreground">Recorrentes</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-heading text-2xl">{recurring}</p>
+            <p className="font-heading text-2xl">{stats.recurring}</p>
           </CardContent>
         </Card>
         <Card>
@@ -52,7 +48,7 @@ export default async function CustomersPage() {
             <CardTitle className="text-sm text-muted-foreground">Inativos</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="font-heading text-2xl">{inactive}</p>
+            <p className="font-heading text-2xl">{stats.inactive}</p>
           </CardContent>
         </Card>
       </div>

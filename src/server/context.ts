@@ -100,7 +100,8 @@ export async function requirePage(permission: Permission) {
   if (!session) redirect("/entrar");
   try {
     return await requireTenantPermission(permission);
-  } catch {
+  } catch (error) {
+    if (error instanceof ForbiddenError) redirect("/403");
     redirect(postLoginPath({ platformRole: session.platformRole, tenantRole: session.tenantRole }));
   }
 }

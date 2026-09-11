@@ -39,6 +39,12 @@ const TENANT_SCOPED_MODELS = new Set([
   "Notification",
   "AuditLog",
   "AnalyticsEvent",
+  "SalonSector",
+  "SalonTable",
+  "CashTerminal",
+  "CashSession",
+  "CashMovement",
+  "CashAuthorization",
 ]);
 
 type ArgsWithWhere = { where?: Record<string, unknown>; data?: unknown };

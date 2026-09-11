@@ -30,6 +30,22 @@ export async function listCustomers(tenantId: string) {
   });
 }
 
+export function customerCrmStats(
+  customers: Awaited<ReturnType<typeof listCustomers>>,
+  nowMs = Date.now(),
+) {
+  return {
+    newCount: customers.filter(
+      (customer) => nowMs - customer.updatedAt.getTime() < 30 * 86_400_000 && customer._count.orders <= 1,
+    ).length,
+    recurring: customers.filter((customer) => customer._count.orders >= 2).length,
+    inactive: customers.filter((customer) => {
+      const last = customer.orders[0]?.createdAt;
+      return !last || nowMs - last.getTime() > 45 * 86_400_000;
+    }).length,
+  };
+}
+
 export async function createCustomer(input: {
   tenantId: string;
   name: string;

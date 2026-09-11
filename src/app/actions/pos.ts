@@ -69,6 +69,8 @@ export async function createCashierOrderAction(formData: FormData) {
   let publicCode = "";
   try {
     const ctx = await requireTenantPermission(PERMISSIONS.ORDER_CREATE);
+    const { requireOpenSession } = await import("@/server/services/cash");
+    await requireOpenSession(ctx.tenantId);
     const order = tableNumber
       ? await openOrAppendTableSale({
           tenantId: ctx.tenantId,
@@ -130,7 +132,7 @@ export async function markOrderPaidAction(formData: FormData) {
 
 export async function setCashierProductStockAction(productId: string, quantity: number) {
   try {
-    const ctx = await requireTenantPermission(PERMISSIONS.ORDER_UPDATE);
+    const ctx = await requireTenantPermission(PERMISSIONS.INVENTORY_WRITE);
     await setProductStock({
       tenantId: ctx.tenantId,
       productId,

@@ -9,6 +9,7 @@ describe("serviceWorkerScript", () => {
     expect(script).toContain("comanda-ia-static-");
     expect(script).toContain("self.skipWaiting()");
     expect(script).toContain("clients.claim()");
+    expect(script).toContain("COMANDA_UPDATED");
     expect(script).toContain('cache: "no-store"');
     expect(script).toContain('url.pathname === "/entrar"');
     expect(script).toContain('url.pathname.startsWith("/loja")');

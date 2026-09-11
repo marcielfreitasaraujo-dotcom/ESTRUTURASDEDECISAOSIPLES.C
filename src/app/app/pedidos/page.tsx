@@ -5,9 +5,11 @@ import { OrdersKanban } from "@/components/orders-kanban";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function OrdersPage() {
   const ctx = await requirePage(PERMISSIONS.ORDER_READ);
+  if (ctx.tenantRole === "CASHIER") redirect("/caixa/pedidos");
   const orders = await listOrdersByStatus(ctx.tenantId);
 
   return (
