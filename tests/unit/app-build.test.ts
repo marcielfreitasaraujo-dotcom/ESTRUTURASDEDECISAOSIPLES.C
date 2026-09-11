@@ -29,7 +29,7 @@ describe("resolveDeployBuildId", () => {
     delete process.env.RAILWAY_GIT_COMMIT_SHA;
     delete process.env.COMMIT_REF;
     delete process.env.VERCEL_GIT_COMMIT_SHA;
-    delete process.env.APP_VERSION;
+    process.env.APP_VERSION = "0.1.0";
     expect(resolveDeployBuildId()).toBe("");
   });
 });
