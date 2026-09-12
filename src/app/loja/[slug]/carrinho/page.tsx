@@ -56,7 +56,17 @@ export default async function CartPage({
           <ul className="grid gap-4">
             {items.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border bg-white p-4">
-                <div>
+                {item.product?.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.product.imageUrl}
+                    alt={item.name}
+                    width={72}
+                    height={72}
+                    className="size-[72px] shrink-0 rounded-xl bg-zinc-100 object-contain"
+                  />
+                ) : null}
+                <div className="min-w-0 flex-1">
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-muted-foreground">
                     {item.quantity} × {formatBRL(item.unitPriceCents)}

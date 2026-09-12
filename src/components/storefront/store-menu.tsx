@@ -44,7 +44,7 @@ type Product = {
 };
 
 type Category = { id: string; name: string; slug: string; active: boolean };
-type CartItem = { id: string; name: string; quantity: number; unitPriceCents: number };
+type CartItem = { id: string; name: string; quantity: number; unitPriceCents: number; imageUrl?: string | null };
 type Zone = { id: string; name: string; feeCents: number; minOrderCents: number };
 
 const PRODUCT_BADGE: Record<string, string> = {

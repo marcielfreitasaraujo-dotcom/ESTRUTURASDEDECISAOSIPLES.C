@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, UtensilsCrossed } from "lucide-react";
 import { updateCartItemAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ export type StoreCartItem = {
   name: string;
   quantity: number;
   unitPriceCents: number;
+  imageUrl?: string | null;
 };
 
 export function StoreCartButton({
@@ -67,8 +68,8 @@ export function StoreCartSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 p-0 sm:max-w-md">
-        <SheetHeader className="border-b">
+      <SheetContent className="w-full gap-0 bg-[#eef1f4] p-0 text-zinc-900 sm:max-w-md">
+        <SheetHeader className="border-b bg-white">
           <SheetTitle>Carrinho</SheetTitle>
           <SheetDescription>
             {itemCount === 0
@@ -135,43 +136,68 @@ function CartRow({ slug, item }: { slug: string; item: StoreCartItem }) {
   }
 
   return (
-    <li className="rounded-2xl border bg-white p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="font-medium leading-snug">{item.name}</p>
-          <p className="mt-1 text-sm text-zinc-500">{formatBRL(item.unitPriceCents * item.quantity)}</p>
+    <li className="rounded-2xl border border-zinc-200 bg-white p-3 text-zinc-900">
+      <div className="flex items-start gap-3">
+        <CartItemPhoto name={item.name} imageUrl={item.imageUrl} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="font-medium leading-snug">{item.name}</p>
+              <p className="mt-1 text-sm text-zinc-500">{formatBRL(item.unitPriceCents * item.quantity)}</p>
+            </div>
+            <button
+              type="button"
+              className="rounded-full p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800"
+              aria-label={`Remover ${item.name}`}
+              disabled={pending}
+              onClick={() => setQuantity(0)}
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <button
+              type="button"
+              className="inline-flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-zinc-800"
+              aria-label="Diminuir quantidade"
+              disabled={pending}
+              onClick={() => setQuantity(item.quantity - 1)}
+            >
+              <Minus className="size-3.5" />
+            </button>
+            <span className="min-w-6 text-center text-sm font-semibold">{item.quantity}</span>
+            <button
+              type="button"
+              className="inline-flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-zinc-800"
+              aria-label="Aumentar quantidade"
+              disabled={pending}
+              onClick={() => setQuantity(item.quantity + 1)}
+            >
+              <Plus className="size-3.5" />
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          className="rounded-full p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-          aria-label={`Remover ${item.name}`}
-          disabled={pending}
-          onClick={() => setQuantity(0)}
-        >
-          <Trash2 className="size-4" />
-        </button>
-      </div>
-      <div className="mt-3 flex items-center gap-2">
-        <button
-          type="button"
-          className="inline-flex size-8 items-center justify-center rounded-full border"
-          aria-label="Diminuir quantidade"
-          disabled={pending}
-          onClick={() => setQuantity(item.quantity - 1)}
-        >
-          <Minus className="size-3.5" />
-        </button>
-        <span className="min-w-6 text-center text-sm font-medium">{item.quantity}</span>
-        <button
-          type="button"
-          className="inline-flex size-8 items-center justify-center rounded-full border"
-          aria-label="Aumentar quantidade"
-          disabled={pending}
-          onClick={() => setQuantity(item.quantity + 1)}
-        >
-          <Plus className="size-3.5" />
-        </button>
       </div>
     </li>
+  );
+}
+
+function CartItemPhoto({ name, imageUrl }: { name: string; imageUrl?: string | null }) {
+  if (imageUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={imageUrl}
+        alt={name}
+        width={72}
+        height={72}
+        className="size-[72px] shrink-0 rounded-xl bg-zinc-100 object-contain"
+      />
+    );
+  }
+  return (
+    <span className="grid size-[72px] shrink-0 place-items-center rounded-xl bg-zinc-100 text-zinc-400" aria-hidden>
+      <UtensilsCrossed className="size-7" />
+    </span>
   );
 }

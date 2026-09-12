@@ -16,13 +16,20 @@ import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
 
 const CART_COOKIE = "comanda_cart";
 
+const CART_ITEM_INCLUDE = {
+  items: {
+    include: { product: { select: { imageUrl: true } } },
+    orderBy: { createdAt: "asc" as const },
+  },
+} as const;
+
 export async function getCart(tenantId: string) {
   const store = await cookies();
   const existingId = store.get(CART_COOKIE)?.value;
   if (!existingId) return null;
   return prisma.cart.findFirst({
     where: { id: existingId, tenantId },
-    include: { items: true },
+    include: CART_ITEM_INCLUDE,
   });
 }
 
@@ -32,7 +39,7 @@ export async function getOrCreateCart(tenantId: string) {
 
   const cart = await prisma.cart.create({
     data: { tenantId },
-    include: { items: true },
+    include: CART_ITEM_INCLUDE,
   });
   const store = await cookies();
   store.set(CART_COOKIE, cart.id, {

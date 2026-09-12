@@ -113,6 +113,7 @@ export default async function StorePage({ params, searchParams }: Props) {
         name: item.name,
         quantity: item.quantity,
         unitPriceCents: item.unitPriceCents,
+        imageUrl: item.product?.imageUrl ?? null,
       }))}
       couponCode={cart?.couponCode ?? null}
       guest={guest}
