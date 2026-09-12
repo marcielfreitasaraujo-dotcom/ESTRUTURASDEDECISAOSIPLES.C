@@ -68,10 +68,13 @@ export function StoreCartSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full gap-0 bg-[#eef1f4] p-0 text-zinc-900 sm:max-w-md">
-        <SheetHeader className="border-b bg-white">
-          <SheetTitle>Carrinho</SheetTitle>
-          <SheetDescription>
+      <SheetContent
+        className="w-full gap-0 bg-[#eef1f4] p-0 text-zinc-900 sm:max-w-md"
+        style={{ colorScheme: "light" }}
+      >
+        <SheetHeader className="border-b border-zinc-200 bg-white">
+          <SheetTitle className="text-zinc-900">Carrinho</SheetTitle>
+          <SheetDescription className="text-zinc-500">
             {itemCount === 0
               ? "Escolha no cardápio. Os itens entram aqui."
               : `${itemCount} ${itemCount === 1 ? "item" : "itens"} selecionados`}
@@ -91,9 +94,9 @@ export function StoreCartSheet({
           </ul>
         )}
 
-        <SheetFooter className="border-t bg-white">
+        <SheetFooter className="border-t border-zinc-200 bg-white text-zinc-900">
           {itemCount > 0 ? (
-            <p className="flex justify-between text-base font-medium">
+            <p className="flex justify-between text-base font-medium text-zinc-900">
               <span>Subtotal</span>
               <span>{formatBRL(subtotal)}</span>
             </p>
@@ -142,7 +145,7 @@ function CartRow({ slug, item }: { slug: string; item: StoreCartItem }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="font-medium leading-snug">{item.name}</p>
+              <p className="font-medium leading-snug text-zinc-900">{item.name}</p>
               <p className="mt-1 text-sm text-zinc-500">{formatBRL(item.unitPriceCents * item.quantity)}</p>
             </div>
             <button
@@ -158,22 +161,22 @@ function CartRow({ slug, item }: { slug: string; item: StoreCartItem }) {
           <div className="mt-3 flex items-center gap-2">
             <button
               type="button"
-              className="inline-flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-zinc-800"
+              className="inline-flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-200 text-zinc-900"
               aria-label="Diminuir quantidade"
               disabled={pending}
               onClick={() => setQuantity(item.quantity - 1)}
             >
-              <Minus className="size-3.5" />
+              <Minus className="size-3.5 stroke-[2.5] text-zinc-900" />
             </button>
-            <span className="min-w-6 text-center text-sm font-semibold">{item.quantity}</span>
+            <span className="min-w-6 text-center text-sm font-semibold text-zinc-900">{item.quantity}</span>
             <button
               type="button"
-              className="inline-flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-100 text-zinc-800"
+              className="inline-flex size-8 items-center justify-center rounded-full border border-zinc-300 bg-zinc-200 text-zinc-900"
               aria-label="Aumentar quantidade"
               disabled={pending}
               onClick={() => setQuantity(item.quantity + 1)}
             >
-              <Plus className="size-3.5" />
+              <Plus className="size-3.5 stroke-[2.5] text-zinc-900" />
             </button>
           </div>
         </div>
@@ -189,15 +192,15 @@ function CartItemPhoto({ name, imageUrl }: { name: string; imageUrl?: string | n
       <img
         src={imageUrl}
         alt={name}
-        width={72}
-        height={72}
-        className="size-[72px] shrink-0 rounded-xl bg-zinc-100 object-contain"
+        width={80}
+        height={80}
+        className="size-20 shrink-0 rounded-xl border border-zinc-200 bg-zinc-50 object-contain"
       />
     );
   }
   return (
-    <span className="grid size-[72px] shrink-0 place-items-center rounded-xl bg-zinc-100 text-zinc-400" aria-hidden>
-      <UtensilsCrossed className="size-7" />
+    <span className="grid size-20 shrink-0 place-items-center rounded-xl border border-zinc-200 bg-zinc-100 text-zinc-500" aria-hidden>
+      <UtensilsCrossed className="size-8" />
     </span>
   );
 }

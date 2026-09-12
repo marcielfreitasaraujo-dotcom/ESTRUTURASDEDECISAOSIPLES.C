@@ -9,6 +9,7 @@ import { findActiveOrderForPhone } from "@/server/services/tracking";
 import { StoreMenu } from "@/components/storefront/store-menu";
 import { getAuthContext } from "@/server/context";
 import { storeStaffHomeHref } from "@/domain/rbac/home";
+import { resolveCartItemImage } from "@/domain/catalog/cart-item-image";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ mesa?: string }> };
 
@@ -113,7 +114,14 @@ export default async function StorePage({ params, searchParams }: Props) {
         name: item.name,
         quantity: item.quantity,
         unitPriceCents: item.unitPriceCents,
-        imageUrl: item.product?.imageUrl ?? null,
+        imageUrl: resolveCartItemImage(
+          {
+            name: item.name,
+            imageUrl: item.product?.imageUrl,
+            customization: item.customization,
+          },
+          catalog.products,
+        ),
       }))}
       couponCode={cart?.couponCode ?? null}
       guest={guest}

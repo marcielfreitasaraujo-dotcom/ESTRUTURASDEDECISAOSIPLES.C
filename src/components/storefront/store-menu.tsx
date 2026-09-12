@@ -20,6 +20,7 @@ import { PizzaCustomizeDialog, type StoreAddonGroup, type StoreFlavor, type Stor
 import { pizzaProductSlug } from "@/domain/catalog/central-menu";
 import { isSoldOut } from "@/domain/catalog/stock";
 import { StoreCartButton, StoreCartSheet } from "@/components/storefront/store-cart";
+import { resolveCartItemImage } from "@/domain/catalog/cart-item-image";
 import { StoreGuestDialog, StoreGuestTrigger } from "@/components/storefront/store-guest";
 import { StoreTrackingButton, type StoreActiveOrder } from "@/components/storefront/store-tracking-button";
 import { StoreStaffBack } from "@/components/storefront/store-staff-back";
@@ -327,7 +328,10 @@ export function StoreMenu({
         onOpenChange={setCartOpen}
         slug={slug}
         tableQuery={query}
-        items={cartItems}
+        items={cartItems.map((item) => ({
+          ...item,
+          imageUrl: resolveCartItemImage(item, products),
+        }))}
         storeOpen={storeOpen}
         onCheckout={requestCheckout}
       />

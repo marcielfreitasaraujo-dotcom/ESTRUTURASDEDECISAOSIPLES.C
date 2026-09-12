@@ -2,6 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getCart } from "@/server/services/cart";
+import { listCatalog } from "@/server/services/catalog";
+import { resolveCartItemImage } from "@/domain/catalog/cart-item-image";
+import { UtensilsCrossed } from "lucide-react";
 import { getStoreStatus } from "@/domain/hours/store-status";
 import { getStoreGuest } from "@/server/store-guest";
 import { formatBRL } from "@/lib/money";
@@ -25,9 +28,19 @@ export default async function CartPage({
     include: { hours: true },
   });
   if (!tenant) notFound();
-  const cart = await getCart(tenant.id);
+  const [cart, catalog] = await Promise.all([getCart(tenant.id), listCatalog(tenant.id)]);
   const guest = await getStoreGuest();
-  const items = cart?.items ?? [];
+  const items = (cart?.items ?? []).map((item) => ({
+    ...item,
+    imageUrl: resolveCartItemImage(
+      {
+        name: item.name,
+        imageUrl: item.product?.imageUrl,
+        customization: item.customization,
+      },
+      catalog.products,
+    ),
+  }));
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
   const query = tableNumber ? `?mesa=${encodeURIComponent(tableNumber)}` : "";
   const status = getStoreStatus(tenant.hours, new Date(), tenant.timezone);
@@ -55,17 +68,21 @@ export default async function CartPage({
         ) : (
           <ul className="grid gap-4">
             {items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border bg-white p-4">
-                {item.product?.imageUrl ? (
+              <li key={item.id} className="flex items-center justify-between gap-3 rounded-xl border bg-white p-4 text-zinc-900">
+                {item.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={item.product.imageUrl}
+                    src={item.imageUrl}
                     alt={item.name}
                     width={72}
                     height={72}
                     className="size-[72px] shrink-0 rounded-xl bg-zinc-100 object-contain"
                   />
-                ) : null}
+                ) : (
+                  <span className="grid size-[72px] shrink-0 place-items-center rounded-xl bg-zinc-100 text-zinc-400" aria-hidden>
+                    <UtensilsCrossed className="size-7" />
+                  </span>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{item.name}</p>
                   <p className="text-sm text-muted-foreground">

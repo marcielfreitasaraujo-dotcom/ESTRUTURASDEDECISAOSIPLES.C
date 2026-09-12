@@ -158,16 +158,19 @@ export async function addPizzaToCart(input: {
   const cart = await getOrCreateCart(input.tenantId);
   const customization = {
     sizeId: size.id,
+    sizeSlug: size.slug,
     flavorIds: input.flavorIds,
     crustId: crust?.id,
     addonIds: addons.map((addon) => addon.id),
     quote,
+    imageUrl: pizzaProduct?.imageUrl ?? null,
   } satisfies Prisma.InputJsonValue;
 
   await prisma.cartItem.create({
     data: {
       tenantId: input.tenantId,
       cartId: cart.id,
+      productId: pizzaProduct?.id,
       name: `Pizza ${size.name} — ${quote.flavorNames.join(" / ")}`,
       quantity: input.quantity,
       unitPriceCents: quote.totalCents,
