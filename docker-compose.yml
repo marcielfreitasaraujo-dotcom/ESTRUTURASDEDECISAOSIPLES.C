@@ -1,0 +1,11 @@
+name: Forno
+schemaVersion: "1"
+services:
+  - name: postgres
+    image: postgres:16
+    env:
+      POSTGRES_USER: forno
+      POSTGRES_PASSWORD: forno_dev
+      POSTGRES_DB: forno
+    ports:
+      - 5432:5432

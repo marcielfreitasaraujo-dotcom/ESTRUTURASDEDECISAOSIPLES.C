@@ -1,0 +1,78 @@
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { getCart } from "@/server/services/cart";
+import { CheckoutForm } from "@/components/checkout-form";
+import { formatBRL } from "@/lib/money";
+import { getStoreGuest } from "@/server/store-guest";
+import { StoreGuestBar } from "@/components/storefront/store-guest";
+import { StoreStaffBack } from "@/components/storefront/store-staff-back";
+import { getAuthContext } from "@/server/context";
+import { storeStaffHomeHref } from "@/domain/rbac/home";
+
+export default async function CheckoutPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ error?: string; mesa?: string }>;
+}) {
+  const { slug } = await params;
+  const { error, mesa } = await searchParams;
+  const tableNumber = mesa?.trim() || "";
+  const tenant = await prisma.tenant.findUnique({ where: { slug } });
+  if (!tenant) notFound();
+  const [cart, guest, staff] = await Promise.all([getCart(tenant.id), getStoreGuest(), getAuthContext()]);
+  const staffHomeHref = storeStaffHomeHref({
+    platformRole: staff?.platformRole ?? null,
+    tenantRole: staff?.tenantRole ?? null,
+  });
+  const items = cart?.items ?? [];
+  const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
+  const errorMessage =
+    error === "invalid"
+      ? "Confira os dados do pedido."
+      : error === "empty"
+        ? "O carrinho está vazio."
+        : error === "delivery"
+          ? "Informe rua, número e bairro para entrega."
+          : error === "fulfillment"
+            ? "Esta loja não está aceitando essa forma de recebimento."
+            : error === "failed"
+              ? "Não foi possível concluir o pedido. Tente novamente."
+              : undefined;
+
+  return (
+    <div className="mx-auto grid min-h-screen max-w-3xl gap-8 bg-[oklch(0.985_0.01_70)] px-4 py-8 text-zinc-900">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-heading text-3xl">Checkout</h1>
+          <p className="text-sm text-zinc-600">
+            {tableNumber
+              ? `Pedido da mesa ${tableNumber}. A cozinha recebe na hora.`
+              : "Retirada, entrega em casa ou mesa. O servidor recalcula o preço."}
+          </p>
+        </div>
+        <div className="grid justify-items-end gap-2">
+          {staffHomeHref ? <StoreStaffBack href={staffHomeHref} /> : null}
+          <StoreGuestBar slug={slug} guest={guest} />
+        </div>
+      </div>
+      <p>
+        Itens: {items.length} · subtotal {formatBRL(subtotal)}
+      </p>
+      <CheckoutForm
+        slug={slug}
+        error={errorMessage}
+        idempotencyKey={crypto.randomUUID()}
+        tableNumber={tableNumber || undefined}
+        couponCode={cart?.couponCode}
+        guestName={guest?.name}
+        guestPhone={guest?.phone}
+        allowPickup={tenant.trackingAllowPickup}
+        allowDelivery={tenant.trackingAllowDelivery}
+        defaultCity={tenant.city ?? "Belém"}
+        defaultState={tenant.state ?? "PA"}
+      />
+    </div>
+  );
+}
