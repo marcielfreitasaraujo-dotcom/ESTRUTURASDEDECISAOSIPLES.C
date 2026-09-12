@@ -47,6 +47,10 @@ export function getStoreStatus(hours: BusinessHour[], now: Date, timeZone = "Ame
     return { open: false, label: "Fechado agora" };
   }
 
+  if (isAroundTheClock(today)) {
+    return { open: true, label: "Aberto agora", nextChange: "24 horas" };
+  }
+
   const current = parseMinutes(`${hour}:${minute}`);
   const opens = parseMinutes(today.opensAt);
   const closes = parseMinutes(today.closesAt);
@@ -57,4 +61,8 @@ export function getStoreStatus(hours: BusinessHour[], now: Date, timeZone = "Ame
     label: open ? "Aberto agora" : "Fechado agora",
     nextChange: open ? `fecha às ${today.closesAt}` : `abre às ${today.opensAt}`,
   };
+}
+
+export function isAroundTheClock(hour: BusinessHour) {
+  return !hour.closed && hour.opensAt === "00:00" && (hour.closesAt === "23:59" || hour.closesAt === "24:00");
 }

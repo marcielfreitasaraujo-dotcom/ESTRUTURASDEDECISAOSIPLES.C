@@ -11,7 +11,7 @@ import { writeAudit } from "@/server/audit";
 import { getPaymentProvider } from "@/server/providers/payment";
 import { trackingFieldsForTenant } from "@/server/services/tracking";
 import { assertFulfillmentAllowed } from "@/domain/ordering/tracking";
-import { notifyOrderStatusWhatsApp } from "@/server/services/whatsapp";
+import { notifyOrderStatusWhatsApp, notifyStoreNewOrderWhatsApp } from "@/server/services/whatsapp";
 import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
 
 const CART_COOKIE = "comanda_cart";
@@ -240,7 +240,9 @@ export async function placeOrder(input: {
 
   let deliveryFeeCents = 0;
   if (input.fulfillment === "DELIVERY") {
-    if (!input.neighborhood) throw new Error("Informe o bairro para entrega.");
+    if (!input.street || !input.addressNumber || !input.neighborhood) {
+      throw new Error("Informe rua, número e bairro para entrega.");
+    }
     const zone = await prisma.deliveryZone.findFirst({
       where: {
         tenantId: input.tenantId,
@@ -418,6 +420,11 @@ export async function placeOrder(input: {
     tenantId: input.tenantId,
     orderId: order.id,
     status: "PENDING",
+  }).catch(() => undefined);
+
+  await notifyStoreNewOrderWhatsApp({
+    tenantId: input.tenantId,
+    orderId: order.id,
   }).catch(() => undefined);
 
   return order;

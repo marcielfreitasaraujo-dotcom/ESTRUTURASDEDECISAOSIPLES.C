@@ -22,6 +22,7 @@ import { isSoldOut } from "@/domain/catalog/stock";
 import { StoreCartButton, StoreCartSheet } from "@/components/storefront/store-cart";
 import { StoreGuestDialog, StoreGuestTrigger } from "@/components/storefront/store-guest";
 import { StoreTrackingButton, type StoreActiveOrder } from "@/components/storefront/store-tracking-button";
+import { StoreStaffBack } from "@/components/storefront/store-staff-back";
 import type { StoreGuest } from "@/lib/store-guest";
 
 type Product = {
@@ -70,6 +71,7 @@ export function StoreMenu({
   zones,
   guest,
   activeOrder,
+  staffHomeHref,
 }: {
   slug: string;
   tenantName: string;
@@ -88,6 +90,7 @@ export function StoreMenu({
   zones: Zone[];
   guest: StoreGuest | null;
   activeOrder: StoreActiveOrder | null;
+  staffHomeHref?: string | null;
 }) {
   const router = useRouter();
   const [activeCategory, setActiveCategory] = useState(categories[0]?.slug ?? "pizzas");
@@ -144,6 +147,7 @@ export function StoreMenu({
             <p className="text-xs text-zinc-500">{statusLabel}</p>
             <h1 className="truncate font-heading text-lg leading-tight">{tenantName}</h1>
             {phone ? <p className="text-xs text-zinc-500">{phone}</p> : null}
+            {staffHomeHref ? <div className="mt-1"><StoreStaffBack href={staffHomeHref} /></div> : null}
           </div>
           <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3">
             <StoreTrackingButton slug={slug} active={activeOrder} />

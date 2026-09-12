@@ -1,4 +1,4 @@
-import { isPlatformAdmin, type PlatformRole, type TenantRole } from "@/domain/rbac/roles";
+import { isPlatformAdmin, isStoreGerente, type PlatformRole, type TenantRole } from "@/domain/rbac/roles";
 
 export function postLoginPath(input: {
   platformRole: PlatformRole;
@@ -18,4 +18,15 @@ export function postLoginPath(input: {
     default:
       return "/app";
   }
+}
+
+export function storeStaffHomeHref(input: {
+  platformRole: PlatformRole | null;
+  tenantRole: TenantRole | null;
+}): string | null {
+  if (!input.platformRole) return null;
+  if (isPlatformAdmin(input.platformRole) || isStoreGerente(input.tenantRole)) {
+    return postLoginPath({ platformRole: input.platformRole, tenantRole: input.tenantRole });
+  }
+  return null;
 }

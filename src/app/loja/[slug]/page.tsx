@@ -7,6 +7,8 @@ import { getStoreStatus } from "@/domain/hours/store-status";
 import { getStoreGuest } from "@/server/store-guest";
 import { findActiveOrderForPhone } from "@/server/services/tracking";
 import { StoreMenu } from "@/components/storefront/store-menu";
+import { getAuthContext } from "@/server/context";
+import { storeStaffHomeHref } from "@/domain/rbac/home";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ mesa?: string }> };
 
@@ -31,11 +33,16 @@ export default async function StorePage({ params, searchParams }: Props) {
   });
   if (!tenant || tenant.status === "SUSPENDED" || tenant.deletedAt) notFound();
 
-  const [catalog, cart, guest] = await Promise.all([
+  const [catalog, cart, guest, staff] = await Promise.all([
     listCatalog(tenant.id),
     getCart(tenant.id),
     getStoreGuest(),
+    getAuthContext(),
   ]);
+  const staffHomeHref = storeStaffHomeHref({
+    platformRole: staff?.platformRole ?? null,
+    tenantRole: staff?.tenantRole ?? null,
+  });
   const active = guest ? await findActiveOrderForPhone(tenant.id, guest.phone) : null;
   const status = getStoreStatus(tenant.hours, new Date(), tenant.timezone);
 
@@ -109,6 +116,7 @@ export default async function StorePage({ params, searchParams }: Props) {
       }))}
       couponCode={cart?.couponCode ?? null}
       guest={guest}
+      staffHomeHref={staffHomeHref}
       activeOrder={
         active
           ? {

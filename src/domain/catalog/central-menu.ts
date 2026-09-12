@@ -15,9 +15,9 @@ export const CENTRAL_MENU = {
     logoUrl: "/tenants/central-da-pizza/logo.png",
   },
   hours: {
-    opensAt: "18:00",
-    closesAt: "23:30",
-    closedWeekday: 1,
+    opensAt: "00:00",
+    closesAt: "23:59",
+    closedWeekday: null as number | null,
   },
   sizes: [
     { name: "P", slug: "p", maxFlavors: 2, slices: 6, basePriceCents: 4500, sortOrder: 1, featured: false, badge: null, stockQuantity: 3, imageUrl: "/tenants/central-da-pizza/pizza-p.jpg" },

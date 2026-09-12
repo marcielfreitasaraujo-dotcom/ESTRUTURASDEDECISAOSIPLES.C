@@ -259,6 +259,71 @@ export function trackingLink(baseUrl: string, slug: string, token: string): stri
   return `${baseUrl.replace(/\/$/, "")}/loja/${slug}/acompanhar/${token}`;
 }
 
+export function formatDeliveryAddress(input: {
+  street?: string | null;
+  number?: string | null;
+  complement?: string | null;
+  neighborhood?: string | null;
+  city?: string | null;
+  state?: string | null;
+  reference?: string | null;
+}): string | null {
+  const line = [
+    [input.street, input.number].filter(Boolean).join(", "),
+    input.complement,
+    input.neighborhood,
+    [input.city, input.state].filter(Boolean).join(" / "),
+  ]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(" · ");
+  if (!line) return null;
+  return input.reference?.trim() ? `${line} (ref.: ${input.reference.trim()})` : line;
+}
+
+export function whatsAppMeUrl(phone: string, text: string): string | null {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 10) return null;
+  const e164 = digits.startsWith("55") ? digits : `55${digits}`;
+  return `https://wa.me/${e164}?text=${encodeURIComponent(text)}`;
+}
+
+export function buildStoreWhatsAppOrder(input: {
+  storeName: string;
+  publicCode: string;
+  customerName: string;
+  customerPhone: string;
+  fulfillmentLabel: string;
+  paymentLabel: string;
+  totalLabel: string;
+  estimatedMinutes: number;
+  address: string | null;
+  items: { quantity: number; name: string }[];
+  notes?: string | null;
+  link: string;
+}): string {
+  const items = input.items.map((item) => `• ${item.quantity}× ${item.name}`).join("\n");
+  return [
+    `🍕 Novo pedido — ${input.storeName}`,
+    "",
+    `Pedido #${input.publicCode}`,
+    `Cliente: ${input.customerName}`,
+    `Telefone: ${input.customerPhone}`,
+    `Tipo: ${input.fulfillmentLabel}`,
+    input.address ? `Endereço: ${input.address}` : null,
+    `Pagamento: ${input.paymentLabel}`,
+    `Total: ${input.totalLabel}`,
+    `Tempo estimado: ${input.estimatedMinutes} min`,
+    items ? `\nItens:\n${items}` : null,
+    input.notes ? `Obs.: ${input.notes}` : null,
+    "",
+    "Acompanhar:",
+    input.link,
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
+}
+
 export function buildWhatsAppMessage(input: {
   event: TrackingEvent;
   storeName: string;
@@ -266,6 +331,7 @@ export function buildWhatsAppMessage(input: {
   totalLabel: string;
   estimatedMinutes: number;
   link: string;
+  address?: string | null;
 }): string {
   if (input.event === "ETA_ATUALIZADA") {
     return [
@@ -317,12 +383,15 @@ export function buildWhatsAppMessage(input: {
     `📦 Pedido: #${input.publicCode}`,
     `💰 Total: ${input.totalLabel}`,
     `⏱️ Tempo estimado: ${input.estimatedMinutes} minutos`,
+    input.address ? `📍 Endereço: ${input.address}` : null,
     "",
     "Você pode acompanhar seu pedido pelo link:",
     input.link,
     "",
     `Obrigado por pedir com a gente! ❤️`,
-  ].join("\n");
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
 }
 
 export function stageDurations(history: { toStatus: OrderStatus; createdAt: Date }[]): Record<string, number> {

@@ -87,14 +87,14 @@ async function seedHours(tenantId: string) {
     await prisma.businessHour.upsert({
       where: { tenantId_weekday: { tenantId, weekday } },
       update: {
-        closed: weekday === CENTRAL_MENU.hours.closedWeekday,
+        closed: CENTRAL_MENU.hours.closedWeekday != null && weekday === CENTRAL_MENU.hours.closedWeekday,
         opensAt: CENTRAL_MENU.hours.opensAt,
         closesAt: CENTRAL_MENU.hours.closesAt,
       },
       create: {
         tenantId,
         weekday,
-        closed: weekday === CENTRAL_MENU.hours.closedWeekday,
+        closed: CENTRAL_MENU.hours.closedWeekday != null && weekday === CENTRAL_MENU.hours.closedWeekday,
         opensAt: CENTRAL_MENU.hours.opensAt,
         closesAt: CENTRAL_MENU.hours.closesAt,
       },

@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import {
   assertFulfillmentAllowed,
   buildTimeline,
+  buildStoreWhatsAppOrder,
   buildWhatsAppMessage,
   computeEta,
+  formatDeliveryAddress,
+  whatsAppMeUrl,
   createTrackingToken,
   customerStatusLabel,
   delayTone,
@@ -139,6 +142,36 @@ describe("equipe e WhatsApp", () => {
     expect(message).toContain("Pedido: #1025");
     expect(message).toContain("https://app.exemplo/loja/central-da-pizza/acompanhar/token-abc");
     expect(message).not.toMatch(/9991677463|91 9 9167/);
+  });
+
+  it("monta o pedido da loja com endereço e o link do WhatsApp", () => {
+    const address = formatDeliveryAddress({
+      street: "Rua das Flores",
+      number: "120",
+      neighborhood: "Centro",
+      city: "Belém",
+      state: "PA",
+      reference: "Portão azul",
+    });
+    expect(address).toContain("Rua das Flores, 120");
+    expect(address).toContain("Centro");
+    expect(address).toContain("Portão azul");
+    const body = buildStoreWhatsAppOrder({
+      storeName: "Central da Pizza",
+      publicCode: "1026",
+      customerName: "Marciel",
+      customerPhone: "91991515550",
+      fulfillmentLabel: "Entrega",
+      paymentLabel: "PIX",
+      totalLabel: "R$ 50,00",
+      estimatedMinutes: 40,
+      address,
+      items: [{ quantity: 1, name: "Pizza M" }],
+      link: "https://app.exemplo/loja/central-da-pizza/acompanhar/token",
+    });
+    expect(body).toContain("Endereço: Rua das Flores, 120");
+    expect(body).toContain("1× Pizza M");
+    expect(whatsAppMeUrl("9991677463", body)).toContain("https://wa.me/559991677463");
   });
 
   it("bloqueia retirada ou entrega desligada", () => {

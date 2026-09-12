@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { checkoutFormAction } from "@/app/actions/storefront";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,8 @@ export function CheckoutForm({
   guestPhone,
   allowPickup = true,
   allowDelivery = true,
+  defaultCity = "Belém",
+  defaultState = "PA",
 }: {
   slug: string;
   error?: string;
@@ -35,8 +38,13 @@ export function CheckoutForm({
   guestPhone?: string;
   allowPickup?: boolean;
   allowDelivery?: boolean;
+  defaultCity?: string;
+  defaultState?: string;
 }) {
-  const defaultFulfillment = tableNumber ? "DINE_IN" : allowPickup ? "PICKUP" : allowDelivery ? "DELIVERY" : "DINE_IN";
+  const defaultFulfillment = tableNumber ? "DINE_IN" : allowDelivery ? "DELIVERY" : allowPickup ? "PICKUP" : "DINE_IN";
+  const [fulfillment, setFulfillment] = useState(defaultFulfillment);
+  const delivery = fulfillment === "DELIVERY";
+
   return (
     <form action={checkoutFormAction} method="post" className="grid gap-4">
       <input type="hidden" name="slug" value={slug} />
@@ -70,33 +78,63 @@ export function CheckoutForm({
           id="fulfillment"
           name="fulfillment"
           className={`h-10 rounded-lg border px-3 ${fieldClass}`}
-          defaultValue={defaultFulfillment}
+          value={fulfillment}
+          onChange={(event) => setFulfillment(event.target.value)}
         >
-          {allowPickup ? <option value="PICKUP">Retirada</option> : null}
           {allowDelivery ? <option value="DELIVERY">Entrega em casa</option> : null}
+          {allowPickup ? <option value="PICKUP">Retirada</option> : null}
           <option value="DINE_IN">Mesa</option>
         </select>
       </div>
-      <div className="grid gap-2">
-        <Label htmlFor="tableNumber">Mesa (se for no salão)</Label>
-        <Input id="tableNumber" name="tableNumber" defaultValue={tableNumber} placeholder="7" className={fieldClass} />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="street">Rua (entrega)</Label>
-        <Input id="street" name="street" className={fieldClass} />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="addressNumber">Número (entrega)</Label>
-        <Input id="addressNumber" name="addressNumber" className={fieldClass} />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="neighborhood">Bairro (entrega)</Label>
-        <Input id="neighborhood" name="neighborhood" placeholder="Centro, Vila Nova ou São João" className={fieldClass} />
-      </div>
-      <div className="grid gap-2">
-        <Label htmlFor="reference">Referência</Label>
-        <Input id="reference" name="reference" className={fieldClass} />
-      </div>
+      {fulfillment === "DINE_IN" ? (
+        <div className="grid gap-2">
+          <Label htmlFor="tableNumber">Mesa</Label>
+          <Input id="tableNumber" name="tableNumber" defaultValue={tableNumber} placeholder="7" className={fieldClass} />
+        </div>
+      ) : null}
+      {delivery ? (
+        <fieldset className="grid gap-4 rounded-2xl border border-zinc-200 bg-white p-4">
+          <legend className="px-1 text-sm font-semibold">Endereço de entrega</legend>
+          <div className="grid gap-2">
+            <Label htmlFor="street">Rua</Label>
+            <Input id="street" name="street" required={delivery} autoComplete="street-address" className={fieldClass} />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-[8rem_1fr]">
+            <div className="grid gap-2">
+              <Label htmlFor="addressNumber">Número</Label>
+              <Input id="addressNumber" name="addressNumber" required={delivery} className={fieldClass} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="complement">Complemento</Label>
+              <Input id="complement" name="complement" placeholder="Apto, bloco" className={fieldClass} />
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="neighborhood">Bairro</Label>
+            <Input
+              id="neighborhood"
+              name="neighborhood"
+              required={delivery}
+              placeholder="Centro, Vila Nova ou São João"
+              className={fieldClass}
+            />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="city">Cidade</Label>
+              <Input id="city" name="city" defaultValue={defaultCity} className={fieldClass} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="state">UF</Label>
+              <Input id="state" name="state" defaultValue={defaultState} maxLength={2} className={fieldClass} />
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="reference">Ponto de referência</Label>
+            <Input id="reference" name="reference" placeholder="Próximo à praça, portão azul" className={fieldClass} />
+          </div>
+        </fieldset>
+      ) : null}
       <div className="grid gap-2">
         <Label htmlFor="paymentMethod">Pagamento</Label>
         <select id="paymentMethod" name="paymentMethod" className={`h-10 rounded-lg border px-3 ${fieldClass}`}>

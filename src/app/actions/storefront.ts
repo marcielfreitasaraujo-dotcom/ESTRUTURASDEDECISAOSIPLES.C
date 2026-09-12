@@ -163,7 +163,7 @@ export async function checkoutFormAction(formData: FormData) {
     const code =
       publicErrorMessage(error).message.includes("vazio")
         ? "empty"
-        : publicErrorMessage(error).message.includes("bairro")
+        : publicErrorMessage(error).message.includes("entrega")
           ? "delivery"
           : publicErrorMessage(error).message.includes("não está aceitando")
             ? "fulfillment"

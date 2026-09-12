@@ -5,6 +5,9 @@ import { CheckoutForm } from "@/components/checkout-form";
 import { formatBRL } from "@/lib/money";
 import { getStoreGuest } from "@/server/store-guest";
 import { StoreGuestBar } from "@/components/storefront/store-guest";
+import { StoreStaffBack } from "@/components/storefront/store-staff-back";
+import { getAuthContext } from "@/server/context";
+import { storeStaffHomeHref } from "@/domain/rbac/home";
 
 export default async function CheckoutPage({
   params,
@@ -18,7 +21,11 @@ export default async function CheckoutPage({
   const tableNumber = mesa?.trim() || "";
   const tenant = await prisma.tenant.findUnique({ where: { slug } });
   if (!tenant) notFound();
-  const [cart, guest] = await Promise.all([getCart(tenant.id), getStoreGuest()]);
+  const [cart, guest, staff] = await Promise.all([getCart(tenant.id), getStoreGuest(), getAuthContext()]);
+  const staffHomeHref = storeStaffHomeHref({
+    platformRole: staff?.platformRole ?? null,
+    tenantRole: staff?.tenantRole ?? null,
+  });
   const items = cart?.items ?? [];
   const subtotal = items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);
   const errorMessage =
@@ -27,7 +34,7 @@ export default async function CheckoutPage({
       : error === "empty"
         ? "O carrinho está vazio."
         : error === "delivery"
-          ? "Informe o bairro para entrega."
+          ? "Informe rua, número e bairro para entrega."
           : error === "fulfillment"
             ? "Esta loja não está aceitando essa forma de recebimento."
             : error === "failed"
@@ -45,7 +52,10 @@ export default async function CheckoutPage({
               : "Retirada, entrega em casa ou mesa. O servidor recalcula o preço."}
           </p>
         </div>
-        <StoreGuestBar slug={slug} guest={guest} />
+        <div className="grid justify-items-end gap-2">
+          {staffHomeHref ? <StoreStaffBack href={staffHomeHref} /> : null}
+          <StoreGuestBar slug={slug} guest={guest} />
+        </div>
       </div>
       <p>
         Itens: {items.length} · subtotal {formatBRL(subtotal)}
@@ -60,6 +70,8 @@ export default async function CheckoutPage({
         guestPhone={guest?.phone}
         allowPickup={tenant.trackingAllowPickup}
         allowDelivery={tenant.trackingAllowDelivery}
+        defaultCity={tenant.city ?? "Belém"}
+        defaultState={tenant.state ?? "PA"}
       />
     </div>
   );
