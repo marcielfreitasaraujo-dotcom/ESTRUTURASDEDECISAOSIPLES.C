@@ -21,7 +21,8 @@ export default async function MyOrdersPage({ params }: { params: Promise<{ slug:
   const orders = guest ? await listCustomerOrders(tenant.id, guest.phone) : [];
 
   return (
-    <div className="mx-auto grid min-h-screen max-w-lg content-start gap-4 bg-[#eef1f4] px-4 py-8 text-zinc-900">
+    <div className="min-h-screen bg-[#eef1f4] px-4 py-8 text-zinc-900">
+    <div className="mx-auto grid max-w-lg content-start gap-4">
       <header className="flex items-center justify-between">
         <Link href={`/loja/${slug}`} className="text-sm font-medium text-zinc-600">
           ← Cardápio
@@ -54,6 +55,7 @@ export default async function MyOrdersPage({ params }: { params: Promise<{ slug:
           ))}
         </ul>
       )}
+    </div>
     </div>
   );
 }

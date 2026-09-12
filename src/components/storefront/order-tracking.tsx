@@ -66,7 +66,8 @@ export function OrderTrackingView({
   const failed = data.status === "CANCELLED" || data.rejected;
 
   return (
-    <div className="mx-auto grid min-h-screen max-w-lg gap-4 bg-[#eef1f4] px-4 py-5 text-zinc-900">
+    <div className="min-h-screen bg-[#eef1f4] text-zinc-900">
+    <div className="mx-auto grid max-w-lg gap-4 px-4 py-5">
       <header className="flex items-center justify-between gap-3">
         <Link href={`/loja/${slug}`} className="text-sm font-medium text-zinc-600">
           ← Voltar
@@ -212,6 +213,7 @@ export function OrderTrackingView({
         </Link>
       </div>
     </div>
+    </div>
   );
 }
 
@@ -276,11 +278,13 @@ function HelpCard({
 
 export function TrackingSkeleton() {
   return (
-    <div className="mx-auto grid min-h-screen max-w-lg gap-4 bg-[#eef1f4] px-4 py-5">
+    <div className="min-h-screen bg-[#eef1f4] px-4 py-5">
+      <div className="mx-auto grid max-w-lg gap-4">
       <p className="text-sm text-zinc-500">Pedido #----</p>
       <div className="h-36 animate-pulse rounded-3xl bg-white" />
       <div className="h-56 animate-pulse rounded-3xl bg-white" />
       <div className="h-40 animate-pulse rounded-3xl bg-white" />
+      </div>
     </div>
   );
 }

@@ -28,12 +28,14 @@ export default async function TrackOrderPage({
 
   if (payload.expired) {
     return (
-      <div className="mx-auto grid min-h-screen max-w-lg content-start gap-4 bg-[#eef1f4] px-4 py-10 text-zinc-900">
+      <div className="min-h-screen bg-[#eef1f4] px-4 py-10 text-zinc-900">
+      <div className="mx-auto grid max-w-lg content-start gap-4">
         <h1 className="font-heading text-2xl">Pedido #{payload.publicCode}</h1>
         <p>Este acompanhamento não está mais disponível.</p>
         <Link href={`/loja/${slug}`} className="font-medium underline">
           Voltar ao cardápio
         </Link>
+      </div>
       </div>
     );
   }

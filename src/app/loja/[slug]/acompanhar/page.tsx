@@ -27,7 +27,8 @@ export default async function TrackLookupPage({
   if (active) redirect(`/loja/${slug}/acompanhar/${active.trackingToken}`);
 
   return (
-    <div className="mx-auto grid min-h-screen max-w-lg content-start gap-6 bg-[#eef1f4] px-4 py-8 text-zinc-900">
+    <div className="min-h-screen bg-[#eef1f4] px-4 py-8 text-zinc-900">
+    <div className="mx-auto grid max-w-lg content-start gap-6">
       <header className="flex items-center justify-between">
         <Link href={`/loja/${slug}`} className="text-sm font-medium text-zinc-600">
           ← Cardápio
@@ -72,6 +73,7 @@ export default async function TrackLookupPage({
           </p>
         ) : null}
       </section>
+    </div>
     </div>
   );
 }
