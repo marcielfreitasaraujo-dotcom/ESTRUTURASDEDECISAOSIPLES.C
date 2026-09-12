@@ -19,6 +19,7 @@ export const PLATFORM_NAV: NavItem[] = [
   { href: "/admin/users", label: "Usuários" },
   { href: "/admin/plans", label: "Planos" },
   { href: "/admin/audit", label: "Auditoria" },
+  { href: "/admin/acompanhamento", label: "Acompanhamento" },
   { href: "/app", label: "Loja" },
   { href: "/caixa", label: "Caixa" },
 ];

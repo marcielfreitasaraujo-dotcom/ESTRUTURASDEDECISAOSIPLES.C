@@ -8,6 +8,7 @@ test("landing e cardápio piloto carregam", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Pizza P" })).toBeVisible();
   await expect(page.getByRole("button", { name: /carrinho/i })).toBeVisible();
   await expect(page.getByRole("button", { name: /entrar\/cadastrar/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /acompanhar pedido/i })).toBeVisible();
   await expect(page.getByText("Estabelecimento fechado").or(page.getByRole("button", { name: /Finalizar pedido/ }))).toBeVisible();
 
   await page.getByRole("button", { name: /entrar\/cadastrar/i }).click();

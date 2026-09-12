@@ -5,6 +5,7 @@ import { listCatalog } from "@/server/services/catalog";
 import { getCart } from "@/server/services/cart";
 import { getStoreStatus } from "@/domain/hours/store-status";
 import { getStoreGuest } from "@/server/store-guest";
+import { findActiveOrderForPhone } from "@/server/services/tracking";
 import { StoreMenu } from "@/components/storefront/store-menu";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ mesa?: string }> };
@@ -35,6 +36,7 @@ export default async function StorePage({ params, searchParams }: Props) {
     getCart(tenant.id),
     getStoreGuest(),
   ]);
+  const active = guest ? await findActiveOrderForPhone(tenant.id, guest.phone) : null;
   const status = getStoreStatus(tenant.hours, new Date(), tenant.timezone);
 
   return (
@@ -107,6 +109,19 @@ export default async function StorePage({ params, searchParams }: Props) {
       }))}
       couponCode={cart?.couponCode ?? null}
       guest={guest}
+      activeOrder={
+        active
+          ? {
+              publicCode: active.publicCode,
+              trackingToken: active.trackingToken,
+              status: active.status,
+              fulfillment: active.fulfillment,
+              estimatedMinutes: active.estimatedMinutes,
+              createdAt: active.createdAt.toISOString(),
+              rejected: active.rejected,
+            }
+          : null
+      }
       zones={catalog.deliveryZones.map((zone) => ({
         id: zone.id,
         name: zone.name,

@@ -23,6 +23,8 @@ export function CheckoutForm({
   couponCode,
   guestName,
   guestPhone,
+  allowPickup = true,
+  allowDelivery = true,
 }: {
   slug: string;
   error?: string;
@@ -31,7 +33,10 @@ export function CheckoutForm({
   couponCode?: string | null;
   guestName?: string;
   guestPhone?: string;
+  allowPickup?: boolean;
+  allowDelivery?: boolean;
 }) {
+  const defaultFulfillment = tableNumber ? "DINE_IN" : allowPickup ? "PICKUP" : allowDelivery ? "DELIVERY" : "DINE_IN";
   return (
     <form action={checkoutFormAction} method="post" className="grid gap-4">
       <input type="hidden" name="slug" value={slug} />
@@ -65,10 +70,10 @@ export function CheckoutForm({
           id="fulfillment"
           name="fulfillment"
           className={`h-10 rounded-lg border px-3 ${fieldClass}`}
-          defaultValue={tableNumber ? "DINE_IN" : "PICKUP"}
+          defaultValue={defaultFulfillment}
         >
-          <option value="PICKUP">Retirada</option>
-          <option value="DELIVERY">Entrega em casa</option>
+          {allowPickup ? <option value="PICKUP">Retirada</option> : null}
+          {allowDelivery ? <option value="DELIVERY">Entrega em casa</option> : null}
           <option value="DINE_IN">Mesa</option>
         </select>
       </div>

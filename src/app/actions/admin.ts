@@ -12,6 +12,8 @@ import {
 } from "@/server/services/users";
 import { publicErrorMessage } from "@/lib/errors";
 import type { PlatformRole, TenantRole } from "@/domain/rbac/roles";
+import { prisma } from "@/lib/db";
+import { sendTrackingTestMessage } from "@/server/services/whatsapp";
 
 function revalidateUsers() {
   revalidatePath("/admin/users");
@@ -99,4 +101,36 @@ export async function removeUserMembershipAction(formData: FormData) {
   }
   revalidateUsers();
   redirect("/admin/users?ok=unlinked");
+}
+
+export async function savePlatformTrackingFlagAction(formData: FormData) {
+  await requirePlatformAdmin();
+  const enabled = formData.get("order_tracking") === "on";
+  const existing = await prisma.featureFlag.findFirst({
+    where: { key: "order_tracking", scope: "platform" },
+  });
+  if (existing) {
+    await prisma.featureFlag.update({ where: { id: existing.id }, data: { enabled } });
+  } else {
+    await prisma.featureFlag.create({
+      data: { key: "order_tracking", scope: "platform", scopeId: "platform", enabled },
+    });
+  }
+  revalidatePath("/admin/acompanhamento");
+  revalidatePath("/loja");
+}
+
+export async function sendPlatformTrackingTestAction(formData: FormData) {
+  const ctx = await requirePlatformAdmin();
+  const tenantId = String(formData.get("tenantId") || "");
+  if (!tenantId) {
+    redirect(`/admin/acompanhamento?error=${encodeURIComponent("Escolha uma loja.")}`);
+  }
+  try {
+    await sendTrackingTestMessage({ tenantId, userId: ctx.userId });
+  } catch (error) {
+    redirect(`/admin/acompanhamento?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
+  }
+  revalidatePath("/admin/acompanhamento");
+  redirect("/admin/acompanhamento?ok=whatsapp-teste");
 }

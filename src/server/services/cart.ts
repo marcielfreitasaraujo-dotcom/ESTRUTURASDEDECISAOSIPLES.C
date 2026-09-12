@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/db";
 import { ConflictError, NotFoundError } from "@/lib/errors";
+import { formatBRL } from "@/lib/money";
 import { isSoldOut } from "@/domain/catalog/stock";
 import { quotePizza } from "@/domain/catalog/pizza-pricing";
 import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
@@ -8,6 +9,9 @@ import { evaluateCoupon } from "@/domain/coupons/evaluate";
 import { PIZZA_NOTES_MAX } from "@/domain/catalog/central-menu";
 import { writeAudit } from "@/server/audit";
 import { getPaymentProvider } from "@/server/providers/payment";
+import { trackingFieldsForTenant } from "@/server/services/tracking";
+import { assertFulfillmentAllowed } from "@/domain/ordering/tracking";
+import { notifyOrderStatusWhatsApp } from "@/server/services/whatsapp";
 import type { FulfillmentType, PaymentMethod, Prisma } from "@prisma/client";
 
 const CART_COOKIE = "comanda_cart";
@@ -223,6 +227,14 @@ export async function placeOrder(input: {
   });
   if (existing) return existing;
 
+  const tenantFlags = await prisma.tenant.findUnique({
+    where: { id: input.tenantId },
+    select: { trackingAllowPickup: true, trackingAllowDelivery: true },
+  });
+  if (tenantFlags) {
+    assertFulfillmentAllowed(input.fulfillment, tenantFlags);
+  }
+
   const cart = await getOrCreateCart(input.tenantId);
   if (cart.items.length === 0) throw new Error("O carrinho está vazio.");
 
@@ -297,12 +309,17 @@ export async function placeOrder(input: {
         })
       : null;
 
+  const tracking = await trackingFieldsForTenant(input.tenantId);
   const order = await prisma.$transaction(async (tx) => {
     const created = await tx.order.create({
       data: {
         tenantId: input.tenantId,
         number,
         publicCode,
+        trackingToken: tracking.trackingToken,
+        estimatedMinutes: tracking.estimatedMinutes,
+        estimatedMinMinutes: tracking.estimatedMinMinutes,
+        estimatedMaxMinutes: tracking.estimatedMaxMinutes,
         customerId: customer?.id,
         status: "PENDING",
         fulfillment: input.fulfillment,
@@ -387,6 +404,21 @@ export async function placeOrder(input: {
     tenantId: input.tenantId,
     metadata: { number: order.number, totalCents: order.totalCents },
   });
+
+  await prisma.notification.create({
+    data: {
+      tenantId: input.tenantId,
+      type: "NEW_ORDER",
+      title: `Novo pedido #${order.publicCode}`,
+      body: `${order.customerName} · ${formatBRL(order.totalCents)}`,
+    },
+  });
+
+  await notifyOrderStatusWhatsApp({
+    tenantId: input.tenantId,
+    orderId: order.id,
+    status: "PENDING",
+  }).catch(() => undefined);
 
   return order;
 }

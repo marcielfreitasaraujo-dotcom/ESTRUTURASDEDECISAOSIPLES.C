@@ -9,6 +9,10 @@ import { StatusPill } from "@/components/ds/data-table";
 import { EmptyState } from "@/components/empty-state";
 import { Surface } from "@/components/ds/surface";
 import { cn } from "@/lib/utils";
+import { LiveRefresh } from "@/components/live-refresh";
+import { updateOrderStatusFormAction } from "@/app/actions/orders";
+import { Button } from "@/components/ui/button";
+import { nextStaffLabel, nextStaffStatus } from "@/domain/ordering/tracking";
 
 export default async function CaixaPedidosPage({
   searchParams,
@@ -45,6 +49,7 @@ export default async function CaixaPedidosPage({
         title="Pedidos"
         description="Consulta operacional. Preços e cardápio não podem ser alterados aqui."
       />
+      <LiveRefresh />
       <CashierSearch />
       <div className="flex flex-wrap gap-2 text-sm">
         {[
@@ -82,17 +87,39 @@ export default async function CaixaPedidosPage({
                   {order.tableNumber ? `Mesa ${order.tableNumber}` : FULFILLMENT_LABELS[order.fulfillment] ?? order.fulfillment}
                 </p>
               </div>
-              <div className="text-right">
+              <div className="grid justify-items-end gap-2 text-right">
                 <p>{formatBRL(order.totalCents)}</p>
                 <StatusPill tone={order.paymentStatus === "PAID" ? "success" : order.status === "CANCELLED" ? "danger" : "warning"}>
-                  {order.paymentStatus}
+                  {order.status === "PENDING" ? "NOVO PEDIDO" : order.paymentStatus}
                 </StatusPill>
+                {order.status === "PENDING" ? (
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <form action={updateOrderStatusFormAction}>
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <input type="hidden" name="toStatus" value="CONFIRMED" />
+                      <Button size="sm" type="submit">Confirmar</Button>
+                    </form>
+                    <form action={updateOrderStatusFormAction}>
+                      <input type="hidden" name="orderId" value={order.id} />
+                      <input type="hidden" name="toStatus" value="CANCELLED" />
+                      <input type="hidden" name="rejected" value="1" />
+                      <input type="hidden" name="reason" value="O estabelecimento não conseguiu aceitar este pedido." />
+                      <Button size="sm" type="submit" variant="outline">Recusar</Button>
+                    </form>
+                  </div>
+                ) : nextStaffStatus(order.status, order.fulfillment) ? (
+                  <form action={updateOrderStatusFormAction}>
+                    <input type="hidden" name="orderId" value={order.id} />
+                    <input type="hidden" name="toStatus" value={nextStaffStatus(order.status, order.fulfillment) ?? ""} />
+                    <Button size="sm" type="submit">
+                      {nextStaffLabel(order.status, order.fulfillment)}
+                    </Button>
+                  </form>
+                ) : null}
                 {order.paymentStatus !== "PAID" && order.status !== "CANCELLED" ? (
-                  <p>
-                    <Link href={`/caixa/pagamentos?pedido=${order.id}`} className="text-sm text-primary underline">
-                      Receber
-                    </Link>
-                  </p>
+                  <Link href={`/caixa/pagamentos?pedido=${order.id}`} className="text-sm text-primary underline">
+                    Receber
+                  </Link>
                 ) : null}
               </div>
             </li>

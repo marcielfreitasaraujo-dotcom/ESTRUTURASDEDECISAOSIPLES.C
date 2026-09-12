@@ -117,6 +117,8 @@ async function seedCentral(ownerId: string) {
       state: CENTRAL_MENU.tenant.state,
       neighborhood: CENTRAL_MENU.tenant.neighborhood,
       estimatedMinutes: CENTRAL_MENU.tenant.estimatedMinutes,
+      trackingWhatsappNumber: "9991677463",
+      trackingWhatsappEnabled: true,
       minimumOrderCents: CENTRAL_MENU.tenant.minimumOrderCents,
       tableCount: CENTRAL_MENU.tenant.tableCount,
       primaryColor: CENTRAL_MENU.tenant.primaryColor,
@@ -133,6 +135,8 @@ async function seedCentral(ownerId: string) {
       neighborhood: CENTRAL_MENU.tenant.neighborhood,
       status: "ACTIVE",
       estimatedMinutes: CENTRAL_MENU.tenant.estimatedMinutes,
+      trackingWhatsappNumber: "9991677463",
+      trackingWhatsappEnabled: true,
       minimumOrderCents: CENTRAL_MENU.tenant.minimumOrderCents,
       tableCount: CENTRAL_MENU.tenant.tableCount,
       primaryColor: CENTRAL_MENU.tenant.primaryColor,
@@ -474,6 +478,7 @@ async function seedCentral(ownerId: string) {
         tenantId: tenant.id,
         number: 1042,
         publicCode: "1042",
+        trackingToken: "seed-track-1042-central-da-pizza",
         customerId: customer.id,
         status: "PREPARING",
         fulfillment: "DELIVERY",
@@ -544,6 +549,7 @@ async function seedCentral(ownerId: string) {
         tenantId: tenant.id,
         number,
         publicCode: String(number).padStart(4, "0"),
+        trackingToken: `seed-track-ready-${number}`,
         customerId: customer.id,
         status: "READY",
         fulfillment: "DELIVERY",
@@ -781,6 +787,12 @@ async function main() {
     where: { key_scope_scopeId: { key: "enable_kds", scope: "PLATFORM", scopeId: "platform" } },
     update: { enabled: true },
     create: { key: "enable_kds", scope: "PLATFORM", scopeId: "platform", enabled: true },
+  });
+
+  await prisma.featureFlag.upsert({
+    where: { key_scope_scopeId: { key: "order_tracking", scope: "platform", scopeId: "platform" } },
+    update: { enabled: true },
+    create: { key: "order_tracking", scope: "platform", scopeId: "platform", enabled: true },
   });
 
   console.log("Seed ok");

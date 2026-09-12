@@ -49,6 +49,7 @@ export type ControlCenterSnapshot = {
     tables: { total: number; free: number; occupied: number; reserved: number; blocked: number };
     kitchen: { waiting: number; preparing: number; ready: number };
     delivery: { waiting: number; inRoute: number; deliveredToday: number };
+    tracking: { received: number; preparing: number; ready: number; delivering: number; late: number };
   };
   alerts: ControlAlert[];
   notifications: ControlAlert[];

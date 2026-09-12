@@ -130,6 +130,15 @@ export async function saveStoreAction(formData: FormData) {
     city: String(formData.get("city") || "") || undefined,
     state: String(formData.get("state") || "") || undefined,
     estimatedMinutes: Number(formData.get("estimatedMinutes") || 40),
+    trackingEnabled: formData.get("trackingEnabled") === "on",
+    trackingMinMinutes: Number(formData.get("trackingMinMinutes") || 30),
+    trackingMaxMinutes: Number(formData.get("trackingMaxMinutes") || 45),
+    trackingHistoryDays: Number(formData.get("trackingHistoryDays") || 14),
+    trackingNotifyEnabled: formData.get("trackingNotifyEnabled") === "on",
+    trackingWhatsappEnabled: formData.get("trackingWhatsappEnabled") === "on",
+    trackingWhatsappNumber: String(formData.get("trackingWhatsappNumber") || "") || undefined,
+    trackingAllowPickup: formData.get("trackingAllowPickup") === "on",
+    trackingAllowDelivery: formData.get("trackingAllowDelivery") === "on",
     minimumOrderCents: Math.round(Number(formData.get("minimumOrder") || 0) * 100),
     tableCount: Number(formData.get("tableCount") || 16),
     hours,
@@ -229,6 +238,22 @@ export async function saveExpenseAction(formData: FormData) {
     dueDate: new Date(String(formData.get("dueDate") || Date.now())),
   });
   revalidateOps();
+}
+
+export async function sendTrackingTestAction(formData: FormData) {
+  const ctx = await requireTenantPermission(PERMISSIONS.SETTINGS_WRITE);
+  try {
+    const { sendTrackingTestMessage } = await import("@/server/services/whatsapp");
+    await sendTrackingTestMessage({
+      tenantId: ctx.tenantId,
+      userId: ctx.userId,
+      to: String(formData.get("to") || "") || undefined,
+    });
+  } catch (error) {
+    redirect(`/app/configuracoes?error=${encodeURIComponent(publicErrorMessage(error).message)}`);
+  }
+  revalidateOps();
+  redirect("/app/configuracoes?ok=whatsapp-teste");
 }
 
 export async function saveRevenueAction(formData: FormData) {

@@ -36,6 +36,18 @@ const nextConfig: NextConfig = {
       },
       { source: "/", headers: noStore },
       { source: "/loja/:path*", headers: noStore },
+      {
+        source: "/acompanhar/:path*",
+        headers: [...noStore, { key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/loja/:slug/acompanhar",
+        headers: [...noStore, { key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+      {
+        source: "/loja/:slug/acompanhar/:path*",
+        headers: [...noStore, { key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
       { source: "/sw.js", headers: noStore },
       { source: "/manifest.webmanifest", headers: noStore },
       { source: "/entrar", headers: noStore },

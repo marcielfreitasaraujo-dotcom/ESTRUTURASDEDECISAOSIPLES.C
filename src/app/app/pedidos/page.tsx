@@ -1,7 +1,9 @@
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listOrdersByStatus } from "@/server/services/orders";
+import { staffDelayMeta } from "@/server/services/tracking";
 import { OrdersKanban } from "@/components/orders-kanban";
+import { LiveRefresh } from "@/components/live-refresh";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -32,6 +34,7 @@ export default async function OrdersPage() {
           </>
         }
       />
+      <LiveRefresh />
       {orders.length === 0 ? (
         <EmptyState title="Nenhum pedido aberto" description="Os pedidos do cardápio público aparecem aqui em tempo quase real após o checkout." />
       ) : (
@@ -40,10 +43,13 @@ export default async function OrdersPage() {
             id: order.id,
             publicCode: order.publicCode,
             status: order.status,
+            fulfillment: order.fulfillment,
             customerName: order.customerName,
             tableNumber: order.tableNumber,
             totalCents: order.totalCents,
             notes: order.notes,
+            estimatedMinutes: order.estimatedMinutes,
+            delayTone: staffDelayMeta(order).delayTone,
             items: order.items,
           }))}
         />

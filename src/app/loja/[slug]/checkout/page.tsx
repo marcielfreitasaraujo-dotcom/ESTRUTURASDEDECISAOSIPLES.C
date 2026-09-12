@@ -28,9 +28,11 @@ export default async function CheckoutPage({
         ? "O carrinho está vazio."
         : error === "delivery"
           ? "Informe o bairro para entrega."
-          : error === "failed"
-            ? "Não foi possível concluir o pedido. Tente novamente."
-            : undefined;
+          : error === "fulfillment"
+            ? "Esta loja não está aceitando essa forma de recebimento."
+            : error === "failed"
+              ? "Não foi possível concluir o pedido. Tente novamente."
+              : undefined;
 
   return (
     <div className="mx-auto grid min-h-screen max-w-3xl gap-8 bg-[oklch(0.985_0.01_70)] px-4 py-8 text-zinc-900">
@@ -56,6 +58,8 @@ export default async function CheckoutPage({
         couponCode={cart?.couponCode}
         guestName={guest?.name}
         guestPhone={guest?.phone}
+        allowPickup={tenant.trackingAllowPickup}
+        allowDelivery={tenant.trackingAllowDelivery}
       />
     </div>
   );

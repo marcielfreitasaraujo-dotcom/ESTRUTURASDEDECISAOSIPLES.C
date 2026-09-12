@@ -1,8 +1,9 @@
-import { updateOrderStatusFormAction } from "@/app/actions/orders";
+import { updateOrderEtaFormAction, updateOrderStatusFormAction } from "@/app/actions/orders";
 import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/money";
 import { StatusPill } from "@/components/ds/data-table";
 import { cn } from "@/lib/utils";
+import { delayToneLabel, type DelayTone } from "@/domain/ordering/tracking";
 
 type Ticket = {
   id: string;
@@ -10,6 +11,8 @@ type Ticket = {
   tableNumber?: string | null;
   status: "CONFIRMED" | "PREPARING";
   elapsedMinutes: number;
+  estimatedMinutes: number;
+  delayTone: DelayTone;
   notes: string | null;
   items: { name: string; quantity: number; notes: string | null }[];
   totalCents: number;
@@ -20,7 +23,7 @@ export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {tickets.map((ticket) => {
         const minutes = ticket.elapsedMinutes;
-        const late = minutes >= 30;
+        const late = ticket.delayTone === "late";
         const nextStatus = ticket.status === "CONFIRMED" ? "PREPARING" : "READY";
         return (
           <article
@@ -32,8 +35,8 @@ export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="font-mono text-2xl">#{ticket.publicCode}</h2>
-              <StatusPill tone={late ? "danger" : ticket.status === "PREPARING" ? "warning" : "info"}>
-                {minutes} min
+              <StatusPill tone={late ? "danger" : ticket.delayTone === "near" ? "warning" : "info"}>
+                {ticket.delayTone === "late" ? "🔴" : ticket.delayTone === "near" ? "🟡" : "🟢"} {delayToneLabel(ticket.delayTone)} · {minutes} min
               </StatusPill>
             </div>
             {ticket.tableNumber ? <p className="mt-1 text-sm text-primary">Mesa {ticket.tableNumber}</p> : null}
@@ -53,7 +56,22 @@ export function KitchenBoard({ tickets }: { tickets: Ticket[] }) {
               <input type="hidden" name="orderId" value={ticket.id} />
               <input type="hidden" name="toStatus" value={nextStatus} />
               <Button className="w-full" type="submit">
-                {ticket.status === "CONFIRMED" ? "Iniciar" : "Pronto"}
+                {ticket.status === "CONFIRMED" ? "Iniciar preparo" : "Pedido pronto"}
+              </Button>
+            </form>
+            <form action={updateOrderEtaFormAction} className="mt-2 flex gap-2">
+              <input type="hidden" name="orderId" value={ticket.id} />
+              <input type="hidden" name="reason" value="Volume na cozinha" />
+              <input
+                name="minutes"
+                type="number"
+                min={5}
+                defaultValue={ticket.estimatedMinutes + 10}
+                className="h-10 w-20 rounded-lg border bg-background px-2 text-sm"
+                aria-label="Novo tempo estimado"
+              />
+              <Button type="submit" variant="outline">
+                Atualizar tempo
               </Button>
             </form>
           </article>

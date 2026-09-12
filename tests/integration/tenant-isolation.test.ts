@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { ForbiddenError } from "@/lib/errors";
 import { assertTenantId, createTenantPrisma } from "@/server/tenancy";
 import { assertNoCrossTenantOrderAccess } from "@/server/services/orders";
+import { getOrderByTrackingToken } from "@/server/services/tracking";
 
 const prisma = new PrismaClient();
 
@@ -31,6 +32,7 @@ describe("isolamento multi-tenant", () => {
           tenantId: tenantB,
           number: 1,
           publicCode: "0001",
+          trackingToken: `iso-b-1-${tenantB}`,
           status: "PENDING",
           fulfillment: "PICKUP",
           customerName: "B",
@@ -73,5 +75,16 @@ describe("isolamento multi-tenant", () => {
 
   it("pedido do Tenant B é inacessível ao Tenant A", async () => {
     await expect(assertNoCrossTenantOrderAccess(tenantA, orderB)).rejects.toThrow(ForbiddenError);
+  });
+
+  it("o link de acompanhamento de outra loja não abre", async () => {
+    const order = await prisma.order.findFirst({
+      where: { tenantId: tenantB },
+      select: { trackingToken: true },
+    });
+    expect(order?.trackingToken).toBeTruthy();
+    await expect(getOrderByTrackingToken(order!.trackingToken, "central-da-pizza")).rejects.toThrow(
+      /não é válido/,
+    );
   });
 });

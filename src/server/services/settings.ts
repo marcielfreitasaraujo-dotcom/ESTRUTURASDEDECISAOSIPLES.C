@@ -24,6 +24,15 @@ export async function saveStoreSettings(input: {
   city?: string;
   state?: string;
   estimatedMinutes?: number;
+  trackingEnabled?: boolean;
+  trackingMinMinutes?: number;
+  trackingMaxMinutes?: number;
+  trackingHistoryDays?: number;
+  trackingNotifyEnabled?: boolean;
+  trackingWhatsappEnabled?: boolean;
+  trackingWhatsappNumber?: string;
+  trackingAllowPickup?: boolean;
+  trackingAllowDelivery?: boolean;
   minimumOrderCents?: number;
   tableCount?: number;
   hours: { weekday: number; opensAt: string; closesAt: string; closed: boolean }[];
@@ -43,6 +52,15 @@ export async function saveStoreSettings(input: {
       city: input.city || null,
       state: input.state || null,
       estimatedMinutes: input.estimatedMinutes ?? 40,
+      trackingEnabled: input.trackingEnabled ?? undefined,
+      trackingMinMinutes: input.trackingMinMinutes ?? undefined,
+      trackingMaxMinutes: input.trackingMaxMinutes ?? undefined,
+      trackingHistoryDays: input.trackingHistoryDays ?? undefined,
+      trackingNotifyEnabled: input.trackingNotifyEnabled ?? undefined,
+      trackingWhatsappEnabled: input.trackingWhatsappEnabled ?? undefined,
+      trackingWhatsappNumber: input.trackingWhatsappNumber ?? undefined,
+      trackingAllowPickup: input.trackingAllowPickup ?? undefined,
+      trackingAllowDelivery: input.trackingAllowDelivery ?? undefined,
       minimumOrderCents: input.minimumOrderCents ?? 0,
       tableCount: normalizeTableCount(input.tableCount),
       cashLimitCents: input.cashLimitCents ?? undefined,

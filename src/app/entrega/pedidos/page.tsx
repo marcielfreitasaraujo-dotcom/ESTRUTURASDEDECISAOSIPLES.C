@@ -1,7 +1,9 @@
 import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { listOrdersByStatus } from "@/server/services/orders";
+import { staffDelayMeta } from "@/server/services/tracking";
 import { OrdersKanban } from "@/components/orders-kanban";
+import { LiveRefresh } from "@/components/live-refresh";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader, PageStack } from "@/components/ds/page-header";
 import { Surface } from "@/components/ds/surface";
@@ -18,6 +20,7 @@ export default async function EntregaPedidosPage() {
         backHref="/entrega"
         backLabel="Fila"
       />
+      <LiveRefresh />
       {orders.length === 0 ? (
         <Surface>
           <EmptyState title="Nenhum pedido aberto" description="Os pedidos da loja aparecem aqui." />
@@ -28,10 +31,13 @@ export default async function EntregaPedidosPage() {
             id: order.id,
             publicCode: order.publicCode,
             status: order.status,
+            fulfillment: order.fulfillment,
             customerName: order.customerName,
             tableNumber: order.tableNumber,
             totalCents: order.totalCents,
             notes: order.notes,
+            estimatedMinutes: order.estimatedMinutes,
+            delayTone: staffDelayMeta(order).delayTone,
             items: order.items,
           }))}
         />

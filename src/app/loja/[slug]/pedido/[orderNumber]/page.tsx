@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getOrderForTenant } from "@/server/services/orders";
 import { formatBRL } from "@/lib/money";
-import { StatusBadge } from "@/components/status-badge";
+import { FULFILLMENT_LABELS, PAYMENT_METHOD_LABELS } from "@/domain/ordering/status";
+import { computeEta, formatClockInZone } from "@/domain/ordering/tracking";
 
 export default async function OrderConfirmationPage({
   params,
@@ -14,25 +16,48 @@ export default async function OrderConfirmationPage({
   if (!tenant) notFound();
   const order = await getOrderForTenant(tenant.id, orderNumber).catch(() => null);
   if (!order) notFound();
+  const eta = computeEta(order.createdAt, order.estimatedMinutes);
 
   return (
-    <div className="mx-auto min-h-screen max-w-2xl px-4 py-10">
-      <p className="text-sm text-muted-foreground">{tenant.name}</p>
-      <h1 className="font-heading text-4xl">Pedido #{order.publicCode}</h1>
-      <div className="mt-4">
-        <StatusBadge status={order.status} />
-      </div>
-      <ul className="mt-6 space-y-2 text-sm">
-        {order.items.map((item) => (
-          <li key={item.id}>
-            {item.quantity}× {item.name} — {formatBRL(item.totalCents)}
-          </li>
-        ))}
-      </ul>
-      <p className="mt-6 text-lg">Total {formatBRL(order.totalCents)}</p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Pagamento: {order.paymentMethod}. Acompanhe o status com a pizzaria.
-      </p>
+    <div className="mx-auto grid min-h-screen max-w-lg content-start gap-5 bg-[#eef1f4] px-4 py-10 text-zinc-900">
+      <p className="text-sm text-zinc-500">{tenant.name}</p>
+      <section className="rounded-3xl bg-white p-6 shadow-sm">
+        <p className="text-sm font-medium text-emerald-700">Pedido realizado com sucesso!</p>
+        <h1 className="mt-2 font-heading text-3xl">Pedido #{order.publicCode}</h1>
+        <p className="mt-3 text-sm text-zinc-600">
+          Recebemos seu pedido e já estamos enviando para o estabelecimento.
+        </p>
+        <dl className="mt-5 grid gap-2 text-sm">
+          <div className="flex justify-between">
+            <dt>Total</dt>
+            <dd className="font-semibold">{formatBRL(order.totalCents)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Pagamento</dt>
+            <dd>{PAYMENT_METHOD_LABELS[order.paymentMethod] ?? order.paymentMethod}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Tipo</dt>
+            <dd>{FULFILLMENT_LABELS[order.fulfillment] ?? order.fulfillment}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt>Tempo estimado</dt>
+            <dd>{order.estimatedMinutes} min · {formatClockInZone(eta)}</dd>
+          </div>
+        </dl>
+      </section>
+      <Link
+        href={`/loja/${slug}/acompanhar/${order.trackingToken}`}
+        className="inline-flex h-12 items-center justify-center rounded-full bg-zinc-950 text-sm font-semibold text-white"
+      >
+        Acompanhar meu pedido
+      </Link>
+      <Link
+        href={`/loja/${slug}`}
+        className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-300 bg-white text-sm font-semibold"
+      >
+        Voltar ao cardápio
+      </Link>
     </div>
   );
 }

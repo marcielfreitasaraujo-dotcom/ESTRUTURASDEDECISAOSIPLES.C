@@ -16,6 +16,7 @@ import {
   type SalesRange,
 } from "@/domain/dashboard/control-center";
 import { getFloorSnapshot } from "@/server/services/floor";
+import { delayTone } from "@/domain/ordering/tracking";
 
 function startOfDay(date: Date) {
   const copy = new Date(date);
@@ -104,7 +105,15 @@ export async function getStoreControlCenter(
       }),
       prisma.order.findMany({
         where: { tenantId, status: { in: ["PENDING", "CONFIRMED", "PREPARING", "READY", "OUT_FOR_DELIVERY"] } },
-        select: { id: true, publicCode: true, status: true, createdAt: true, fulfillment: true, totalCents: true },
+        select: {
+          id: true,
+          publicCode: true,
+          status: true,
+          createdAt: true,
+          fulfillment: true,
+          totalCents: true,
+          estimatedMinutes: true,
+        },
       }),
       prisma.customer.count({ where: { tenantId } }),
       getFloorSnapshot(tenantId),
@@ -279,6 +288,21 @@ export async function getStoreControlCenter(
         waiting: openOrders.filter((order) => order.fulfillment === "DELIVERY" && ["CONFIRMED", "PREPARING", "READY"].includes(order.status)).length,
         inRoute: openOrders.filter((order) => order.status === "OUT_FOR_DELIVERY").length,
         deliveredToday: todayOrders.filter((order) => order.fulfillment === "DELIVERY" && order.status === "DELIVERED").length,
+      },
+      tracking: {
+        received: openOrders.filter((order) => order.status === "PENDING").length,
+        preparing: openOrders.filter((order) => order.status === "CONFIRMED" || order.status === "PREPARING").length,
+        ready: openOrders.filter((order) => order.status === "READY").length,
+        delivering: openOrders.filter((order) => order.status === "OUT_FOR_DELIVERY").length,
+        late: openOrders.filter(
+          (order) =>
+            delayTone({
+              status: order.status,
+              createdAt: order.createdAt,
+              estimatedMinutes: order.estimatedMinutes,
+              now,
+            }) === "late",
+        ).length,
       },
     },
     alerts,

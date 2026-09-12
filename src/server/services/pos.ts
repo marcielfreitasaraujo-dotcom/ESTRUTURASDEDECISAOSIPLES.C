@@ -5,6 +5,7 @@ import { calculateCheckoutTotals } from "@/domain/ordering/checkout";
 import { assertSalonTableNumber, normalizeTableCount } from "@/domain/floor/tables";
 import { writeAudit } from "@/server/audit";
 import { occupyTableByNumber, freeTablesForOrder } from "@/server/services/floor";
+import { trackingFieldsForTenant } from "@/server/services/tracking";
 import type { FulfillmentType, OrderStatus, PaymentMethod, Prisma } from "@prisma/client";
 
 export type StaffOrderItemInput =
@@ -166,11 +167,16 @@ export async function createStaffOrder(input: {
         })
       : null;
 
+  const tracking = await trackingFieldsForTenant(input.tenantId);
   const order = await prisma.order.create({
     data: {
       tenantId: input.tenantId,
       number,
       publicCode: number.toString().padStart(4, "0"),
+      trackingToken: tracking.trackingToken,
+      estimatedMinutes: tracking.estimatedMinutes,
+      estimatedMinMinutes: tracking.estimatedMinMinutes,
+      estimatedMaxMinutes: tracking.estimatedMaxMinutes,
       customerId: customer?.id,
       status,
       fulfillment: input.fulfillment,

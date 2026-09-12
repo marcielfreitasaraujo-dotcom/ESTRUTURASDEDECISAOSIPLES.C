@@ -231,6 +231,15 @@ model Tenant {
   primaryColor            String           @default("#C2410C")
   secondaryColor          String           @default("#1C1917")
   estimatedMinutes        Int              @default(40)
+  trackingEnabled         Boolean          @default(true)
+  trackingMinMinutes      Int              @default(30)
+  trackingMaxMinutes      Int              @default(45)
+  trackingHistoryDays     Int              @default(14)
+  trackingNotifyEnabled   Boolean          @default(true)
+  trackingWhatsappEnabled Boolean          @default(true)
+  trackingWhatsappNumber  String?
+  trackingAllowPickup     Boolean          @default(true)
+  trackingAllowDelivery   Boolean          @default(true)
   minimumOrderCents       Int              @default(0)
   tableCount              Int              @default(16)
   cashLimitCents          Int              @default(100000)
@@ -277,6 +286,8 @@ model Tenant {
   cashSessions            CashSession[]
   cashMovements           CashMovement[]
   cashAuthorizations      CashAuthorization[]
+  etaChanges              OrderEtaChange[]
+  whatsappDispatches      WhatsAppDispatch[]
 
   @@index([status])
   @@index([organizationId])
@@ -707,6 +718,7 @@ model Order {
   tenant             Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   number             Int
   publicCode         String
+  trackingToken      String          @unique
   customerId         String?
   customer           Customer?       @relation(fields: [customerId], references: [id])
   status             OrderStatus     @default(PENDING)
@@ -735,11 +747,18 @@ model Order {
   paymentMethod      PaymentMethod
   paymentStatus      PaymentStatus   @default(PENDING)
   idempotencyKey     String
+  estimatedMinutes   Int             @default(40)
+  estimatedMinMinutes Int?
+  estimatedMaxMinutes Int?
+  etaUpdatedAt       DateTime?
   confirmedAt        DateTime?
   preparingAt        DateTime?
   readyAt            DateTime?
+  outForDeliveryAt   DateTime?
   deliveredAt        DateTime?
   cancelledAt        DateTime?
+  cancelReason       String?
+  rejected           Boolean         @default(false)
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   items              OrderItem[]
@@ -750,6 +769,8 @@ model Order {
   floorTables        SalonTable[]    @relation("TableCurrentOrder")
   cashMovements      CashMovement[]
   cashAuthorizations CashAuthorization[]
+  etaChanges         OrderEtaChange[]
+  whatsappDispatches WhatsAppDispatch[]
 
   @@unique([tenantId, number])
   @@unique([tenantId, publicCode])
@@ -844,6 +865,40 @@ model OrderStatusHistory {
 
   @@index([tenantId, orderId, createdAt])
   @@map("order_status_history")
+}
+
+model OrderEtaChange {
+  id               String   @id @default(cuid())
+  tenantId         String
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  previousMinutes  Int
+  nextMinutes      Int
+  reason           String?
+  changedById      String?
+  createdAt        DateTime @default(now())
+
+  @@index([tenantId, orderId, createdAt])
+  @@map("order_eta_changes")
+}
+
+model WhatsAppDispatch {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  event     String
+  to        String
+  body      String
+  status    String   @default("QUEUED")
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, createdAt])
+  @@index([orderId])
+  @@map("whatsapp_dispatches")
 }
 
 model Payment {

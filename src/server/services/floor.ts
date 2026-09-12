@@ -5,6 +5,7 @@ import { normalizeTableCount } from "@/domain/floor/tables";
 import { summarizeFloorStatus } from "@/domain/floor/status";
 import type { FloorSnapshot, FloorTableSnapshot } from "@/domain/floor/snapshot";
 import { writeAudit } from "@/server/audit";
+import { createTrackingToken } from "@/domain/ordering/tracking";
 import type { Prisma, SalonTable, SalonTableStatus } from "@prisma/client";
 
 const DEFAULT_SECTOR = { name: "Salão", slug: "salao" };
@@ -57,6 +58,7 @@ async function createOpenTableOrder(input: {
       tenantId: input.tenantId,
       number,
       publicCode: number.toString().padStart(4, "0"),
+      trackingToken: createTrackingToken(),
       status: "PENDING",
       fulfillment: "DINE_IN",
       tableNumber: input.tableNumber,
@@ -579,6 +581,7 @@ export async function splitSalonTable(input: {
         tenantId: input.tenantId,
         number,
         publicCode: number.toString().padStart(4, "0"),
+        trackingToken: createTrackingToken(),
         status: source.currentOrder!.status,
         fulfillment: "DINE_IN",
         tableNumber: destination.number,

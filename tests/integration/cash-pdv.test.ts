@@ -94,6 +94,7 @@ describe("PDV de caixa: operadores, conferência e histórico", () => {
         tenantId,
         number: 600000 + Math.floor(Math.random() * 99999),
         publicCode: `C${Date.now().toString().slice(-7)}`,
+        trackingToken: crypto.randomUUID(),
         status: "CONFIRMED",
         fulfillment: "PICKUP",
         customerName: "Cliente PDV",

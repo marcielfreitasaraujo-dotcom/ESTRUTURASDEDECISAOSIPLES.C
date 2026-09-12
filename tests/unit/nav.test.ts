@@ -66,6 +66,7 @@ describe("navForUser", () => {
       "/admin/users",
       "/admin/plans",
       "/admin/audit",
+      "/admin/acompanhamento",
       "/app",
       "/caixa",
     ]);

@@ -2,7 +2,7 @@ import { requirePage } from "@/server/context";
 import { PERMISSIONS } from "@/domain/rbac/permissions";
 import { hasPermission, isPlatformAdmin } from "@/domain/rbac/roles";
 import { getStoreSettings } from "@/server/services/settings";
-import { saveStoreAction } from "@/app/actions/ops";
+import { saveStoreAction, sendTrackingTestAction } from "@/app/actions/ops";
 import { createSalonSectorAction } from "@/app/actions/floor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,6 +143,56 @@ export default async function SettingsPage() {
             Permitir o caixa registrar pequenas despesas operacionais
           </label>
         </div>
+        <div className="grid gap-3 rounded-xl border p-4">
+          <h2 className="font-medium">Acompanhamento de pedidos</h2>
+          <p className="text-sm text-muted-foreground">
+            Tempo, WhatsApp e o que o cliente vê depois do checkout. O número de teste fica aqui, sem ficar fixo no código.
+          </p>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="trackingEnabled" defaultChecked={tenant.trackingEnabled} disabled={!canWrite} />
+            Ativar acompanhamento
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="trackingNotifyEnabled" defaultChecked={tenant.trackingNotifyEnabled} disabled={!canWrite} />
+            Ativar notificações
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="trackingWhatsappEnabled" defaultChecked={tenant.trackingWhatsappEnabled} disabled={!canWrite} />
+            Ativar WhatsApp
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="trackingAllowPickup" defaultChecked={tenant.trackingAllowPickup} disabled={!canWrite} />
+            Permitir retirada
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" name="trackingAllowDelivery" defaultChecked={tenant.trackingAllowDelivery} disabled={!canWrite} />
+            Permitir entrega
+          </label>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-2">
+              <Label htmlFor="trackingMinMinutes">Tempo mínimo (min)</Label>
+              <Input id="trackingMinMinutes" name="trackingMinMinutes" type="number" defaultValue={tenant.trackingMinMinutes} disabled={!canWrite} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="trackingMaxMinutes">Tempo máximo (min)</Label>
+              <Input id="trackingMaxMinutes" name="trackingMaxMinutes" type="number" defaultValue={tenant.trackingMaxMinutes} disabled={!canWrite} />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="trackingHistoryDays">Histórico (dias)</Label>
+              <Input id="trackingHistoryDays" name="trackingHistoryDays" type="number" defaultValue={tenant.trackingHistoryDays} disabled={!canWrite} />
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="trackingWhatsappNumber">Número do WhatsApp (avisos e teste)</Label>
+            <Input
+              id="trackingWhatsappNumber"
+              name="trackingWhatsappNumber"
+              defaultValue={tenant.trackingWhatsappNumber ?? ""}
+              placeholder="Número configurável"
+              disabled={!canWrite}
+            />
+          </div>
+        </div>
         <div className="grid gap-3">
           <h2 className="font-medium">Horários</h2>
           {DAYS.map((label, weekday) => {
@@ -162,6 +212,18 @@ export default async function SettingsPage() {
         </div>
         {canWrite ? <Button type="submit">Salvar loja</Button> : null}
       </form>
+      {canWrite ? (
+        <form action={sendTrackingTestAction} className="grid max-w-3xl gap-3 rounded-2xl border p-4">
+          <h2 className="font-medium">Mensagem de teste do WhatsApp</h2>
+          <p className="text-sm text-muted-foreground">
+            Envia o texto de acompanhamento para o número configurado na loja. O número de teste não fica hardcoded.
+          </p>
+          <input type="hidden" name="to" value={tenant.trackingWhatsappNumber ?? ""} />
+          <Button type="submit" variant="outline">
+            Enviar mensagem de teste
+          </Button>
+        </form>
+      ) : null}
       <section className="grid max-w-3xl gap-3 rounded-2xl border p-4">
         <h2 className="font-medium">Setores do salão</h2>
         <ul className="text-sm text-muted-foreground">

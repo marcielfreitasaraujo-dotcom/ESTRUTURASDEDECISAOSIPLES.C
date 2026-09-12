@@ -65,6 +65,11 @@ export function ControlCenter({ initial }: { initial: ControlCenterSnapshot }) {
         <StatCard label="Vendas do mês" value={formatBRL(data.kpis.monthSalesCents)} />
         <StatCard label="Pedidos hoje" value={String(data.kpis.todayOrders)} hint={`${data.kpis.yesterdayOrders} ontem`} />
         <StatCard label="Pedidos abertos" value={String(data.kpis.openOrders)} />
+        <StatCard label="Novos" value={String(data.operation.tracking.received)} />
+        <StatCard label="Em preparo" value={String(data.operation.tracking.preparing)} />
+        <StatCard label="Prontos" value={String(data.operation.tracking.ready)} />
+        <StatCard label="Em entrega" value={String(data.operation.tracking.delivering)} />
+        <StatCard label="Atrasados" value={String(data.operation.tracking.late)} tone={data.operation.tracking.late ? "warning" : undefined} />
         <StatCard label="Ticket médio" value={formatBRL(data.kpis.averageTicketCents)} />
         <StatCard label="Clientes" value={String(data.kpis.customers)} />
         <StatCard label="Mesas ocupadas" value={`${data.kpis.tablesOccupied} / ${data.kpis.tablesTotal}`} />

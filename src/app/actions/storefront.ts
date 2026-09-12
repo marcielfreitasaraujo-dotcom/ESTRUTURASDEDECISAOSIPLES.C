@@ -165,7 +165,9 @@ export async function checkoutFormAction(formData: FormData) {
         ? "empty"
         : publicErrorMessage(error).message.includes("bairro")
           ? "delivery"
-          : "failed";
+          : publicErrorMessage(error).message.includes("não está aceitando")
+            ? "fulfillment"
+            : "failed";
     redirect(`/loja/${slug}/checkout?error=${code}`);
   }
   redirect(`/loja/${slug}/pedido/${publicCode}`);
