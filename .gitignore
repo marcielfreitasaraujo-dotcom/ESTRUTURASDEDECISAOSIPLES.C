@@ -29,6 +29,10 @@ backups/**
 .vscode/
 *.swp
 
+# Site AraújoIA (Vite)
+araujoia/node_modules/
+araujoia/dist/
+
 # Sistema
 .DS_Store
 Thumbs.db
