@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://araujoia.netlify.app/sitemap.xml
