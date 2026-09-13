@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "tenants" ADD COLUMN "tableCount" INTEGER NOT NULL DEFAULT 16;

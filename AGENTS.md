@@ -1,21 +1,39 @@
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
+
 # AGENTS.md
 
-## Cursor Cloud specific instructions
+## Product
 
-### Product
-FinUP is a single Flask web app (personal/family finance). Local default DB is SQLite (`instance/financeiro.db`); no Redis/Postgres daemon is required for day-to-day development. Production target is Railway + PostgreSQL (`railway.json`).
+Comanda IA is a multi-tenant SaaS for restaurants (Next.js 16 + PostgreSQL + Prisma + Better Auth). Same cloud system for platform admin (`/admin`), cashier POS (`/caixa`) and waiter phone (`/garcom`). Pilot tenant: Central da Pizza (`/loja/central-da-pizza`).
 
-### Start / stop
-- Activate venv and run: `source venv/bin/activate && python app.py` (or `./iniciar.sh`, which also refreshes deps).
-- App listens on `http://127.0.0.1:5000` (`0.0.0.0:5000`). Health: `GET /api/saude`.
-- Optional local config: copy `.env.example` → `.env` (already gitignored). Dev login: `admin` / `admin123` (see README).
+## Start / stop
 
-### Lint / test / build
-- No project linter (ruff/flake8/eslint) is configured.
-- Tests: `source venv/bin/activate && pytest -q` (in-memory/temp SQLite via `tests/conftest.py`; do not point tests at the live `instance/` DB).
-- Production-style serve is Gunicorn (`Procfile` / README); for Cloud Agent work prefer `python app.py` in development mode.
+- `cp .env.example .env` then `npx prisma migrate dev && npm run db:seed && npm run dev`
+- App: `http://127.0.0.1:3000` (also `0.0.0.0:3000`)
+- Health: `GET /api/health`
+- Dev logins (seed only): admin `admin` / `Maciel.2004`; gerente (dono da loja) `gerente` / `Gerente!2026`; cashier `caixa` / `Caixa!2026`; waiter `garcom` / `Garcom!2026`; delivery `motoboy` / `Entrega!2026`. E-mail also works.
 
-### Gotchas
-- System package `python3.12-venv` must be present before `python3 -m venv venv` works on Ubuntu; the environment snapshot should already include it after initial setup.
-- Use `./venv/bin/...` or `source venv/bin/activate` — do not rely on a global `pip`/`pytest` outside the venv.
-- Uploads and SQLite live under `uploads/` and `instance/`; both are local and gitignored (except keep files).
+## Lint / test / build
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm test` (Vitest; uses `DATABASE_URL`, default test DB `forno_test` in CI)
+- `npm run build`
+
+## Gotchas
+
+- Do not point tests at a production database.
+- Tenant isolation is server-side. Never trust a client-sent `tenantId`.
+- Money is integer cents.
+- Prisma 6 on purpose (Better Auth). See `docs/decisions/002-orm.md`.
+- PostgreSQL must be running locally (`docker compose up -d` or system cluster).
+- Production Railway tracks `cursor/forno-saas-foundation-658e`, not `main`. When the user asks to publish, atualizar geral, or ship a cashier/waiter/store change to the pizzeria, merge that work into this branch and push. Shortcuts poll `GET /api/version` and reload themselves. Playbook: `docs/atualizar-geral.md`. Script: `npm run publish:railway`.
+- `/api/version` must return the git commit SHA (baked at build). Never use `APP_VERSION` (`0.1.0`) as the deploy id — it does not change between deploys, so PWAs would never refresh.
