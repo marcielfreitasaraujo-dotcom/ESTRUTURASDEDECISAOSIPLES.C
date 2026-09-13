@@ -92,7 +92,7 @@ export function CheckoutForm({
   }
 
   return (
-    <form action={checkoutFormAction} method="post" className="grid gap-4">
+    <form action={checkoutFormAction} className="grid gap-4">
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="paymentMethod" value={paymentMethod} />
@@ -234,7 +234,10 @@ export function CheckoutForm({
           <Button type="button" variant="outline" className="h-11" onClick={() => setStep("address")}>
             Voltar ao endereço
           </Button>
-          <SubmitButton disabled={!paymentMethod} />
+            <SubmitButton disabled={!paymentMethod} />
+            {!paymentMethod ? (
+              <p className="text-center text-xs text-zinc-500">Escolha uma forma de pagamento para confirmar.</p>
+            ) : null}
         </div>
       </div>
     </form>
