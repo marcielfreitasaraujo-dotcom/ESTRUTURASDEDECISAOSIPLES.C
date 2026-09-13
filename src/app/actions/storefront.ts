@@ -125,6 +125,7 @@ export async function checkoutFormAction(formData: FormData) {
     tableNumber: String(formData.get("tableNumber") || "") || undefined,
     street: formData.get("street") || undefined,
     addressNumber: formData.get("addressNumber") || undefined,
+    complement: formData.get("complement") || undefined,
     neighborhood: formData.get("neighborhood") || undefined,
     city: formData.get("city") || undefined,
     state: formData.get("state") || undefined,
@@ -133,7 +134,8 @@ export async function checkoutFormAction(formData: FormData) {
     idempotencyKey: formData.get("idempotencyKey") || crypto.randomUUID(),
   });
   if (!parsed.success) {
-    redirect(`/loja/${slug}/checkout?error=invalid`);
+    const paymentIssue = parsed.error.issues.some((issue) => issue.path.includes("paymentMethod"));
+    redirect(`/loja/${slug}/checkout?error=${paymentIssue ? "payment" : "invalid"}`);
   }
 
   const guest = parseStoreGuest(

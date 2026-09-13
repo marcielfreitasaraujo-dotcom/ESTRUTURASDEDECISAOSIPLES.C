@@ -26,7 +26,7 @@ export const checkoutSchema = z.object({
   customerEmail: z.string().email().optional().or(z.literal("")),
   fulfillment: z.enum(["DELIVERY", "PICKUP", "DINE_IN"]),
   tableNumber: z.string().max(10).optional(),
-  paymentMethod: z.enum(["PIX", "CASH", "CARD", "OTHER"]),
+  paymentMethod: z.enum(["PIX", "CASH", "CARD"]),
   notes: z.string().max(500).optional(),
   couponCode: z.string().optional(),
   street: z.string().optional(),

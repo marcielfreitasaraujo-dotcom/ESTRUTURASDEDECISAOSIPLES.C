@@ -37,6 +37,8 @@ export default async function CheckoutPage({
           ? "Informe rua, número e bairro para entrega."
           : error === "fulfillment"
             ? "Esta loja não está aceitando essa forma de recebimento."
+            : error === "payment"
+              ? "Escolha PIX, dinheiro ou cartão para concluir."
             : error === "failed"
               ? "Não foi possível concluir o pedido. Tente novamente."
               : undefined;
@@ -49,7 +51,7 @@ export default async function CheckoutPage({
           <p className="text-sm text-zinc-600">
             {tableNumber
               ? `Pedido da mesa ${tableNumber}. A cozinha recebe na hora.`
-              : "Retirada, entrega em casa ou mesa. O servidor recalcula o preço."}
+              : "Informe o endereço e escolha PIX, dinheiro ou cartão."}
           </p>
         </div>
         <div className="grid justify-items-end gap-2">
