@@ -284,10 +284,38 @@ def create_app(config_class=None) -> Flask:
         from app import models  # noqa: F401
         from app.services.seed import inicializar_sistema
 
-        db.create_all()
+        _inicializar_banco_com_retry(app)
         from app.services.esquema import garantir_esquema
 
         garantir_esquema()
         inicializar_sistema(app)
 
     return app
+
+
+def _inicializar_banco_com_retry(app, *, tentativas: int = 8, espera_s: float = 3.0) -> None:
+    """Evita crash do gunicorn quando o Postgres reinicia/sobe um pouco depois do web."""
+    import time
+
+    from sqlalchemy.exc import OperationalError
+
+    ultimo = None
+    for i in range(1, tentativas + 1):
+        try:
+            db.create_all()
+            if i > 1:
+                logger.info("Banco conectou na tentativa %s/%s", i, tentativas)
+            return
+        except OperationalError as exc:
+            ultimo = exc
+            logger.warning(
+                "Banco indisponível no boot (%s/%s): %s",
+                i,
+                tentativas,
+                str(exc).splitlines()[0][:180],
+            )
+            if i < tentativas:
+                time.sleep(espera_s)
+    raise RuntimeError(
+        "Não foi possível conectar ao banco no boot do FinUP."
+    ) from ultimo
