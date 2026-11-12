@@ -141,7 +141,8 @@ def test_esqueci_senha_e_redefinir(client, app):
 
 def test_login_mostra_esqueci_senha(client):
     html = client.get("/login").get_data(as_text=True)
-    assert "Esqueci a senha" in html
+    assert "Esqueceu sua senha?" in html
+    assert "/esqueci-senha" in html
     assert "E-mail" in html
 
 
