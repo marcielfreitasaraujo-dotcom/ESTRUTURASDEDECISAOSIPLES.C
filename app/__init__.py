@@ -66,6 +66,26 @@ def create_app(config_class=None) -> Flask:
     def load_user(user_id):
         return db.session.get(Usuario, int(user_id))
 
+    _versoes_estaticos: dict[str, int] = {}
+
+    @app.url_defaults
+    def versao_estaticos(endpoint, values):
+        """Acrescenta ?v=<data do arquivo> aos estáticos.
+
+        Assim, depois de cada deploy, navegador e PWA baixam o CSS/JS novo
+        em vez de continuar com a versão antiga do cache.
+        """
+        if endpoint != "static" or "filename" not in values or "v" in values:
+            return
+        nome = values["filename"]
+        if nome not in _versoes_estaticos or app.debug:
+            try:
+                _versoes_estaticos[nome] = int((Path(app.static_folder) / nome).stat().st_mtime)
+            except OSError:
+                _versoes_estaticos[nome] = 0
+        if _versoes_estaticos[nome]:
+            values["v"] = _versoes_estaticos[nome]
+
     app.jinja_env.filters["moeda"] = formatar_moeda
     app.jinja_env.filters["data_br"] = formatar_data
     app.jinja_env.globals["nome_mes"] = nome_mes

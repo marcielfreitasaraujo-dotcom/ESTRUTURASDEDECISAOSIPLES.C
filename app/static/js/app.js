@@ -189,3 +189,8 @@
     observer.observe(mainWrap);
   }
 })();
+
+// Filtros: abertos no computador, recolhidos no celular
+document.querySelectorAll("details[data-open-desktop]").forEach((el) => {
+  if (window.matchMedia("(min-width: 900px)").matches) el.open = true;
+});

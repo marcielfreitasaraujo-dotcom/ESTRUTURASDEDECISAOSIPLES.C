@@ -10,6 +10,17 @@ from app.services.saldo import saldo_usuario
 from app.utils.formatters import MESES_PT
 
 
+
+def _rotulo_periodo(inicio, fim) -> str:
+    """'Agosto de 2026' quando é um mês só; senão '14/08 a 11/11/2026'."""
+    if inicio == fim:
+        return inicio.strftime("%d/%m/%Y")
+    if (inicio.year, inicio.month) == (fim.year, fim.month) and inicio.day == 1:
+        return f"{MESES_PT[inicio.month]} de {inicio.year}"
+    if inicio.year == fim.year:
+        return f"{inicio.strftime('%d/%m')} a {fim.strftime('%d/%m/%Y')}"
+    return f"{inicio.strftime('%d/%m/%Y')} a {fim.strftime('%d/%m/%Y')}"
+
 def _base(usuario_id: int, inicio: date, fim: date):
     return Movimentacao.query.filter(
         Movimentacao.usuario_id == usuario_id,
@@ -42,7 +53,7 @@ def resumo_periodo(usuario_id: int, inicio: date, fim: date) -> dict:
         "saldo_contas": saldo_usuario(usuario_id),
         "inicio": inicio,
         "fim": fim,
-        "mes_nome": f"{MESES_PT[inicio.month]} de {inicio.year}",
+        "mes_nome": _rotulo_periodo(inicio, fim),
     }
 
 
