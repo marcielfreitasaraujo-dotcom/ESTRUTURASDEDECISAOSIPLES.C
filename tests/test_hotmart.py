@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 
 from app.extensions import db
 from app.models import Usuario
@@ -18,7 +18,10 @@ def _payload(email="cliente.hotmart@email.com", evento="PURCHASE_APPROVED", tx="
         "purchase": {
             "transaction": tx,
             "status": "APPROVED",
-            "date_next_charge": int((date.today() + timedelta(days=30)).strftime("%s")) * 1000,
+            "date_next_charge": int(
+                datetime.combine(date.today() + timedelta(days=30), time(12), tzinfo=timezone.utc).timestamp()
+            )
+            * 1000,
         },
     }
     return {"id": f"evt-{tx}", "event": evento, "version": "2.0.0", "data": data}
