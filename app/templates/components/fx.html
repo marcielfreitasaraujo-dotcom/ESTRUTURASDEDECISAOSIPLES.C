@@ -1,0 +1,52 @@
+{#
+  FinUP Design System — componentes Jinja reutilizáveis.
+  Uso: {% from 'components/fx.html' import ic, kpi, badge, money, delta %}
+#}
+
+{# Ícone Lucide do sprite local. nome = id sem o prefixo (ex.: 'house') #}
+{% macro ic(nome, classe='') -%}
+<svg class="fx-ic {{ classe }}" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons/lucide.svg') }}#i-{{ nome }}"></use></svg>
+{%- endmacro %}
+
+{# Valor em reais com sinal e cor. tipo: 'pos' | 'neg' | '' #}
+{% macro money(valor, tipo='', sinal=False, classe='') -%}
+<span class="fx-money {{ 'fx-money--' ~ tipo if tipo }} {{ classe }}">
+  {%- if sinal and tipo == 'pos' %}+ {% elif sinal and tipo == 'neg' %}− {% endif -%}
+  {{ valor | moeda }}</span>
+{%- endmacro %}
+
+{# Variação percentual vs. período anterior. inverter=True para despesas (subir é ruim) #}
+{% macro delta(pct, inverter=False) -%}
+{% if pct is none %}
+  <span class="fx-delta fx-delta--flat">—</span>
+{% else %}
+  {% set bom = (pct >= 0) if not inverter else (pct <= 0) %}
+  {% if pct == 0 %}
+    <span class="fx-delta fx-delta--flat">{{ ic('minus') }}0%</span>
+  {% else %}
+    <span class="fx-delta {{ 'fx-delta--up' if bom else 'fx-delta--down' }}">
+      {{ ic('arrow-up-right' if pct > 0 else 'arrow-down-right') }}{{ '%+.0f' | format(pct) }}%
+    </span>
+  {% endif %}
+{% endif %}
+{%- endmacro %}
+
+{# Selo de situação. tom: pos | neg | warn | info | invest | '' #}
+{% macro badge(texto, tom='', ponto=True) -%}
+<span class="fx-badge {{ 'fx-badge--' ~ tom if tom }} {{ 'fx-badge--dot' if ponto }}">{{ texto }}</span>
+{%- endmacro %}
+
+{# Indicador (KPI): rótulo, valor, ícone, tom, variação e link opcional #}
+{% macro kpi(rotulo, valor, icone, tom='pos', variacao=None, inverter=False, nota='', href=None, tipo_valor='') -%}
+<{{ 'a href="' ~ href ~ '"' if href else 'div' }} class="fx-kpi">
+  <div class="fx-kpi__top">
+    <span class="fx-tile fx-tile--{{ tom }}">{{ ic(icone) }}</span>
+    <span class="fx-kpi__label">{{ rotulo }}</span>
+  </div>
+  <div class="fx-kpi__value">{{ money(valor, tipo_valor, classe='fx-money--lg') }}</div>
+  <div class="fx-kpi__foot">
+    <span>{{ nota }}</span>
+    {% if variacao is not none %}{{ delta(variacao, inverter) }}{% endif %}
+  </div>
+</{{ 'a' if href else 'div' }}>
+{%- endmacro %}
