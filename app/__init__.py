@@ -103,6 +103,13 @@ def create_app(config_class=None) -> Flask:
 
     @app.after_request
     def registrar_requisicao(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        if request.is_secure:
+            response.headers.setdefault(
+                "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
+            )
         session.permanent = False
         nome_lembrar = app.config.get("REMEMBER_COOKIE_NAME", "remember_token")
         if request.cookies.get(nome_lembrar):

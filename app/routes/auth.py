@@ -16,15 +16,25 @@ from app.utils.assinatura import (
     usuario_tem_acesso,
 )
 from app.utils.tokens import ler_token_reset, ler_token_verificacao
+from app.utils import limite
 import logging
 
 auth_bp = Blueprint("auth", __name__)
 logger = logging.getLogger("finup.auth")
 
 
+def _caminho_interno(destino: str | None) -> bool:
+    """Aceita só caminhos do próprio site ("/x"), nunca "//outro-site" ou "/\\outro"."""
+    if not destino or not destino.startswith("/"):
+        return False
+    if destino.startswith("//"):
+        return False
+    return not any(c in destino for c in ("\\", "\n", "\r"))
+
+
 def _destino_seguro(valor: str | None, padrao: str) -> str:
     destino = valor or padrao
-    if not destino.startswith("/"):
+    if not _caminho_interno(destino):
         return padrao
     return destino
 
@@ -35,10 +45,7 @@ def _destino_pos_login(usuario: Usuario, next_param: str | None = None) -> str:
         return url_for("auth.aguardando_verificacao")
     if bloqueio_assinatura_ativo() and not usuario_tem_acesso(usuario):
         return url_for("assinatura.bloqueado")
-    destino = next_param or url_for("dashboard.index")
-    if not destino.startswith("/"):
-        return url_for("dashboard.index")
-    return destino
+    return _destino_seguro(next_param, url_for("dashboard.index"))
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
@@ -56,14 +63,23 @@ def login():
     if request.method == "POST":
         username = (request.form.get("username") or "").strip().lower()
         senha = request.form.get("senha") or ""
+        ip = limite.ip_cliente()
+        if limite.bloqueado("login-usuario", username) or limite.bloqueado("login-ip", ip):
+            logger.warning("Login bloqueado por excesso de tentativas usuario=%s ip=%s", username, ip)
+            erro = "Muitas tentativas seguidas. Aguarde 15 minutos ou use “Esqueci a senha”."
+            plano = obter_plano_assinatura()
+            return render_template("auth/login.html", erro=erro, plano=plano), 429
         usuario = Usuario.query.filter(Usuario.username.ilike(username)).first()
         if not usuario or not usuario.verificar_senha(senha):
             logger.warning("Falha de autenticação para usuario=%s", username or "(vazio)")
+            limite.registrar_falha("login-usuario", username)
+            limite.registrar_falha("login-ip", ip)
             erro = "E-mail/usuário ou senha inválidos."
         elif not usuario.ativo:
             logger.warning("Tentativa de acesso com conta desativada usuario=%s", username)
             erro = "Esta conta está desativada."
         else:
+            limite.limpar("login-usuario", username)
             session.clear()
             login_user(usuario, remember=False)
             session.permanent = False
@@ -118,12 +134,12 @@ def cadastro():
                 try:
                     enviado = enviar_verificacao(membro)
                     db.session.commit()
-                except Exception as exc:
+                except Exception:
                     db.session.commit()  # conta já criada; código pode ter sido gerado
                     logger.exception("Falha ao enviar e-mail de verificação para %s", username)
                     flash(
-                        f"Conta criada, mas o e-mail não saiu: {exc}. "
-                        "Você pode tentar “Reenviar” ou digitar o código quando chegar.",
+                        "Conta criada, mas o e-mail de confirmação não saiu agora. "
+                        "Toque em “Reenviar” daqui a pouco.",
                         "erro",
                     )
                 else:
@@ -191,7 +207,18 @@ def aguardando_verificacao():
         acao = (request.form.get("acao") or "reenviar").strip()
         if acao == "codigo":
             codigo = request.form.get("codigo") or ""
+            chave_codigo = str(current_user.id)
+            if limite.bloqueado("codigo", chave_codigo):
+                erro = "Muitas tentativas com código errado. Peça um novo código (Reenviar)."
+                return render_template(
+                    "auth/aguardando_verificacao.html",
+                    erro=erro,
+                    email=current_user.username,
+                    email_ok=email_configurado(),
+                    aviso_email=aviso_limitacao_email(current_user.username),
+                ), 429
             if validar_codigo_verificacao(current_user, codigo):
+                limite.limpar("codigo", chave_codigo)
                 try:
                     from app.services.hotmart import aplicar_pedidos_pendentes
 
@@ -207,16 +234,18 @@ def aguardando_verificacao():
                         "info",
                     )
                 return redirect(url_for("auth.sessao_iniciar", next=destino))
+            limite.registrar_falha("codigo", chave_codigo)
             erro = "Código inválido ou expirado. Confira o e-mail ou peça um novo código."
         else:
             try:
                 enviar_verificacao(current_user)
                 db.session.commit()
+                limite.limpar("codigo", str(current_user.id))
                 flash("Reenviamos o código e o link. Confira sua caixa de entrada (e o spam).", "sucesso")
-            except Exception as exc:
+            except Exception:
                 db.session.rollback()
                 logger.exception("Falha ao reenviar verificação")
-                erro = str(exc)
+                erro = "Não foi possível enviar o e-mail agora. Tente de novo em alguns minutos."
     return render_template(
         "auth/aguardando_verificacao.html",
         erro=erro,
@@ -234,6 +263,11 @@ def esqueci_senha():
     erro = None
     if request.method == "POST":
         email = (request.form.get("username") or "").strip().lower()
+        ip = limite.ip_cliente()
+        if limite.bloqueado("esqueci-ip", ip):
+            erro = "Muitos pedidos seguidos. Aguarde 15 minutos e tente de novo."
+            return render_template("auth/esqueci_senha.html", msg=None, erro=erro), 429
+        limite.registrar_falha("esqueci-ip", ip)
         usuario = Usuario.query.filter(Usuario.username.ilike(email)).first()
         if usuario and usuario.ativo and usuario.eh_email:
             try:
@@ -243,11 +277,11 @@ def esqueci_senha():
                         "Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha. "
                         "Confira sua caixa de entrada (e o spam)."
                     )
-            except Exception as exc:
+            except Exception:
                 logger.exception("Falha ao enviar reset de senha para %s", email)
                 erro = (
-                    f"Não foi possível enviar o e-mail: {exc} "
-                    "Peça ao administrador para redefinir sua senha em Configurações."
+                    "Não foi possível enviar o e-mail agora. "
+                    "Tente de novo em alguns minutos ou peça ao administrador para redefinir sua senha."
                 )
         else:
             # Resposta genérica — não revela se o e-mail existe

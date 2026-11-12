@@ -6,6 +6,7 @@ from app.models.hotmart_pedido import STATUS_APLICADO, STATUS_PENDENTE, HotmartP
 from app.services.hotmart import CHAVE_CHECKOUT, CHAVE_HOTTOK
 from app.services.seed import criar_membro_familia
 from app.utils.assinatura import _definir_cfg, definir_bloqueio_assinatura, usuario_tem_acesso
+from app.utils.tokens import gerar_token_verificacao
 
 
 HOTTOK = "hottok-teste-finup"
@@ -63,6 +64,7 @@ def test_compra_aprovada_libera_usuario_existente(client, app):
             "senha123",
             eh_familia=False,
             assinatura_ativa=False,
+            email_verificado=True,
         )
         db.session.commit()
         uid = Usuario.query.filter_by(username="cliente.hotmart@email.com").one().id
@@ -105,12 +107,46 @@ def test_compra_sem_conta_fica_pendente_e_libera_no_cadastro(client, app):
     )
     assert resp.status_code in {302, 303}
 
+    # Antes de confirmar o e-mail, a compra continua guardada (ninguém "rouba" a compra
+    # cadastrando o e-mail do comprador).
+    with app.app_context():
+        usuario = Usuario.query.filter_by(username=email).one()
+        pedido = HotmartPedido.query.filter_by(transacao="HP-pendente").one()
+        assert pedido.status == STATUS_PENDENTE
+        token = gerar_token_verificacao(usuario.id)
+
+    client.get(f"/verificar-email/{token}")
+
     with app.app_context():
         usuario = Usuario.query.filter_by(username=email).one()
         assert usuario_tem_acesso(usuario) is True
         pedido = HotmartPedido.query.filter_by(transacao="HP-pendente").one()
         assert pedido.status == STATUS_APLICADO
         assert pedido.usuario_id == usuario.id
+
+
+def test_compra_nao_libera_conta_sem_email_confirmado(client, app):
+    app.config["HOTMART_HOTTOK"] = HOTTOK
+    email = "intruso@email.com"
+    with app.app_context():
+        definir_bloqueio_assinatura(True)
+        criar_membro_familia(
+            "Intruso",
+            email,
+            "senha123",
+            perfil="usuario",
+            eh_familia=False,
+            assinatura_ativa=False,
+            email_verificado=False,
+            exigir_email=True,
+        )
+        db.session.commit()
+
+    resp = _post(client, _payload(email=email, tx="HP-intruso"))
+    assert resp.get_json()["acao"] == "pendente"
+    with app.app_context():
+        usuario = Usuario.query.filter_by(username=email).one()
+        assert usuario_tem_acesso(usuario) is False
 
 
 def test_reembolso_bloqueia(client, app):
@@ -124,6 +160,7 @@ def test_reembolso_bloqueia(client, app):
             "senha123",
             eh_familia=False,
             assinatura_ativa=False,
+            email_verificado=True,
         )
         db.session.commit()
 
@@ -155,6 +192,7 @@ def test_evento_duplicado_nao_quebra(client, app):
             "senha123",
             eh_familia=False,
             assinatura_ativa=False,
+            email_verificado=True,
         )
         db.session.commit()
     assert _post(client, _payload(email=email, tx="HP-dup")).status_code == 200
@@ -186,6 +224,7 @@ def test_hottok_e_checkout_pelo_admin(client, app, admin_client):
             "senha123",
             eh_familia=False,
             assinatura_ativa=False,
+            email_verificado=True,
         )
         db.session.commit()
     resp = _post(client, _payload(email="via.admin.hotmart@email.com", tx="HP-admin"))

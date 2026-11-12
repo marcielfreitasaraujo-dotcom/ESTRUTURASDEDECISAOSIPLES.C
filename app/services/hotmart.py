@@ -138,9 +138,22 @@ def _buscar_usuario(email: str) -> Usuario | None:
     return Usuario.query.filter(func.lower(Usuario.username) == email).first()
 
 
+def _pode_receber_compra(usuario: Usuario) -> bool:
+    """Só libera a compra para quem já provou ser dono do e-mail.
+
+    Sem isso, alguém poderia cadastrar o e-mail de um comprador antes dele
+    e ficar com a assinatura paga.
+    """
+    from app.services.auth_email import usuario_precisa_verificar_email
+
+    return not usuario_precisa_verificar_email(usuario)
+
+
 def aplicar_pedidos_pendentes(usuario: Usuario) -> int:
     """Libera assinatura se existir compra Hotmart pendente para o e-mail da conta."""
     if usuario is None or usuario.eh_admin or usuario.eh_familia:
+        return 0
+    if not _pode_receber_compra(usuario):
         return 0
     email = (usuario.username or "").strip().lower()
     if not email:
@@ -205,7 +218,12 @@ def processar_webhook_hotmart(payload: dict) -> dict:
 
     if evento in EVENTOS_LIBERAR:
         pedido.vence_em = _vence_em_do_payload(payload)
-        if usuario is not None and not usuario.eh_admin and not usuario.eh_familia:
+        if (
+            usuario is not None
+            and not usuario.eh_admin
+            and not usuario.eh_familia
+            and _pode_receber_compra(usuario)
+        ):
             liberar_assinatura(usuario, vence_em=pedido.vence_em)
             pedido.marcar_aplicado(usuario.id, vence_em=pedido.vence_em)
             logger.info("Hotmart: assinatura liberada email=%s tx=%s", email, transacao)

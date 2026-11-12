@@ -8,6 +8,7 @@ from app.models.cartao import Cartao, Parcela
 from app.models.cobranca_assinatura import CobrancaAssinatura
 from app.models.hotmart_pedido import HotmartPedido
 from app.models.sistema import Orcamento, Configuracao, Auditoria, Notificacao
+from app.models.tentativa import TentativaAcesso
 
 __all__ = [
     "Usuario",
@@ -33,4 +34,5 @@ __all__ = [
     "Configuracao",
     "Auditoria",
     "Notificacao",
+    "TentativaAcesso",
 ]
