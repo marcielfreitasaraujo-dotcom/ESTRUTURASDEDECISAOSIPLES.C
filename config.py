@@ -37,6 +37,11 @@ def opcoes_engine(url: str) -> dict:
     return {"pool_pre_ping": True}
 
 
+# Versão do FinUP: suba a cada atualização publicada (aparece no selo
+# "Sistema AraujoIA" e em /api/saude, para conferir o que está no ar).
+VERSAO_SISTEMA = "2026.11.11"
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", _DEV_SECRET)
     DEBUG = _bool_env("DEBUG", False)

@@ -316,3 +316,51 @@ html[data-theme="escuro"] .side-nav a .nav-label { color: inherit; }
   }
   .btn:active, .fab:hover, a.account-card:hover, a.kpi-link:hover { transform: none !important; }
 }
+
+/* ------------------------------------------- Selo "Sistema AraujoIA" */
+.selo-araujoia {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
+}
+.selo-araujoia-marca {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.selo-araujoia-versao { font-size: 0.72rem; opacity: 0.85; font-variant-numeric: tabular-nums; }
+.sidebar-selo {
+  flex-shrink: 0;
+  padding: 0.7rem 0.4rem 0;
+  border-top: 1px solid var(--border);
+}
+html.sidebar-recolhida .sidebar-selo .selo-araujoia-versao { display: none; }
+html.sidebar-recolhida .sidebar-selo .selo-araujoia-marca { font-size: 0.6rem; }
+.app-rodape {
+  margin: 2.5rem 0 4.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+@media (min-width: 861px) {
+  .app-rodape { display: none; } /* no computador o selo já está no menu lateral */
+}
+.auth-card .selo-araujoia {
+  margin-top: 1.4rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+}
+.auth-card .selo-araujoia-marca {
+  background: linear-gradient(90deg, #0f766e, #14b8a6);
+  -webkit-background-clip: text;
+  background-clip: text;
+}

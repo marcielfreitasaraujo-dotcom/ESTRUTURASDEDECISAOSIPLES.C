@@ -71,6 +71,7 @@
       Já tem cadastro?
       <a href="{{ url_for('auth.login') }}">Entrar</a>
     </p>
+    {% include 'components/assinatura_araujoia.html' %}
   </main>
   <script>
     document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {

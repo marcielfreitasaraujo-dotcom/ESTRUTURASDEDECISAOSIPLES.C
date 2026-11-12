@@ -73,6 +73,7 @@
     {% if config.DEBUG %}
     <p class="hint">Primeiro acesso local: usuário <code>admin</code> · senha <code>admin123</code></p>
     {% endif %}
+    {% include 'components/assinatura_araujoia.html' %}
   </main>
   <script>
     document.querySelectorAll("[data-toggle-senha]").forEach((btn) => {

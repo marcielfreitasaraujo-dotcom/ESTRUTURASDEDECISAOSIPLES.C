@@ -6,7 +6,7 @@ from flask import Flask, jsonify, render_template, request, session
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from config import get_config, opcoes_engine
+from config import VERSAO_SISTEMA, get_config, opcoes_engine
 from app.extensions import csrf, db, login_manager
 from app.models import Usuario
 from app.utils.formatters import formatar_data, formatar_moeda, nome_mes, parse_moeda
@@ -89,6 +89,7 @@ def create_app(config_class=None) -> Flask:
     app.jinja_env.filters["moeda"] = formatar_moeda
     app.jinja_env.filters["data_br"] = formatar_data
     app.jinja_env.globals["nome_mes"] = nome_mes
+    app.jinja_env.globals["versao_sistema"] = VERSAO_SISTEMA
     app.jinja_env.globals["parse_moeda"] = parse_moeda
 
     from app.routes.auth import auth_bp
@@ -151,6 +152,8 @@ def create_app(config_class=None) -> Flask:
             {
                 "ok": True,
                 "app": "finup",
+                "sistema": "Sistema AraujoIA",
+                "versao": VERSAO_SISTEMA,
                 "ambiente": os.environ.get("FLASK_ENV")
                 or os.environ.get("FINUP_ENV")
                 or os.environ.get("FINCASA_ENV")
