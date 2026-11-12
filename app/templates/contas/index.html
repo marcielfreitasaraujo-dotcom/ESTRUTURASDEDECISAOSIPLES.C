@@ -1,43 +1,67 @@
 {% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic, money, badge, kpi, kpi_num, cabecalho, icone_conta %}
 {% block title %}Contas{% endblock %}
 {% block content %}
-<section class="page-head">
-  <div>
-    <p class="kicker">Onde está o dinheiro</p>
-    <h1>Contas e carteiras</h1>
+{% set ns = namespace(total=0) %}
+{% for item in itens %}{% set ns.total = ns.total + item.saldo %}{% endfor %}
+
+<section class="fx-pagehead">
+  {{ cabecalho('Onde está o dinheiro', 'Contas e carteiras', itens | length ~ ' conta' ~ ('s' if itens | length != 1 else '') ~ ' ativa' ~ ('s' if itens | length != 1 else ''), 'landmark') }}
+  <div class="fx-row">
+    <button class="fx-btn fx-btn--secondary" type="button" data-open-lancamento data-tipo="transferencia">{{ ic('arrow-left-right') }}Transferir entre contas</button>
+    <a class="fx-btn fx-btn--primary" href="#nova-conta">{{ ic('plus') }}Nova conta</a>
   </div>
 </section>
 
-<div class="account-grid">
-  {% for item in itens %}
-    <a class="account-card" href="{{ url_for('contas.detalhe', conta_id=item.conta.id) }}">
-      <span class="tag">{{ item.conta.tipo_label }}</span>
-      <h2>{{ item.conta.nome }}</h2>
-      <strong>{{ item.saldo | moeda }}</strong>
-      <small>Saldo inicial {{ item.conta.saldo_inicial | moeda }}</small>
-      {% if item.conta.eh_carteira and item.diferenca is not none %}
-        <em class="{{ 'negativo' if item.diferenca != 0 else 'positivo' }}">
-          Diferença: {{ item.diferenca | moeda }}
-        </em>
-      {% endif %}
-    </a>
-  {% else %}
-    <p class="empty">Nenhuma conta ativa.</p>
-  {% endfor %}
-</div>
+<section class="fx-grid-kpi fx-grid-kpi--3 fx-mb">
+  {{ kpi('Saldo total', ns.total, 'wallet', 'info', tipo_valor=('neg' if ns.total < 0 else '')) }}
+  {{ kpi_num('Contas ativas', itens | length, 'landmark', 'pos', 'bancos, carteiras e poupanças') }}
+  {% set negativas = itens | selectattr('saldo', 'lt', 0) | list %}
+  {{ kpi_num('Contas no negativo', negativas | length, 'triangle-alert', 'neg' if negativas else 'pos', 'precisam de atenção' if negativas else 'tudo em ordem') }}
+</section>
 
-<article class="card" style="margin-top:1.5rem">
-  <header class="card-head"><h2>Nova conta</h2></header>
-  <form action="{{ url_for('contas.nova') }}" method="post" class="form-inline">
+{% if itens %}
+<section class="fx-contas fx-mb">
+  {% for item in itens %}
+    <a class="fx-conta" href="{{ url_for('contas.detalhe', conta_id=item.conta.id) }}">
+      <div class="fx-conta__top">
+        <span class="fx-tile fx-tile--info">{{ icone_conta(item.conta.tipo) }}</span>
+        <div class="fx-conta__nome">
+          <strong>{{ item.conta.nome }}</strong>
+          <span>{{ item.conta.tipo_label }}</span>
+        </div>
+        {{ ic('chevron-right', 'fx-ic--sm fx-text-3') }}
+      </div>
+      <div class="fx-conta__saldo">{{ money(item.saldo, 'neg' if item.saldo < 0 else '', classe='fx-money--lg') }}</div>
+      <div class="fx-conta__foot">
+        <span>Saldo inicial {{ item.conta.saldo_inicial | moeda }}</span>
+        {% if item.conta.eh_carteira and item.diferenca is not none %}
+          {{ badge('Diferença ' ~ (item.diferenca | moeda), 'warn' if item.diferenca != 0 else 'pos') }}
+        {% endif %}
+      </div>
+    </a>
+  {% endfor %}
+</section>
+{% else %}
+<article class="fx-card fx-mb"><div class="fx-empty">
+  <span class="fx-tile fx-tile--info">{{ ic('landmark') }}</span>
+  <strong class="fx-text-strong">Nenhuma conta ativa</strong>
+  <span class="fx-small">Cadastre sua primeira conta abaixo.</span>
+</div></article>
+{% endif %}
+
+<article class="fx-card" id="nova-conta">
+  <header class="fx-card__head"><div class="fx-card__title">{{ ic('plus') }}<h2 class="fx-h2">Nova conta</h2></div></header>
+  <form action="{{ url_for('contas.nova') }}" method="post" class="fx-card__body fx-form-linha">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="text" name="nome" placeholder="Nome (ex: Santander)" required>
-    <select name="tipo">
-      {% for valor, label in tipos %}
-        <option value="{{ valor }}">{{ label }}</option>
-      {% endfor %}
-    </select>
-    <input type="text" name="saldo_inicial" placeholder="Saldo inicial" value="0,00">
-    <button class="btn btn-primary" type="submit">Cadastrar</button>
+    <label class="fx-field"><span class="fx-label">Nome</span><input class="fx-input" type="text" name="nome" placeholder="Ex.: Santander" required></label>
+    <label class="fx-field"><span class="fx-label">Tipo</span>
+      <select class="fx-select" name="tipo">
+        {% for valor, label in tipos %}<option value="{{ valor }}">{{ label }}</option>{% endfor %}
+      </select>
+    </label>
+    <label class="fx-field"><span class="fx-label">Saldo inicial</span><input class="fx-input" type="text" name="saldo_inicial" inputmode="decimal" value="0,00"></label>
+    <div class="fx-field"><span class="fx-label">&nbsp;</span><button class="fx-btn fx-btn--primary" type="submit">{{ ic('check', 'fx-ic--sm') }}Cadastrar</button></div>
   </form>
 </article>
 {% endblock %}

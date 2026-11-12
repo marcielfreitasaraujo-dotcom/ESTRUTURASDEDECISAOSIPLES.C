@@ -1,53 +1,75 @@
 {% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic, money, badge, kpi, cabecalho %}
 {% block title %}Cartões{% endblock %}
 {% block content %}
-<section class="page-head">
-  <div>
-    <p class="kicker">Crédito</p>
-    <h1>Cartões</h1>
-    <p class="muted">Compras no crédito não baixam o saldo da conta até você pagar a fatura.</p>
+{% set ns = namespace(limite=0, usado=0) %}
+{% for item in itens %}{% set ns.limite = ns.limite + item.cartao.limite %}{% set ns.usado = ns.usado + item.usado %}{% endfor %}
+
+<section class="fx-pagehead">
+  {{ cabecalho('Crédito', 'Cartões', 'Compras no crédito só baixam o saldo da conta quando você paga a fatura.', 'credit-card') }}
+  <div class="fx-row">
+    <a class="fx-btn fx-btn--primary" href="#novo-cartao">{{ ic('plus') }}Novo cartão</a>
   </div>
 </section>
 
-<div class="account-grid">
+{% if itens %}
+<section class="fx-grid-kpi fx-grid-kpi--3 fx-mb">
+  {{ kpi('Limite total', ns.limite, 'credit-card', 'info') }}
+  {{ kpi('Usado', ns.usado, 'trending-down', 'neg') }}
+  {{ kpi('Disponível', ns.limite - ns.usado, 'wallet', 'pos', tipo_valor=('neg' if ns.limite - ns.usado < 0 else '')) }}
+</section>
+
+<section class="fx-cartoes fx-mb">
   {% for item in itens %}
-    <a class="account-card" href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
-      <span class="tag">fecha dia {{ item.cartao.dia_fechamento }} · pagamento dia {{ item.cartao.dia_vencimento }}</span>
-      <h2>{{ item.cartao.nome }}</h2>
-      <strong>{{ item.usado | moeda }}</strong>
-      <small>Limite {{ item.cartao.limite | moeda }} · disponível {{ item.disponivel | moeda }}</small>
-      <div class="barra {{ 'estouro' if item.percentual >= 100 else 'alerta' if item.percentual >= 80 else '' }}">
-        <span style="width: {{ [item.percentual, 100]|min }}%"></span>
+    {% set pct = [item.percentual, 100] | min %}
+    <a class="fx-cartao-item" href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
+      <div class="fx-cartao {{ 'fx-cartao--alerta' if item.percentual >= 80 }}">
+        <div class="fx-cartao__top">
+          <span class="fx-cartao__nome">{{ item.cartao.nome }}</span>
+          {{ ic('credit-card') }}
+        </div>
+        <span class="fx-cartao__chip" aria-hidden="true"></span>
+        <div class="fx-cartao__base">
+          <div><small>Fatura usada</small><strong>{{ item.usado | moeda }}</strong></div>
+          <div class="fx-cartao__datas"><small>Fecha {{ item.cartao.dia_fechamento }} · vence {{ item.cartao.dia_vencimento }}</small></div>
+        </div>
+      </div>
+      <div class="fx-cartao-info">
+        <div class="fx-between fx-small">
+          <span class="fx-text-2">Limite {{ item.cartao.limite | moeda }}</span>
+          {% if item.percentual >= 100 %}{{ badge('Limite estourado', 'neg') }}
+          {% elif item.percentual >= 80 %}{{ badge('Perto do limite', 'warn') }}
+          {% else %}{{ badge('Disponível ' ~ (item.disponivel | moeda), 'pos') }}{% endif %}
+        </div>
+        <div class="fx-progress {{ 'fx-progress--neg' if item.percentual >= 100 else ('fx-progress--warn' if item.percentual >= 80) }}" style="--fx-valor:{{ pct }}%"><span></span></div>
+        <span class="fx-small fx-text-3">{{ '%.0f' | format(item.percentual) }}% do limite em uso</span>
       </div>
     </a>
-  {% else %}
-    <p class="empty">Nenhum cartão ainda. Cadastre o Nubank, o da Caixa ou o que você usar.</p>
   {% endfor %}
-</div>
+</section>
+{% else %}
+<article class="fx-card fx-mb"><div class="fx-empty">
+  <span class="fx-tile fx-tile--info">{{ ic('credit-card') }}</span>
+  <strong class="fx-text-strong">Nenhum cartão ainda</strong>
+  <span class="fx-small">Cadastre o Nubank, o da Caixa ou o que você usar.</span>
+</div></article>
+{% endif %}
 
-<article class="card" style="margin-top:1.5rem">
-  <header class="card-head"><h2>Novo cartão</h2></header>
-  <form action="{{ url_for('cartoes.nova') }}" method="post" class="stack">
+<article class="fx-card" id="novo-cartao">
+  <header class="fx-card__head"><div class="fx-card__title">{{ ic('plus') }}<h2 class="fx-h2">Novo cartão</h2></div></header>
+  <form action="{{ url_for('cartoes.nova') }}" method="post" class="fx-card__body fx-form-linha">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="grid-2">
-      <label>Nome do cartão
-        <input type="text" name="nome" placeholder="Ex: XP Investimentos" required maxlength="80">
-      </label>
-      <label>Limite
-        <input type="text" name="limite" placeholder="0,00" value="0,00" inputmode="decimal">
-      </label>
-    </div>
-    <div class="grid-2">
-      <label>Dia do fechamento da fatura
-        <input type="number" name="dia_fechamento" min="1" max="28" value="8" required>
-        <small class="muted">Último dia em que a compra ainda entra nesta fatura</small>
-      </label>
-      <label>Dia do pagamento da fatura
-        <input type="number" name="dia_vencimento" min="1" max="28" value="15" required>
-        <small class="muted">Dia em que a fatura vence e você paga</small>
-      </label>
-    </div>
-    <button class="btn btn-primary" type="submit">Cadastrar</button>
+    <label class="fx-field"><span class="fx-label">Nome do cartão</span>
+      <input class="fx-input" type="text" name="nome" placeholder="Ex.: XP Investimentos" required maxlength="80"></label>
+    <label class="fx-field"><span class="fx-label">Limite</span>
+      <input class="fx-input" type="text" name="limite" placeholder="0,00" value="0,00" inputmode="decimal"></label>
+    <label class="fx-field"><span class="fx-label">Dia do fechamento</span>
+      <input class="fx-input" type="number" name="dia_fechamento" min="1" max="28" value="8" required>
+      <span class="fx-help">Último dia em que a compra entra na fatura</span></label>
+    <label class="fx-field"><span class="fx-label">Dia do pagamento</span>
+      <input class="fx-input" type="number" name="dia_vencimento" min="1" max="28" value="15" required>
+      <span class="fx-help">Dia em que a fatura vence</span></label>
+    <div class="fx-field"><span class="fx-label">&nbsp;</span><button class="fx-btn fx-btn--primary" type="submit">{{ ic('check', 'fx-ic--sm') }}Cadastrar</button><span class="fx-help">&nbsp;</span></div>
   </form>
 </article>
 {% endblock %}

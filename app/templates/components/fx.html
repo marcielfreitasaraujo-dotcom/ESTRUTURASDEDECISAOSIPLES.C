@@ -1,11 +1,16 @@
 {#
   FinUP Design System — componentes Jinja reutilizáveis.
-  Uso: {% from 'components/fx.html' import ic, kpi, badge, money, delta %}
+  Uso: {% from 'components/fx.html' import ic, kpi, badge, money, delta, icone_conta %}
 #}
 
 {# Ícone Lucide do sprite local. nome = id sem o prefixo (ex.: 'house') #}
 {% macro ic(nome, classe='') -%}
 <svg class="fx-ic {{ classe }}" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='icons/lucide.svg') }}#i-{{ nome }}"></use></svg>
+{%- endmacro %}
+
+{# Ícone por tipo de conta #}
+{% macro icone_conta(tipo, classe='') -%}
+{{ ic({'carteira': 'wallet', 'banco': 'building-2', 'conta_digital': 'landmark', 'poupanca': 'piggy-bank', 'investimentos': 'chart-line'}.get(tipo, 'banknote'), classe) }}
 {%- endmacro %}
 
 {# Valor em reais com sinal e cor. tipo: 'pos' | 'neg' | '' #}
@@ -36,6 +41,25 @@
 <span class="fx-badge {{ 'fx-badge--' ~ tom if tom }} {{ 'fx-badge--dot' if ponto }}">{{ texto }}</span>
 {%- endmacro %}
 
+{# Selo a partir do status de um título (contas a pagar/receber) #}
+{% macro badge_status(st) -%}
+{% if st == 'atrasado' %}{{ badge('Atrasado', 'neg') }}
+{% elif st == 'vence_hoje' %}{{ badge('Vence hoje', 'warn') }}
+{% elif st == 'pago' %}{{ badge('Pago', 'pos') }}
+{% elif st == 'recebido' %}{{ badge('Recebido', 'pos') }}
+{% elif st == 'parcial' %}{{ badge('Parcial', 'warn') }}
+{% else %}{{ badge('Pendente', 'info') }}{% endif %}
+{%- endmacro %}
+
+{# Cabeçalho padrão das páginas #}
+{% macro cabecalho(rotulo, titulo, subtitulo='', icone_sub='') -%}
+<div>
+  <p class="fx-eyebrow">{{ rotulo }}</p>
+  <h1 class="fx-h1">{{ titulo }}</h1>
+  {% if subtitulo %}<p class="fx-pagehead__sub">{% if icone_sub %}{{ ic(icone_sub, 'fx-ic--sm') }} {% endif %}{{ subtitulo }}</p>{% endif %}
+</div>
+{%- endmacro %}
+
 {# Indicador (KPI): rótulo, valor, ícone, tom, variação e link opcional #}
 {% macro kpi(rotulo, valor, icone, tom='pos', variacao=None, inverter=False, nota='', href=None, tipo_valor='', spark='') -%}
 {% if href %}<a class="fx-kpi" href="{{ href }}">{% else %}<div class="fx-kpi">{% endif %}
@@ -56,4 +80,16 @@
     {% if variacao is not none %}{{ delta(variacao, inverter) }}{% endif %}
   </div>
 {% if href %}</a>{% else %}</div>{% endif %}
+{%- endmacro %}
+
+{# Indicador simples (número que não é dinheiro) #}
+{% macro kpi_num(rotulo, numero, icone, tom='info', nota='') -%}
+<div class="fx-kpi">
+  <div class="fx-kpi__top">
+    <span class="fx-tile fx-tile--{{ tom }}">{{ ic(icone) }}</span>
+    <span class="fx-kpi__label">{{ rotulo }}</span>
+  </div>
+  <div class="fx-kpi__value"><span class="fx-money fx-money--lg">{{ numero }}</span></div>
+  <div class="fx-kpi__foot"><span>{{ nota }}</span></div>
+</div>
 {%- endmacro %}

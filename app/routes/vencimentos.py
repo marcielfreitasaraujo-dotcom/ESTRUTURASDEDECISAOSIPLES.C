@@ -59,6 +59,47 @@ def _aplicar(titulo: ContaPagar, form) -> None:
     titulo.atualizado_em = agora()
 
 
+def _calendario(tipo: str) -> dict:
+    """Mês em grade (domingo a sábado) com os títulos de cada dia. Só leitura."""
+    import calendar
+    from collections import defaultdict
+
+    from app.utils.formatters import nome_mes, somar_meses
+
+    hoje = date.today()
+    base = date(hoje.year, hoje.month, 1)
+    texto = request.args.get("mes")
+    if texto:
+        try:
+            ano, mes = texto.split("-")[:2]
+            base = date(int(ano), int(mes), 1)
+        except (TypeError, ValueError):
+            pass
+    ultimo = date(base.year, base.month, calendar.monthrange(base.year, base.month)[1])
+    titulos = (
+        svc.query_titulos(id_casa(), tipo)
+        .filter(ContaPagar.vencimento >= base, ContaPagar.vencimento <= ultimo)
+        .all()
+    )
+    por_dia = defaultdict(list)
+    for t in titulos:
+        por_dia[t.vencimento].append(t)
+    total_aberto = sum((t.valor for t in titulos if not t.quitado), 0)
+    total_quitado = sum((t.valor for t in titulos if t.quitado), 0)
+    return {
+        "mes": base,
+        "titulo": nome_mes(base.year, base.month),
+        "anterior": somar_meses(base, -1),
+        "proximo": somar_meses(base, 1),
+        "semanas": calendar.Calendar(firstweekday=6).monthdatescalendar(base.year, base.month),
+        "por_dia": por_dia,
+        "hoje": hoje,
+        "total_aberto": total_aberto,
+        "total_quitado": total_quitado,
+        "qtd": len(titulos),
+    }
+
+
 @vencimentos_bp.route("/vencimentos")
 @login_required
 def index():
@@ -70,8 +111,12 @@ def index():
     db.session.commit()
     titulos = svc.filtrar_por_situacao(svc.query_titulos(id_casa(), tipo).all(), situacao)
     resumo = svc.totais(id_casa(), tipo)
+    ver = "calendario" if request.args.get("ver") == "calendario" else "lista"
+    calendario = _calendario(tipo) if ver == "calendario" else None
     return render_template(
         "vencimentos/index.html",
+        ver=ver,
+        calendario=calendario,
         titulos=titulos,
         tipo=tipo,
         situacao=situacao,

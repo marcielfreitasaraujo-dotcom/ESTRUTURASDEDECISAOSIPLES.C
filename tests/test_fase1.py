@@ -40,8 +40,8 @@ def test_login_e_dashboard(admin_client):
 def test_configuracoes_tema_visual(admin_client):
     html = admin_client.get("/configuracoes").get_data(as_text=True)
     assert "Aparência" in html
-    assert "tema-preview-claro" in html
-    assert "tema-preview-escuro" in html
+    # o sistema usa um único visual (tema escuro do FinUP Design System)
+    assert "Visual FinUP" in html
 
 
 def test_parse_moeda():

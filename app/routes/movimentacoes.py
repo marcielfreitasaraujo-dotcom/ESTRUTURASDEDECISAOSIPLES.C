@@ -128,10 +128,46 @@ def index():
             )
         )
 
-    itens = q.order_by(Movimentacao.data.desc(), Movimentacao.id.desc()).all()
+    # Totais do filtro (antes de paginar) — só leitura
+    def _total(t):
+        return q.filter(Movimentacao.tipo == t).with_entities(
+            db.func.coalesce(db.func.sum(Movimentacao.valor), 0)
+        ).scalar() or 0
+
+    from decimal import Decimal as _D
+
+    totais = {
+        "receitas": _D(str(_total("receita"))),
+        "despesas": _D(str(_total("despesa"))) + _D(str(_total("investimento"))),
+    }
+    totais["resultado"] = totais["receitas"] - totais["despesas"]
+
+    # Paginação (30 por página) preservando os filtros
+    por_pagina = 30
+    total_itens = q.count()
+    paginas = max(1, -(-total_itens // por_pagina))
+    try:
+        pagina = min(max(1, int(request.args.get("pagina", 1))), paginas)
+    except (TypeError, ValueError):
+        pagina = 1
+    itens = (
+        q.order_by(Movimentacao.data.desc(), Movimentacao.id.desc())
+        .offset((pagina - 1) * por_pagina)
+        .limit(por_pagina)
+        .all()
+    )
+    titulos = {"receita": "Receitas", "despesa": "Despesas", "investimento": "Investimentos",
+               "transferencia": "Transferências"}
+    args_sem_pagina = {k: v for k, v in request.args.items() if k != "pagina"}
     return render_template(
         "movimentacoes/index.html",
         itens=itens,
+        totais=totais,
+        total_itens=total_itens,
+        pagina=pagina,
+        paginas=paginas,
+        por_pagina=por_pagina,
+        args_sem_pagina=args_sem_pagina,
         contas=_contas_ativas(),
         categorias=_categorias(),
         formas=FORMAS_PAGAMENTO,
@@ -139,7 +175,7 @@ def index():
         periodo=chave,
         inicio=inicio,
         fim=fim,
-        titulo="Movimentações",
+        titulo=titulos.get(tipo, "Movimentações"),
     )
 
 
