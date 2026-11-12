@@ -1,4 +1,5 @@
 {% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}Configurações{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -49,38 +50,16 @@
     <header class="card-head">
       <h2>Aparência</h2>
     </header>
-    <p class="muted">Escolha o visual do sistema. O tema fica salvo na sua conta.</p>
-    <form action="{{ url_for('configuracoes.tema') }}" method="post" class="stack" id="form-tema">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input type="hidden" name="next" value="{{ url_for('configuracoes.index') }}">
-      <div class="tema-grid">
-        <label class="tema-opcao {{ 'ativo' if current_user.tema == 'claro' }}">
-          <input type="radio" name="tema" value="claro" {{ 'checked' if current_user.tema == 'claro' }}>
-          <span class="tema-preview tema-preview-claro" aria-hidden="true">
-            <span class="tema-preview-top"></span>
-            <span class="tema-preview-body">
-              <span></span><span></span><span></span>
-            </span>
-          </span>
-          <strong>Claro</strong>
-          <small>Fundo claro, bom durante o dia</small>
-          {% if current_user.tema == 'claro' %}<em class="tema-uso">Em uso</em>{% endif %}
-        </label>
-        <label class="tema-opcao {{ 'ativo' if current_user.tema == 'escuro' }}">
-          <input type="radio" name="tema" value="escuro" {{ 'checked' if current_user.tema == 'escuro' }}>
-          <span class="tema-preview tema-preview-escuro" aria-hidden="true">
-            <span class="tema-preview-top"></span>
-            <span class="tema-preview-body">
-              <span></span><span></span><span></span>
-            </span>
-          </span>
-          <strong>Escuro</strong>
-          <small>Fundo escuro, melhor à noite</small>
-          {% if current_user.tema == 'escuro' %}<em class="tema-uso">Em uso</em>{% endif %}
-        </label>
+    <div class="fx-stack">
+      <div class="fx-row">
+        <span class="fx-tile fx-tile--info">{{ ic('sparkles') }}</span>
+        <div>
+          <strong class="fx-text-strong">Visual FinUP</strong>
+          <p class="fx-small fx-text-2" style="margin:0.15rem 0 0">Tema escuro padrão do Sistema AraujoIA, pensado para leitura confortável dos valores.</p>
+        </div>
       </div>
-      <button class="btn btn-primary" type="submit">Aplicar tema</button>
-    </form>
+      <p class="fx-small fx-text-3" style="margin:0">Todas as telas seguem o mesmo padrão visual, no computador e no celular.</p>
+    </div>
   </article>
 
   {% if current_user.eh_admin %}

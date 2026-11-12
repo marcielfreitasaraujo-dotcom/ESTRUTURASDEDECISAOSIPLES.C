@@ -1,126 +1,117 @@
 {% extends 'base_fx.html' %}
-{% from 'components/fx.html' import ic %}
+{% from 'components/fx.html' import ic, money, badge, kpi, cabecalho %}
 {% block title %}Relatórios{% endblock %}
 {% block content %}
-<section class="page-head">
-  <div>
-    <p class="kicker">Análise</p>
-    <h1>Relatórios</h1>
-    <p class="muted">{{ titulo_periodo }} · dados reais do seu usuário</p>
-  </div>
-  <div class="btn-row">
-    <a class="btn btn-ghost" href="{{ url_for('relatorios.pdf', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">{{ ic('file-text') }}PDF</a>
-    <a class="btn btn-primary" href="{{ url_for('relatorios.excel', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">{{ ic('download') }}Excel</a>
+{% set exp_args = {'periodo': periodo, 'inicio': inicio.isoformat(), 'fim': fim.isoformat(), 'mes': (mes if periodo == 'mes' else None)} %}
+{% set ns = namespace(total=0) %}
+{% for nome, valor, cor in categorias %}{% set ns.total = ns.total + valor %}{% endfor %}
+{% set tom_tipo = {'receita': 'pos', 'despesa': 'neg', 'investimento': 'invest', 'transferencia': 'info'} %}
+
+<section class="fx-pagehead">
+  {{ cabecalho('Análise', 'Relatórios', titulo_periodo ~ ' · dados reais da sua conta', 'chart-column') }}
+  <div class="fx-row">
+    <a class="fx-btn fx-btn--secondary" href="{{ url_for('relatorios.pdf', **exp_args) }}">{{ ic('file-text') }}Exportar PDF</a>
+    <a class="fx-btn fx-btn--primary" href="{{ url_for('relatorios.excel', **exp_args) }}">{{ ic('download') }}Exportar Excel</a>
   </div>
 </section>
 
-<form class="period-pills" method="get">
+<nav class="fx-segmented fx-mb" aria-label="Período">
   {% for chave, label in [
-    ('hoje','Hoje'),
-    ('ontem','Ontem'),
-    ('esta_semana','Esta semana'),
-    ('este_mes','Este mês'),
-    ('mes_passado','Mês passado'),
-    ('ultimos_30','30 dias'),
-    ('ultimos_90','90 dias'),
-    ('este_ano','Este ano'),
-    ('ano_passado','Ano passado')
+    ('hoje','Hoje'), ('ontem','Ontem'), ('esta_semana','Semana'), ('este_mes','Este mês'),
+    ('mes_passado','Mês passado'), ('ultimos_30','30 dias'), ('ultimos_90','90 dias'),
+    ('este_ano','Este ano'), ('ano_passado','Ano passado')
   ] %}
-    <button class="pill {{ 'ativo' if periodo == chave }}" name="periodo" value="{{ chave }}">{{ label }}</button>
+    <a href="{{ url_for('relatorios.index', periodo=chave) }}" class="{{ 'is-active' if periodo == chave }}">{{ label }}</a>
   {% endfor %}
-</form>
+</nav>
 
-<div class="relatorio-filtros">
-  <form class="filters" method="get">
-    <input type="hidden" name="periodo" value="mes">
-    <label class="filtro-label">
-      Mês / ano
-      <input type="month" name="mes" value="{{ mes }}" required>
-    </label>
-    <button class="btn btn-ghost" type="submit">Ver mês</button>
-  </form>
+<section class="fx-filterbar fx-mb">
+  <div class="fx-filterbar__row">
+    <form class="fx-row" method="get" style="align-items:end">
+      <input type="hidden" name="periodo" value="mes">
+      <label class="fx-field"><span class="fx-label">Mês / ano</span><input class="fx-input" type="month" name="mes" value="{{ mes }}" required></label>
+      <button class="fx-btn fx-btn--secondary" type="submit">Ver mês</button>
+    </form>
+    <span class="fx-divisor-v" aria-hidden="true"></span>
+    <form class="fx-row" method="get" style="align-items:end">
+      <input type="hidden" name="periodo" value="personalizado">
+      <label class="fx-field fx-field--data"><span class="fx-label">De</span><input class="fx-input" type="date" name="inicio" value="{{ inicio.isoformat() }}" required></label>
+      <label class="fx-field fx-field--data"><span class="fx-label">Até</span><input class="fx-input" type="date" name="fim" value="{{ fim.isoformat() }}" required></label>
+      <button class="fx-btn fx-btn--primary" type="submit">{{ ic('filter', 'fx-ic--sm') }}Filtrar período</button>
+    </form>
+  </div>
+</section>
 
-  <form class="filters" method="get">
-    <input type="hidden" name="periodo" value="personalizado">
-    <label class="filtro-label">
-      De
-      <input type="date" name="inicio" value="{{ inicio.isoformat() }}" required>
-    </label>
-    <label class="filtro-label">
-      Até
-      <input type="date" name="fim" value="{{ fim.isoformat() }}" required>
-    </label>
-    <button class="btn btn-primary" type="submit">Filtrar período</button>
-  </form>
+<section class="fx-grid-kpi fx-mb">
+  {{ kpi('Receitas', resumo.receitas, 'trending-up', 'pos') }}
+  {{ kpi('Despesas', resumo.despesas, 'trending-down', 'neg') }}
+  {{ kpi('Investimentos', resumo.investimentos, 'chart-line', 'invest') }}
+  {{ kpi('Saldo do período', resumo.saldo_periodo, 'wallet', 'info', nota='Nas contas: ' ~ (resumo.saldo_contas | moeda), tipo_valor=('neg' if resumo.saldo_periodo < 0 else '')) }}
+</section>
+
+<div class="fx-duas-colunas fx-mb">
+  <article class="fx-card">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('chart-pie') }}<h2 class="fx-h2">Gastos por categoria</h2></div>
+      <span class="fx-small fx-text-2">Total {{ money(ns.total) }}</span>
+    </header>
+    <div class="fx-card__body">
+      {% if categorias %}
+        <ul class="fx-barras">
+          {% for nome, valor, cor in categorias %}
+            {% set pct = (valor / ns.total * 100) if ns.total else 0 %}
+            <li>
+              <div class="fx-between fx-small">
+                <span class="fx-cat" style="--fx-cat:{{ cor }}">{{ nome }}</span>
+                <span><span class="fx-text-3">{{ '%.0f' | format(pct) }}%</span> &nbsp;{{ money(valor) }}</span>
+              </div>
+              <div class="fx-progress" style="--fx-valor:{{ pct }}%;--_c:{{ cor }}"><span></span></div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="fx-empty"><span class="fx-tile">{{ ic('chart-pie') }}</span><span>Sem gastos categorizados neste período.</span></div>
+      {% endif %}
+    </div>
+  </article>
+  <article class="fx-card">
+    <header class="fx-card__head"><div class="fx-card__title">{{ ic('download') }}<h2 class="fx-h2">Exportar</h2></div></header>
+    <div class="fx-card__body fx-stack">
+      <p class="fx-text-2" style="margin:0">O PDF e o Excel usam exatamente os lançamentos deste período, só da sua conta. Nada é apagado.</p>
+      <div class="fx-between fx-small"><span class="fx-text-3">Período</span><span>{{ inicio | data_br }} — {{ fim | data_br }}</span></div>
+      <div class="fx-between fx-small"><span class="fx-text-3">Lançamentos</span><span>{{ lancamentos | length }}</span></div>
+      <div class="fx-row">
+        <a class="fx-btn fx-btn--secondary fx-btn--sm" href="{{ url_for('relatorios.pdf', **exp_args) }}">{{ ic('file-text', 'fx-ic--sm') }}PDF</a>
+        <a class="fx-btn fx-btn--secondary fx-btn--sm" href="{{ url_for('relatorios.excel', **exp_args) }}">{{ ic('download', 'fx-ic--sm') }}Excel</a>
+      </div>
+    </div>
+  </article>
 </div>
 
-<section class="kpi-grid">
-  <article class="kpi receita"><span>Receitas</span><strong>{{ resumo.receitas | moeda }}</strong></article>
-  <article class="kpi despesa"><span>Despesas</span><strong>{{ resumo.despesas | moeda }}</strong></article>
-  <article class="kpi investimento"><span>Investimentos</span><strong>{{ resumo.investimentos | moeda }}</strong></article>
-  <article class="kpi saldo {{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">
-    <span>Saldo do período</span>
-    <strong>{{ resumo.saldo_periodo | moeda }}</strong>
-    <small>Nas contas: {{ resumo.saldo_contas | moeda }}</small>
-  </article>
-</section>
-
-<div class="grid-2-dash">
-  <article class="card">
-    <header class="card-head"><h2>Gastos por categoria</h2></header>
-    {% if categorias %}
-      <table class="data-table">
-        <thead><tr><th>Categoria</th><th class="num">Valor</th></tr></thead>
+<article class="fx-card fx-card--flush">
+  <header class="fx-card__head">
+    <div class="fx-card__title">{{ ic('list') }}<h2 class="fx-h2">Lançamentos do período</h2></div>
+    <a class="fx-btn fx-btn--ghost fx-btn--sm" href="{{ url_for('movimentacoes.index', periodo='personalizado', inicio=inicio.isoformat(), fim=fim.isoformat()) }}">Abrir histórico{{ ic('chevron-right', 'fx-ic--sm') }}</a>
+  </header>
+  {% if lancamentos %}
+    <div class="fx-table-wrap">
+      <table class="fx-table">
+        <thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th class="fx-num">Valor</th></tr></thead>
         <tbody>
-          {% for nome, valor, cor in categorias %}
+          {% for mov in lancamentos %}
+            {% set tom = tom_tipo.get(mov.tipo, '') %}
             <tr>
-              <td data-label="Categoria"><span class="swatch" style="background:{{ cor }}"></span>{{ nome }}</td>
-              <td data-label="Valor" class="num">{{ valor | moeda }}</td>
+              <td class="fx-text-2">{{ mov.data | data_br }}</td>
+              <td><a class="fx-strong" href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">{{ mov.descricao }}</a><span class="fx-sub">{{ badge(mov.tipo_label, tom) }}</span></td>
+              <td>{% if mov.categoria %}<span class="fx-cat" style="--fx-cat:{{ mov.categoria.cor or '#5d7286' }}">{{ mov.categoria.nome }}</span>{% else %}<span class="fx-text-3">—</span>{% endif %}</td>
+              <td class="fx-num">{{ money(mov.valor, 'pos' if mov.tipo == 'receita' else ('' if mov.tipo == 'transferencia' else 'neg'), sinal=(mov.tipo != 'transferencia')) }}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-    {% else %}
-      <p class="empty">Sem gastos categorizados neste período.</p>
-    {% endif %}
-  </article>
-  <article class="card">
-    <header class="card-head"><h2>Exportar</h2></header>
-    <p class="muted">O PDF e o Excel usam exatamente os lançamentos deste período, só da sua conta. Nada é apagado.</p>
-    <p class="muted">Período: {{ inicio | data_br }} → {{ fim | data_br }} · {{ lancamentos | length }} lançamento{{ 's' if lancamentos|length != 1 }}.</p>
-  </article>
-</div>
-
-<article class="card" style="margin-top:1rem">
-  <header class="card-head">
-    <h2>Lançamentos do período</h2>
-    <a href="{{ url_for('movimentacoes.index', periodo='personalizado', inicio=inicio.isoformat(), fim=fim.isoformat()) }}">Abrir histórico</a>
-  </header>
-  <div class="table-wrap">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Descrição</th>
-          <th>Tipo</th>
-          <th>Categoria</th>
-          <th class="num">Valor</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for mov in lancamentos %}
-          <tr>
-            <td data-label="Data">{{ mov.data | data_br }}</td>
-            <td data-label="Descrição"><a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">{{ mov.descricao }}</a></td>
-            <td data-label="Tipo"><span class="badge {{ mov.tipo }}">{{ mov.tipo_label }}</span></td>
-            <td data-label="Categoria">{{ mov.categoria.nome if mov.categoria else '—' }}</td>
-            <td data-label="Valor" class="num valor {{ mov.tipo }}">{{ mov.valor | moeda }}</td>
-          </tr>
-        {% else %}
-          <tr><td colspan="5" class="empty">Nenhum lançamento neste período.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </div>
+  {% else %}
+    <div class="fx-empty"><span class="fx-tile">{{ ic('inbox') }}</span><span>Nenhum lançamento neste período.</span></div>
+  {% endif %}
 </article>
 {% endblock %}

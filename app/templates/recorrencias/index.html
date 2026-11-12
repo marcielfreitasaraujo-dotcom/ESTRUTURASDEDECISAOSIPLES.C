@@ -1,54 +1,56 @@
 {% extends 'base_fx.html' %}
-{% from 'components/fx.html' import ic %}
+{% from 'components/fx.html' import ic, money, badge, kpi, kpi_num, cabecalho %}
 {% block title %}Recorrentes{% endblock %}
 {% block content %}
-<section class="page-head">
-  <div>
-    <p class="kicker">Todo mês, no automático</p>
-    <h1>Contas recorrentes</h1>
-    <p class="muted">Faculdade, internet, aluguel, assinaturas. O sistema gera o vencimento do mês e do próximo, sem duplicar.</p>
+<section class="fx-pagehead">
+  {{ cabecalho('Todo mês, no automático', 'Contas recorrentes', 'Faculdade, internet, aluguel, assinaturas: o sistema gera o vencimento do mês e do próximo, sem duplicar.', 'repeat') }}
+  <div class="fx-row">
+    <a class="fx-btn fx-btn--secondary" href="{{ url_for('vencimentos.index', ver='calendario') }}">{{ ic('calendar') }}Ver no calendário</a>
+    <button class="fx-btn fx-btn--primary" type="button" data-open-recorrencia>{{ ic('plus') }}Nova recorrente</button>
   </div>
-  <button class="btn btn-primary" type="button" data-open-recorrencia>+ Nova recorrente</button>
 </section>
 
-<div class="table-wrap">
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Descrição</th>
-        <th>Tipo</th>
-        <th>Categoria</th>
-        <th>Vencimento</th>
-        <th>Periodicidade</th>
-        <th class="num">Valor</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for rec in itens %}
-        <tr>
-          <td data-label="Descrição">
-            <strong>{{ rec.descricao }}</strong>
-            {% if rec.pessoa %}<small class="muted"> · {{ rec.pessoa }}</small>{% endif %}
-          </td>
-          <td data-label="Tipo"><span class="badge {{ rec.tipo }}">{{ rec.tipo_label }}</span></td>
-          <td data-label="Categoria">{{ rec.categoria.nome if rec.categoria else '—' }}</td>
-          <td data-label="Vencimento">Dia {{ '%02d'|format(rec.dia_vencimento) }}{% if rec.periodicidade == 'anual' and rec.mes_vencimento %}/{{ '%02d'|format(rec.mes_vencimento) }}{% endif %}</td>
-          <td data-label="Periodicidade">{{ rec.periodicidade_label }}</td>
-          <td data-label="Valor" class="num">{{ rec.valor | moeda }}</td>
-          <td data-label="">
-            <form action="{{ url_for('recorrencias.desativar', rec_id=rec.id) }}" method="post" onsubmit="return confirm('Desativar esta recorrência?');">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar</button>
-            </form>
-          </td>
-        </tr>
-      {% else %}
-        <tr><td colspan="7" class="empty">Nenhuma conta recorrente. Cadastre Faculdade, internet, aluguel…</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+{% set ns = namespace(pagar=0, receber=0) %}
+{% for rec in itens %}{% if rec.tipo == 'receber' %}{% set ns.receber = ns.receber + rec.valor %}{% else %}{% set ns.pagar = ns.pagar + rec.valor %}{% endif %}{% endfor %}
+<section class="fx-grid-kpi fx-grid-kpi--3 fx-mb">
+  {{ kpi_num('Recorrentes ativas', itens | length, 'repeat', 'info', 'geradas automaticamente') }}
+  {{ kpi('A pagar por ciclo', ns.pagar, 'trending-down', 'neg') }}
+  {{ kpi('A receber por ciclo', ns.receber, 'hand-coins', 'pos') }}
+</section>
+
+<article class="fx-card fx-card--flush fx-mb">
+  {% if itens %}
+    <div class="fx-table-wrap">
+      <table class="fx-table">
+        <thead><tr><th>Descrição</th><th>Tipo</th><th>Categoria</th><th>Vencimento</th><th>Periodicidade</th><th class="fx-num">Valor</th><th class="fx-actions"></th></tr></thead>
+        <tbody>
+          {% for rec in itens %}
+            <tr>
+              <td><span class="fx-strong">{{ rec.descricao }}</span>{% if rec.pessoa %}<span class="fx-sub">{{ rec.pessoa }}</span>{% endif %}</td>
+              <td>{{ badge(rec.tipo_label, 'pos' if rec.tipo == 'receber' else 'neg') }}</td>
+              <td>{% if rec.categoria %}<span class="fx-cat" style="--fx-cat:{{ rec.categoria.cor or '#5d7286' }}">{{ rec.categoria.nome }}</span>{% else %}<span class="fx-text-3">—</span>{% endif %}</td>
+              <td class="fx-text-2">Dia {{ '%02d'|format(rec.dia_vencimento) }}{% if rec.periodicidade == 'anual' and rec.mes_vencimento %}/{{ '%02d'|format(rec.mes_vencimento) }}{% endif %}</td>
+              <td class="fx-text-2">{{ rec.periodicidade_label }}</td>
+              <td class="fx-num">{{ money(rec.valor, 'pos' if rec.tipo == 'receber' else '') }}</td>
+              <td class="fx-actions">
+                <form action="{{ url_for('recorrencias.desativar', rec_id=rec.id) }}" method="post" onsubmit="return confirm('Desativar esta recorrência?');">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="fx-btn fx-btn--danger fx-btn--sm" type="submit">Desativar</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="fx-empty">
+      <span class="fx-tile fx-tile--info">{{ ic('repeat') }}</span>
+      <strong class="fx-text-strong">Nenhuma conta recorrente</strong>
+      <span class="fx-small">Cadastre faculdade, internet, aluguel…</span>
+    </div>
+  {% endif %}
+</article>
 
 <div class="modal-backdrop" id="modal-recorrencia" hidden>
   <div class="modal sheet">
