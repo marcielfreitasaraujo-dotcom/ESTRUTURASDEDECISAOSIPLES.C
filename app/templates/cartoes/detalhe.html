@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}{{ cartao.nome }}{% endblock %}
 {% block content %}
 <p class="back"><a href="{{ url_for('cartoes.index') }}">← Cartões</a></p>
@@ -180,19 +181,19 @@
 <div id="menu-acoes-parcela" class="menu-popover" popover="auto">
   <p class="menu-popover-titulo" id="menu-acoes-titulo">Opções</p>
   <button type="button" class="menu-popover-item" data-popover-editar>
-    <span class="menu-popover-ico">✎</span> Editar
+    <span class="menu-popover-ico">{{ ic('pencil') }}</span> Editar
   </button>
   <form id="menu-acoes-excluir" method="post">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button class="menu-popover-item perigo" type="submit">
-      <span class="menu-popover-ico">⌫</span> Excluir
+      <span class="menu-popover-ico">{{ ic('trash-2') }}</span> Excluir
     </button>
   </form>
   <form id="menu-acoes-excluir-compra" method="post" hidden>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="compra_inteira" value="1">
     <button class="menu-popover-item perigo" type="submit">
-      <span class="menu-popover-ico">⌫</span> Excluir compra
+      <span class="menu-popover-ico">{{ ic('trash-2') }}</span> Excluir compra
     </button>
   </form>
 </div>
@@ -202,7 +203,7 @@
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <header class="card-head">
       <h2>Editar lançamento</h2>
-      <button type="button" class="icon-btn" data-fechar-editar-parcela aria-label="Fechar">✕</button>
+      <button type="button" class="icon-btn" data-fechar-editar-parcela aria-label="Fechar">{{ ic('x') }}</button>
     </header>
     <p class="muted" id="editar-parcela-rotulo"></p>
     <label>Descrição <input type="text" name="descricao" id="editar-parcela-descricao" required maxlength="180"></label>

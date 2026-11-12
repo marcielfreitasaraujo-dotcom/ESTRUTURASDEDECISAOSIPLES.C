@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}{{ titulo }}{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -91,7 +92,7 @@
           <td data-label="Conta">{{ mov.conta.nome if mov.conta else '—' }}</td>
           <td data-label="Forma">{{ mov.forma_label }}</td>
           <td data-label="Valor" class="num valor {{ mov.tipo }}">{{ mov.valor | moeda }}</td>
-          <td data-label="Comprovante">{% if mov.tem_comprovante %}📎 Sim{% else %}—{% endif %}</td>
+          <td data-label="Comprovante">{% if mov.tem_comprovante %}{{ ic('paperclip', 'fx-ic--sm') }} Sim{% else %}—{% endif %}</td>
         </tr>
       {% else %}
         <tr><td colspan="8" class="empty">Nenhuma movimentação neste filtro.</td></tr>

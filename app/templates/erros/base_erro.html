@@ -1,18 +1,37 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="claro">
+<html lang="pt-BR" data-theme="escuro" class="fx-html">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071827">
   <title>{% block title %}Erro{% endblock %} · FinUP</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx-bridge.css') }}">
+  <style>
+    .erro-pagina { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; }
+    .erro-cartao { width: min(440px, 100%); padding: 2rem; display: grid; gap: 1rem; }
+    .erro-logo { display: inline-flex; align-items: center; gap: 0.55rem; color: var(--fx-text-strong); font-weight: 700; font-size: 1.1rem; }
+    .erro-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .erro-logo b { color: var(--fx-accent); }
+    .erro-cartao h1 { margin: 0; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.02em; color: var(--fx-text-strong); }
+    .erro-cartao p { margin: 0; color: var(--fx-text-2); }
+    .erro-cartao .selo-araujoia { padding-top: 1rem; border-top: 1px solid var(--fx-border); color: var(--fx-text-3); }
+    .erro-cartao .selo-araujoia-marca { background: none; color: var(--fx-accent); -webkit-background-clip: initial; background-clip: initial; }
+  </style>
 </head>
-<body class="auth-body">
-  <div class="auth-bg" aria-hidden="true"></div>
-  <main class="auth-card">
-    {% block body %}{% endblock %}
-    {% include 'components/assinatura_araujoia.html' %}
+<body class="fx">
+  <main class="erro-pagina">
+    <section class="fx-card erro-cartao">
+      <span class="erro-logo"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="">Fin<b>UP</b></span>
+      {% block body %}{% endblock %}
+      {% include 'components/assinatura_araujoia.html' %}
+    </section>
   </main>
 </body>
 </html>

@@ -1,6 +1,6 @@
 {#
   Esqueleto novo (FinUP Design System). As páginas migram para ele uma a uma
-  trocando {% extends 'base.html' %} por {% extends 'base_fx.html' %}.
+  trocando o extends de base.html para base_fx.html.
   Mantém os mesmos ganchos do app.js (menu, pesquisa, notificações, lançamento)
   e a mesma checagem de sessão do base.html.
 #}
@@ -27,6 +27,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/fx.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/fx-shell.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx-bridge.css') }}">
   <script>
     (function () {
       var CHAVE = "finup_sessao_navegador";
@@ -131,6 +132,12 @@
     </header>
 
     <main class="fx-content">
+      {% if ep and ep != 'dashboard.index' %}
+        <nav class="page-nav-back" aria-label="Navegação">
+          <button type="button" class="fx-btn fx-btn--ghost fx-btn--sm" data-voltar
+                  data-voltar-fallback="{{ url_for('dashboard.index') }}">{{ ic('arrow-left', 'fx-ic--sm') }}Voltar</button>
+        </nav>
+      {% endif %}
       {% include 'components/flash.html' %}
       {% block content %}{% endblock %}
       <footer class="app-rodape">{% include 'components/assinatura_araujoia.html' %}</footer>

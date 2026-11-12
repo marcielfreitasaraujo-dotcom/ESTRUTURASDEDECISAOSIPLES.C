@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}{{ titulo.descricao }}{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -15,7 +16,7 @@
 
 <p>
   <span class="badge {{ status }}">
-    {% if status == 'atrasado' %}🔴 Atrasado{% elif status == 'vence_hoje' %}🟡 Vence hoje{% elif status == 'pago' %}🟢 Pago{% elif status == 'recebido' %}🟢 Recebido{% else %}🟡 Pendente{% endif %}
+    {% if status == 'atrasado' %}Atrasado{% elif status == 'vence_hoje' %}Vence hoje{% elif status == 'pago' %}Pago{% elif status == 'recebido' %}Recebido{% else %}Pendente{% endif %}
   </span>
   {% if status == 'atrasado' %}
     <span class="texto-atrasado">Esta conta está atrasada há {{ titulo.dias_atraso }} dia{{ 's' if titulo.dias_atraso != 1 }}.</span>

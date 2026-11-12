@@ -1,8 +1,9 @@
+{% from 'components/fx.html' import ic %}
 <div class="modal-backdrop" id="modal-lancamento" hidden>
   <div class="modal sheet">
     <div class="modal-head">
       <h2>Nova movimentação</h2>
-      <button class="icon-btn" type="button" data-close-modal aria-label="Fechar">✕</button>
+      <button class="icon-btn" type="button" data-close-modal aria-label="Fechar">{{ ic('x') }}</button>
     </div>
     <div class="quick-types">
       <button type="button" class="chip-tipo receita" data-set-tipo="receita">+ Receita</button>
