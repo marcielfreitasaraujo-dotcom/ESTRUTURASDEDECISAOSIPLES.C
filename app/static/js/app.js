@@ -194,3 +194,43 @@
 document.querySelectorAll("details[data-open-desktop]").forEach((el) => {
   if (window.matchMedia("(min-width: 900px)").matches) el.open = true;
 });
+
+// Botões de envio: mostram que estão processando e evitam clique duplo
+// (ex.: o mesmo lançamento salvo duas vezes). Só formulários POST que
+// navegam normalmente; formulários tratados por JS já chamaram preventDefault.
+(function () {
+  document.addEventListener("submit", (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || event.defaultPrevented) return;
+    if ((form.method || "get").toLowerCase() !== "post") return;
+    if (form.target || form.hasAttribute("data-sem-carregando")) return;
+    const botao = event.submitter && event.submitter.classList.contains("btn")
+      ? event.submitter
+      : form.querySelector("button[type=submit].btn, button:not([type]).btn");
+    if (!botao) return;
+    if (form.dataset.enviando === "1") {
+      event.preventDefault();
+      return;
+    }
+    form.dataset.enviando = "1";
+    // Adia para não cancelar o valor do botão (name/value) no envio
+    setTimeout(() => {
+      botao.classList.add("is-loading");
+      botao.setAttribute("aria-busy", "true");
+    }, 0);
+    // Segurança: se a página não trocar (erro de rede), libera de novo
+    setTimeout(() => {
+      delete form.dataset.enviando;
+      botao.classList.remove("is-loading");
+      botao.removeAttribute("aria-busy");
+    }, 8000);
+  });
+  // Voltar pelo navegador (cache da página) não deixa botão travado
+  window.addEventListener("pageshow", () => {
+    document.querySelectorAll(".btn.is-loading").forEach((b) => {
+      b.classList.remove("is-loading");
+      b.removeAttribute("aria-busy");
+    });
+    document.querySelectorAll("form[data-enviando]").forEach((f) => delete f.dataset.enviando);
+  });
+})();
