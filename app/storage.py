@@ -65,6 +65,8 @@ def get_storage() -> Armazenamento:
 def eh_caminho_legado(valor: str) -> bool:
     if not valor:
         return False
+    if valor.startswith(("/", "\\")):
+        return True
     caminho = Path(valor)
     if caminho.is_absolute():
         return True

@@ -23,9 +23,8 @@ def test_login_invalido(client):
 
 def test_login_mostra_logo(client):
     html = client.get("/login").get_data(as_text=True)
-    assert "img/logo-full.png" in html
-    assert "brand-logo-full" in html
-    assert "auth-bg" in html
+    assert "img/logo.png" in html
+    assert "entrada-marca" in html
     assert "FinUP" in html
     assert "data-toggle-senha" in html
     assert "Mostrar" in html

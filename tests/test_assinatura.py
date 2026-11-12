@@ -298,9 +298,10 @@ def test_cadastro_publico_cria_conta_bloqueada(client, app):
         )
         db.session.commit()
 
-    assert client.get("/cadastro").status_code == 200
-    login_html = client.get("/login").get_data(as_text=True)
-    assert "teste grátis" in login_html.lower()
+    cadastro_html = client.get("/cadastro").get_data(as_text=True)
+    # O aviso do teste grátis e do preço fica no cadastro (não compete com o login)
+    assert "grátis" in cadastro_html.lower()
+    assert "Criar conta" in client.get("/login").get_data(as_text=True)
 
     resp = client.post(
         "/cadastro",

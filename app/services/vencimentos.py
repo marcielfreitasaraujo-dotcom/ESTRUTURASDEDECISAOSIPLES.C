@@ -64,13 +64,23 @@ def proximos(usuario_id: int, tipo: str = "pagar", limite: int = 6):
     return abertas[:limite]
 
 
+def query_atrasadas(usuario_id: int, hoje: date | None = None):
+    """Títulos vencidos e não quitados, filtrados direto no banco.
+
+    Mesma regra de ContaPagar.status_atual() == "atrasado".
+    """
+    hoje = hoje or date.today()
+    return ContaPagar.query.filter(
+        ContaPagar.usuario_id == usuario_id,
+        ContaPagar.ativo.is_(True),
+        ContaPagar.data_pagamento.is_(None),
+        ContaPagar.status.notin_(("pago", "recebido")),
+        ContaPagar.vencimento < hoje,
+    ).order_by(ContaPagar.vencimento.asc(), ContaPagar.id.asc())
+
+
 def qtd_atrasadas(usuario_id: int) -> int:
-    hoje = date.today()
-    return sum(
-        1
-        for t in ContaPagar.query.filter_by(usuario_id=usuario_id, ativo=True).all()
-        if t.status_atual(hoje) == "atrasado"
-    )
+    return query_atrasadas(usuario_id).count()
 
 
 def quitar(

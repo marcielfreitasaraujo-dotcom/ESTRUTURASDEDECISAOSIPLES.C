@@ -85,8 +85,7 @@ def gastos_por_categoria(usuario_id: int, ano: int, mes: int) -> dict[int, Decim
 def painel(usuario_id: int, ano: int, mes: int) -> list[dict]:
     gastos = gastos_por_categoria(usuario_id, ano, mes)
     categorias = (
-        Categoria.query.filter(
-            Categoria.ativo.is_(True),
+        Categoria.visiveis(usuario_id).filter(
             Categoria.tipo.in_(("despesa", "investimento")),
         )
         .order_by(Categoria.nome)

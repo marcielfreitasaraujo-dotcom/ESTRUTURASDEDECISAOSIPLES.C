@@ -5,51 +5,90 @@
   <div>
     <p class="kicker">Organização</p>
     <h1>Categorias</h1>
+    <p class="muted">Crie categorias do seu jeito. Só você vê as suas.</p>
   </div>
 </section>
 
-<div class="table-wrap">
-  <table class="data-table">
-    <thead>
-      <tr><th>Nome</th><th>Tipo</th><th></th></tr>
-    </thead>
-    <tbody>
-      {% for cat in itens %}
-        <tr>
-          <td data-label="Nome">
-            <span class="swatch" style="background:{{ cat.cor or '#64748b' }}"></span>
-            {{ cat.nome }}
-            {% if cat.sistema %}<small class="muted">sistema</small>{% endif %}
-          </td>
-          <td data-label="Tipo"><span class="badge {{ cat.tipo }}">{{ cat.tipo }}</span></td>
-          <td data-label="">
-            {% if current_user.eh_admin and not cat.sistema %}
-              <form action="{{ url_for('categorias.excluir', cat_id=cat.id) }}" method="post" onsubmit="return confirm('Desativar categoria?');">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar</button>
-              </form>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-{% if current_user.eh_admin %}
-<article class="card" style="margin-top:1.5rem">
+<article class="card">
   <header class="card-head"><h2>Nova categoria</h2></header>
   <form action="{{ url_for('categorias.nova') }}" method="post" class="form-inline">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="text" name="nome" placeholder="Nome" required>
-    <select name="tipo">
+    <label class="sr-only" for="cat-nome">Nome</label>
+    <input id="cat-nome" type="text" name="nome" placeholder="Ex.: Pet, Academia, Freelas" maxlength="80" required>
+    <label class="sr-only" for="cat-tipo">Tipo</label>
+    <select id="cat-tipo" name="tipo">
       {% for valor, label in tipos %}
-        <option value="{{ valor }}">{{ label }}</option>
+        <option value="{{ valor }}" {{ 'selected' if valor == 'despesa' }}>{{ label }}</option>
       {% endfor %}
     </select>
-    <input type="color" name="cor" value="#0d9488">
+    <label class="sr-only" for="cat-cor">Cor</label>
+    <input id="cat-cor" type="color" name="cor" value="#0d9488" title="Cor">
     <button class="btn btn-primary" type="submit">Criar</button>
   </form>
 </article>
-{% endif %}
+
+{% macro linha(cat, editavel) %}
+  <tr>
+    <td data-label="Nome">
+      <span class="swatch" style="background:{{ cat.cor or '#64748b' }}"></span>
+      {{ cat.nome }}
+      {% if cat.sistema %}<small class="muted">padrão</small>{% endif %}
+    </td>
+    <td data-label="Tipo"><span class="badge {{ cat.tipo }}">{{ cat.tipo }}</span></td>
+    <td data-label="" class="cat-acoes">
+      {% if editavel %}
+        <details class="cat-editar">
+          <summary class="btn btn-ghost btn-sm">Editar</summary>
+          <form action="{{ url_for('categorias.editar', cat_id=cat.id) }}" method="post" class="form-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" name="nome" value="{{ cat.nome }}" maxlength="80" aria-label="Nome" required>
+            {% if not cat.sistema %}
+              <select name="tipo" aria-label="Tipo">
+                {% for valor, label in tipos %}
+                  <option value="{{ valor }}" {{ 'selected' if valor == cat.tipo }}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            {% endif %}
+            <input type="color" name="cor" value="{{ cat.cor or '#64748b' }}" aria-label="Cor">
+            <button class="btn btn-primary btn-sm" type="submit">Salvar</button>
+          </form>
+        </details>
+        {% if not cat.sistema %}
+          <form action="{{ url_for('categorias.excluir', cat_id=cat.id) }}" method="post" onsubmit="return confirm('Desativar a categoria “{{ cat.nome }}”? Os lançamentos antigos continuam com ela.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-danger-ghost btn-sm" type="submit">Desativar</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </td>
+  </tr>
+{% endmacro %}
+
+<article class="card" style="margin-top:1.5rem">
+  <header class="card-head"><h2>Minhas categorias</h2></header>
+  {% if minhas %}
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Nome</th><th>Tipo</th><th></th></tr></thead>
+        <tbody>
+          {% for cat in minhas %}{{ linha(cat, true) }}{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">Você ainda não criou categorias. As categorias padrão abaixo já estão prontas para usar.</p>
+  {% endif %}
+</article>
+
+<article class="card" style="margin-top:1.5rem">
+  <header class="card-head"><h2>Categorias padrão</h2></header>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Nome</th><th>Tipo</th><th></th></tr></thead>
+      <tbody>
+        {% for cat in padrao %}{{ linha(cat, current_user.eh_admin) }}{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</article>
 {% endblock %}

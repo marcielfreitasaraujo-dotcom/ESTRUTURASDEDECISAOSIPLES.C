@@ -119,7 +119,11 @@ def inicializar_sistema(app) -> None:
 
 
 def _cat(nome: str) -> Categoria:
-    return Categoria.query.filter_by(nome=nome).first()
+    return (
+        Categoria.query.filter_by(nome=nome)
+        .order_by(Categoria.sistema.desc(), Categoria.id.asc())
+        .first()
+    )
 
 
 def inserir_dados_demo(usuario: Usuario) -> bool:

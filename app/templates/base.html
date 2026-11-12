@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
   <script>
     (function () {
       var CHAVE = "finup_sessao_navegador";
@@ -104,6 +105,7 @@
           <span class="ico">⚙️</span><span class="nav-label">Configurações</span>
         </a>
       </nav>
+      <div class="sidebar-selo">{% include 'components/assinatura_araujoia.html' %}</div>
     </aside>
 
     <div class="main-wrap">
@@ -166,6 +168,7 @@
         {% endif %}
         {% include 'components/flash.html' %}
         {% block content %}{% endblock %}
+        <footer class="app-rodape">{% include 'components/assinatura_araujoia.html' %}</footer>
       </main>
     </div>
   </div>

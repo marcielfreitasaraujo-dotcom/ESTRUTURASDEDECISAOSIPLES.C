@@ -10,8 +10,13 @@
   <button class="btn btn-primary" type="button" data-open-lancamento>+ Nova movimentação</button>
 </section>
 
+{% set ns = namespace(n=0) %}{% for k in ['tipo','categoria_id','conta_id','forma','comprovante','q'] %}{% if filtros.get(k) %}{% set ns.n = ns.n + 1 %}{% endif %}{% endfor %}{% set qtd_filtros = ns.n %}
+<details class="filtros-box" data-open-desktop {{ 'open' if qtd_filtros }}>
+  <summary class="btn btn-ghost">
+    Filtros{% if qtd_filtros %} <span class="nav-badge">{{ qtd_filtros }}</span>{% endif %}
+  </summary>
 <form class="filters" method="get">
-  <select name="periodo">
+  <select name="periodo" aria-label="Período">
     {% for chave, label in [
       ('hoje','Hoje'),('ontem','Ontem'),('esta_semana','Esta semana'),
       ('semana_passada','Semana passada'),('este_mes','Este mês'),
@@ -56,7 +61,9 @@
   </select>
   <input type="search" name="q" placeholder="Pesquisar movimentação..." value="{{ filtros.get('q', '') }}">
   <button class="btn btn-ghost" type="submit">Filtrar</button>
+  {% if qtd_filtros %}<a class="btn btn-ghost" href="{{ url_for(request.endpoint) }}">Limpar</a>{% endif %}
 </form>
+</details>
 
 <div class="table-wrap">
   <table class="data-table">

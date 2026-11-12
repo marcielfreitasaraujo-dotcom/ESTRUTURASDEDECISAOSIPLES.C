@@ -6,7 +6,7 @@ from flask import Flask, jsonify, render_template, request, session
 from flask_login import current_user
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-from config import get_config, opcoes_engine
+from config import VERSAO_SISTEMA, get_config, opcoes_engine
 from app.extensions import csrf, db, login_manager
 from app.models import Usuario
 from app.utils.formatters import formatar_data, formatar_moeda, nome_mes, parse_moeda
@@ -66,9 +66,30 @@ def create_app(config_class=None) -> Flask:
     def load_user(user_id):
         return db.session.get(Usuario, int(user_id))
 
+    _versoes_estaticos: dict[str, int] = {}
+
+    @app.url_defaults
+    def versao_estaticos(endpoint, values):
+        """Acrescenta ?v=<data do arquivo> aos estáticos.
+
+        Assim, depois de cada deploy, navegador e PWA baixam o CSS/JS novo
+        em vez de continuar com a versão antiga do cache.
+        """
+        if endpoint != "static" or "filename" not in values or "v" in values:
+            return
+        nome = values["filename"]
+        if nome not in _versoes_estaticos or app.debug:
+            try:
+                _versoes_estaticos[nome] = int((Path(app.static_folder) / nome).stat().st_mtime)
+            except OSError:
+                _versoes_estaticos[nome] = 0
+        if _versoes_estaticos[nome]:
+            values["v"] = _versoes_estaticos[nome]
+
     app.jinja_env.filters["moeda"] = formatar_moeda
     app.jinja_env.filters["data_br"] = formatar_data
     app.jinja_env.globals["nome_mes"] = nome_mes
+    app.jinja_env.globals["versao_sistema"] = VERSAO_SISTEMA
     app.jinja_env.globals["parse_moeda"] = parse_moeda
 
     from app.routes.auth import auth_bp
@@ -103,6 +124,13 @@ def create_app(config_class=None) -> Flask:
 
     @app.after_request
     def registrar_requisicao(response):
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        if request.is_secure:
+            response.headers.setdefault(
+                "Strict-Transport-Security", "max-age=31536000; includeSubDomains"
+            )
         session.permanent = False
         nome_lembrar = app.config.get("REMEMBER_COOKIE_NAME", "remember_token")
         if request.cookies.get(nome_lembrar):
@@ -124,6 +152,8 @@ def create_app(config_class=None) -> Flask:
             {
                 "ok": True,
                 "app": "finup",
+                "sistema": "Sistema AraujoIA",
+                "versao": VERSAO_SISTEMA,
                 "ambiente": os.environ.get("FLASK_ENV")
                 or os.environ.get("FINUP_ENV")
                 or os.environ.get("FINCASA_ENV")
@@ -198,11 +228,20 @@ def create_app(config_class=None) -> Flask:
             "service_worker",
         ):
             return
+        from datetime import date
+
         from app.services.recorrencias import gerar_titulos_recorrentes
         from app.utils.casa import id_casa
 
-        if gerar_titulos_recorrentes(id_casa()):
+        # Basta conferir uma vez por dia por usuário (as telas de recorrência
+        # já geram na hora quando algo muda).
+        uid = id_casa()
+        marca = f"{uid}:{date.today().isoformat()}"
+        if session.get("recorrentes_ok") == marca:
+            return
+        if gerar_titulos_recorrentes(uid):
             db.session.commit()
+        session["recorrentes_ok"] = marca
 
     @app.before_request
     def exigir_email_verificado():
@@ -249,7 +288,7 @@ def create_app(config_class=None) -> Flask:
         qtd_atrasadas = 0
         titulos_atrasados = []
         if current_user.is_authenticated:
-            from app.services.vencimentos import qtd_atrasadas as contar_atrasadas, query_titulos
+            from app.services.vencimentos import query_atrasadas
             from app.utils.casa import id_casa
 
             uid = id_casa()
@@ -258,11 +297,10 @@ def create_app(config_class=None) -> Flask:
                 .order_by(Conta.nome)
                 .all()
             )
-            categorias = Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
-            qtd_atrasadas = contar_atrasadas(uid)
-            titulos_atrasados = [
-                t for t in query_titulos(uid).all() if t.status_atual() == "atrasado"
-            ][:6]
+            categorias = Categoria.visiveis(uid).order_by(Categoria.nome).all()
+            atrasadas = query_atrasadas(uid)
+            qtd_atrasadas = atrasadas.count()
+            titulos_atrasados = atrasadas.limit(6).all() if qtd_atrasadas else []
         return {
             "contas_menu": contas,
             "categorias_menu": categorias,

@@ -11,7 +11,7 @@ FinUP is a single Flask web app (personal/family finance). Local default DB is S
 - Optional local config: copy `.env.example` → `.env` (already gitignored). Dev login: `admin` / `admin123` (see README).
 
 ### Lint / test / build
-- No project linter (ruff/flake8/eslint) is configured.
+- Linter: `ruff check .` (config in `ruff.toml`, real errors only). CI (`.github/workflows/testes.yml`) runs ruff + pytest on every push.
 - Tests: `source venv/bin/activate && pytest -q` (in-memory/temp SQLite via `tests/conftest.py`; do not point tests at the live `instance/` DB).
 - Production-style serve is Gunicorn (`Procfile` / README); for Cloud Agent work prefer `python app.py` in development mode.
 

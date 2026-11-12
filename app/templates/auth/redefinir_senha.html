@@ -1,42 +1,22 @@
-<!DOCTYPE html>
-<html lang="pt-BR" data-theme="claro">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f766e">
-  <title>Nova senha · FinUP</title>
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-</head>
-<body class="auth-body">
-  <div class="auth-bg" aria-hidden="true"></div>
-  <main class="auth-card">
-    <div class="brand brand-lg brand-lockup">
-      <img
-        class="brand-logo brand-logo-full"
-        src="{{ url_for('static', filename='img/logo-full.png') }}"
-        alt="FinUP"
-        width="220"
-        height="220"
-      >
-    </div>
+{% extends 'auth/_layout.html' %}
+{% from 'auth/_campos.html' import campo_senha, mensagens, botao %}
+{% block titulo %}Nova senha{% endblock %}
+{% block conteudo %}
+  <header class="entrada-titulo">
     <h1>Criar nova senha</h1>
-    <p class="muted">Defina uma senha nova para entrar no FinUP.</p>
-    {% if erro %}
-      <div class="flash flash-erro">{{ erro }}</div>
-    {% endif %}
-    <form method="post">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>
-        Nova senha
-        <input type="password" name="senha" autocomplete="new-password" required minlength="6" autofocus>
-      </label>
-      <label>
-        Confirmar senha
-        <input type="password" name="senha2" autocomplete="new-password" required minlength="6">
-      </label>
-      <button class="btn btn-primary btn-block" type="submit">Salvar senha</button>
-    </form>
-  </main>
-</body>
-</html>
+    <p>Defina uma senha nova para entrar no FinUP.</p>
+  </header>
+
+  {{ mensagens(erro) }}
+
+  <form method="post" class="entrada-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {{ campo_senha('Nova senha', 'senha', 'campo-nova-senha', autocomplete='new-password', extra='minlength="6" autofocus') }}
+    {{ campo_senha('Confirmar senha', 'senha2', 'campo-nova-senha-2', autocomplete='new-password', extra='minlength="6"') }}
+    {{ botao('Salvar senha') }}
+  </form>
+
+  <p class="entrada-rodape">
+    <a href="{{ url_for('auth.login') }}">← Voltar ao login</a>
+  </p>
+{% endblock %}

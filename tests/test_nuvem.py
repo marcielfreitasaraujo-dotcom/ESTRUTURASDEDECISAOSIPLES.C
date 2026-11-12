@@ -16,6 +16,13 @@ def test_saude_publico(client):
     assert dados["ok"] is True
     assert dados["app"] == "finup"
     assert dados["hotmart"] is True
+    assert dados["sistema"] == "Sistema AraujoIA"
+    assert dados["versao"]
+
+
+def test_selo_araujoia_no_login(client):
+    html = client.get("/login").get_data(as_text=True)
+    assert "Sistema AraujoIA" in html
 
 
 def test_normaliza_postgres_heroku():

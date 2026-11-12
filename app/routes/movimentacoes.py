@@ -24,7 +24,7 @@ def _contas_ativas():
 
 
 def _categorias(tipo=None):
-    q = Categoria.query.filter_by(ativo=True)
+    q = Categoria.visiveis(id_casa())
     if tipo == "receita":
         q = q.filter(Categoria.tipo == "receita")
     elif tipo == "despesa":
@@ -66,7 +66,8 @@ def _aplicar_formulario(mov: Movimentacao, form) -> None:
     categoria_id = form.get("categoria_id") or None
     categoria = None
     if categoria_id:
-        categoria = Categoria.query.filter_by(id=int(categoria_id), ativo=True).first()
+        cid = Categoria.id_permitido(id_casa(), categoria_id)
+        categoria = db.session.get(Categoria, cid) if cid else None
 
     if tipo == "despesa" and categoria and categoria.eh_investimento:
         tipo = "investimento"

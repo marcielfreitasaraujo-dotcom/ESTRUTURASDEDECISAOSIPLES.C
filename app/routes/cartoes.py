@@ -37,7 +37,7 @@ def _contas():
 
 def _categorias_despesa():
     return (
-        Categoria.query.filter(Categoria.ativo.is_(True), Categoria.tipo.in_(("despesa", "investimento")))
+        Categoria.visiveis(id_casa()).filter(Categoria.tipo.in_(("despesa", "investimento")))
         .order_by(Categoria.nome)
         .all()
     )
@@ -179,7 +179,7 @@ def compra(cartao_id):
             parse_moeda(request.form.get("valor")),
             parse_data(request.form.get("data"), date.today()),
             quantidade,
-            int(categoria_id) if categoria_id else None,
+            Categoria.id_permitido(id_casa(), categoria_id) if categoria_id else None,
         )
         registrar("criar", "compra_cartao", cartao.id, request.form.get("descricao"))
         db.session.commit()
@@ -249,7 +249,7 @@ def editar_parcela_rota(cartao_id, parcela_id):
             parcela,
             request.form.get("descricao") or "",
             parse_moeda(request.form.get("valor")),
-            int(categoria_id) if categoria_id else None,
+            Categoria.id_permitido(id_casa(), categoria_id) if categoria_id else None,
         )
         registrar("editar", "parcela_cartao", parcela.id, parcela.descricao)
         db.session.commit()

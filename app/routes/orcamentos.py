@@ -4,6 +4,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.extensions import db
+from app.models import Categoria
 from app.services.auditoria import registrar
 from app.services.orcamentos import painel, salvar_limites
 from app.utils.formatters import nome_mes, parse_moeda, somar_meses
@@ -55,6 +56,8 @@ def salvar():
         try:
             categoria_id = int(chave.split("_", 1)[1])
         except ValueError:
+            continue
+        if Categoria.id_permitido(id_casa(), categoria_id) is None:
             continue
         pares.append((categoria_id, parse_moeda(valor)))
     qtd = salvar_limites(id_casa(), competencia.year, competencia.month, pares)

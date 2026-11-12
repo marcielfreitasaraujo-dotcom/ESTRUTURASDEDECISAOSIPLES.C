@@ -1,0 +1,7 @@
+# Linter do FinUP: começa só com erros reais (sintaxe, nomes indefinidos).
+# Para endurecer depois, acrescente regras em "select".
+target-version = "py312"
+extend-exclude = ["venv", "instance", "uploads", "backups"]
+
+[lint]
+select = ["E9", "F63", "F7", "F82"]
