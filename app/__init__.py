@@ -205,11 +205,20 @@ def create_app(config_class=None) -> Flask:
             "service_worker",
         ):
             return
+        from datetime import date
+
         from app.services.recorrencias import gerar_titulos_recorrentes
         from app.utils.casa import id_casa
 
-        if gerar_titulos_recorrentes(id_casa()):
+        # Basta conferir uma vez por dia por usuário (as telas de recorrência
+        # já geram na hora quando algo muda).
+        uid = id_casa()
+        marca = f"{uid}:{date.today().isoformat()}"
+        if session.get("recorrentes_ok") == marca:
+            return
+        if gerar_titulos_recorrentes(uid):
             db.session.commit()
+        session["recorrentes_ok"] = marca
 
     @app.before_request
     def exigir_email_verificado():
@@ -256,7 +265,7 @@ def create_app(config_class=None) -> Flask:
         qtd_atrasadas = 0
         titulos_atrasados = []
         if current_user.is_authenticated:
-            from app.services.vencimentos import qtd_atrasadas as contar_atrasadas, query_titulos
+            from app.services.vencimentos import query_atrasadas
             from app.utils.casa import id_casa
 
             uid = id_casa()
@@ -266,10 +275,9 @@ def create_app(config_class=None) -> Flask:
                 .all()
             )
             categorias = Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
-            qtd_atrasadas = contar_atrasadas(uid)
-            titulos_atrasados = [
-                t for t in query_titulos(uid).all() if t.status_atual() == "atrasado"
-            ][:6]
+            atrasadas = query_atrasadas(uid)
+            qtd_atrasadas = atrasadas.count()
+            titulos_atrasados = atrasadas.limit(6).all() if qtd_atrasadas else []
         return {
             "contas_menu": contas,
             "categorias_menu": categorias,
