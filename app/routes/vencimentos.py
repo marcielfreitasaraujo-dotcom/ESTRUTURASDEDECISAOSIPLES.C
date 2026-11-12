@@ -31,7 +31,7 @@ def _contas():
 
 
 def _categorias():
-    return Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
+    return Categoria.visiveis(id_casa()).order_by(Categoria.nome).all()
 
 
 def _aplicar(titulo: ContaPagar, form) -> None:
@@ -53,7 +53,7 @@ def _aplicar(titulo: ContaPagar, form) -> None:
     conta_id = form.get("conta_id") or None
     titulo.conta_id = int(conta_id) if conta_id else None
     cat_id = form.get("categoria_id") or None
-    titulo.categoria_id = int(cat_id) if cat_id else None
+    titulo.categoria_id = Categoria.id_permitido(id_casa(), cat_id) if cat_id else None
     if not titulo.quitado:
         titulo.status = titulo.status_atual()
     titulo.atualizado_em = agora()

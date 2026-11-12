@@ -28,7 +28,7 @@ def _contas():
 
 
 def _categorias():
-    return Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
+    return Categoria.visiveis(id_casa()).order_by(Categoria.nome).all()
 
 
 def _aplicar(rec: Recorrencia, form) -> None:
@@ -58,7 +58,7 @@ def _aplicar(rec: Recorrencia, form) -> None:
     conta_id = form.get("conta_id") or None
     rec.conta_id = int(conta_id) if conta_id else None
     cat_id = form.get("categoria_id") or None
-    rec.categoria_id = int(cat_id) if cat_id else None
+    rec.categoria_id = Categoria.id_permitido(id_casa(), cat_id) if cat_id else None
     rec.atualizado_em = agora()
 
 

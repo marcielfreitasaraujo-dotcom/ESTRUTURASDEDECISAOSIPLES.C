@@ -274,7 +274,7 @@ def create_app(config_class=None) -> Flask:
                 .order_by(Conta.nome)
                 .all()
             )
-            categorias = Categoria.query.filter_by(ativo=True).order_by(Categoria.nome).all()
+            categorias = Categoria.visiveis(uid).order_by(Categoria.nome).all()
             atrasadas = query_atrasadas(uid)
             qtd_atrasadas = atrasadas.count()
             titulos_atrasados = atrasadas.limit(6).all() if qtd_atrasadas else []

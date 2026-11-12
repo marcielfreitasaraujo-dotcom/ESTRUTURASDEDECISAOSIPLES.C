@@ -141,7 +141,11 @@ def pagar_fatura(
                 f"O valor não pode ser maior que o em aberto ({aberto})."
             )
 
-    categoria = Categoria.query.filter_by(nome="Cartão", ativo=True).first()
+    categoria = (
+        Categoria.query.filter_by(nome="Cartão", ativo=True)
+        .order_by(Categoria.sistema.desc(), Categoria.id.asc())
+        .first()
+    )
     mes_nome = f"{competencia.month:02d}/{competencia.year}"
     parcial = a_pagar < aberto
     descricao = f"Fatura {cartao.nome} {mes_nome}"

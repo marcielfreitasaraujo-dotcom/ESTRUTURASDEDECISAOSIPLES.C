@@ -1032,3 +1032,15 @@ code { background: var(--surface-2); padding: 0.1rem 0.35rem; border-radius: 6px
   }
   .data-table td::before { content: attr(data-label); color: var(--muted); }
 }
+
+/* Acessibilidade: texto só para leitores de tela */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Categorias: ações da linha */
+.cat-acoes { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: flex-start; justify-content: flex-end; }
+.cat-editar > summary { list-style: none; cursor: pointer; }
+.cat-editar > summary::-webkit-details-marker { display: none; }
+.cat-editar[open] > form { margin-top: 0.5rem; }
