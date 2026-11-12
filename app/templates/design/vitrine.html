@@ -1,0 +1,323 @@
+{% from 'components/fx.html' import ic, kpi, badge, money, delta %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071827">
+  <meta name="robots" content="noindex">
+  <title>Design System · FinUP</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx.css') }}">
+  <style>
+    /* Só o esqueleto desta vitrine (o produto usa os componentes fx-) */
+    body { margin: 0; }
+    .ds-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+    .ds-side { position: sticky; top: 0; height: 100vh; padding: 1.25rem 0.9rem; border-right: 1px solid var(--fx-border); background: #06141f; display: flex; flex-direction: column; gap: 1rem; }
+    .ds-logo { display: flex; align-items: center; gap: 0.6rem; padding: 0 0.4rem; color: var(--fx-text-strong); font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; }
+    .ds-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .ds-logo b { color: var(--fx-accent); }
+    .ds-shell > * { min-width: 0; }
+    .ds-main { min-width: 0; padding: 2rem clamp(1rem, 3vw, 2.5rem) 4rem; display: grid; gap: 2.5rem; max-width: 1240px; }
+    .ds-sec { display: grid; gap: 1rem; }
+    .ds-sec > header { display: grid; gap: 0.25rem; }
+    .ds-cores { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; }
+    .ds-cor { border: 1px solid var(--fx-border); border-radius: var(--fx-r-md); overflow: hidden; background: var(--fx-surface); }
+    .ds-cor i { display: block; height: 56px; }
+    .ds-cor div { padding: 0.55rem 0.7rem; font-size: 12px; }
+    .ds-cor b { display: block; color: var(--fx-text-strong); font-weight: 600; }
+    .ds-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .ds-tip > * + * { margin-top: 0.6rem; }
+    .ds-selo { margin-top: auto; padding: 0.8rem 0.4rem 0; border-top: 1px solid var(--fx-border); font-size: 12px; color: var(--fx-text-3); }
+    .ds-selo b { color: var(--fx-accent); font-weight: 600; }
+    @media (max-width: 900px) {
+      .ds-shell { grid-template-columns: minmax(0, 1fr); }
+      .ds-side { position: static; height: auto; }
+      .ds-side .fx-nav { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .ds-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="fx">
+<div class="ds-shell">
+  <aside class="ds-side">
+    <div class="ds-logo">
+      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+      <span>Fin<b>UP</b></span>
+    </div>
+    <nav class="fx-nav" aria-label="Exemplo de menu">
+      <a class="fx-nav__item is-active" href="#cores">{{ ic('house') }}Início</a>
+      <a class="fx-nav__item" href="#botoes">{{ ic('trending-up') }}Receitas</a>
+      <a class="fx-nav__item" href="#botoes">{{ ic('trending-down') }}Despesas</a>
+      <a class="fx-nav__item" href="#filtros">{{ ic('arrow-left-right') }}Movimentações</a>
+      <a class="fx-nav__item" href="#cards">{{ ic('landmark') }}Contas</a>
+      <a class="fx-nav__item" href="#tabela">{{ ic('calendar-clock') }}Vencimentos<span class="fx-count">3</span></a>
+      <a class="fx-nav__item" href="#tabela">{{ ic('repeat') }}Recorrentes</a>
+      <a class="fx-nav__item" href="#cards">{{ ic('chart-line') }}Investimentos</a>
+      <p class="fx-nav__group">Organização</p>
+      <a class="fx-nav__item" href="#selos">{{ ic('tags') }}Categorias</a>
+      <a class="fx-nav__item" href="#cards">{{ ic('chart-column') }}Relatórios</a>
+      <a class="fx-nav__item" href="#cards">{{ ic('credit-card') }}Cartões</a>
+      <a class="fx-nav__item" href="#progresso">{{ ic('target') }}Orçamento</a>
+      <a class="fx-nav__item" href="#avisos">{{ ic('settings') }}Configurações</a>
+    </nav>
+    <p class="ds-selo"><b>Sistema AraujoIA</b> · FinUP v{{ versao_sistema }}</p>
+  </aside>
+
+  <main class="ds-main">
+    <header class="fx-between">
+      <div>
+        <p class="fx-eyebrow">Etapa 2 · Design System</p>
+        <h1 class="fx-h1">FinUP Design System</h1>
+        <p class="fx-text-2" style="margin:0.4rem 0 0">Peças que todas as telas vão usar. Valores abaixo são fictícios.</p>
+      </div>
+      <a class="fx-btn fx-btn--secondary" href="{{ url_for('dashboard.index') }}">{{ ic('arrow-left') }}Voltar ao sistema</a>
+    </header>
+
+    <!-- Cores -->
+    <section class="ds-sec" id="cores">
+      <header><p class="fx-eyebrow">01</p><h2 class="fx-h2">Cores</h2></header>
+      <div class="ds-cores">
+        {% for nome, cor, uso in [
+          ('Fundo', '#071827', 'Página'), ('Superfície', '#0D2438', 'Cartões e painéis'),
+          ('Primária', '#107C72', 'Ação principal'), ('Destaque', '#36C9A5', 'Positivo, foco, ativo'),
+          ('Texto', '#DCE7EF', 'Conteúdo'), ('Secundário', '#8296A9', 'Rótulos e apoio'),
+          ('Despesas', '#E65D69', 'Saídas e erros'), ('Alertas', '#E5AD45', 'Atenção e prazos')] %}
+          <div class="ds-cor"><i style="background:{{ cor }}"></i><div><b>{{ nome }}</b>{{ cor }} · {{ uso }}</div></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Tipografia -->
+    <section class="ds-sec" id="tipografia">
+      <header><p class="fx-eyebrow">02</p><h2 class="fx-h2">Tipografia · Inter</h2></header>
+      <div class="fx-card"><div class="fx-card__body ds-tip">
+        <p class="fx-eyebrow">Rótulo de seção</p>
+        <h1 class="fx-h1">Título da página — 32 / SemiBold</h1>
+        <h2 class="fx-h2">Título de cartão — 16 / SemiBold</h2>
+        <p style="margin:0">Texto da interface — 14 / Regular. Usado em tabelas, formulários e descrições.</p>
+        <p class="fx-text-2 fx-small" style="margin:0">Texto de apoio — 13 / cor secundária.</p>
+        <p style="margin:0">{{ money(12458.9, classe='fx-money--lg') }} &nbsp; {{ money(3000, 'pos', sinal=True) }} &nbsp; {{ money(85, 'neg', sinal=True) }}</p>
+      </div></div>
+    </section>
+
+    <!-- Botões -->
+    <section class="ds-sec" id="botoes">
+      <header><p class="fx-eyebrow">03</p><h2 class="fx-h2">Botões</h2></header>
+      <div class="fx-card"><div class="fx-card__body fx-stack">
+        <div class="fx-row">
+          <button class="fx-btn fx-btn--primary">{{ ic('plus') }}Novo lançamento</button>
+          <button class="fx-btn fx-btn--secondary">{{ ic('download') }}Exportar</button>
+          <button class="fx-btn fx-btn--ghost">Cancelar</button>
+          <button class="fx-btn fx-btn--danger">{{ ic('trash-2') }}Excluir</button>
+          <button class="fx-btn fx-btn--primary" disabled>Desabilitado</button>
+          <button class="fx-btn fx-btn--primary is-loading">Salvando</button>
+        </div>
+        <div class="fx-row">
+          <button class="fx-btn fx-btn--primary fx-btn--lg">{{ ic('arrow-right') }}Grande</button>
+          <button class="fx-btn fx-btn--secondary fx-btn--sm">Pequeno</button>
+          <button class="fx-btn fx-btn--secondary fx-btn--icon" aria-label="Editar">{{ ic('pencil') }}</button>
+          <button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm" aria-label="Mais ações">{{ ic('ellipsis') }}</button>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Campos -->
+    <section class="ds-sec" id="campos">
+      <header><p class="fx-eyebrow">04</p><h2 class="fx-h2">Campos</h2></header>
+      <div class="fx-card"><div class="fx-card__body">
+        <div class="fx-filterbar__grid" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">
+          <label class="fx-field"><span class="fx-label">Descrição</span><input class="fx-input" placeholder="Ex.: Mercado do mês"></label>
+          <label class="fx-field"><span class="fx-label">Valor</span>
+            <span class="fx-input-wrap">{{ ic('circle-dollar-sign') }}<input class="fx-input" inputmode="decimal" placeholder="0,00"></span></label>
+          <label class="fx-field"><span class="fx-label">Categoria</span>
+            <select class="fx-select"><option>Alimentação</option><option>Moradia</option></select></label>
+          <label class="fx-field"><span class="fx-label">Data</span><input class="fx-input" type="date" value="2026-11-11"></label>
+          <label class="fx-field"><span class="fx-label">Com erro</span><input class="fx-input" aria-invalid="true" value="abc"><span class="fx-error">Informe um valor válido.</span></label>
+          <label class="fx-field"><span class="fx-label">Observação</span><input class="fx-input" placeholder="Opcional"><span class="fx-help">Aparece só no detalhe.</span></label>
+        </div>
+        <div class="fx-row" style="margin-top:1rem"><label class="fx-check"><input type="checkbox" checked>Já foi pago</label></div>
+      </div></div>
+    </section>
+
+    <!-- Filtros (proposta de Movimentações) -->
+    <section class="ds-sec" id="filtros">
+      <header><p class="fx-eyebrow">05</p><h2 class="fx-h2">Barra de filtros · Movimentações</h2>
+        <p class="fx-text-2 fx-small" style="margin:0">Pesquisa e período sempre à vista; os demais filtros recolhem.</p></header>
+      <form class="fx-filterbar" onsubmit="return false">
+        <div class="fx-filterbar__row">
+          <label class="fx-field fx-filterbar__search"><span class="fx-label">Pesquisar</span>
+            <span class="fx-input-wrap">{{ ic('search') }}<input class="fx-input" placeholder="Buscar lançamento..."></span></label>
+          <label class="fx-field"><span class="fx-label">Período</span>
+            <select class="fx-select"><option>Últimos 90 dias</option><option>Este mês</option></select></label>
+          <div class="fx-filterbar__actions">
+            <button class="fx-btn fx-btn--primary">Aplicar</button>
+          </div>
+        </div>
+        <details open>
+          <summary class="fx-btn fx-btn--ghost fx-btn--sm">{{ ic('sliders-horizontal') }}Filtros avançados <span class="fx-count">2</span>{{ ic('chevron-down', 'fx-ic--sm fx-ic-chevron') }}</summary>
+          <div class="fx-filterbar__grid">
+            {% for r in ['Tipo', 'Categoria', 'Conta', 'Forma de pagamento', 'Comprovante'] %}
+              <label class="fx-field"><span class="fx-label">{{ r }}</span><select class="fx-select"><option>Todos</option></select></label>
+            {% endfor %}
+            <div class="fx-field"><span class="fx-label">&nbsp;</span><button class="fx-btn fx-btn--ghost" type="reset">{{ ic('x') }}Limpar filtros</button></div>
+          </div>
+        </details>
+      </form>
+    </section>
+
+    <!-- KPIs e cartões -->
+    <section class="ds-sec" id="cards">
+      <header><p class="fx-eyebrow">06</p><h2 class="fx-h2">Indicadores e cartões</h2></header>
+      <div class="fx-grid-kpi">
+        {{ kpi('Receitas', 4663.03, 'trending-up', 'pos', 12, nota='vs. 90 dias anteriores', href='#cards') }}
+        {{ kpi('Despesas', 4488.13, 'trending-down', 'neg', 8, inverter=True, nota='vs. 90 dias anteriores', href='#cards') }}
+        {{ kpi('Investimentos', 0, 'chart-line', 'invest', 0, nota='vs. 90 dias anteriores') }}
+        {{ kpi('Saldo do período', 174.90, 'wallet', 'info', 4, nota='Nas contas: R$ 3.260,57', tipo_valor='') }}
+      </div>
+      <div class="ds-grid-2">
+        <article class="fx-card fx-card--flush">
+          <header class="fx-card__head">
+            <div class="fx-card__title">{{ ic('calendar-clock') }}<h3 class="fx-h2">Próximos vencimentos</h3></div>
+            <a class="fx-btn fx-btn--ghost fx-btn--sm" href="#tabela">Ver todos{{ ic('chevron-right', 'fx-ic--sm') }}</a>
+          </header>
+          <ul class="fx-list">
+            {% for e in exemplos[1:] %}
+            <li><a class="fx-list__item" href="#tabela">
+              <span class="fx-tile fx-tile--sm fx-tile--{{ e.status[1] }}">{{ ic('receipt', 'fx-ic--sm') }}</span>
+              <span class="fx-list__main"><span class="fx-list__title">{{ e.titulo }}</span><span class="fx-list__meta">Vence {{ e.data }}</span></span>
+              {{ money(e.valor) }} {{ badge(e.status[0], e.status[1]) }}
+            </a></li>
+            {% endfor %}
+          </ul>
+        </article>
+        <article class="fx-card fx-card--flush">
+          <header class="fx-card__head">
+            <div class="fx-card__title">{{ ic('landmark') }}<h3 class="fx-h2">Suas contas</h3></div>
+            <a class="fx-btn fx-btn--ghost fx-btn--sm" href="#cards">Ver todas{{ ic('chevron-right', 'fx-ic--sm') }}</a>
+          </header>
+          <ul class="fx-list">
+            {% for nome, banco, valor in [('Conta corrente', 'Banco do Brasil', 2580.45), ('Poupança', 'Caixa', 680.12), ('Carteira', 'Dinheiro', -250.30)] %}
+            <li class="fx-list__item">
+              <span class="fx-tile fx-tile--sm fx-tile--info">{{ ic('building-2', 'fx-ic--sm') }}</span>
+              <span class="fx-list__main"><span class="fx-list__title">{{ nome }}</span><span class="fx-list__meta">{{ banco }}</span></span>
+              {{ money(valor, 'neg' if valor < 0 else '') }}
+            </li>
+            {% endfor %}
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Tabela -->
+    <section class="ds-sec" id="tabela">
+      <header><p class="fx-eyebrow">07</p><h2 class="fx-h2">Tabela de lançamentos</h2></header>
+      <article class="fx-card fx-card--flush">
+        <header class="fx-card__head">
+          <div><h3 class="fx-h2">Histórico financeiro</h3><span class="fx-text-2 fx-small">15/08/2026 — 12/11/2026 · 4 registros</span></div>
+          <div class="fx-segmented" role="tablist">
+            <button class="is-active">Todos</button><button>Receitas</button><button>Despesas</button>
+          </div>
+        </header>
+        <div class="fx-table-wrap">
+          <table class="fx-table">
+            <thead><tr><th>Descrição</th><th>Categoria</th><th>Conta</th><th>Situação</th><th class="fx-num">Valor</th><th class="fx-actions"></th></tr></thead>
+            <tbody>
+              {% for e in exemplos %}
+              <tr>
+                <td><span class="fx-strong">{{ e.titulo }}</span><span class="fx-sub">{{ e.tipo }} · {{ e.data }}</span></td>
+                <td><span class="fx-cat" style="--fx-cat:{{ e.cor }}">{{ e.cat }}</span></td>
+                <td class="fx-text-2">{{ e.conta }}</td>
+                <td>{{ badge(e.status[0], e.status[1]) }}</td>
+                <td class="fx-num">{{ money(e.valor, e.tom, sinal=True) }}</td>
+                <td class="fx-actions"><button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm" aria-label="Ações">{{ ic('ellipsis') }}</button></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <nav class="fx-pagination" aria-label="Paginação">
+          <span>Mostrando 1–4 de 33</span>
+          <span class="fx-pagination__pages">
+            <button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm" aria-label="Anterior" disabled>{{ ic('chevron-left') }}</button>
+            <button class="fx-btn fx-btn--secondary fx-btn--sm" aria-current="page">1</button>
+            <button class="fx-btn fx-btn--ghost fx-btn--sm">2</button>
+            <button class="fx-btn fx-btn--ghost fx-btn--sm">3</button>
+            <button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm" aria-label="Próxima">{{ ic('chevron-right') }}</button>
+          </span>
+        </nav>
+      </article>
+    </section>
+
+    <!-- Selos -->
+    <section class="ds-sec" id="selos">
+      <header><p class="fx-eyebrow">08</p><h2 class="fx-h2">Selos e categorias</h2></header>
+      <div class="fx-card"><div class="fx-card__body fx-row">
+        {{ badge('Recebido', 'pos') }} {{ badge('Atrasado', 'neg') }} {{ badge('Vence hoje', 'warn') }}
+        {{ badge('Agendado', 'info') }} {{ badge('Investimento', 'invest') }} {{ badge('Rascunho', '') }}
+        <span class="fx-cat" style="--fx-cat:#E5AD45">Alimentação</span>
+        <span class="fx-cat" style="--fx-cat:#5AA9E6">Moradia</span>
+        <span class="fx-cat" style="--fx-cat:#9B8CF2">Serviços</span>
+      </div></div>
+    </section>
+
+    <!-- Progresso -->
+    <section class="ds-sec" id="progresso">
+      <header><p class="fx-eyebrow">09</p><h2 class="fx-h2">Orçamento · progresso</h2></header>
+      <div class="fx-card"><div class="fx-card__body fx-stack">
+        {% for o in orcamentos %}
+          <div class="fx-stack" style="gap:0.45rem">
+            <div class="fx-between">
+              <span class="fx-cat" style="--fx-cat:{{ o.cor }}">{{ o.cat }}</span>
+              <span class="fx-small">{{ money(o.gasto) }} <span class="fx-text-3">de {{ o.limite | moeda }}</span>
+                {% if o.pct > 100 %}{{ badge('Estourou', 'neg') }}{% elif o.pct >= 85 %}{{ badge('Perto do limite', 'warn') }}{% endif %}</span>
+            </div>
+            <div class="fx-progress {{ 'fx-progress--neg' if o.pct > 100 else ('fx-progress--warn' if o.pct >= 85) }}" style="--fx-valor:{{ [o.pct, 100] | min }}%"><span></span></div>
+          </div>
+        {% endfor %}
+      </div></div>
+    </section>
+
+    <!-- Avisos, vazio e modal -->
+    <section class="ds-sec" id="avisos">
+      <header><p class="fx-eyebrow">10</p><h2 class="fx-h2">Avisos, estado vazio e janela</h2></header>
+      <div class="fx-stack">
+        <div class="fx-alert fx-alert--pos">{{ ic('circle-check') }}<span>Lançamento salvo com sucesso.</span></div>
+        <div class="fx-alert fx-alert--warn">{{ ic('triangle-alert') }}<span>Você tem 3 contas vencendo esta semana.</span></div>
+        <div class="fx-alert fx-alert--neg">{{ ic('circle-alert') }}<span>Não foi possível salvar. Confira os campos.</span></div>
+        <div class="fx-alert">{{ ic('info') }}<span>Dica: use filtros avançados para achar lançamentos antigos.</span></div>
+      </div>
+      <div class="ds-grid-2">
+        <div class="fx-card"><div class="fx-empty">
+          <span class="fx-tile">{{ ic('inbox') }}</span>
+          <strong style="color:var(--fx-text-strong)">Nenhum lançamento no período</strong>
+          <span class="fx-small">Ajuste os filtros ou registre o primeiro.</span>
+          <button class="fx-btn fx-btn--primary fx-btn--sm" style="margin-top:0.5rem">{{ ic('plus', 'fx-ic--sm') }}Novo lançamento</button>
+        </div></div>
+        <div class="fx-card"><div class="fx-empty">
+          <span class="fx-tile fx-tile--info">{{ ic('layout-dashboard') }}</span>
+          <strong style="color:var(--fx-text-strong)">Janela (modal)</strong>
+          <button class="fx-btn fx-btn--secondary fx-btn--sm" type="button" onclick="document.getElementById('ds-modal').showModal()">Abrir exemplo</button>
+        </div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog class="fx-modal" id="ds-modal" aria-labelledby="ds-modal-t">
+  <form method="dialog">
+    <header class="fx-modal__head"><h3 class="fx-h2" id="ds-modal-t">Novo lançamento</h3>
+      <button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm" aria-label="Fechar">{{ ic('x') }}</button></header>
+    <div class="fx-modal__body">
+      <div class="fx-segmented"><button type="button" class="is-active">Despesa</button><button type="button">Receita</button><button type="button">Transferência</button></div>
+      <label class="fx-field"><span class="fx-label">Descrição</span><input class="fx-input" placeholder="Ex.: Mercado"></label>
+      <label class="fx-field"><span class="fx-label">Valor</span><input class="fx-input" placeholder="0,00"></label>
+    </div>
+    <footer class="fx-modal__foot"><button class="fx-btn fx-btn--ghost">Cancelar</button><button class="fx-btn fx-btn--primary">Salvar</button></footer>
+  </form>
+</dialog>
+</body>
+</html>

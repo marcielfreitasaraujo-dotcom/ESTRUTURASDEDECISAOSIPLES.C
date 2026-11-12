@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}{{ mov.descricao }}{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -89,7 +90,7 @@
     <article class="card">
       <header class="card-head"><h2>Comprovante</h2></header>
       {% if mov.comprovante %}
-        <p>📎 {{ mov.comprovante.nome_original }}</p>
+        <p>{{ ic('paperclip', 'fx-ic--sm') }} {{ mov.comprovante.nome_original }}</p>
         <div class="btn-row">
           <a class="btn btn-ghost" href="{{ url_for('comprovantes.ver', comp_id=mov.comprovante.id) }}" target="_blank">Ver comprovante</a>
           <form action="{{ url_for('movimentacoes.remover_comp', mov_id=mov.id) }}" method="post">

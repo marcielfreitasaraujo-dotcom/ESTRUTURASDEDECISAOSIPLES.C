@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}Relatórios{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -8,8 +9,8 @@
     <p class="muted">{{ titulo_periodo }} · dados reais do seu usuário</p>
   </div>
   <div class="btn-row">
-    <a class="btn btn-ghost" href="{{ url_for('relatorios.pdf', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">📄 PDF</a>
-    <a class="btn btn-primary" href="{{ url_for('relatorios.excel', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">📊 Excel</a>
+    <a class="btn btn-ghost" href="{{ url_for('relatorios.pdf', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">{{ ic('file-text') }}PDF</a>
+    <a class="btn btn-primary" href="{{ url_for('relatorios.excel', periodo=periodo, inicio=inicio.isoformat(), fim=fim.isoformat(), mes=mes if periodo == 'mes' else None) }}">{{ ic('download') }}Excel</a>
   </div>
 </section>
 

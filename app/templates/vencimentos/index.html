@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}{% if tipo == 'receber' %}Contas a receber{% else %}Contas a pagar{% endif %}{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -19,8 +20,8 @@
 </section>
 
 <nav class="tabs">
-  <a class="tab {{ 'ativo' if tipo == 'pagar' }}" href="{{ url_for('vencimentos.index', tipo='pagar') }}">💸 A pagar</a>
-  <a class="tab {{ 'ativo' if tipo == 'receber' }}" href="{{ url_for('vencimentos.index', tipo='receber') }}">💵 A receber</a>
+  <a class="tab {{ 'ativo' if tipo == 'pagar' }}" href="{{ url_for('vencimentos.index', tipo='pagar') }}">{{ ic('trending-down', 'fx-ic--sm') }}A pagar</a>
+  <a class="tab {{ 'ativo' if tipo == 'receber' }}" href="{{ url_for('vencimentos.index', tipo='receber') }}">{{ ic('hand-coins', 'fx-ic--sm') }}A receber</a>
 </nav>
 
 <section class="kpi-grid kpi-3">
@@ -68,14 +69,14 @@
           <td data-label="Vencimento">{{ t.vencimento | data_br }}</td>
           <td data-label="Descrição">
             <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}">{{ t.descricao }}</a>
-            {% if t.recorrencia_id %}<small class="muted"> 🔁</small>{% endif %}
+            {% if t.recorrencia_id %}<small class="muted" title="Recorrente"> {{ ic('repeat', 'fx-ic--sm') }}</small>{% endif %}
           </td>
           <td data-label="Pessoa">{{ t.pessoa or '—' }}</td>
           <td data-label="Categoria">{{ t.categoria.nome if t.categoria else '—' }}</td>
           <td data-label="Valor" class="num">{{ t.valor | moeda }}</td>
           <td data-label="Status">
             <span class="badge {{ st }}">
-              {% if st == 'atrasado' %}🔴 Atrasado{% elif st == 'vence_hoje' %}🟡 Vence hoje{% elif st == 'pago' %}🟢 Pago{% elif st == 'recebido' %}🟢 Recebido{% else %}🟡 Pendente{% endif %}
+              {% if st == 'atrasado' %}Atrasado{% elif st == 'vence_hoje' %}Vence hoje{% elif st == 'pago' %}Pago{% elif st == 'recebido' %}Recebido{% else %}Pendente{% endif %}
             </span>
             {% if st == 'atrasado' and t.dias_atraso %}
               <small>há {{ t.dias_atraso }} dia{{ 's' if t.dias_atraso != 1 }}</small>
@@ -100,7 +101,7 @@
   <div class="modal sheet">
     <div class="modal-head">
       <h2>Novo título</h2>
-      <button class="icon-btn" type="button" data-close-titulo aria-label="Fechar">✕</button>
+      <button class="icon-btn" type="button" data-close-titulo aria-label="Fechar">{{ ic('x') }}</button>
     </div>
     <form action="{{ url_for('vencimentos.nova') }}" method="post" class="stack">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

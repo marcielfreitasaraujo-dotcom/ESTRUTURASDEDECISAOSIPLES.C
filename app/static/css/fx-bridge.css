@@ -1,0 +1,348 @@
+/*
+ * FinUP — ponte para o Design System
+ * ------------------------------------------------------------------
+ * Faz as peças antigas (card, kpi, data-table, btn, pill, filtros,
+ * formulários, janelas) seguirem cores, fonte e medidas do fx,
+ * sem mudar o HTML nem a lógica das telas. Só vale dentro de base_fx.
+ * À medida que um módulo for redesenhado com componentes fx-, as
+ * regras daqui deixam de ser usadas por ele.
+ */
+
+/* ---------------------------------------------------- 1. Variáveis antigas → tokens fx */
+html.fx-html,
+html.fx-html[data-theme="escuro"],
+html.fx-html[data-theme="claro"] {
+  --bg: var(--fx-bg);
+  --surface: var(--fx-surface);
+  --surface-2: var(--fx-surface-2);
+  --text: var(--fx-text);
+  --muted: var(--fx-text-2);
+  --border: var(--fx-border);
+  --primary: var(--fx-primary);
+  --primary-2: var(--fx-accent);
+  --primary-hover: var(--fx-primary-hover);
+  --primary-soft: var(--fx-accent-soft);
+  --receita: var(--fx-positive);
+  --despesa: var(--fx-negative);
+  --despesa-hover: #d44a57;
+  --investimento: var(--fx-invest);
+  --shadow: var(--fx-shadow-1);
+  --shadow-hover: var(--fx-shadow-2);
+  --radius: var(--fx-r-lg);
+  --radius-ctrl: var(--fx-r-md);
+  --ctrl-h: var(--fx-h-md);
+  --ctrl-h-sm: var(--fx-h-sm);
+  --ring: var(--fx-ring);
+  --font: var(--fx-font);
+}
+html.fx-html body {
+  background: var(--fx-bg);
+  background-image: none;
+  font-family: var(--fx-font);
+  font-size: var(--fx-fs-md);
+  color: var(--fx-text);
+}
+
+/* ---------------------------------------------------- 2. Cabeçalho das páginas */
+.fx-content .page-head { align-items: flex-end; margin-bottom: 1.5rem; }
+.fx-content .page-head h1 {
+  margin: 0.3rem 0 0;
+  font-size: var(--fx-fs-3xl);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--fx-text-strong);
+}
+.fx-content .kicker {
+  font-size: var(--fx-fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--fx-text-2);
+}
+.fx-content .page-head p.muted { margin: 0.45rem 0 0; font-size: var(--fx-fs-sm); }
+.fx .muted, .fx .hint, .fx .opcional { color: var(--fx-text-2); }
+.fx .page-nav-back { margin: 0 0 1rem; }
+.fx h2, .fx h3 { color: var(--fx-text-strong); }
+.fx a { color: var(--fx-accent); }
+
+/* ---------------------------------------------------- 3. Superfícies */
+html.fx-html .fx .card,
+html.fx-html .fx .kpi,
+html.fx-html .fx .account-card,
+html.fx-html .fx .table-wrap,
+html.fx-html .fx .modal,
+html.fx-html .fx .modal-dialog-card {
+  background: var(--fx-surface);
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-r-lg);
+  box-shadow: var(--fx-shadow-1);
+  backdrop-filter: none;
+}
+.fx .card { padding: 1.25rem; }
+.fx .card-head { margin-bottom: 1rem; }
+.fx .card-head h2 { font-size: var(--fx-fs-lg); font-weight: 600; letter-spacing: -0.01em; }
+.fx .danger-zone { border-color: rgba(230, 93, 105, 0.35) !important; }
+
+/* Indicadores antigos */
+.fx .kpi { padding: 1.1rem 1.25rem; }
+.fx .kpi span { font-size: var(--fx-fs-sm); font-weight: 500; color: var(--fx-text-2); }
+.fx .kpi strong {
+  font-size: var(--fx-fs-2xl);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--fx-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+.fx .kpi small { color: var(--fx-text-3); font-size: var(--fx-fs-xs); }
+.fx .kpi.receita strong, .fx .kpi.saldo.positivo strong { color: var(--fx-positive); }
+.fx .kpi.despesa strong, .fx .kpi.saldo.negativo strong { color: var(--fx-negative); }
+.fx .kpi.investimento strong { color: var(--fx-invest); }
+.fx a.kpi-link:hover, .fx a.account-card:hover {
+  transform: none;
+  border-color: var(--fx-border-strong);
+  background: #0f2a41;
+  box-shadow: var(--fx-shadow-1);
+}
+
+/* Contas e cartões (cartões das contas/cartões de crédito) */
+.fx .account-card { padding: 1.1rem 1.2rem; gap: 0.3rem; }
+.fx .account-card h2 { font-size: var(--fx-fs-lg); font-weight: 600; color: var(--fx-text-strong); }
+.fx .account-card strong { font-size: var(--fx-fs-xl); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--fx-text-strong); }
+.fx .tag { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--fx-text-3); }
+
+/* ---------------------------------------------------- 4. Botões antigos → aparência fx */
+.fx .btn {
+  min-height: var(--fx-h-md);
+  padding: 0 var(--fx-4);
+  border-radius: var(--fx-r-md);
+  font-size: var(--fx-fs-md);
+  font-weight: 600;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+.fx .btn-sm { min-height: var(--fx-h-sm); padding: 0 var(--fx-3); font-size: var(--fx-fs-sm); border-radius: var(--fx-r-sm); }
+html.fx-html .fx .btn-primary { background: var(--fx-primary); color: #fff; box-shadow: none; }
+html.fx-html .fx .btn-primary:hover:not(:disabled) { background: var(--fx-primary-hover); box-shadow: none; }
+html.fx-html .fx .btn-ghost {
+  background: transparent;
+  color: var(--fx-text);
+  border-color: var(--fx-border-strong);
+  box-shadow: none;
+}
+html.fx-html .fx .btn-ghost:hover:not(:disabled) { background: var(--fx-surface-2); border-color: var(--fx-accent); color: var(--fx-text-strong); }
+html.fx-html .fx .btn-danger { background: var(--fx-negative); color: #fff; box-shadow: none; }
+html.fx-html .fx .btn-danger:hover:not(:disabled) { background: #d44a57; }
+.fx .btn-danger-ghost { border-color: rgba(230, 93, 105, 0.35); color: var(--fx-negative); }
+.fx .btn-danger-ghost:hover:not(:disabled) { background: var(--fx-negative-soft); border-color: var(--fx-negative); }
+.fx .btn.is-loading::after { border-color: #fff #fff transparent transparent; }
+
+html.fx-html .fx .icon-btn {
+  width: var(--fx-h-md);
+  height: var(--fx-h-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--fx-text-2);
+  border-radius: var(--fx-r-md);
+}
+html.fx-html .fx .icon-btn:hover { background: var(--fx-surface-2); color: var(--fx-text-strong); border-color: transparent; }
+.fx .btn-mais { color: var(--fx-text-2); }
+.fx .btn-mais:hover, .fx .btn-mais[aria-expanded="true"] { background: var(--fx-surface-2); color: var(--fx-text-strong); border-color: var(--fx-border); }
+
+/* ---------------------------------------------------- 5. Pílulas e abas → segmentado */
+.fx .pill, .fx .tab {
+  min-height: 34px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-r-md);
+  background: var(--fx-surface-3);
+  color: var(--fx-text-2);
+  font-size: var(--fx-fs-sm);
+  font-weight: 500;
+  box-shadow: none;
+}
+.fx .pill:hover:not(.ativo), .fx .tab:hover:not(.ativo) { color: var(--fx-text-strong); border-color: var(--fx-border-strong); }
+html.fx-html .fx .pill.ativo, html.fx-html .fx .tab.ativo {
+  background: var(--fx-accent-soft);
+  border-color: rgba(54, 201, 165, 0.45);
+  color: var(--fx-text-strong);
+  box-shadow: none;
+}
+.fx .period-pills, .fx .tabs { gap: 0.4rem; }
+
+/* ---------------------------------------------------- 6. Campos e filtros */
+.fx .filters input, .fx .filters select,
+.fx .form-inline input, .fx .form-inline select,
+.fx label input, .fx label select, .fx label textarea,
+.fx .filtro-label input, .fx .data-table input,
+.fx .modal input, .fx .modal select, .fx .modal textarea {
+  min-height: var(--fx-h-md);
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-r-md);
+  background-color: var(--fx-surface-3);
+  color: var(--fx-text-strong);
+  font-size: var(--fx-fs-md);
+  box-shadow: none;
+}
+.fx label textarea, .fx .modal textarea { min-height: 88px; }
+.fx select {
+  appearance: none;
+  padding-right: 2.25rem !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238296a9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 16px;
+}
+.fx select option { background: var(--fx-surface); color: var(--fx-text); }
+.fx input[type="date"], .fx input[type="month"] { color-scheme: dark; }
+.fx input[type="file"] { color: var(--fx-text-2); padding-top: 0.45rem; }
+.fx input:hover, .fx select:hover, .fx textarea:hover { border-color: var(--fx-border-strong); }
+.fx input:focus, .fx select:focus, .fx textarea:focus {
+  outline: none;
+  border-color: var(--fx-accent) !important;
+  box-shadow: var(--fx-ring) !important;
+}
+.fx ::placeholder { color: var(--fx-text-3); opacity: 1; }
+.fx label { color: var(--fx-text-2); font-size: var(--fx-fs-sm); font-weight: 500; }
+.fx .check-line, .fx .check { color: var(--fx-text); }
+.fx input:-webkit-autofill { -webkit-text-fill-color: var(--fx-text-strong); box-shadow: 0 0 0 1000px var(--fx-surface-3) inset !important; }
+.fx .input-valor { font-size: 1.5rem !important; font-weight: 600; letter-spacing: -0.02em; }
+
+/* Barra de filtros antiga: vira uma faixa única em grade (não um campo por linha) */
+.fx .filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  align-items: end;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--fx-surface);
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-r-lg);
+}
+.fx .filters input[type="search"] { grid-column: span 2; }
+.fx .filters .btn { width: 100%; }
+.fx .relatorio-filtros .filters { padding: 0; border: 0; background: transparent; }
+.fx .filtros-box > summary.btn { border-color: var(--fx-border-strong); }
+.fx .filtros-box .nav-badge { background: var(--fx-accent); color: var(--fx-bg); }
+@media (min-width: 900px) {
+  .fx .filtros-box[open] > summary { display: none; }
+}
+@media (max-width: 560px) {
+  .fx .filters { grid-template-columns: 1fr 1fr; }
+  .fx .filters input[type="search"] { grid-column: 1 / -1; }
+}
+
+/* ---------------------------------------------------- 7. Tabelas */
+.fx .table-wrap { overflow: auto; }
+.fx .data-table { font-size: var(--fx-fs-md); font-variant-numeric: tabular-nums; }
+.fx .data-table th {
+  padding: 10px 1rem;
+  background: var(--fx-surface-3);
+  color: var(--fx-text-3);
+  font-size: var(--fx-fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--fx-border);
+}
+.fx .data-table td { padding: 12px 1rem; color: var(--fx-text); border-bottom: 1px solid var(--fx-border); }
+html.fx-html .fx .data-table td { color: var(--fx-text); }
+.fx .data-table tbody tr:last-child td { border-bottom: 0; }
+@media (min-width: 801px) {
+  .fx .data-table tbody tr:hover { background: rgba(255, 255, 255, 0.025); }
+}
+.fx .data-table td a { color: var(--fx-text-strong); font-weight: 500; }
+.fx .data-table td a:hover { color: var(--fx-accent); }
+.fx .num { text-align: right; }
+.fx tr.atrasada, .fx tr.atrasada td { color: var(--fx-negative) !important; }
+.fx tr.vence-hoje td { color: var(--fx-warning); }
+@media (max-width: 860px) {
+  .fx .data-table tr { padding: 0.85rem 1rem; border-bottom: 1px solid var(--fx-border); }
+  .fx .data-table td { padding: 0.2rem 0; border: 0; }
+  .fx .data-table td::before { color: var(--fx-text-3); font-size: var(--fx-fs-xs); }
+}
+
+/* Selos antigos → selo fx */
+.fx .badge {
+  --_c: var(--fx-text-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: var(--fx-fs-xs);
+  font-weight: 600;
+  color: var(--_c);
+  background: color-mix(in srgb, var(--_c) 14%, transparent);
+  text-transform: capitalize;
+}
+.fx .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.fx .badge.receita, .fx .badge.pago, .fx .badge.recebido { --_c: var(--fx-positive); }
+.fx .badge.despesa, .fx .badge.atrasado { --_c: var(--fx-negative); }
+.fx .badge.investimento { --_c: var(--fx-invest); }
+.fx .badge.vence_hoje, .fx .badge.pendente, .fx .badge.parcial { --_c: var(--fx-warning); }
+.fx .badge.transferencia { --_c: var(--fx-info); }
+html.fx-html .fx .badge.vence_hoje, html.fx-html .fx .badge.pendente { color: var(--fx-warning); }
+
+/* ---------------------------------------------------- 8. Listas e valores */
+.fx .mov-list li a { border-color: var(--fx-border); color: var(--fx-text); }
+.fx .mov-list li a:hover strong { color: var(--fx-accent); }
+.fx .mov-list strong { color: var(--fx-text-strong); font-weight: 500; }
+.fx .mov-list small { color: var(--fx-text-3); }
+.fx .dot { width: 8px; height: 8px; }
+.fx .dot.receita { background: var(--fx-positive); }
+.fx .dot.despesa, .fx .dot.investimento { background: var(--fx-negative); }
+.fx .dot.pendente { background: var(--fx-warning); }
+.fx .valor, .fx .hero-valor { font-variant-numeric: tabular-nums; font-style: normal; font-weight: 600; }
+.fx .valor.receita, .fx .hero-valor.receita { color: var(--fx-positive); }
+.fx .valor.despesa, .fx .valor.investimento, .fx .hero-valor.despesa { color: var(--fx-negative); }
+.fx .texto-atrasado { color: var(--fx-negative) !important; }
+.fx .empty { color: var(--fx-text-2); }
+.fx .barra { height: 6px; background: var(--fx-surface-3); }
+.fx .barra span { background: var(--fx-accent); }
+.fx .barra.alerta span { background: var(--fx-warning); }
+.fx .hint-fatura { background: var(--fx-surface-3); border: 1px solid var(--fx-border); color: var(--fx-text); }
+.fx code { background: var(--fx-surface-3); color: var(--fx-text); }
+.fx .preview { border-color: var(--fx-border); }
+
+/* ---------------------------------------------------- 9. Avisos (flash) */
+html.fx-html .fx .flash { border: 1px solid; border-radius: var(--fx-r-md); font-size: var(--fx-fs-md); }
+html.fx-html .fx .flash-sucesso { background: rgba(54, 201, 165, 0.09); border-color: rgba(54, 201, 165, 0.35); color: var(--fx-text); }
+html.fx-html .fx .flash-erro { background: rgba(230, 93, 105, 0.09); border-color: rgba(230, 93, 105, 0.35); color: var(--fx-text); }
+html.fx-html .fx .flash-info { background: rgba(90, 169, 230, 0.09); border-color: rgba(90, 169, 230, 0.35); color: var(--fx-text); }
+
+/* ---------------------------------------------------- 10. Janelas e menus */
+.fx .modal-backdrop { background: rgba(3, 10, 18, 0.7); backdrop-filter: blur(2px); }
+.fx .modal { border-radius: var(--fx-r-lg); padding: 1.25rem; }
+.fx .modal-head h2 { font-size: var(--fx-fs-xl); font-weight: 600; color: var(--fx-text-strong); }
+.fx .modal-dialog::backdrop { background: rgba(3, 10, 18, 0.7); }
+.fx .chip-tipo {
+  min-height: 40px;
+  border: 1px solid var(--fx-border);
+  border-radius: var(--fx-r-md);
+  background: var(--fx-surface-3);
+  color: var(--fx-text-2);
+  font-weight: 600;
+}
+html.fx-html .fx .chip-tipo.ativo.receita { background: var(--fx-positive-soft); border-color: rgba(54, 201, 165, 0.5); color: var(--fx-positive); }
+html.fx-html .fx .chip-tipo.ativo.despesa { background: var(--fx-negative-soft); border-color: rgba(230, 93, 105, 0.5); color: var(--fx-negative); }
+html.fx-html .fx .chip-tipo.ativo.transferencia { background: var(--fx-info-soft); border-color: rgba(90, 169, 230, 0.5); color: var(--fx-info); }
+.fx .menu-popover { background: var(--fx-surface); border-color: var(--fx-border); box-shadow: var(--fx-shadow-2); }
+.fx .menu-popover-item { font-weight: 500; color: var(--fx-text); }
+.fx .menu-popover-item:hover { background: var(--fx-surface-2); }
+.fx .menu-popover-item.perigo { color: var(--fx-negative); }
+.fx .menu-popover-ico .fx-ic { width: 16px; height: 16px; }
+
+/* Tema (Configurações): o sistema novo é escuro; a escolha fica registrada */
+.fx .tema-opcao { background: var(--fx-surface-3); border-color: var(--fx-border); }
+.fx .tema-opcao.ativo { border-color: var(--fx-accent); background: var(--fx-surface); }
+
+/* ---------------------------------------------------- 11. Indicadores antigos no celular */
+.fx .kpi-grid > * { min-width: 0; }
+@media (max-width: 1100px) {
+  .fx .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .fx .kpi-grid, .fx .kpi-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
+  .fx .kpi { padding: 0.85rem; }
+  .fx .kpi strong { font-size: clamp(1rem, 4.6vw, 1.2rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fx .kpi small { display: block; overflow-wrap: anywhere; }
+}

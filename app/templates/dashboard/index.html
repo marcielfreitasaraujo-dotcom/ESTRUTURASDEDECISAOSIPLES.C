@@ -1,205 +1,230 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic, kpi, badge, money, delta %}
 {% block title %}Início{% endblock %}
 {% block content %}
-<section class="page-head">
+{% set cmp = comparativo %}
+{% set nota_cmp = 'vs. ' ~ (cmp.inicio | data_br) ~ ' a ' ~ (cmp.fim | data_br) %}
+
+<section class="dash-head">
   <div>
-    <p class="kicker">Resumo financeiro</p>
-    <h1>Olá, {{ current_user.nome.split(' ')[0] }} 👋</h1>
-    <p class="muted">{{ resumo.mes_nome }}</p>
+    <p class="fx-eyebrow">Resumo financeiro</p>
+    <h1 class="fx-h1">Olá, {{ current_user.nome.split(' ')[0] }}</h1>
+    <p class="fx-text-2 dash-head__sub">{{ ic('calendar', 'fx-ic--sm') }} {{ resumo.mes_nome }}</p>
   </div>
-  <form class="period-pills" method="get">
+  <nav class="fx-segmented dash-periodo" aria-label="Período">
     {% for chave, label in [
-      ('hoje','Hoje'),
-      ('esta_semana','Esta semana'),
-      ('este_mes','Este mês'),
-      ('ultimos_30','30 dias'),
-      ('ultimos_90','90 dias'),
-      ('este_ano','Este ano')
+      ('hoje', 'Hoje'), ('esta_semana', 'Semana'), ('este_mes', 'Mês'),
+      ('ultimos_30', '30D'), ('ultimos_90', '90D'), ('este_ano', 'Ano')
     ] %}
-      <button class="pill {{ 'ativo' if periodo == chave }}" name="periodo" value="{{ chave }}">{{ label }}</button>
+      <a href="{{ url_for('dashboard.index', periodo=chave) }}" class="{{ 'is-active' if periodo == chave }}"
+         {% if periodo == chave %}aria-current="true"{% endif %}>{{ label }}</a>
     {% endfor %}
-  </form>
+  </nav>
 </section>
 
-<section class="kpi-grid">
-  <a
-    class="kpi receita kpi-link"
-    href="{{ url_for('movimentacoes.index', tipo='receita', periodo=periodo) }}"
-    title="Ver só receitas do período"
-  >
-    <span>💰 Receitas</span>
-    <strong>{{ resumo.receitas | moeda }}</strong>
-    <small class="kpi-acao">Ver só receitas</small>
-  </a>
-  <a
-    class="kpi despesa kpi-link"
-    href="{{ url_for('movimentacoes.index', tipo='despesa', periodo=periodo) }}"
-    title="Ver só despesas do período"
-  >
-    <span>💸 Despesas</span>
-    <strong>{{ resumo.despesas | moeda }}</strong>
-    <small class="kpi-acao">Ver só despesas</small>
-  </a>
-  <a
-    class="kpi investimento kpi-link"
-    href="{{ url_for('movimentacoes.index', tipo='investimento', periodo=periodo) }}"
-    title="Ver só investimentos do período"
-  >
-    <span>📈 Investimentos</span>
-    <strong>{{ resumo.investimentos | moeda }}</strong>
-    <small class="kpi-acao">Ver só investimentos</small>
-  </a>
-  <article class="kpi saldo {{ 'negativo' if resumo.saldo_periodo < 0 else 'positivo' }}">
-    <span>💵 Saldo do período</span>
-    <strong>{{ resumo.saldo_periodo | moeda }}</strong>
-    <small>Nas contas: {{ resumo.saldo_contas | moeda }}</small>
-  </article>
+<section class="fx-grid-kpi dash-kpis">
+  {{ kpi('Receitas', resumo.receitas, 'trending-up', 'pos', cmp.pct.receitas, nota=nota_cmp,
+         href=url_for('movimentacoes.index', tipo='receita', periodo=periodo), spark=sparks.receitas) }}
+  {{ kpi('Despesas', resumo.despesas, 'trending-down', 'neg', cmp.pct.despesas, inverter=True, nota=nota_cmp,
+         href=url_for('movimentacoes.index', tipo='despesa', periodo=periodo), spark=sparks.despesas) }}
+  {{ kpi('Investimentos', resumo.investimentos, 'chart-line', 'invest', cmp.pct.investimentos, nota=nota_cmp,
+         href=url_for('movimentacoes.index', tipo='investimento', periodo=periodo)) }}
+  {{ kpi('Saldo do período', resumo.saldo_periodo, 'wallet', 'info', cmp.pct.saldo_periodo,
+         nota='Nas contas: ' ~ (resumo.saldo_contas | moeda),
+         tipo_valor=('neg' if resumo.saldo_periodo < 0 else ''), spark=sparks.saldo_periodo) }}
 </section>
 
-<section class="grid-charts">
-  <article class="card">
-    <header class="card-head">
-      <h2>Receitas × Despesas</h2>
-    </header>
-    <div class="chart-wrap chart-wrap--rd">
-      <canvas id="chart-rd" role="img" aria-label="Gráfico de receitas e despesas"></canvas>
-    </div>
-  </article>
-  <article class="card">
-    <header class="card-head">
-      <h2>Gastos por categoria</h2>
-    </header>
-    <div class="chart-wrap chart-wrap--cat">
-      <div class="chart-cat-box">
-        <canvas id="chart-cat" role="img" aria-label="Gráfico de gastos por categoria"></canvas>
-      </div>
-    </div>
-  </article>
-</section>
-
-<section class="grid-2-dash">
-  <article class="card">
-    <header class="card-head">
-      <h2>Evolução do saldo</h2>
-    </header>
-    <div class="chart-wrap chart-wrap--evo">
-      <canvas id="chart-evo" role="img" aria-label="Gráfico de evolução do saldo"></canvas>
-    </div>
-  </article>
-  <article class="card">
-    <header class="card-head">
-      <h2>Próximos vencimentos</h2>
-      <a href="{{ url_for('vencimentos.index') }}">Ver todas</a>
-    </header>
-    {% if proximos_pagar or proximos_receber %}
-      <ul class="mov-list">
-        {% for t in proximos_pagar %}
-          {% set st = t.status_atual() %}
-          <li>
-            <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}" class="{{ 'texto-atrasado' if st == 'atrasado' }}">
-              <span class="dot {{ 'despesa' if st == 'atrasado' else 'pendente' }}"></span>
-              <div>
-                <strong>{{ t.descricao }}</strong>
-                <small>A pagar · {{ t.vencimento | data_br }}{% if st == 'atrasado' %} · atrasada{% endif %}</small>
-              </div>
-              <em class="valor {{ 'despesa' if st == 'atrasado' else '' }}">{{ t.valor | moeda }}</em>
-            </a>
-          </li>
-        {% endfor %}
-        {% for t in proximos_receber %}
-          {% set st = t.status_atual() %}
-          <li>
-            <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}" class="{{ 'texto-atrasado' if st == 'atrasado' }}">
-              <span class="dot receita"></span>
-              <div>
-                <strong>{{ t.descricao }}</strong>
-                <small>A receber{% if t.pessoa %} · {{ t.pessoa }}{% endif %} · {{ t.vencimento | data_br }}</small>
-              </div>
-              <em class="valor receita">{{ t.valor | moeda }}</em>
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="empty">Nenhum vencimento em aberto. Cadastre em <a href="{{ url_for('vencimentos.index') }}">Vencimentos</a>.</p>
-    {% endif %}
-  </article>
-</section>
-
-{% if orcamentos_estouro or faturas_abertas %}
-<section class="grid-2-dash" style="margin-top:1rem">
-  {% if faturas_abertas %}
-  <article class="card">
-    <header class="card-head">
-      <h2>Faturas em aberto</h2>
-      <a href="{{ url_for('cartoes.index') }}">Cartões</a>
-    </header>
-    <ul class="mov-list">
-      {% for item in faturas_abertas %}
-        <li>
-          <a href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
-            <span class="dot despesa"></span>
-            <div>
-              <strong>{{ item.cartao.nome }}</strong>
-              <small>vence {{ item.vencimento | data_br }}</small>
-            </div>
-            <em class="valor despesa">{{ item.aberto | moeda }}</em>
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  </article>
-  {% endif %}
-  {% if orcamentos_estouro %}
-  <article class="card">
-    <header class="card-head">
-      <h2>Orçamento estourado</h2>
-      <a href="{{ url_for('orcamentos.index') }}">Ajustar</a>
-    </header>
-    <ul class="mov-list">
-      {% for item in orcamentos_estouro %}
-        <li>
-          <a href="{{ url_for('orcamentos.index') }}">
-            <span class="dot despesa"></span>
-            <div>
-              <strong>{{ item.categoria.nome }}</strong>
-              <small>limite {{ item.limite | moeda }}</small>
-            </div>
-            <em class="valor despesa">{{ item.gasto | moeda }}</em>
-          </a>
-        </li>
-      {% endfor %}
-    </ul>
-  </article>
-  {% endif %}
+{% if faturas_abertas or orcamentos_estouro %}
+<section class="dash-alertas">
+  {% for item in faturas_abertas %}
+    <a class="fx-alert fx-alert--warn dash-alerta" href="{{ url_for('cartoes.detalhe', cartao_id=item.cartao.id) }}">
+      {{ ic('credit-card') }}
+      <span>Fatura <strong>{{ item.cartao.nome }}</strong> em aberto: {{ money(item.aberto) }} · vence {{ item.vencimento | data_br }}</span>
+    </a>
+  {% endfor %}
+  {% for item in orcamentos_estouro %}
+    <a class="fx-alert fx-alert--neg dash-alerta" href="{{ url_for('orcamentos.index') }}">
+      {{ ic('triangle-alert') }}
+      <span>Orçamento de <strong>{{ item.categoria.nome }}</strong> estourado: {{ money(item.gasto) }} de {{ item.limite | moeda }}</span>
+    </a>
+  {% endfor %}
 </section>
 {% endif %}
 
-<article class="card" style="margin-top:1rem">
-  <header class="card-head">
-    <h2>Últimas movimentações</h2>
-    <a href="{{ url_for('movimentacoes.index') }}">Ver todas</a>
+<section class="dash-graficos">
+  <article class="fx-card">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('chart-column') }}<h2 class="fx-h2">Receitas × despesas</h2></div>
+      <div class="dash-legenda">
+        <span class="fx-cat" style="--fx-cat:var(--fx-positive)">Receitas</span>
+        <span class="fx-cat" style="--fx-cat:var(--fx-negative)">Despesas</span>
+      </div>
+    </header>
+    <div class="fx-card__body">
+      <div class="dash-chart dash-chart--rd"><canvas id="chart-rd" role="img" aria-label="Gráfico de receitas e despesas no período"></canvas></div>
+    </div>
+  </article>
+
+  <article class="fx-card">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('chart-pie') }}<h2 class="fx-h2">Gastos por categoria</h2></div>
+    </header>
+    <div class="fx-card__body dash-cat">
+      {% if legenda_cat.itens %}
+        <div class="dash-rosca">
+          <canvas id="chart-cat" role="img" aria-label="Gráfico de gastos por categoria"></canvas>
+          <div class="dash-rosca__centro">
+            <span class="fx-money">{{ legenda_cat.total | moeda }}</span>
+            <small>Total</small>
+          </div>
+        </div>
+        <ul class="dash-cat__lista">
+          {% for c in legenda_cat.itens %}
+            <li>
+              <span class="fx-cat" style="--fx-cat:{{ c.cor }}">{{ c.nome }}</span>
+              <span class="fx-text-3 fx-small">{{ '%.0f' | format(c.pct) }}%</span>
+              <span class="fx-money fx-small">{{ c.valor | moeda }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="fx-empty">
+          <span class="fx-tile">{{ ic('chart-pie') }}</span>
+          <span>Sem gastos com categoria neste período.</span>
+        </div>
+      {% endif %}
+    </div>
+  </article>
+</section>
+
+<section class="dash-blocos">
+  <article class="fx-card fx-card--flush">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('calendar-clock') }}<h2 class="fx-h2">Próximos vencimentos</h2></div>
+      <a class="fx-btn fx-btn--ghost fx-btn--sm" href="{{ url_for('vencimentos.index') }}">Ver todos{{ ic('chevron-right', 'fx-ic--sm') }}</a>
+    </header>
+    {% if proximos_pagar or proximos_receber %}
+      <ul class="fx-list">
+        {% for t in proximos_pagar %}
+          {% set st = t.status_atual() %}
+          <li><a class="fx-list__item" href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}">
+            <span class="fx-tile fx-tile--sm {{ 'fx-tile--neg' if st == 'atrasado' else ('fx-tile--warn' if st == 'vence_hoje' else 'fx-tile--info') }}">{{ ic('receipt', 'fx-ic--sm') }}</span>
+            <span class="fx-list__main">
+              <span class="fx-list__title">{{ t.descricao }}</span>
+              <span class="fx-list__meta">A pagar · {{ t.vencimento | data_br }}</span>
+            </span>
+            <span class="dash-lado">
+              {{ money(t.valor) }}
+              {% if st == 'atrasado' %}{{ badge('Atrasado', 'neg') }}{% elif st == 'vence_hoje' %}{{ badge('Vence hoje', 'warn') }}{% else %}{{ badge('Pendente', 'info') }}{% endif %}
+            </span>
+          </a></li>
+        {% endfor %}
+        {% for t in proximos_receber %}
+          {% set st = t.status_atual() %}
+          <li><a class="fx-list__item" href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}">
+            <span class="fx-tile fx-tile--sm fx-tile--pos">{{ ic('hand-coins', 'fx-ic--sm') }}</span>
+            <span class="fx-list__main">
+              <span class="fx-list__title">{{ t.descricao }}</span>
+              <span class="fx-list__meta">A receber{% if t.pessoa %} · {{ t.pessoa }}{% endif %} · {{ t.vencimento | data_br }}</span>
+            </span>
+            <span class="dash-lado">
+              {{ money(t.valor, 'pos') }}
+              {% if st == 'atrasado' %}{{ badge('Atrasado', 'neg') }}{% else %}{{ badge('A receber', 'pos') }}{% endif %}
+            </span>
+          </a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="fx-empty">
+        <span class="fx-tile fx-tile--info">{{ ic('calendar-clock') }}</span>
+        <span>Nenhum vencimento em aberto.</span>
+        <a class="fx-btn fx-btn--secondary fx-btn--sm" href="{{ url_for('vencimentos.index') }}">Cadastrar conta a pagar</a>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="fx-card fx-card--flush">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('landmark') }}<h2 class="fx-h2">Suas contas</h2></div>
+      <a class="fx-btn fx-btn--ghost fx-btn--sm" href="{{ url_for('contas.index') }}">Ver todas{{ ic('chevron-right', 'fx-ic--sm') }}</a>
+    </header>
+    {% if contas %}
+      <ul class="fx-list">
+        {% for item in contas[:5] %}
+          <li><a class="fx-list__item" href="{{ url_for('contas.detalhe', conta_id=item.conta.id) }}">
+            <span class="fx-tile fx-tile--sm fx-tile--info">{{ ic('wallet' if item.conta.tipo == 'carteira' else ('piggy-bank' if item.conta.tipo == 'poupanca' else ('chart-line' if item.conta.tipo == 'investimentos' else 'building-2')), 'fx-ic--sm') }}</span>
+            <span class="fx-list__main">
+              <span class="fx-list__title">{{ item.conta.nome }}</span>
+              <span class="fx-list__meta">{{ item.tipo }}</span>
+            </span>
+            {{ money(item.saldo, 'neg' if item.saldo < 0 else '') }}
+          </a></li>
+        {% endfor %}
+      </ul>
+      <footer class="fx-card__foot fx-between">
+        <span class="fx-text-2 fx-small">Saldo total</span>
+        {{ money(resumo.saldo_contas, 'neg' if resumo.saldo_contas < 0 else '') }}
+      </footer>
+    {% else %}
+      <div class="fx-empty">
+        <span class="fx-tile fx-tile--info">{{ ic('landmark') }}</span>
+        <span>Nenhuma conta cadastrada.</span>
+        <a class="fx-btn fx-btn--secondary fx-btn--sm" href="{{ url_for('contas.index') }}">Cadastrar conta</a>
+      </div>
+    {% endif %}
+  </article>
+
+  <article class="fx-card">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('chart-line') }}<h2 class="fx-h2">Evolução do saldo</h2></div>
+    </header>
+    <div class="fx-card__body">
+      <div class="dash-chart dash-chart--evo"><canvas id="chart-evo" role="img" aria-label="Gráfico da evolução do saldo"></canvas></div>
+    </div>
+  </article>
+</section>
+
+<article class="fx-card fx-card--flush dash-ultimas">
+  <header class="fx-card__head">
+    <div class="fx-card__title">{{ ic('arrow-left-right') }}<h2 class="fx-h2">Últimas movimentações</h2></div>
+    <a class="fx-btn fx-btn--ghost fx-btn--sm" href="{{ url_for('movimentacoes.index') }}">Ver todas{{ ic('chevron-right', 'fx-ic--sm') }}</a>
   </header>
   {% if ultimas %}
-    <ul class="mov-list">
+    <div class="fx-table-wrap dash-tabela">
+      <table class="fx-table">
+        <thead><tr><th>Descrição</th><th>Categoria</th><th>Conta</th><th>Data</th><th class="fx-num">Valor</th></tr></thead>
+        <tbody>
+          {% for mov in ultimas %}
+            {% set tom = 'pos' if mov.tipo == 'receita' else ('' if mov.tipo == 'transferencia' else 'neg') %}
+            <tr>
+              <td><a class="fx-strong" href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">{{ mov.descricao }}</a><span class="fx-sub">{{ mov.tipo_label }}</span></td>
+              <td>{% if mov.categoria %}<span class="fx-cat" style="--fx-cat:{{ mov.categoria.cor or '#5d7286' }}">{{ mov.categoria.nome }}</span>{% else %}<span class="fx-text-3">—</span>{% endif %}</td>
+              <td class="fx-text-2">{{ mov.conta.nome if mov.conta else '—' }}</td>
+              <td class="fx-text-2">{{ mov.data | data_br }}</td>
+              <td class="fx-num">{{ money(mov.valor, tom, sinal=(tom != '')) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <ul class="fx-list dash-lista-cel">
       {% for mov in ultimas %}
-        <li>
-          <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
-            <span class="dot {{ mov.tipo }}"></span>
-            <div>
-              <strong>{{ mov.descricao }}</strong>
-              <small>{{ mov.categoria.nome if mov.categoria else mov.tipo_label }} · {{ mov.data | data_br }}</small>
-            </div>
-            <em class="valor {{ mov.tipo }}">
-              {% if mov.tipo == 'receita' %}+{% else %}−{% endif %}
-              {{ mov.valor | moeda }}
-            </em>
-          </a>
-        </li>
+        {% set tom = 'pos' if mov.tipo == 'receita' else ('' if mov.tipo == 'transferencia' else 'neg') %}
+        <li><a class="fx-list__item" href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
+          <span class="fx-list__main">
+            <span class="fx-list__title">{{ mov.descricao }}</span>
+            <span class="fx-list__meta">{{ mov.categoria.nome if mov.categoria else mov.tipo_label }} · {{ mov.data | data_br }}</span>
+          </span>
+          {{ money(mov.valor, tom, sinal=(tom != '')) }}
+        </a></li>
       {% endfor %}
     </ul>
   {% else %}
-    <p class="empty">Nenhum lançamento ainda. Toque em <strong>+ Lançamento</strong> para começar.</p>
+    <div class="fx-empty">
+      <span class="fx-tile">{{ ic('inbox') }}</span>
+      <span>Nenhum lançamento ainda.</span>
+      <button class="fx-btn fx-btn--primary fx-btn--sm" type="button" data-open-lancamento data-tipo="despesa">{{ ic('plus', 'fx-ic--sm') }}Novo lançamento</button>
+    </div>
   {% endif %}
 </article>
 {% endblock %}

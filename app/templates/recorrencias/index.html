@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+{% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic %}
 {% block title %}Recorrentes{% endblock %}
 {% block content %}
 <section class="page-head">
@@ -53,7 +54,7 @@
   <div class="modal sheet">
     <div class="modal-head">
       <h2>Nova recorrente</h2>
-      <button class="icon-btn" type="button" data-close-recorrencia aria-label="Fechar">✕</button>
+      <button class="icon-btn" type="button" data-close-recorrencia aria-label="Fechar">{{ ic('x') }}</button>
     </div>
     <form action="{{ url_for('recorrencias.nova') }}" method="post" class="stack">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

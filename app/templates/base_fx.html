@@ -1,0 +1,157 @@
+{#
+  Esqueleto novo (FinUP Design System). As páginas migram para ele uma a uma
+  trocando o extends de base.html para base_fx.html.
+  Mantém os mesmos ganchos do app.js (menu, pesquisa, notificações, lançamento)
+  e a mesma checagem de sessão do base.html.
+#}
+{% from 'components/fx.html' import ic %}
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="escuro" data-autenticado="1" class="fx-html">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="theme-color" content="#071827">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="FinUP">
+  <title>{% block title %}FinUP{% endblock %} · FinUP</title>
+  <link rel="manifest" href="{{ url_for('web_manifest') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon-32.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {# app.css/ui.css continuam para peças ainda não migradas (janela de lançamento, avisos) #}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx-shell.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/fx-bridge.css') }}">
+  <script>
+    (function () {
+      var CHAVE = "finup_sessao_navegador";
+      var NOME = "finup_ativo";
+      try {
+        if (sessionStorage.getItem(CHAVE) !== "1" || window.name !== NOME) {
+          window.location.replace("/logout");
+        }
+      } catch (_erro) {
+        window.location.replace("/logout");
+      }
+    })();
+  </script>
+  <script src="{{ url_for('static', filename='js/sessao.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/pwa-register.js') }}" defer></script>
+</head>
+<body class="fx">
+{% set ep = request.endpoint or '' %}
+{% set tipo_arg = request.args.get('tipo') %}
+{% macro item(href, icone, texto, ativo=False, contador=0) -%}
+  <a class="fx-nav__item {{ 'is-active' if ativo }}" href="{{ href }}" {% if ativo %}aria-current="page"{% endif %} title="{{ texto }}">
+    {{ ic(icone) }}<span class="fx-nav__label">{{ texto }}</span>
+    {% if contador %}<span class="fx-count">{{ contador }}</span>{% endif %}
+  </a>
+{%- endmacro %}
+<div class="fx-app">
+  <aside class="sidebar fx-side" id="sidebar" aria-label="Menu principal">
+    <div class="fx-side__top">
+      <a class="fx-brand" href="{{ url_for('dashboard.index') }}">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" width="32" height="32">
+        <span class="fx-brand__nome">Fin<b>UP</b></span>
+      </a>
+      <button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm fx-side__recolher" type="button"
+              data-collapse-sidebar aria-label="Recolher menu" title="Recolher menu">{{ ic('panel-left-close') }}</button>
+    </div>
+
+    <nav class="fx-nav fx-side__nav">
+      {{ item(url_for('dashboard.index'), 'house', 'Início', ep == 'dashboard.index') }}
+      {{ item(url_for('movimentacoes.receitas'), 'trending-up', 'Receitas', tipo_arg == 'receita') }}
+      {{ item(url_for('movimentacoes.despesas'), 'trending-down', 'Despesas', tipo_arg == 'despesa') }}
+      {{ item(url_for('movimentacoes.index'), 'arrow-left-right', 'Movimentações', ep == 'movimentacoes.index' and not tipo_arg) }}
+      {{ item(url_for('contas.index'), 'landmark', 'Contas', ep.startswith('contas.')) }}
+      {{ item(url_for('cartoes.index'), 'credit-card', 'Cartões', ep.startswith('cartoes.')) }}
+      <p class="fx-nav__group">Planejamento</p>
+      {{ item(url_for('vencimentos.index'), 'calendar-clock', 'Vencimentos', ep.startswith('vencimentos.'), qtd_atrasadas) }}
+      {{ item(url_for('recorrencias.index'), 'repeat', 'Recorrentes', ep.startswith('recorrencias.')) }}
+      {{ item(url_for('orcamentos.index'), 'target', 'Orçamento', ep.startswith('orcamentos.')) }}
+      {{ item(url_for('movimentacoes.investimentos'), 'chart-line', 'Investimentos', tipo_arg == 'investimento') }}
+      <p class="fx-nav__group">Organização</p>
+      {{ item(url_for('categorias.index'), 'tags', 'Categorias', ep.startswith('categorias.')) }}
+      {{ item(url_for('relatorios.index'), 'chart-column', 'Relatórios', ep.startswith('relatorios.')) }}
+      {% if current_user.eh_admin %}
+        {{ item(url_for('assinatura.index'), 'crown', 'Financeiro', ep.startswith('assinatura.')) }}
+      {% endif %}
+      {{ item(url_for('configuracoes.index'), 'settings', 'Configurações', ep.startswith('configuracoes.')) }}
+    </nav>
+
+    <div class="fx-side__selo">{% include 'components/assinatura_araujoia.html' %}</div>
+  </aside>
+
+  <div class="fx-main">
+    <header class="fx-top">
+      <button class="fx-btn fx-btn--ghost fx-btn--icon fx-top__menu" type="button" data-toggle-sidebar aria-label="Abrir menu">{{ ic('menu') }}</button>
+      <form class="fx-top__busca" action="{{ url_for('movimentacoes.index') }}" method="get" role="search">
+        <span class="fx-input-wrap">
+          {{ ic('search') }}
+          <input class="fx-input" type="search" name="q" id="busca-global" placeholder="Pesquisar movimentações..."
+                 autocomplete="off" value="{{ request.args.get('q', '') }}" aria-label="Pesquisar movimentações">
+        </span>
+        <div class="search-results" id="search-results" hidden></div>
+      </form>
+      <div class="fx-top__acoes">
+        <button class="fx-btn fx-btn--primary fx-top__novo" type="button" data-open-lancamento data-tipo="despesa">
+          {{ ic('plus') }}<span>Lançamento</span>
+        </button>
+        <div class="notify">
+          <button class="fx-btn fx-btn--ghost fx-btn--icon" type="button" data-toggle-notify aria-label="Notificações">
+            {{ ic('bell') }}
+            {% if qtd_atrasadas %}<span class="notify-dot">{{ qtd_atrasadas }}</span>{% endif %}
+          </button>
+          <div class="notify-panel" id="notify-panel" hidden>
+            {% if titulos_atrasados %}
+              <p class="notify-title">Contas atrasadas</p>
+              {% for t in titulos_atrasados %}
+                <a href="{{ url_for('vencimentos.detalhe', titulo_id=t.id) }}" class="texto-atrasado">
+                  {{ t.descricao }} · {{ t.valor | moeda }}
+                  <small>{{ t.vencimento | data_br }}</small>
+                </a>
+              {% endfor %}
+              <a href="{{ url_for('vencimentos.index', situacao='atrasadas') }}">Ver todas</a>
+            {% else %}
+              <p class="muted" style="padding:0.8rem">Nenhuma conta atrasada.</p>
+            {% endif %}
+          </div>
+        </div>
+        <a class="fx-user" href="{{ url_for('configuracoes.index') }}" title="Configurações da conta">
+          <span class="fx-user__avatar">{{ current_user.nome[:1] | upper }}</span>
+          <span class="fx-user__meta"><strong>{{ current_user.nome }}</strong><small>{{ 'Administrador' if current_user.eh_admin else 'Assinante' }}</small></span>
+        </a>
+        <a class="fx-btn fx-btn--ghost fx-btn--icon" href="{{ url_for('auth.logout') }}" aria-label="Sair" title="Sair">{{ ic('log-out') }}</a>
+      </div>
+    </header>
+
+    <main class="fx-content">
+      {% if ep and ep != 'dashboard.index' %}
+        <nav class="page-nav-back" aria-label="Navegação">
+          <button type="button" class="fx-btn fx-btn--ghost fx-btn--sm" data-voltar
+                  data-voltar-fallback="{{ url_for('dashboard.index') }}">{{ ic('arrow-left', 'fx-ic--sm') }}Voltar</button>
+        </nav>
+      {% endif %}
+      {% include 'components/flash.html' %}
+      {% block content %}{% endblock %}
+      <footer class="app-rodape">{% include 'components/assinatura_araujoia.html' %}</footer>
+    </main>
+  </div>
+</div>
+
+<button class="fab" type="button" data-open-lancamento data-tipo="despesa" aria-label="Nova movimentação">{{ ic('plus', 'fx-ic--lg') }}</button>
+
+{% include 'components/modal_lancamento.html' %}
+
+<div class="sidebar-backdrop" data-toggle-sidebar></div>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
