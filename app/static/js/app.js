@@ -9,7 +9,8 @@
   function aplicarSidebarRecolhida(recolhida) {
     document.documentElement.classList.toggle("sidebar-recolhida", recolhida);
     $$("[data-collapse-sidebar]").forEach((btn) => {
-      btn.textContent = recolhida ? "»" : "«";
+      // No esqueleto novo o botão tem ícone (SVG): só gira, não troca o texto
+      if (!btn.querySelector("svg")) btn.textContent = recolhida ? "»" : "«";
       btn.setAttribute("aria-label", recolhida ? "Expandir menu" : "Recolher menu");
       btn.title = recolhida ? "Expandir menu" : "Recolher menu";
       btn.setAttribute("aria-pressed", recolhida ? "true" : "false");

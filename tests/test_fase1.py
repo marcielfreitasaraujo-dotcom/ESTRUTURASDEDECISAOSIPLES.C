@@ -235,5 +235,5 @@ def test_sidebar_tem_rolagem_e_recolher(admin_client):
     html = admin_client.get("/").get_data(as_text=True)
     assert 'id="sidebar"' in html
     assert "data-collapse-sidebar" in html
-    assert "nav-label" in html
-    assert "side-nav" in html
+    assert "fx-nav__label" in html
+    assert "fx-side__nav" in html

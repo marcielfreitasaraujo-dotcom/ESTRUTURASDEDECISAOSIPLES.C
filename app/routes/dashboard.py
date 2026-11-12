@@ -57,8 +57,28 @@ def index():
                     "vencimento": vencimento_fatura(cartao, competencia),
                 }
             )
+    # Painel novo: comparação com o período anterior, minicurvas e contas
+    from app.models import Conta, TIPOS_CONTA
+    from app.services.saldo import saldo_conta
+
+    comparativo = dash.comparativo(uid, inicio, fim, resumo)
+    saldo_diario = [r - d for r, d in zip(receitas_despesas["receitas"], receitas_despesas["despesas"])]
+    sparks = {
+        "receitas": dash.sparkline(receitas_despesas["receitas"]),
+        "despesas": dash.sparkline(receitas_despesas["despesas"]),
+        "saldo_periodo": dash.sparkline(saldo_diario),
+    }
+    rotulos_conta = dict(TIPOS_CONTA)
+    contas = [
+        {"conta": c, "saldo": saldo_conta(c), "tipo": rotulos_conta.get(c.tipo, c.tipo)}
+        for c in Conta.query.filter_by(usuario_id=uid, ativo=True).order_by(Conta.nome).all()
+    ]
     return render_template(
         "dashboard/index.html",
+        comparativo=comparativo,
+        sparks=sparks,
+        contas=contas,
+        legenda_cat=dash.legenda_categorias(categorias),
         resumo=resumo,
         ultimas=ultimas,
         periodo=chave,

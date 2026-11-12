@@ -293,7 +293,17 @@
 a.fx-kpi:hover { border-color: var(--fx-border-strong); background: #0f2a41; }
 .fx-kpi__top { display: flex; align-items: center; gap: var(--fx-3); }
 .fx-kpi__label { font-size: var(--fx-fs-sm); font-weight: 500; color: var(--fx-text-2); }
-.fx-kpi__value { font-size: var(--fx-fs-2xl); }
+.fx-kpi__value { font-size: var(--fx-fs-2xl); min-width: 0; }
+.fx-kpi { position: relative; overflow: hidden; }
+.fx-kpi__mid { min-width: 0; }
+/* Minicurva discreta no canto do cartão (não disputa espaço com o valor) */
+.fx-spark { position: absolute; top: calc(var(--fx-5) + 4px); right: var(--fx-5); width: 60px; height: 26px; opacity: 0.9; }
+.fx-kpi:has(.fx-spark) .fx-kpi__top { padding-right: 68px; }
+.fx-kpi__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fx-spark path { fill: none; stroke: var(--fx-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.fx-spark--neg path { stroke: var(--fx-negative); }
+.fx-spark--info path { stroke: var(--fx-info); }
+.fx-spark--invest path { stroke: var(--fx-invest); }
 .fx-kpi__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--fx-2); font-size: var(--fx-fs-xs); color: var(--fx-text-3); }
 
 /* Quadradinho de ícone com a cor do contexto */
@@ -474,7 +484,7 @@ a.fx-list__item:hover { background: rgba(255, 255, 255, 0.025); }
 .fx-list__item:last-child { border-bottom: 0; }
 .fx-list__main { flex: 1; min-width: 0; }
 .fx-list__title { display: block; color: var(--fx-text-strong); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.fx-list__meta { display: block; font-size: var(--fx-fs-xs); color: var(--fx-text-3); }
+.fx-list__meta { display: block; font-size: var(--fx-fs-xs); color: var(--fx-text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* =========================================================== Progresso (orçamento) */
 .fx-progress {

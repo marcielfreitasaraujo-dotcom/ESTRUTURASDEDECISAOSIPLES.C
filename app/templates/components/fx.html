@@ -37,16 +37,23 @@
 {%- endmacro %}
 
 {# Indicador (KPI): rótulo, valor, ícone, tom, variação e link opcional #}
-{% macro kpi(rotulo, valor, icone, tom='pos', variacao=None, inverter=False, nota='', href=None, tipo_valor='') -%}
-<{{ 'a href="' ~ href ~ '"' if href else 'div' }} class="fx-kpi">
+{% macro kpi(rotulo, valor, icone, tom='pos', variacao=None, inverter=False, nota='', href=None, tipo_valor='', spark='') -%}
+{% if href %}<a class="fx-kpi" href="{{ href }}">{% else %}<div class="fx-kpi">{% endif %}
   <div class="fx-kpi__top">
     <span class="fx-tile fx-tile--{{ tom }}">{{ ic(icone) }}</span>
     <span class="fx-kpi__label">{{ rotulo }}</span>
   </div>
-  <div class="fx-kpi__value">{{ money(valor, tipo_valor, classe='fx-money--lg') }}</div>
+  <div class="fx-kpi__mid">
+    <div class="fx-kpi__value">{{ money(valor, tipo_valor, classe='fx-money--lg') }}</div>
+    {% if spark %}
+      <svg class="fx-spark fx-spark--{{ tom }}" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true">
+        <path d="{{ spark }}"/>
+      </svg>
+    {% endif %}
+  </div>
   <div class="fx-kpi__foot">
     <span>{{ nota }}</span>
     {% if variacao is not none %}{{ delta(variacao, inverter) }}{% endif %}
   </div>
-</{{ 'a' if href else 'div' }}>
+{% if href %}</a>{% else %}</div>{% endif %}
 {%- endmacro %}

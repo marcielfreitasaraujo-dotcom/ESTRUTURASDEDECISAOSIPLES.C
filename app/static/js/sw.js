@@ -1,9 +1,12 @@
 /* FinUP PWA — cache somente de estáticos. Nunca HTML/API/dados financeiros. */
-const CACHE_NAME = "finup-static-v4";
+const CACHE_NAME = "finup-static-v5";
 const PRECACHE = [
   "/static/css/app.css",
   "/static/css/ui.css",
   "/static/css/auth.css",
+  "/static/css/fx.css",
+  "/static/css/fx-shell.css",
+  "/static/icons/lucide.svg",
   "/static/js/app.js",
   "/static/js/sessao.js",
   "/static/js/dashboard.js",

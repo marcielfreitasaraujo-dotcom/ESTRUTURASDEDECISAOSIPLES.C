@@ -7,23 +7,17 @@ def test_inicio_padrao_ultimos_90_dias(admin_client):
     resp = admin_client.get("/")
     assert resp.status_code == 200
     html = resp.get_data(as_text=True)
-    assert "90 dias" in html
-    assert "Este ano" in html
-    assert 'name="periodo" value="ultimos_90"' in html
-    # pill ativo no padrão
-    assert 'class="pill ativo" name="periodo" value="ultimos_90"' in html or (
-        'value="ultimos_90"' in html and "ativo" in html
-    )
+    # seletor compacto: 90D marcado como atual por padrão
+    assert 'href="/?periodo=ultimos_90" class="is-active"' in html
+    assert 'aria-current="true">90D<' in html
+    assert ">Ano<" in html
 
 
 def test_kpi_receita_despesa_sao_links(admin_client):
     html = admin_client.get("/").get_data(as_text=True)
-    assert 'href="/movimentacoes?periodo=ultimos_90&amp;tipo=receita"' in html or (
-        'tipo=receita' in html and "periodo=ultimos_90" in html
-    )
-    assert "tipo=despesa" in html
-    assert "Ver só receitas" in html
-    assert "Ver só despesas" in html
+    # indicadores levam à lista já filtrada pelo tipo e pelo período
+    assert '<a class="fx-kpi" href="/movimentacoes?tipo=receita&amp;periodo=ultimos_90">' in html
+    assert '<a class="fx-kpi" href="/movimentacoes?tipo=despesa&amp;periodo=ultimos_90">' in html
 
 
 def test_clicar_kpi_receita_filtra_lista(admin_client):
@@ -47,5 +41,6 @@ def test_inicio_nao_tem_botao_voltar(admin_client):
 
 def test_inicio_tem_chart_wrap(admin_client):
     html = admin_client.get("/").get_data(as_text=True)
-    assert "chart-wrap" in html
+    assert "dash-chart" in html
     assert 'id="chart-rd"' in html
+    assert 'id="chart-evo"' in html
