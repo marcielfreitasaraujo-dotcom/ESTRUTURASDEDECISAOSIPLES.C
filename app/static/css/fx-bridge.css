@@ -62,7 +62,8 @@ html.fx-html body {
 .fx .muted, .fx .hint, .fx .opcional { color: var(--fx-text-2); }
 .fx .page-nav-back { margin: 0 0 1rem; }
 .fx h2, .fx h3 { color: var(--fx-text-strong); }
-.fx a { color: var(--fx-accent); }
+/* Só links de texto puro; botões e abas (fx-) cuidam da própria cor */
+.fx a:not([class]) { color: var(--fx-accent); }
 
 /* ---------------------------------------------------- 3. Superfícies */
 html.fx-html .fx .card,

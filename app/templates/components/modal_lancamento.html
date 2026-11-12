@@ -1,48 +1,76 @@
 {% from 'components/fx.html' import ic %}
-<div class="modal-backdrop" id="modal-lancamento" hidden>
-  <div class="modal sheet">
-    <div class="modal-head">
-      <h2>Nova movimentação</h2>
-      <button class="icon-btn" type="button" data-close-modal aria-label="Fechar">{{ ic('x') }}</button>
+{#
+  Janela de novo lançamento (FinUP Design System).
+  Mantém ids, names e data-* usados pelo app.js e pela rota movimentacoes.nova.
+#}
+<div class="modal-backdrop fx-lanc-fundo" id="modal-lancamento" hidden>
+  <div class="modal sheet fx-lanc" role="dialog" aria-modal="true" aria-labelledby="fx-lanc-titulo">
+    <header class="fx-lanc__head">
+      <div>
+        <h2 class="fx-h2" id="fx-lanc-titulo">Novo lançamento</h2>
+        <p class="fx-small fx-text-3">Registre em poucos segundos.</p>
+      </div>
+      <button class="fx-btn fx-btn--ghost fx-btn--icon fx-btn--sm" type="button" data-close-modal aria-label="Fechar">{{ ic('x') }}</button>
+    </header>
+
+    <div class="fx-lanc__tipos" role="group" aria-label="Tipo de lançamento">
+      <button type="button" class="chip-tipo receita" data-set-tipo="receita">{{ ic('trending-up', 'fx-ic--sm') }}Receita</button>
+      <button type="button" class="chip-tipo despesa ativo" data-set-tipo="despesa">{{ ic('trending-down', 'fx-ic--sm') }}Despesa</button>
+      <button type="button" class="chip-tipo transferencia" data-set-tipo="transferencia">{{ ic('arrow-left-right', 'fx-ic--sm') }}Transferência</button>
     </div>
-    <div class="quick-types">
-      <button type="button" class="chip-tipo receita" data-set-tipo="receita">+ Receita</button>
-      <button type="button" class="chip-tipo despesa ativo" data-set-tipo="despesa">− Despesa</button>
-      <button type="button" class="chip-tipo transferencia" data-set-tipo="transferencia">⇄ Transferência</button>
-    </div>
-    <form action="{{ url_for('movimentacoes.nova') }}" method="post" enctype="multipart/form-data" id="form-lancamento">
+
+    <form action="{{ url_for('movimentacoes.nova') }}" method="post" enctype="multipart/form-data" id="form-lancamento" class="fx-lanc__form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="tipo" id="campo-tipo" value="despesa">
       <input type="hidden" name="next" value="{{ request.full_path }}">
 
-      <label>
-        Valor
-        <input class="input-valor" type="text" name="valor" inputmode="decimal" placeholder="R$ 0,00" required>
+      <label class="fx-field fx-lanc__valor">
+        <span class="fx-label">Valor</span>
+        <span class="fx-input-wrap">
+          <span class="fx-lanc__moeda" aria-hidden="true">R$</span>
+          <input class="fx-input input-valor" type="text" name="valor" inputmode="decimal" placeholder="0,00" required autocomplete="off">
+        </span>
       </label>
 
-      <label>
-        Descrição
-        <input type="text" name="descricao" placeholder="Ex: Combustível" maxlength="180">
+      <label class="fx-field">
+        <span class="fx-label">Descrição</span>
+        <input class="fx-input" type="text" name="descricao" placeholder="Ex.: Combustível" maxlength="180">
       </label>
 
-      <label id="wrap-categoria">
-        Categoria
-        <select name="categoria_id" id="campo-categoria">
-          <option value="">Selecionar</option>
-          {% for cat in categorias_menu %}
-            <option value="{{ cat.id }}" data-tipo="{{ cat.tipo }}" {% if cat.eh_investimento %}data-investimento="1"{% endif %}>{{ cat.nome }}</option>
-          {% endfor %}
-        </select>
-      </label>
-
-      <div class="grid-2">
-        <label>
-          Data
-          <input type="date" name="data" value="{{ hoje.isoformat() }}">
+      <div class="fx-lanc__grade">
+        <label class="fx-field" id="wrap-categoria">
+          <span class="fx-label">Categoria</span>
+          <select class="fx-select" name="categoria_id" id="campo-categoria">
+            <option value="">Selecionar</option>
+            {% for cat in categorias_menu %}
+              <option value="{{ cat.id }}" data-tipo="{{ cat.tipo }}" {% if cat.eh_investimento %}data-investimento="1"{% endif %}>{{ cat.nome }}</option>
+            {% endfor %}
+          </select>
         </label>
-        <label>
-          Forma de pagamento
-          <select name="forma_pagamento">
+        <label class="fx-field">
+          <span class="fx-label">Data</span>
+          <input class="fx-input" type="date" name="data" value="{{ hoje.isoformat() }}">
+        </label>
+        <label class="fx-field">
+          <span class="fx-label">Conta</span>
+          <select class="fx-select" name="conta_id" required>
+            {% for conta in contas_menu %}
+              <option value="{{ conta.id }}">{{ conta.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="fx-field" id="wrap-destino" hidden>
+          <span class="fx-label">Conta de destino</span>
+          <select class="fx-select" name="conta_destino_id" id="campo-destino">
+            <option value="">Selecionar</option>
+            {% for conta in contas_menu %}
+              <option value="{{ conta.id }}">{{ conta.nome }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="fx-field">
+          <span class="fx-label">Forma de pagamento</span>
+          <select class="fx-select" name="forma_pagamento">
             {% for valor, label in formas_pagamento %}
               <option value="{{ valor }}">{{ label }}</option>
             {% endfor %}
@@ -50,36 +78,24 @@
         </label>
       </div>
 
-      <label>
-        Conta
-        <select name="conta_id" required>
-          {% for conta in contas_menu %}
-            <option value="{{ conta.id }}">{{ conta.nome }}</option>
-          {% endfor %}
-        </select>
-      </label>
+      <details class="fx-lanc__mais">
+        <summary class="fx-btn fx-btn--ghost fx-btn--sm">{{ ic('paperclip', 'fx-ic--sm') }}Comprovante e observação{{ ic('chevron-down', 'fx-ic--sm fx-ic-chevron') }}</summary>
+        <div class="fx-stack">
+          <label class="fx-field">
+            <span class="fx-label">Comprovante <span class="fx-text-3">(opcional)</span></span>
+            <input class="fx-input fx-input--arquivo" type="file" name="comprovante" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf">
+          </label>
+          <label class="fx-field">
+            <span class="fx-label">Observação <span class="fx-text-3">(opcional)</span></span>
+            <textarea class="fx-textarea" name="observacao" rows="2" placeholder="Para onde foi o dinheiro?"></textarea>
+          </label>
+        </div>
+      </details>
 
-      <label id="wrap-destino" hidden>
-        Conta destino
-        <select name="conta_destino_id" id="campo-destino">
-          <option value="">Selecionar</option>
-          {% for conta in contas_menu %}
-            <option value="{{ conta.id }}">{{ conta.nome }}</option>
-          {% endfor %}
-        </select>
-      </label>
-
-      <label>
-        Comprovante <span class="opcional">opcional</span>
-        <input type="file" name="comprovante" accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf">
-      </label>
-
-      <label>
-        Observação <span class="opcional">opcional</span>
-        <textarea name="observacao" rows="2" placeholder="Para onde foi o dinheiro?"></textarea>
-      </label>
-
-      <button class="btn btn-primary btn-block" type="submit">Salvar</button>
+      <footer class="fx-lanc__foot">
+        <button class="fx-btn fx-btn--ghost" type="button" data-close-modal>Cancelar</button>
+        <button class="fx-btn fx-btn--primary" type="submit">{{ ic('check', 'fx-ic--sm') }}Salvar lançamento</button>
+      </footer>
     </form>
   </div>
 </div>

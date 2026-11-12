@@ -1,81 +1,92 @@
 {% extends 'base_fx.html' %}
+{% from 'components/fx.html' import ic, money, badge, cabecalho, icone_conta %}
 {% block title %}{{ conta.nome }}{% endblock %}
 {% block content %}
-<section class="page-head">
-  <div>
-    <a class="back" href="{{ url_for('contas.index') }}">← Contas</a>
-    <h1>{{ conta.nome }}</h1>
-    <p class="muted">{{ conta.tipo_label }}</p>
+<section class="fx-pagehead">
+  <div class="fx-row" style="align-items:flex-end">
+    <span class="fx-tile fx-tile--info fx-tile--lg">{{ icone_conta(conta.tipo, 'fx-ic--lg') }}</span>
+    {{ cabecalho(conta.tipo_label, conta.nome) }}
   </div>
-  <strong class="hero-valor">{{ saldo | moeda }}</strong>
+  <div class="fx-saldo-destaque">
+    <span>Saldo atual</span>
+    {{ money(saldo, 'neg' if saldo < 0 else '', classe='fx-money--lg') }}
+  </div>
 </section>
 
-<div class="grid-2-dash">
-  <article class="card">
-    <header class="card-head"><h2>Dados da conta</h2></header>
-    <form action="{{ url_for('contas.editar', conta_id=conta.id) }}" method="post" class="stack">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <label>Nome <input type="text" name="nome" value="{{ conta.nome }}" required></label>
-      <label>
-        Tipo
-        <select name="tipo">
-          {% for valor, label in tipos %}
-            <option value="{{ valor }}" {{ 'selected' if conta.tipo == valor }}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      </label>
-      <label>Saldo inicial <input type="text" name="saldo_inicial" value="{{ '%.2f'|format(conta.saldo_inicial) }}"></label>
-      <button class="btn btn-primary" type="submit">Salvar</button>
-    </form>
+<div class="fx-row fx-mb">
+  <button class="fx-btn fx-btn--primary" type="button" data-open-lancamento data-tipo="despesa">{{ ic('plus') }}Lançamento</button>
+  <button class="fx-btn fx-btn--secondary" type="button" data-open-lancamento data-tipo="transferencia">{{ ic('arrow-left-right') }}Transferir</button>
+  <a class="fx-btn fx-btn--ghost" href="{{ url_for('movimentacoes.index', conta_id=conta.id, periodo='este_ano') }}">{{ ic('list') }}Histórico completo</a>
+</div>
+
+<div class="fx-duas-colunas">
+  <article class="fx-card fx-card--flush">
+    <header class="fx-card__head">
+      <div class="fx-card__title">{{ ic('arrow-left-right') }}<h2 class="fx-h2">Últimos lançamentos</h2></div>
+    </header>
+    {% if movimentacoes %}
+      <ul class="fx-list">
+        {% for mov in movimentacoes %}
+          {% set tom = 'pos' if mov.tipo == 'receita' else ('' if mov.tipo == 'transferencia' else 'neg') %}
+          <li><a class="fx-list__item" href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
+            <span class="fx-list__main">
+              <span class="fx-list__title">{{ mov.descricao }}</span>
+              <span class="fx-list__meta">{{ mov.categoria.nome if mov.categoria else mov.tipo_label }} · {{ mov.data | data_br }}</span>
+            </span>
+            {{ money(mov.valor, tom, sinal=(tom != '')) }}
+          </a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <div class="fx-empty"><span class="fx-tile">{{ ic('inbox') }}</span><span>Nenhum lançamento nesta conta.</span></div>
+    {% endif %}
   </article>
 
-  <div class="stack">
-    {% if conta.eh_carteira %}
-    <article class="card">
-      <header class="card-head"><h2>Conferência da carteira</h2></header>
-      <p>Saldo esperado: <strong>{{ saldo | moeda }}</strong></p>
-      {% if conta.saldo_informado is not none %}
-        <p>Saldo informado: <strong>{{ conta.saldo_informado | moeda }}</strong></p>
-        <p>Diferença: <strong class="{{ 'negativo' if diferenca != 0 else 'positivo' }}">{{ diferenca | moeda }}</strong></p>
-      {% endif %}
-      <form action="{{ url_for('contas.conferir', conta_id=conta.id) }}" method="post" class="stack">
+  <div class="fx-stack">
+    <article class="fx-card">
+      <header class="fx-card__head"><div class="fx-card__title">{{ ic('pencil') }}<h2 class="fx-h2">Dados da conta</h2></div></header>
+      <form action="{{ url_for('contas.editar', conta_id=conta.id) }}" method="post" class="fx-card__body fx-stack">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <label>
-          Quanto há agora na carteira?
-          <input type="text" name="saldo_informado" placeholder="R$ 0,00" required>
+        <label class="fx-field"><span class="fx-label">Nome</span><input class="fx-input" type="text" name="nome" value="{{ conta.nome }}" required></label>
+        <label class="fx-field"><span class="fx-label">Tipo</span>
+          <select class="fx-select" name="tipo">
+            {% for valor, label in tipos %}<option value="{{ valor }}" {{ 'selected' if conta.tipo == valor }}>{{ label }}</option>{% endfor %}
+          </select>
         </label>
-        <button class="btn btn-ghost" type="submit">Conferir</button>
+        <label class="fx-field"><span class="fx-label">Saldo inicial</span><input class="fx-input" type="text" name="saldo_inicial" inputmode="decimal" value="{{ '%.2f'|format(conta.saldo_inicial) }}"></label>
+        <button class="fx-btn fx-btn--primary" type="submit">{{ ic('check', 'fx-ic--sm') }}Salvar</button>
       </form>
+    </article>
+
+    {% if conta.eh_carteira %}
+    <article class="fx-card">
+      <header class="fx-card__head"><div class="fx-card__title">{{ ic('scale') }}<h2 class="fx-h2">Conferência da carteira</h2></div></header>
+      <div class="fx-card__body fx-stack">
+        <div class="fx-between"><span class="fx-text-2">Saldo esperado</span>{{ money(saldo) }}</div>
+        {% if conta.saldo_informado is not none %}
+          <div class="fx-between"><span class="fx-text-2">Saldo informado</span>{{ money(conta.saldo_informado) }}</div>
+          <div class="fx-between"><span class="fx-text-2">Diferença</span>
+            {% if diferenca != 0 %}{{ badge(diferenca | moeda, 'warn') }}{% else %}{{ badge('Bate certinho', 'pos') }}{% endif %}
+          </div>
+        {% endif %}
+        <form action="{{ url_for('contas.conferir', conta_id=conta.id) }}" method="post" class="fx-stack">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label class="fx-field"><span class="fx-label">Quanto há agora na carteira?</span>
+            <input class="fx-input" type="text" name="saldo_informado" inputmode="decimal" placeholder="0,00" required></label>
+          <button class="fx-btn fx-btn--secondary" type="submit">Conferir</button>
+        </form>
+      </div>
     </article>
     {% endif %}
 
-    <article class="card danger-zone">
-      <header class="card-head"><h2>Desativar</h2></header>
-      <form action="{{ url_for('contas.excluir', conta_id=conta.id) }}" method="post" onsubmit="return confirm('Desativar esta conta?');">
+    <article class="fx-card fx-card--perigo">
+      <header class="fx-card__head"><div class="fx-card__title">{{ ic('triangle-alert') }}<h2 class="fx-h2">Desativar conta</h2></div></header>
+      <form class="fx-card__body" action="{{ url_for('contas.excluir', conta_id=conta.id) }}" method="post" onsubmit="return confirm('Desativar esta conta? Os lançamentos continuam guardados.');">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button class="btn btn-danger" type="submit">Desativar conta</button>
+        <p class="fx-small fx-text-2" style="margin:0 0 0.75rem">A conta some das listas, mas os lançamentos continuam guardados.</p>
+        <button class="fx-btn fx-btn--danger" type="submit">{{ ic('trash-2', 'fx-ic--sm') }}Desativar conta</button>
       </form>
     </article>
   </div>
 </div>
-
-<article class="card" style="margin-top:1.5rem">
-  <header class="card-head"><h2>Últimos lançamentos desta conta</h2></header>
-  <ul class="mov-list">
-    {% for mov in movimentacoes %}
-      <li>
-        <a href="{{ url_for('movimentacoes.detalhe', mov_id=mov.id) }}">
-          <span class="dot {{ mov.tipo }}"></span>
-          <div>
-            <strong>{{ mov.descricao }}</strong>
-            <small>{{ mov.data | data_br }}</small>
-          </div>
-          <em class="valor {{ mov.tipo }}">{{ mov.valor | moeda }}</em>
-        </a>
-      </li>
-    {% else %}
-      <li class="empty">Nenhum lançamento.</li>
-    {% endfor %}
-  </ul>
-</article>
 {% endblock %}
