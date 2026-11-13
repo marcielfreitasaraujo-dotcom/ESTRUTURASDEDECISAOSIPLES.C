@@ -194,11 +194,27 @@
         <article class="assinatura-card">
           <h2>Pagamento</h2>
           <p class="muted" style="white-space:pre-wrap;margin-top:0.75rem">{{ plano.instrucoes }}</p>
-          {% if not pagamento_cfg.hotmart_habilitado %}
+          {% if not pagamento_cfg.hotmart_habilitado and not pagamento_cfg.kiwify_habilitado %}
           <p class="muted" style="margin-top:0.75rem">
             Pagamento automático ainda não configurado. Configure as credenciais do Mercado Pago no Railway.
           </p>
           {% endif %}
+        </article>
+      {% endif %}
+
+      {% if pagamento_cfg.kiwify_habilitado %}
+        <article class="assinatura-card assinatura-card--destaque">
+          <h2>Assinar o FinUP</h2>
+          <p class="muted">
+            Assinatura mensal de <strong>{{ plano.valor | moeda }}</strong> no PIX, cartão ou boleto, pela Kiwify.
+            Use o <strong>mesmo e-mail da sua conta</strong> ({{ current_user.username }}): o acesso é liberado sozinho em instantes.
+          </p>
+          <p style="margin-top:0.9rem">
+            <a class="btn btn-primary" href="{{ pagamento_cfg.kiwify_checkout_url }}" target="_blank" rel="noopener noreferrer">
+              Assinar por {{ plano.valor | moeda }}/mês
+            </a>
+          </p>
+          <p class="muted" style="margin-top:0.6rem;font-size:0.85rem">Já pagou? Atualize esta página em alguns segundos.</p>
         </article>
       {% endif %}
 

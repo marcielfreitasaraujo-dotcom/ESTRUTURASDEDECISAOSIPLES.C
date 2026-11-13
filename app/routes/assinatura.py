@@ -1,3 +1,5 @@
+import json
+import logging
 from datetime import date
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
@@ -43,6 +45,14 @@ def bloqueado():
         if aplicar_pedidos_pendentes(current_user):
             db.session.commit()
             flash("Pagamento da Hotmart confirmado. Acesso liberado.", "sucesso")
+    except Exception:
+        db.session.rollback()
+    try:
+        from app.services.kiwify import aplicar_pedidos_pendentes as aplicar_kiwify
+
+        if aplicar_kiwify(current_user):
+            db.session.commit()
+            flash("Pagamento da Kiwify confirmado. Acesso liberado.", "sucesso")
     except Exception:
         db.session.rollback()
     if usuario_tem_acesso(current_user) or not bloqueio_assinatura_ativo():
@@ -155,6 +165,34 @@ def webhook_hotmart():
         return jsonify({"ok": False}), 500
 
 
+@csrf.exempt
+@assinatura_bp.route("/webhooks/kiwify", methods=["POST", "GET"])
+def webhook_kiwify():
+    from app.services import kiwify as kw
+
+    if request.method == "GET":
+        return jsonify({"ok": True, "provedor": "kiwify"})
+
+    if not kw.token_configurado():
+        return jsonify({"erro": "token da Kiwify não configurado"}), 503
+    corpo = request.get_data(cache=True)  # corpo cru: a assinatura é calculada sobre ele
+    if not kw.assinatura_valida(corpo, request.args.get("signature")):
+        return jsonify({"erro": "assinatura inválida"}), 401
+
+    try:
+        payload = json.loads(corpo.decode("utf-8") or "{}")
+    except (ValueError, UnicodeDecodeError):
+        return jsonify({"ok": False, "motivo": "json_invalido"}), 400
+    try:
+        resultado = kw.processar_webhook_kiwify(payload if isinstance(payload, dict) else {})
+        db.session.commit()
+        return jsonify({"ok": True, **resultado})
+    except Exception:
+        db.session.rollback()
+        logging.getLogger("finup.kiwify").exception("Falha ao processar webhook da Kiwify")
+        return jsonify({"ok": False}), 500
+
+
 @assinatura_bp.route("/assinatura/hotmart-obrigado")
 def hotmart_obrigado():
     return render_template("assinatura/hotmart_obrigado.html")
@@ -227,7 +265,39 @@ def index():
             "webhook_url": url_for("assinatura.webhook_hotmart", _external=True),
             "obrigado_url": url_for("assinatura.hotmart_obrigado", _external=True),
         },
+        kiwify=_dados_kiwify(),
     )
+
+
+def _dados_kiwify() -> dict:
+    from app.services import kiwify as kw
+
+    return {
+        "checkout_url": kw.checkout_url(),
+        "token_configurado": bool(kw.token_configurado()),
+        "produto_id": kw.produto_id_configurado(),
+        "webhook_url": url_for("assinatura.webhook_kiwify", _external=True),
+    }
+
+
+@assinatura_bp.route("/assinatura/kiwify", methods=["POST"])
+@login_required
+@admin_obrigatorio
+def salvar_kiwify():
+    from app.services.kiwify import salvar_config_kiwify
+
+    try:
+        salvar_config_kiwify(
+            checkout=request.form.get("kiwify_checkout") or "",
+            token=request.form.get("kiwify_token") or "",
+            produto_id=request.form.get("kiwify_produto") or "",
+        )
+        db.session.commit()
+        flash("Kiwify atualizada. O cliente deve comprar com o mesmo e-mail da conta no FinUP.", "sucesso")
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "erro")
+    return redirect(url_for("assinatura.index"))
 
 
 @assinatura_bp.route("/assinatura/hotmart", methods=["POST"])

@@ -128,6 +128,8 @@ def cadastro():
                     from app.services.hotmart import aplicar_pedidos_pendentes
 
                     aplicar_pedidos_pendentes(membro)
+                    from app.services.kiwify import aplicar_pedidos_pendentes as _aplicar_kiwify
+                    _aplicar_kiwify(membro)
                     db.session.commit()
                 except Exception:
                     db.session.rollback()
@@ -185,6 +187,8 @@ def verificar_email(token):
         from app.services.hotmart import aplicar_pedidos_pendentes
 
         aplicar_pedidos_pendentes(usuario)
+        from app.services.kiwify import aplicar_pedidos_pendentes as _aplicar_kiwify
+        _aplicar_kiwify(usuario)
     except Exception:
         pass
     db.session.commit()
@@ -223,6 +227,8 @@ def aguardando_verificacao():
                     from app.services.hotmart import aplicar_pedidos_pendentes
 
                     aplicar_pedidos_pendentes(current_user)
+                    from app.services.kiwify import aplicar_pedidos_pendentes as _aplicar_kiwify
+                    _aplicar_kiwify(current_user)
                 except Exception:
                     pass
                 db.session.commit()

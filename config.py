@@ -118,6 +118,10 @@ class Config:
     HOTMART_HOTTOK = os.environ.get("HOTMART_HOTTOK", "").strip()
     HOTMART_CHECKOUT_URL = os.environ.get("HOTMART_CHECKOUT_URL", "").strip()
     HOTMART_PRODUCT_ID = os.environ.get("HOTMART_PRODUCT_ID", "").strip()
+    # Kiwify (assinatura). Webhook: POST /webhooks/kiwify  (?signature = HMAC-SHA1 do corpo)
+    KIWIFY_TOKEN = os.environ.get("KIWIFY_TOKEN", "").strip()
+    KIWIFY_CHECKOUT_URL = os.environ.get("KIWIFY_CHECKOUT_URL", "").strip()
+    KIWIFY_PRODUCT_ID = os.environ.get("KIWIFY_PRODUCT_ID", "").strip()
 
     @staticmethod
     def init_app(app) -> None:
