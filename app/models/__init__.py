@@ -7,6 +7,7 @@ from app.models.contas_pagar import ContaPagar, Recorrencia, TIPOS_TITULO, STATU
 from app.models.cartao import Cartao, Parcela
 from app.models.cobranca_assinatura import CobrancaAssinatura
 from app.models.hotmart_pedido import HotmartPedido
+from app.models.kiwify_pedido import KiwifyPedido
 from app.models.sistema import Orcamento, Configuracao, Auditoria, Notificacao
 from app.models.tentativa import TentativaAcesso
 
@@ -30,6 +31,7 @@ __all__ = [
     "Parcela",
     "CobrancaAssinatura",
     "HotmartPedido",
+    "KiwifyPedido",
     "Orcamento",
     "Configuracao",
     "Auditoria",

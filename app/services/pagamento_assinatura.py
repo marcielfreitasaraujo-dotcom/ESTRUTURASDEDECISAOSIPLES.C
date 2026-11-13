@@ -361,6 +361,9 @@ def config_pagamento_frontend() -> dict:
     max_parcelas = int(current_app.config.get("MERCADOPAGO_MAX_PARCELAS") or 12)
     public_key = (current_app.config.get("MERCADOPAGO_PUBLIC_KEY") or "").strip()
     checkout = hotmart_checkout_url()
+    from app.services.kiwify import checkout_url as kiwify_checkout_url
+
+    kiwify_url = kiwify_checkout_url()
     return {
         "disponivel": pagamento_automatico_disponivel(),
         "mock": _usar_mock(),
@@ -371,4 +374,6 @@ def config_pagamento_frontend() -> dict:
         "provedor": "Mercado Pago",
         "hotmart_checkout_url": checkout,
         "hotmart_habilitado": bool(checkout),
+        "kiwify_checkout_url": kiwify_url,
+        "kiwify_habilitado": bool(kiwify_url),
     }

@@ -125,6 +125,39 @@
   </form>
 </article>
 
+<article class="card" style="margin-top:1rem" id="kiwify">
+  <header class="card-head"><h2>Kiwify</h2>
+    {% if kiwify.token_configurado and kiwify.checkout_url %}<span class="badge pago">vendendo</span>{% elif kiwify.token_configurado or kiwify.checkout_url %}<span class="badge pendente">incompleto</span>{% endif %}
+  </header>
+  <p class="muted">
+    Assinatura mensal na Kiwify. Quem compra com o mesmo e-mail da conta tem o acesso liberado sozinho;
+    renovação estende o prazo; reembolso, chargeback ou cancelamento bloqueiam.
+  </p>
+  <p class="muted" style="margin-top:0.5rem">
+    Na Kiwify: <strong>Apps → Webhooks → Criar Webhook</strong>, URL
+    <code>{{ kiwify.webhook_url }}</code>, eventos: compra aprovada, compra reembolsada, chargeback,
+    assinatura cancelada, assinatura renovada e assinatura atrasada. Copie o <strong>token</strong> gerado e cole abaixo.
+  </p>
+  <form action="{{ url_for('assinatura.salvar_kiwify') }}" method="post" class="form-grid" style="margin-top:0.75rem">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="full">
+      Link do checkout (pay.kiwify.com.br)
+      <input type="url" name="kiwify_checkout" value="{{ kiwify.checkout_url }}" maxlength="300" placeholder="https://pay.kiwify.com.br/XXXXXXX">
+    </label>
+    <label>
+      Token do webhook
+      <input type="text" name="kiwify_token" value="" maxlength="200" autocomplete="off" placeholder="{% if kiwify.token_configurado %}já configurado — cole outro para trocar{% else %}cole o token do webhook da Kiwify{% endif %}">
+    </label>
+    <label>
+      ID do produto (opcional)
+      <input type="text" name="kiwify_produto" value="{{ kiwify.produto_id }}" maxlength="80" placeholder="só aceita este produto">
+    </label>
+    <div class="btn-row full">
+      <button class="btn btn-primary" type="submit">Salvar Kiwify</button>
+    </div>
+  </form>
+</article>
+
 <article class="card" style="margin-top:1rem">
   <header class="card-head"><h2>Bloqueio de acesso</h2></header>
   <p class="muted">
