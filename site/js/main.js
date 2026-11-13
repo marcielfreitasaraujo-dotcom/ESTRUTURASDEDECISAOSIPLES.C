@@ -17,31 +17,20 @@
   document.querySelectorAll("[data-cadastro]").forEach((link) => {
     link.setAttribute("href", urlCadastro);
   });
-  const metaHotmart = document.querySelector('meta[name="hotmart-checkout"]');
-  const urlHotmartMeta = (metaHotmart && metaHotmart.getAttribute("content") || "").trim();
-
-  const aplicarHotmart = (url) => {
-    const checkout = (url || "").trim();
-    document.querySelectorAll("[data-hotmart]").forEach((link) => {
-      if (checkout) {
-        link.setAttribute("href", checkout);
-        link.hidden = false;
-        link.setAttribute("target", "_blank");
-        link.setAttribute("rel", "noopener noreferrer");
-      } else {
-        link.hidden = true;
-      }
-    });
-  };
-  aplicarHotmart(urlHotmartMeta);
-  if (!urlHotmartMeta) {
-    fetch(baseSistema + "/api/checkout-hotmart")
-      .then((resp) => (resp.ok ? resp.json() : null))
-      .then((dados) => {
-        if (dados && dados.url) aplicarHotmart(dados.url);
-      })
-      .catch(() => {});
-  }
+  // Botão de assinar: link do checkout da Kiwify (meta kiwify-checkout).
+  // Fica direto no HTML; aqui só garante o link caso a meta seja trocada.
+  const metaCheckout = document.querySelector('meta[name="kiwify-checkout"]');
+  const urlCheckout = (metaCheckout && metaCheckout.getAttribute("content") || "").trim();
+  document.querySelectorAll("[data-checkout]").forEach((link) => {
+    if (urlCheckout) {
+      link.setAttribute("href", urlCheckout);
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.hidden = false;
+    } else if (!link.getAttribute("href") || link.getAttribute("href").startsWith("#")) {
+      link.hidden = true;
+    }
+  });
 
   if (ano) {
     ano.textContent = String(new Date().getFullYear());
