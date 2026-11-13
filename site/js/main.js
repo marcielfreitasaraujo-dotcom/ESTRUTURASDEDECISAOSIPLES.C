@@ -43,17 +43,65 @@
   marcarRolagem();
   window.addEventListener("scroll", marcarRolagem, { passive: true });
 
+  // Menu do celular
   if (botao && menu) {
+    const fecharMenu = () => {
+      menu.classList.remove("aberto");
+      document.body.classList.remove("menu-aberto");
+      botao.setAttribute("aria-expanded", "false");
+      botao.setAttribute("aria-label", "Abrir menu");
+    };
     botao.addEventListener("click", () => {
       const aberto = menu.classList.toggle("aberto");
+      document.body.classList.toggle("menu-aberto", aberto);
       botao.setAttribute("aria-expanded", aberto ? "true" : "false");
       botao.setAttribute("aria-label", aberto ? "Fechar menu" : "Abrir menu");
     });
     menu.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        menu.classList.remove("aberto");
-        botao.setAttribute("aria-expanded", "false");
-        botao.setAttribute("aria-label", "Abrir menu");
+      link.addEventListener("click", fecharMenu);
+    });
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key === "Escape" && menu.classList.contains("aberto")) {
+        fecharMenu();
+        botao.focus();
+      }
+    });
+    window.matchMedia("(min-width: 961px)").addEventListener("change", (mq) => {
+      if (mq.matches) fecharMenu();
+    });
+  }
+
+  // Vitrine de telas (abas acessíveis: clique e setas do teclado)
+  const vitrine = document.querySelector("[data-vitrine]");
+  if (vitrine) {
+    const abas = Array.from(vitrine.querySelectorAll('[role="tab"]'));
+    const img = vitrine.querySelector("[data-vitrine-img]");
+    const selecionar = (aba, focar) => {
+      abas.forEach((a) => {
+        const ativa = a === aba;
+        a.setAttribute("aria-selected", ativa ? "true" : "false");
+        a.tabIndex = ativa ? 0 : -1;
+      });
+      if (img) {
+        img.src = "img/telas/" + aba.dataset.tela + ".webp";
+        img.alt = aba.dataset.alt || "";
+        img.width = Number(aba.dataset.largura) || 1600;
+        img.height = Number(aba.dataset.altura) || 1000;
+      }
+      if (focar) aba.focus();
+    };
+    abas.forEach((aba, i) => {
+      aba.addEventListener("click", () => selecionar(aba, false));
+      aba.addEventListener("keydown", (ev) => {
+        let alvo = null;
+        if (ev.key === "ArrowRight") alvo = abas[(i + 1) % abas.length];
+        else if (ev.key === "ArrowLeft") alvo = abas[(i - 1 + abas.length) % abas.length];
+        else if (ev.key === "Home") alvo = abas[0];
+        else if (ev.key === "End") alvo = abas[abas.length - 1];
+        if (alvo) {
+          ev.preventDefault();
+          selecionar(alvo, true);
+        }
       });
     });
   }
