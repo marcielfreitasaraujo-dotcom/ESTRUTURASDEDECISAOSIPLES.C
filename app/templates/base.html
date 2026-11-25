@@ -146,7 +146,7 @@
             </div>
           </div>
           <a class="user-chip" href="{{ url_for('configuracoes.index') }}">
-            <span class="avatar">{{ current_user.nome[:1]|upper }}</span>
+            <span class="avatar">{{ current_user.nome[:1]|upper }}{% if foto_perfil_versao %}<img class="foto-perfil" src="{{ url_for('configuracoes.foto_imagem', v=foto_perfil_versao) }}" alt="">{% endif %}</span>
             <span class="user-meta">
               <strong>{{ current_user.nome }}</strong>
               <small>{{ current_user.perfil }}</small>

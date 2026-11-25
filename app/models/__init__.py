@@ -1,4 +1,5 @@
 from app.models.usuario import Usuario, agora
+from app.models.foto_perfil import FotoPerfil
 from app.models.conta import Conta, TIPOS_CONTA
 from app.models.categoria import Categoria, TIPOS_CATEGORIA
 from app.models.movimentacao import Movimentacao, TIPOS_MOVIMENTACAO, FORMAS_PAGAMENTO
@@ -14,6 +15,7 @@ from app.models.tentativa import TentativaAcesso
 __all__ = [
     "Usuario",
     "agora",
+    "FotoPerfil",
     "Conta",
     "TIPOS_CONTA",
     "Categoria",
