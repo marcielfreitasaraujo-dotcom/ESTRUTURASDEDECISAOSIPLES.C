@@ -210,6 +210,36 @@ def create_app(config_class=None) -> Flask:
         resp.headers["Service-Worker-Allowed"] = "/"
         return resp
 
+    @app.get("/.well-known/assetlinks.json")
+    def assetlinks():
+        """Liga o app da Play Store ao site (tela cheia, sem barra de endereço).
+
+        Fica desligado (404) enquanto ANDROID_APP_PACKAGE e
+        ANDROID_SHA256_FINGERPRINTS não estiverem definidos no servidor.
+        """
+        pacote = (os.environ.get("ANDROID_APP_PACKAGE") or "").strip()
+        digitais = [
+            d.strip().upper()
+            for d in (os.environ.get("ANDROID_SHA256_FINGERPRINTS") or "").split(",")
+            if d.strip()
+        ]
+        if not pacote or not digitais:
+            return jsonify([]), 404
+        resp = jsonify(
+            [
+                {
+                    "relation": ["delegate_permission/common.handle_all_urls"],
+                    "target": {
+                        "namespace": "android_app",
+                        "package_name": pacote,
+                        "sha256_cert_fingerprints": digitais,
+                    },
+                }
+            ]
+        )
+        resp.headers["Cache-Control"] = "public, max-age=3600"
+        return resp
+
     @app.before_request
     def gerar_recorrentes_do_usuario():
         if not current_user.is_authenticated:
@@ -230,6 +260,7 @@ def create_app(config_class=None) -> Flask:
             "saude",
             "web_manifest",
             "service_worker",
+            "assetlinks",
         ):
             return
         from datetime import date

@@ -372,6 +372,7 @@ def endpoints_livres_assinatura() -> set[str]:
         "checkout_hotmart",
         "web_manifest",
         "service_worker",
+        "assetlinks",
         "auth.login",
         "auth.cadastro",
         "auth.logout",
