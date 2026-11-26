@@ -39,7 +39,7 @@ def opcoes_engine(url: str) -> dict:
 
 # Versão do FinUP: suba a cada atualização publicada (aparece no selo
 # "Sistema AraujoIA" e em /api/saude, para conferir o que está no ar).
-VERSAO_SISTEMA = "2026.11.11"
+VERSAO_SISTEMA = "2026.11.25"
 
 
 class Config:

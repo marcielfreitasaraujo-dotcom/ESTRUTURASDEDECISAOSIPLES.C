@@ -12,6 +12,25 @@
 <div class="grid-2-dash">
   <article class="card">
     <header class="card-head"><h2>Perfil</h2></header>
+    <div class="foto-editor">
+      <span class="foto-editor__atual" data-foto-previa>{{ current_user.nome[:1] | upper }}{% if foto_perfil_versao %}<img class="foto-perfil" src="{{ url_for('configuracoes.foto_imagem', v=foto_perfil_versao) }}" alt="Sua foto de perfil">{% endif %}</span>
+      <div class="foto-editor__acoes">
+        <form action="{{ url_for('configuracoes.foto') }}" method="post" enctype="multipart/form-data" class="stack" data-foto-form>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label>Foto de perfil
+            <input type="file" name="foto" accept="image/jpeg,image/png,image/webp" required>
+          </label>
+          <p class="muted fx-small" data-foto-aviso role="status">JPG, PNG ou WebP. Só você vê a sua foto.</p>
+          <button class="btn btn-primary" type="submit">Salvar foto</button>
+        </form>
+        {% if foto_perfil_versao %}
+        <form action="{{ url_for('configuracoes.foto_remover') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-ghost" type="submit">Remover foto</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
     <form action="{{ url_for('configuracoes.perfil') }}" method="post" class="stack">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>Nome <input type="text" name="nome" value="{{ current_user.nome }}" required></label>
@@ -167,6 +186,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{{ url_for('static', filename='js/foto-perfil.js') }}"></script>
 <script>
   (() => {
     const form = document.getElementById("form-tema");

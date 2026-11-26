@@ -4,6 +4,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request, session
 from flask_login import current_user
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import VERSAO_SISTEMA, get_config, opcoes_engine
@@ -290,10 +291,13 @@ def create_app(config_class=None) -> Flask:
         categorias = []
         qtd_atrasadas = 0
         titulos_atrasados = []
+        foto_perfil_versao = None
         if current_user.is_authenticated:
             from app.services.vencimentos import query_atrasadas
+            from app.services.foto_perfil import versao_foto
             from app.utils.casa import id_casa
 
+            foto_perfil_versao = versao_foto(current_user.id)
             uid = id_casa()
             contas = (
                 Conta.query.filter_by(usuario_id=uid, ativo=True)
@@ -309,6 +313,7 @@ def create_app(config_class=None) -> Flask:
             "categorias_menu": categorias,
             "formas_pagamento": FORMAS_PAGAMENTO,
             "hoje": date.today(),
+            "foto_perfil_versao": foto_perfil_versao,
             "qtd_atrasadas": qtd_atrasadas,
             "titulos_atrasados": titulos_atrasados,
         }
@@ -325,7 +330,13 @@ def create_app(config_class=None) -> Flask:
         from app import models  # noqa: F401
         from app.services.seed import inicializar_sistema
 
-        db.create_all()
+        try:
+            db.create_all()
+        except (IntegrityError, OperationalError, ProgrammingError):
+            # Dois workers podem criar a mesma tabela nova no boot: o segundo
+            # tenta de novo e já a encontra pronta.
+            db.session.rollback()
+            db.create_all()
         from app.services.esquema import garantir_esquema
 
         garantir_esquema()

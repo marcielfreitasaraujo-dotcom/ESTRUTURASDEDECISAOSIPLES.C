@@ -1,11 +1,17 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+import logging
+
+from flask import Blueprint, abort, flash, make_response, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.extensions import db
-from app.models import Usuario
+from app.models import FotoPerfil, Usuario
 from app.services.backup import criar_backup
+from app.services.foto_perfil import remover_foto, salvar_foto
 from app.services.seed import criar_membro_familia, inserir_dados_demo, zerar_dados_financeiros
 from app.utils.decorators import admin_obrigatorio
+
+logger = logging.getLogger("finup.configuracoes")
 
 configuracoes_bp = Blueprint("configuracoes", __name__)
 
@@ -30,6 +36,51 @@ def perfil():
     db.session.commit()
     flash("Perfil atualizado.", "sucesso")
     return redirect(url_for("configuracoes.index"))
+
+
+@configuracoes_bp.route("/configuracoes/foto", methods=["POST"])
+@login_required
+def foto():
+    arquivo = request.files.get("foto")
+    if not arquivo or not arquivo.filename:
+        flash("Escolha uma foto.", "erro")
+        return redirect(url_for("configuracoes.index"))
+    try:
+        salvar_foto(current_user.id, arquivo)
+        db.session.commit()
+    except ValueError as exc:
+        db.session.rollback()
+        flash(str(exc), "erro")
+    except SQLAlchemyError:
+        db.session.rollback()
+        logger.exception("Falha ao salvar foto de perfil")
+        flash("Não foi possível salvar a foto agora. Tente de novo.", "erro")
+    else:
+        flash("Foto de perfil atualizada.", "sucesso")
+    return redirect(url_for("configuracoes.index"))
+
+
+@configuracoes_bp.route("/configuracoes/foto/remover", methods=["POST"])
+@login_required
+def foto_remover():
+    remover_foto(current_user.id)
+    db.session.commit()
+    flash("Foto de perfil removida.", "sucesso")
+    return redirect(url_for("configuracoes.index"))
+
+
+@configuracoes_bp.route("/configuracoes/foto/imagem")
+@login_required
+def foto_imagem():
+    """Só a foto de quem está logado: não há como pedir a de outra pessoa."""
+    registro = db.session.get(FotoPerfil, current_user.id)
+    if registro is None:
+        abort(404)
+    resp = make_response(registro.dados)
+    resp.headers["Content-Type"] = "image/jpeg"
+    resp.headers["Cache-Control"] = "private, no-cache"
+    resp.set_etag(registro.versao)
+    return resp.make_conditional(request)
 
 
 @configuracoes_bp.route("/configuracoes/senha", methods=["POST"])

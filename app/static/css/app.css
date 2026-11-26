@@ -1060,3 +1060,14 @@ code { background: var(--surface-2); padding: 0.1rem 0.35rem; border-radius: 6px
   .card .form-inline select { width: 100%; min-width: 0; }
   .card .form-inline input[type="color"] { width: 3rem; min-width: 3rem; height: 2.6rem; padding: 0.2rem; }
 }
+
+/* Foto de perfil: cobre a inicial; se a imagem falhar, a inicial aparece */
+.avatar, .fx-user__avatar, .foto-editor__atual { position: relative; overflow: hidden; flex-shrink: 0; }
+.foto-perfil { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.foto-editor { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; margin-bottom: 1.25rem; }
+.foto-editor__atual {
+  display: grid; place-items: center; width: 88px; height: 88px; border-radius: 50%;
+  background: var(--fx-primary, var(--primary)); color: #fff; font-size: 2rem; font-weight: 600;
+}
+.foto-editor__acoes { flex: 1 1 220px; min-width: 0; display: grid; gap: 0.5rem; }
+.foto-editor__acoes input[type="file"] { max-width: 100%; }
